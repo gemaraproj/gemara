@@ -1,0 +1,82 @@
+metadata:
+  id: "example-guidance-001"
+  description: Example guidance framework
+  author:
+    id: example-org
+    name: Example Organization
+    type: Human
+  version: 1.0.0
+  mapping-references:
+    - id: "NIST-800-53"
+      title: "NIST Special Publication 800-53"
+      version: "Rev. 5"
+      description: "Security and Privacy Controls for Federal Information Systems"
+      url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+title: Example Guidance Framework
+document-type: Framework
+families:
+  - id: VULN-MGMT
+    title: Vulnerability Management
+    description: Controls for identifying, assessing, and remediating security vulnerabilities
+guidelines:
+  - id: GUID-VULN-001
+    family: VULN-MGMT
+    title: Vulnerability Scanning and Assessment
+    objective: Establish and maintain a vulnerability scanning program to identify security vulnerabilities in systems and applications on a regular basis.
+    statements:
+      - id: GUID-VULN-001.1
+        title: Scanning Coverage
+        text: Conduct vulnerability scans at regular intervals and ensure comprehensive coverage of all systems.
+        recommendations:
+          - Ensure all systems, applications, and network infrastructure are included in scanning activities
+          - Automate scanning processes where possible to ensure consistency and reduce manual effort
+      - id: GUID-VULN-001.2
+        title: Vulnerability Prioritization and Remediation
+        text: Prioritize identified vulnerabilities based on risk and establish remediation timelines.
+        recommendations:
+          - Classify vulnerabilities based on CVSS scores or similar risk rating systems
+          - Consider the business criticality of affected systems when prioritizing remediation
+          - Establish clear timelines for remediation based on severity
+  - id: GUID-VULN-001-ENH
+    family: VULN-MGMT
+    title: Enhanced Vulnerability Scanning for Critical Systems
+    objective: Extended vulnerability scanning requirements for critical systems requiring more frequent scanning.
+    extends:
+      entry-id: GUID-VULN-001
+    statements:
+      - id: GUID-VULN-001-ENH.1
+        title: Critical System Scanning
+        text: Implement enhanced scanning frequency and depth for critical systems.
+        recommendations:
+          - Perform scans continuously for critical systems
+          - Include authenticated scans to identify configuration vulnerabilities
+          - Prioritize critical system vulnerabilities for immediate remediation
+  - id: GUID-VULN-001-ENH-2
+    family: VULN-MGMT
+    title: Automated Vulnerability Remediation
+    objective: Implement automated remediation capabilities for standard vulnerabilities.
+    extends:
+      entry-id: GUID-VULN-001-ENH
+    statements:
+      - id: GUID-VULN-001-ENH-2.1
+        title: Automation Implementation
+        text: Deploy automated tools for vulnerability remediation where appropriate.
+        recommendations:
+          - Automate patch deployment for low-risk vulnerabilities
+          - Implement automated rollback capabilities for failed patches
+          - Monitor automated remediation activities for effectiveness
+  - id: GUID-VULN-EXT-RA-5
+    family: VULN-MGMT
+    title: Cloud Vulnerability Scanning and Assessment
+    objective: Extended vulnerability scanning requirements for cloud environments.
+    extends:
+      reference-id: NIST-800-53
+      entry-id: RA-5
+    statements:
+      - id: GUID-VULN-EXT-RA-5.1
+        title: Cloud-Native Scanning Tools
+        text: Leverage cloud provider security services and third-party cloud security platforms for comprehensive vulnerability assessment.
+        recommendations:
+          - Use cloud security posture management (CSPM) tools to identify misconfigurations and compliance gaps
+          - Implement container security scanning for containerized workloads and Kubernetes clusters
+          - Scan infrastructure-as-code templates for security vulnerabilities before deployment

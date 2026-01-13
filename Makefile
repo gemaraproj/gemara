@@ -52,7 +52,7 @@ oscalgenerate:
 	@echo "  >  Generating OSCAL testdata from Gemara artifacts..."
 	@mkdir -p artifacts
 	@go run ./cmd/oscal_export catalog ./test-data/good-osps.yml --output ./artifacts/catalog.json
-	@go run ./cmd/oscal_export guidance ./test-data/good-aigf.yaml --catalog-output ./artifacts/guidance.json --profile-output ./artifacts/profile.json
+	@go run ./cmd/oscal_export guidance ./test-data/good-guidance.yaml --catalog-output ./artifacts/guidance.json --profile-output ./artifacts/profile.json
 
 lintinsights:
 	@echo "  >  Linting security-insights.yml ..."
