@@ -1,5 +1,7 @@
 - title: Home
   url: /
+- title: Tutorials
+  url: /tutorials.html
 - title: ADR
   url: /adr.html
 - title: Community
