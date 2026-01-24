@@ -4,7 +4,7 @@ title: Finish Development on the Model and Common Terms
 ---
 
 - **ADR:** 0008
-- **Proposal Author(s):** @eddie-knight, @jpower456
+- **Proposal Author(s):** @eddie-knight, @jpower432
 - **Status:** Accepted
 
 ## Context

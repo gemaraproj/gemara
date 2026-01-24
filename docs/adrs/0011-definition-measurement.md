@@ -4,7 +4,7 @@ title: Adjust "Upper" and "Lower" Layer Descriptors into "Definition" and "Measu
 ---
 
 - **ADR:** 0011
-- **Proposal Author(s):** @jpower456
+- **Proposal Author(s):** @jpower432
 - **Status:** Accepted
 
 ## Context
