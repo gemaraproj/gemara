@@ -1,15 +1,14 @@
 ---
 layout: page
-nav-title: ADR
+nav-title: ADRs
 ---
 
 # Architecture Decision Records
 
-This directory contains Architecture Decision Records (ADRs) for the Gemara project.
+Architecture Decision Records document important architectural decisions made in the project. 
 
-## What are ADRs?
+They capture:
 
-Architecture Decision Records document important architectural decisions made in the project. They capture:
 - The context that led to the decision
 - The decision itself
 - The consequences (positive, negative, and neutral)
@@ -28,13 +27,14 @@ ADRs follow the format described at [adr.github.io](https://adr.github.io/), wit
 ## When to Create an ADR
 
 Create an ADR when:
+
 - Making a significant architectural decision that affects the public API
 - Choosing between multiple viable approaches
 - The decision will impact future development or maintenance
 - The decision needs to be communicated to stakeholders
 
 Don't create an ADR for:
+
 - Routine implementation details
 - Temporary workarounds
 - Decisions that are clearly the only viable option
-
