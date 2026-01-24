@@ -3,8 +3,8 @@ layout: page
 title: Adjust "Upper" and "Lower" Layer Descriptors into "Definition" and "Measurement"
 ---
 
-- **ADR:** 0010
-- **Proposal Author(s):** @eddie-knight, @jpower456
+- **ADR:** 0011
+- **Proposal Author(s):** @jpower456
 - **Status:** Accepted
 
 ## Context

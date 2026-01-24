@@ -3,7 +3,7 @@ layout: page
 title: Dual-ladders Within Each Layer
 ---
 
-- **ADR:** 0009
+- **ADR:** 0010
 - **Proposal Author(s):** @eddie-knight
 - **Status:** Accepted
 

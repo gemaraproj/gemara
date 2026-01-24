@@ -1,9 +1,9 @@
 ---
 layout: page
-title: Formalize Sensitive Activitie as a Layer
+title: Formalize Sensitive Activities as a Layer
 ---
 
-- **ADR:** 0008
+- **ADR:** 0009
 - **Proposal Author(s):** @eddie-knight
 - **Status:** Accepted
 

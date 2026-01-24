@@ -3,7 +3,7 @@ layout: page
 title: Refine Terms for Top-level Schema Types
 ---
 
-- **ADR:** 0011
+- **ADR:** 0012
 - **Proposal Author(s):** @eddie-knight
 - **Status:** Accepted
 
