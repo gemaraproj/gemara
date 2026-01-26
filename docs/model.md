@@ -1,15 +1,25 @@
 ---
 layout: page
-title: The Gemara Model
+nav-title: Model
 ---
 
-**Status**: <span class="badge badge-stable">Stable</span>
+# The Gemara Model
 
-The Gemara Model describes seven categorical layers of GRC (Governance, Risk, Compliance) activities, representing how GRC activities are organized and interact.
+Integrating Governance, Risk, and Compliance (GRC) into software development pipelines presents a formidable challenge. 
 
-## The Seven Layers
+Traditional, often manual, approaches to GRC are ill-suited for the pace of contemporary development. This has given rise to the discipline of GRC Engineering, which strategically applies engineering principles to GRC processes to make them more efficient and integrated. Its ultimate goal is to achieve Automated Governance, where compliance tracking is embedded throughout the deployment pipeline, acting as a required quality gate before code reaches production.
 
-Gemara organizes compliance activities into seven categorical layers, each building upon the previous:
+The need for a structured approach to this challenge was a key observation during the creation of the CNCF's Automated Governance Maturity Model (AGMM). The authors of that document observed that in a fully automated governance program, maturity can be measured in at least four different areas: "Policy, Evaluation, Enforcement, and Audit." This foundational insight provides a lexicon for describing the core activities of a secure software factory. The Gemara model took shape as industry projects began to apply this lexicon.
+
+The FINOS Common Cloud Controls (CCC) and the OpenSSF's Open Source Project Security Baseline (OSPSB) projects adopted the AGMM's language but identified the need for greater granularity. They added two more conceptual areas to distinguish between high-level, abstract recommendations and technology-specific objectives. This practical expansion from four concepts to six areas that build upon each other formed the genesis of Gemara's layered model.
+
+The Gemara model was created to codify these concepts. As the GRC Engineering Model for Automated Risk Assessment, its core purpose is to provide a logical model to describe the categories of compliance activities, how they interact, and how to enable automated interoperability between them.
+
+## At a Glance
+
+Gemara organizes compliance activities into seven categorical layers, each building upon the previous. 
+
+Layers 1 through 3 provide definitions to inform the execution of sensitive activities, while layers 5 through 8 provide measurements to inform next steps.
 
 <div class="gemara-layer-diagram">
   <div class="layer-banner layer-7">
@@ -65,18 +75,12 @@ Gemara organizes compliance activities into seven categorical layers, each build
 
 ## Model Stability
 
-This model is intentionally stable. Changes are rare and require significant community discussion, as the model reflects fundamental organizational patterns in GRC activities.
+This model is intentionally stable. Changes are rare and require significant community discussion, as the model reflects fundamental organizational patterns in GRC activities. As noted in ADR-0008, the model is closed to modification. This enables downstream resources to build upon the foundational concepts without concern about essential terms shifting later.
 
-**Why Stability Matters:**
-- Provides a consistent foundation for all Gemara work
-- Allows the Lexicon and Implementation to evolve independently
-- Ensures long-term compatibility
+---
 
-## Relationship to Other Components
+## Continue Reading
 
-### [The Lexicon](../lexicon)
-Provides definitions for terms used within each layer. The Model describes structure; the Lexicon provides shared vocabulary.
+- **> Next Page**: [Scope](./model/01-scope.html)
 
-### [The Implementation](../implementation)
-Provides schemas and SDKs based on the Model. The Model describes conceptual layers; the Implementation provides machine-readable formats and APIs.
-
+---

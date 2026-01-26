@@ -1,0 +1,45 @@
+{%- comment -%}
+Reusable light/dark theme image include.
+
+Usage:
+{% include theme-image.html
+   light="/assets/model-images/figure-4.1-light.png"
+   dark="/assets/model-images/figure-4.1-dark.png"
+   alt="Figure 4.1 — The complete model"
+   caption="Figure 4.1 — The complete model"
+   class="optional-extra-class"
+   width="1200"
+   height="800"
+%}
+{%- endcomment -%}
+
+{%- assign light_src = include.light   | default: "" -%}
+{%- assign dark_src  = include.dark    | default: light_src -%}
+{%- assign caption   = include.caption | default: "" -%}
+{%- assign alt_text  = include.alt     | default: include.caption -%}
+
+<figure class="theme-image{% if include.class %} {{ include.class }}{% endif %}">
+  <img
+    class="theme-image__img theme-image__img--light"
+    src="{{ light_src | relative_url }}"
+    alt="{{ alt_text | escape }}"
+    loading="lazy"
+    decoding="async"
+    {%- if include.width %} width="{{ include.width | escape }}"{% endif -%}
+    {%- if include.height %} height="{{ include.height | escape }}"{% endif -%}
+  />
+  <img
+    class="theme-image__img theme-image__img--dark"
+    src="{{ dark_src | relative_url }}"
+    alt="{{ alt_text | escape }}"
+    loading="lazy"
+    decoding="async"
+    {%- if include.max-width %} style="max-width: {{ include.max_width | escape }}"{% endif -%}
+    {%- if include.width %} width="{{ include.width | escape }}"{% endif -%}
+    {%- if include.height %} height="{{ include.height | escape }}"{% endif -%}
+  />
+  {%- if include.caption -%}
+  <figcaption class="theme-image__caption">{{ include.caption }}</figcaption>
+  {%- endif -%}
+</figure>
+
