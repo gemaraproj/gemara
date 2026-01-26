@@ -5,52 +5,112 @@ package schemas
 
 @go(gemara)
 
-#Catalog: {
+// ControlCatalog describes a set of related controls and relevant metadata
+#ControlCatalog: {
+	// title describes the contents of this catalog at a glance
+	title: string
+
+	// metadata provides detailed data about this catalog
 	"metadata"?: #Metadata @go(Metadata)
-	title:       string
 
+	// families contains a list of control families that can be referenced by controls
 	families?: [...#Family] @go(Families)
-	controls?: [...#Control] @go(Controls)
-	threats?: [...#Threat] @go(Threats)
-	capabilities?: [...#Capability] @go(Capabilities)
 
+	// controls is a list of unique controls defined by this catalog
+	controls?: [...#Control] @go(Controls)
+
+	// imported-controls is a list of controls from another source which are included as part of this document
 	"imported-controls"?: [...#MultiMapping] @go(ImportedControls)
-	"imported-threats"?: [...#MultiMapping] @go(ImportedThreats)
-	"imported-capabilities"?: [...#MultiMapping] @go(ImportedCapabilities)
 }
 
+// Control describes a safeguard or countermeasure with a clear objective and assessment requirements
 #Control: {
+	// id allows this entry to be referenced by other elements
 	id:        string
+
+	// title describes the purpose of this control at a glance
 	title:     string
+
+	// objective is a unified statement of intent, which may encompass multiple situationally applicable requirements
 	objective: string
 
-	// Family id that this control belongs to
+	// family references by id a catalog control family that this control belongs to
 	family: string @go(Family)
 
+	// assessment-requirements is a list of requirements that must be verified to confirm the control objective has been met
 	"assessment-requirements": [...#AssessmentRequirement] @go(AssessmentRequirements)
+
+	// guideline-mappings documents relationships betwen this control and Layer 1 guideline artifacts
 	"guideline-mappings"?: [...#MultiMapping] @go(GuidelineMappings)
+
+	// threat-mappings documents relationships betwen this control and Layer 2 threat artifacts
 	"threat-mappings"?: [...#MultiMapping] @go(ThreatMappings)
 }
 
-#Threat: {
-	id:          string
+// AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
+#AssessmentRequirement: {
+	// id allows this entry to be referenced by other elements
+	id:   string
+
+	// text is the body of the requirement, typically written as a MUST condition
+	text: string
+
+	// applicability is a list of strings describing the situations where this text functions as a requirement for its parent control
+	applicability: [...string]
+
+	// recommendation provides readers with non-binding suggestions to aid in evaluation or enforcement of the requirement
+	recommendation?: string
+}
+
+// ThreatCatalog describes a set of topically-associated threats
+#ThreatCatalog: {
+	// title describes the purpose of this catalog at a glance
 	title:       string
+
+	"metadata"?: #Metadata @go(Metadata)
+
+	// threats is a list of threats defined by this catalog
+	threats?: [...#Threat] @go(Threats)
+
+	// capabilities is a list of capabilities that make up the system being assessed
+	capabilities?: [...#Capability] @go(Capabilities)
+
+	// imprted-threats is a list of threats from another source which are included as part of this document
+	"imported-threats"?: [...#MultiMapping] @go(ImportedThreats)
+
+	// imported-capabilities is a list of capabilities from another source which are included as part of this document
+	"imported-capabilities"?: [...#MultiMapping] @go(ImportedCapabilities)
+}
+
+// Threat describes a specifically-scoped opportunity for a negative impact to the organization
+#Threat: {
+	// id allows this entry to be referenced by other elements
+	id: string
+
+	// title describes this threat at a glance
+	title: string
+
+	// description provides a detailed explanation of an opportunity for negative impact 
 	description: string
+
+	// capabilities documents the relationship between this threat and a system capability
 	capabilities: [...#MultiMapping]
 
+	// actors describes the relevant internal or external threat actors
+	actors?: [...#Actor]
+
+	// external-mappings documents relationships between this threat and any other artifacts
 	"external-mappings"?: [...#MultiMapping] @go(ExternalMappings)
 }
 
+// Capability describes a system capability such as a feature, component or object.
 #Capability: {
+	// id allows this entry to be referenced by other elements
 	id:          string
+
+	// title describes this capability at a glance
 	title:       string
+
+	// description provides a detailed overview of this capability
 	description: string
-}
-
-#AssessmentRequirement: {
-	id:   string
-	text: string
-	applicability: [...string]
-
-	recommendation?: string
 }
