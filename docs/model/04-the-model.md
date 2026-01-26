@@ -17,9 +17,9 @@ The model is organized into two primary categories of activity These categories 
 
 Activities in the “definition” layers, one through three, should each produce document assets that may be referenced by higher layers or within their own layer. The “measurement” layers, five through seven, should each produce timestamped logs as outputs.
 
-As noted in **Section 3.2**, the fourth layer defines sensitive activities connecting the two halves. The lower three layers point toward the sensitive activities to define what is "good" and what is "bad". Meanwhile, the upper three layers all look back at the sensitive activities — or their outcomes — to determine whether they comply with the definition of good (and in the case of Layer 7: Audit, to also determine the quality of results from all the lower layers). **Figure 4.1** shows these layers in cascading order.
+As noted in [_Foundational Concepts_](./03-foundational-concepts.md), the fourth layer defines sensitive activities connecting the two halves. The lower three layers point toward the sensitive activities to define what is "good" and what is "bad". Meanwhile, the upper three layers all look back at the sensitive activities — or their outcomes — to determine whether they comply with the definition of good (and in the case of Layer 7: Audit, to also determine the quality of results from all the lower layers). **Figure 4.1** shows these layers in cascading order.
 
-**Section 5** of this document describes definition layers, **Section 6** provides examples of sensitive activities, and **Section 7** takes a deeper look at the measurement layers.
+The rest of this documentation describes each layers with examples.
 
 {% include themed-image.html
   light="/assets/model-images/figure-4.1-light.png"

@@ -5,7 +5,7 @@ title: The Need for Machine-Optimized Documentation Standards
 
 ## Going Beyond Machine-Readable
 
-As mentioned in the **Section 3.1: Prior Work**, the *GRC Engineering Model for Automated Risk Assessments* is the product of many previous iterations and learnings. 
+As mentioned in the _[Prior Work](./03-foundational-concepts.md)_, the *GRC Engineering Model for Automated Risk Assessments* is the product of many previous iterations and learnings. 
 
 Immense value has come from the work on OSCAL, where a large body of machine-readable documents have been crafted both publicly and privately by highly regulated organizations. The work done in the OSCAL space cannot be overlooked or discounted, as it has provided a great benefit to countless firms.
 
