@@ -19,7 +19,7 @@ The Gemara model's structure was directly inspired by *ISO 7498: Information Tec
 
 By taking a similar approach to GRC, we enable different teams and tools to focus on specific activities—from high-level guidance to low-level enforcement—while ensuring they can interoperate within a cohesive system. Similar to the OSI Model, some tools may operate at multiple layers, and yet they still benefit from the clarity provided by describing their different activities according to the model.
 
-Like the OSI model, the Gemara model defines a contiguous seven-layer architecture. Within this structure, Layer 4 represents a pivot point: implementing policies in a way that will later be evaluated. where the model shifts from providing requirements to active oversight. This layer captures the sensitive activities — such as software design or infrastructure provisioning —  that serve as a bridge where requirements and operational reality meet.
+Mirroring the layered approach, the Gemara model defines a contiguous seven-layer architecture. Within this structure, Layer 4 represents a pivot point: implementing policies in a way that will later be evaluated. where the model shifts from providing requirements to active oversight. This layer captures the sensitive activities — such as software design or infrastructure provisioning —  that serve as a bridge where requirements and operational reality meet.
 
 ---
 
