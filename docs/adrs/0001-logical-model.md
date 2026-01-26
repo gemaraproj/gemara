@@ -5,7 +5,7 @@ title: Create A Logical Model for GRC Engineering Activities
 
 - **ADR:** 0001
 - **Proposal Author(s):** @eddie-knight
-- **Status:** Accepted
+- **Status:** Accepted; Modified by [ADR-0009](./0009-sensitive-activities.md) (layer numbers)
 
 ## Context
 

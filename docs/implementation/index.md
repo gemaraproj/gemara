@@ -25,18 +25,18 @@ Machine-readable schemas (CUE format) standardize the expression of elements in 
     <p>Risk-informed guidance tailored to your organization's specific needs and risk appetite.</p>
   </a>
 
-  <a href="https://github.com/gemaraproj/gemara/blob/main/layer-4.cue" class="layer-card">
-    <h3>Layer 4: Evaluation</h3>
+  <a href="https://github.com/gemaraproj/gemara/blob/main/layer-5.cue" class="layer-card">
+    <h3>Layer 5: Evaluation</h3>
     <p>Inspection of code, configurations, and deployments against policies and controls.</p>
   </a>
 
   <div class="layer-card">
-    <h3>Layer 5: Enforcement</h3>
+    <h3>Layer 6: Enforcement</h3>
     <p>Prevention or remediation based on assessment findings. (Coming Soon)</p>
   </div>
 
   <div class="layer-card">
-    <h3>Layer 6: Audit</h3>
+    <h3>Layer 7: Audit</h3>
     <p>Review of organizational policy and conformance. (Coming Soon)</p>
   </div>
 </div>

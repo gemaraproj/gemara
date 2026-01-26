@@ -5,59 +5,60 @@ title: The Gemara Model
 
 **Status**: <span class="badge badge-stable">Stable</span>
 
-The Gemara Model describes six categorical layers of GRC (Governance, Risk, Compliance) activities, representing how GRC activities are organized and interact.
+The Gemara Model describes seven categorical layers of GRC (Governance, Risk, Compliance) activities, representing how GRC activities are organized and interact.
 
-## The Six Layers
+## The Seven Layers
 
-Gemara organizes compliance activities into six categorical layers, each building upon the previous:
+Gemara organizes compliance activities into seven categorical layers, each building upon the previous:
 
 <div class="gemara-layer-diagram">
+  <div class="layer-banner layer-7">
+    <span class="layer-number">7</span>
+    <div class="layer-content">
+      <div class="layer-title">Audit & Continuous Monitoring</div>
+      <div class="layer-description">Efficacy review of all previous outputs</div>
+    </div>
+  </div>
   <div class="layer-banner layer-6">
     <span class="layer-number">6</span>
     <div class="layer-content">
-      <div class="layer-title">Audit</div>
-      <div class="layer-description">Quality & Efficacy Review of all GRC Outputs</div>
+      <div class="layer-title">Preventive & Remediative Enforcement</div>
+      <div class="layer-description">Corrective actions for noncompliance</div>
     </div>
   </div>
   <div class="layer-banner layer-5">
     <span class="layer-number">5</span>
     <div class="layer-content">
-      <div class="layer-title">Enforcement</div>
-      <div class="layer-description">Remediation or Deployment Prevention</div>
+      <div class="layer-title">Intent & Behavior Evaluation</div>
+      <div class="layer-description">Inspection of sensitive activities</div>
     </div>
   </div>
   <div class="layer-banner layer-4">
     <span class="layer-number">4</span>
     <div class="layer-content">
-      <div class="layer-title">Evaluation</div>
-      <div class="layer-description">Inspection of Sensitive Activity Results</div>
-    </div>
-  </div>
-  <div class="layer-banner layer-sensitive">
-    <div class="layer-content">
       <div class="layer-title">Sensitive Activities</div>
-      <div class="layer-description">e.g. Infrastructure & Application Development</div>
+      <div class="layer-description">Actions that might introduce risk</div>
     </div>
   </div>
   <div class="layer-banner layer-3">
     <span class="layer-number">3</span>
     <div class="layer-content">
-      <div class="layer-title">Policy</div>
-      <div class="layer-description">Organizational-specific; Risk-informed</div>
+      <div class="layer-title">Risk & Policy</div>
+      <div class="layer-description">Organization-specific rules</div>
     </div>
   </div>
   <div class="layer-banner layer-2">
     <span class="layer-number">2</span>
     <div class="layer-content">
-      <div class="layer-title">Objectives</div>
-      <div class="layer-description">Technology-specific; Threat-informed</div>
+      <div class="layer-title">Threats & Controls</div>
+      <div class="layer-description">Technology-specific objectives</div>
     </div>
   </div>
   <div class="layer-banner layer-1">
     <span class="layer-number">1</span>
     <div class="layer-content">
-      <div class="layer-title">Guidance</div>
-      <div class="layer-description">High-level Goals, Regulations, or Best Practices</div>
+      <div class="layer-title">Vectors & Guidance</div>
+      <div class="layer-description">Foundational knowledge or regulations</div>
     </div>
   </div>
 </div>

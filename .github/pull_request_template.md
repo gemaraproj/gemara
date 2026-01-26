@@ -12,7 +12,7 @@
 - [ ] Layer 1 schema (`layer-1.cue`) changes
 - [ ] Layer 2 schema (`layer-2.cue`) changes
 - [ ] Layer 3 schema (`layer-3.cue`) changes
-- [ ] Layer 4 schema (`layer-4.cue`) changes
+- [ ] Layer 5 schema (`layer-5.cue`) changes
 
 ### Schema Change Details
 

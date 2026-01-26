@@ -17,7 +17,7 @@ In order to better facilitate cross-functional communication, the Gemara Model s
 ## Quick Start
 
 - **New to Gemara?** Start with our [About page](/about) to understand the model
-- **Want to dive deeper?** Explore the [Six Layers](/layers) of the model
+- **Want to dive deeper?** Explore the [Seven Layers](/layers) of the model
 - **Ready to build?** Check out our [Tutorial](/tutorial) for a hands-on example
 - **Want to contribute?** See our [Contributing Guide](/contributing)
 -->
@@ -30,13 +30,13 @@ Gemara delivers three core components that work together to support automated GR
   <a href="./model/" class="component-card">
       <h2>The Model</h2>
       <p class="component-description">
-        The foundational layer model that describes the six categorical layers of GRC activities. 
+        The foundational layer model that describes the seven categorical layers of GRC activities. 
         This model is <strong>stable and rarely changes</strong>, as it reflects the longstanding 
         reality of GRC activity types.
       </p>
       <p class="component-content">
         Provides the conceptual framework for understanding how different types of compliance 
-        activities relate to each other. Establishes the six layers: Guidance, Controls, Policy, 
+        activities relate to each other. Establishes the seven layers: Guidance, Controls, Policy, 
         Evaluation, Enforcement, and Audit.
       </p>
   </a>
@@ -82,4 +82,4 @@ Gemara is being used today in production environments:
 
 - **[FINOS Common Cloud Controls](https://www.finos.org/common-cloud-controls-project)** - Layer 2 controls for cloud environments
 - **[Open Source Project Security Baseline](https://baseline.openssf.org/)** - Layer 2 security baseline for open source projects
-- **[Privateer](https://github.com/privateerproj/privateer)** - Layer 4 evaluation framework with plugins like the [OSPS Baseline Plugin](https://github.com/revanite-io/pvtr-github-repo)
+- **[Privateer](https://github.com/privateerproj/privateer)** - Layer 5 evaluation framework with plugins like the [OSPS Baseline Plugin](https://github.com/revanite-io/pvtr-github-repo)

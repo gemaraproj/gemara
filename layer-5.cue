@@ -11,7 +11,7 @@ package schemas
 	"metadata"?: #Metadata @go(Metadata)
 }
 
-// ControlEvaluation contains the results of evaluating a single Layer 4 control.
+// ControlEvaluation contains the results of evaluating a single Layer 5 control.
 #ControlEvaluation: {
 	name:    string
 	result:  #Result

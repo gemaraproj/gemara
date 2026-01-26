@@ -32,15 +32,15 @@ The Gemara lexicon establishes stable definitions for compliance activities, des
 | **Assessment Requirement** | A specific, testable statement within a control that defines the exact conditions or evidence needed to verify its successful implementation. These requirements form the basis for evaluations, when deemed applicable according to the organization's policy. | Layer 2 |
 | **Policy** | A formal statement or rule, informed by Guidance and Controls. It is tailored to an organization's specific risk appetite, and dictates the required or prohibited actions. | Layer 3 |
 | **Risk Appetite** | The level of risk an organization is willing to accept in pursuit of its objectives. | Maps to Gemara Layer 3 |
-| **Evaluation** | The inspection and assessment of code, configurations, and deployments to verify compliance with established policies. | Layer 4 |
-| **Assessment** | The manual or automated process of evaluating control compliance following a specific assessment requirement. Multiple assessments may be required for a single control. | Layer 4 |
-| **Evaluation Log** | A group of assessment logs corresponding to an evaluation plan. Provides the details necessary for enforcement actions. | Layer 4 |
-| **Assessment Log** | The documented result of an assessment, containing details about when and how a specific set of steps was taken in accordance with an assessment requirement. | Layer 4 |
-| **Enforcement** | The preventive or remedial actions taken based on evaluation findings, such as blocking a non-compliant deployment or automatically fixing a misconfiguration. | Layer 5 |
-| **Enforcement Gate** | A manual or automated process which will prevent the deployment of any resource that cannot demonstrate compliance to achieve a satisfactory degree. | Layer 5 |
-| **Remediation** | A manual or automated process which will fix any compliance issues that are identified by drift detection. | Layer 5 |
+| **Evaluation** | The inspection and assessment of code, configurations, and deployments to verify compliance with established policies. | Layer 5 |
+| **Assessment** | The manual or automated process of evaluating control compliance following a specific assessment requirement. Multiple assessments may be required for a single control. | Layer 5 |
+| **Evaluation Log** | A group of assessment logs corresponding to an evaluation plan. Provides the details necessary for enforcement actions. | Layer 5 |
+| **Assessment Log** | The documented result of an assessment, containing details about when and how a specific set of steps was taken in accordance with an assessment requirement. | Layer 5 |
+| **Enforcement** | The preventive or remedial actions taken based on evaluation findings, such as blocking a non-compliant deployment or automatically fixing a misconfiguration. | Layer 6 |
+| **Enforcement Gate** | A manual or automated process which will prevent the deployment of any resource that cannot demonstrate compliance to achieve a satisfactory degree. | Layer 6 |
+| **Remediation** | A manual or automated process which will fix any compliance issues that are identified by drift detection. | Layer 6 |
 | **Drift Detection** | The process of evaluating resources after they have been deployed, with the aim of ensuring that there are no changes which might impact compliance or indicate a breach. |  |
-| **Audit** | A formal, systematic review of an organization's policies, procedures, and conformance to ensure GRC processes are effective. | Layer 6 |
+| **Audit** | A formal, systematic review of an organization's policies, procedures, and conformance to ensure GRC processes are effective. | Layer 7 |
 | **Inherent vs. Residual Risk** | Inherent Risk is the level of risk before any controls or mitigation efforts are applied. Residual Risk is the risk that remains after security controls have been implemented. |  |
 | **Risk Treatment** | The process of selecting and implementing measures to modify risk. Common strategies are Mitigation (applying controls), Acceptance (formally acknowledging the risk), Transference (e.g., buying insurance), and Avoidance (ceasing the risky activity). |  |
 | **Baseline** | A standardized level of minimum security configuration that is required for all systems of a certain type. A system must at least meet the baseline to be considered compliant. |  |
@@ -54,4 +54,4 @@ The Gemara lexicon establishes stable definitions for compliance activities, des
 | **SSDF** | The Secure Software Development Framework (NIST SP 800-218) is a set of secure software development practices intended to be integrated into the software development lifecycle. | Uses approaches from Gemara Layer 1 |
 | **FINOS CCC** | A FINOS project that creates a unified set of cybersecurity controls for the financial services industry by harmonizing global regulations and standards to simplify cloud adoption and compliance. | Adheres to Gemara Layer 2 |
 | **OSPS Baseline** | A set of minimum security requirements for open-source projects, established by the OpenSSF (Open Source Security Foundation). It provides a clear baseline of practices to improve the security posture of open-source software. | Adheres to Gemara Layer 2 |
-| **Privateer** | An open-source, read-only policy engine used to validate actual state and detect drift. It uses plugins to evaluate target resources—from cloud infrastructure to GitHub repositories—against policies and assessment requirements. | Adheres to Gemara Layer 4 |
+| **Privateer** | An open-source, read-only policy engine used to validate actual state and detect drift. It uses plugins to evaluate target resources—from cloud infrastructure to GitHub repositories—against policies and assessment requirements. | Adheres to Gemara Layer 5 |

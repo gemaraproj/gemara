@@ -5,7 +5,7 @@ title: Create Schemas for Each Layer in the Logical Model
 
 - **ADR:** 0002
 - **Proposal Author(s):** @eddie-knight
-- **Status:** Accepted
+- **Status:** Accepted; Modified by [ADR-0009](./0009-sensitive-activities.md) (numbering for layers 3+)
 
 ## Context
 

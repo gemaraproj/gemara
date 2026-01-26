@@ -5,7 +5,7 @@ title: Unified Go SDK Package Structure
 
 - **ADR:** 0006
 - **Proposal Author(s):** @jpower432
-- **Status:** Accepted; Modified by ADR 0007
+- **Status:** Accepted; Modified by [ADR 0007](./0007-isolate-concepts-from-code.md) (SDK isolation); ; Modified by [ADR-0009](./0009-sensitive-activities.md) (numbering for layers 3+)
 
 ## Context
 

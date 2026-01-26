@@ -882,32 +882,20 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
   background: #3498db; /* Blue */
 }
 
-.layer-sensitive {
-  background: #2ecc71; /* Green */
-  width: 75%;
-  margin: 0 auto;
-  border-radius: 0;
-
-  .layer-content {
-    text-align: center;
-    width: 100%;
-
-    .layer-title,
-    .layer-description {
-      text-align: center;
-    }
-  }
-}
-
 .layer-4 {
-  background: #f1c40f; /* Yellow */
+  background: #2ecc71; /* Green */
+  border-radius: 0;
 }
 
 .layer-5 {
-  background: #f39c12; /* Orange */
+  background: #f1c40f; /* Yellow */
 }
 
 .layer-6 {
+  background: #f39c12; /* Orange */
+}
+
+.layer-7 {
   background: #e74c3c; /* Red - top */
 }
 
@@ -936,7 +924,7 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
     }
   }
 
-  .layer-sensitive {
+  .layer-4 {
     width: 85%;
   }
 }

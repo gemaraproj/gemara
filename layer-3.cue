@@ -138,7 +138,7 @@ package schemas
 
 // Constraint defines a prescriptive requirement that applies to a specific guidance or control.
 #Constraint: {
-	// Unique ID for this constraint to enable Layer 4/5 tracking
+	// Unique ID for this constraint to enable Layer 5/6 tracking
 	id: string
 	// Links to the specific Guidance or Control being constrained
 	"target-id": string @go(TargetId)
