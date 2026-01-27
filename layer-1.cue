@@ -64,7 +64,7 @@ package schemas
 	title: string
 
 	// objective is a unified statement of intent, which may encompass multiple situationally applicable statements
-	objective?: string
+	objective: string
 
 	// family provides an id to the family that this guideline belongs to
 	family: string @go(Family)
