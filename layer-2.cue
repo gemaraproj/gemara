@@ -11,7 +11,7 @@ package schemas
 	title: string
 
 	// metadata provides detailed data about this catalog
-	"metadata"?: #Metadata @go(Metadata)
+	"metadata": #Metadata @go(Metadata)
 
 	// families contains a list of control families that can be referenced by controls
 	families?: [...#Family] @go(Families)
@@ -68,7 +68,7 @@ package schemas
 	title: string
 
 	// metadata provides detailed data about this catalog
-	"metadata"?: #Metadata @go(Metadata)
+	"metadata": #Metadata @go(Metadata)
 
 	// threats is a list of threats defined by this catalog
 	threats?: [...#Threat] @go(Threats)
@@ -76,7 +76,7 @@ package schemas
 	// capabilities is a list of capabilities that make up the system being assessed
 	capabilities?: [...#Capability] @go(Capabilities)
 
-	// imprted-threats is a list of threats from another source which are included as part of this document
+	// imported-threats is a list of threats from another source which are included as part of this document
 	"imported-threats"?: [...#MultiMapping] @go(ImportedThreats)
 
 	// imported-capabilities is a list of capabilities from another source which are included as part of this document
