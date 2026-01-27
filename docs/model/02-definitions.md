@@ -64,7 +64,7 @@ title: Definitions
 
 ## Continue Reading
 
-- **< Previous Page**: [Scope](./01-scope.html)
-- **> Next Page**: [Foundational Concepts](./03-foundational-concepts.html)
+- **< Previous Page**: [Scope](/model/01-scope)
+- **> Next Page**: [Foundational Concepts](/model/03-foundational-concepts)
 
 ---

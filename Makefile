@@ -48,6 +48,16 @@ build: check-jekyll
 	@echo "  >  Building Jekyll documentation site..."
 	@cd docs && bundle exec jekyll build
 
+test-links:
+	@echo "  >  Validating links with html-proofer..."
+	@cd docs && bundle exec htmlproofer _site \
+		--allow-hash-href \
+		--disable-external \
+		--ignore-empty-alt \
+		--only-4xx \
+		--root-dir "$$(pwd)/_site" \
+		--ignore-urls "/localhost/,/0.0.0.0/,/127.0.0.1/,/\/pages\//"
+
 clean:
 	@echo "  >  Cleaning generated files..."
 	@rm -rf docs/_site docs/.jekyll-cache docs/.jekyll-metadata
@@ -58,4 +68,4 @@ stop:
 
 restart: stop serve
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build clean stop restart check-jekyll
+.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test-links clean stop restart check-jekyll

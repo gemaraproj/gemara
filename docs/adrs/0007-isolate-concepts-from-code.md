@@ -9,7 +9,7 @@ title: Isolate Concepts from Code
 
 ## Context
 
-While [ADR-0006](./0006-unified-package-structure.md) served to simplify the Go SDK for
+While [ADR-0006](./0006-unified-package-structure) served to simplify the Go SDK for
 developer users, added cognitive overhead was observed for visitors to the project repo,
 caused by the large number of Go files. The project had begun to appear as if it is
 primarily a software project, rather than a specification project with support utilities.

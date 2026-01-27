@@ -93,13 +93,13 @@ The Implementation evolves based on community needs:
 - **Schema improvements?** Open an issue or submit a PR
 - **New features or APIs?** Propose changes via PR
 - **Found a bug?** Report it
-- **Significant architectural changes?** Document in an [ADR](../adr.html)
+- **Significant architectural changes?** Document in an [ADR](/adr)
 
 See the [Contributing Guide](https://github.com/gemaraproj/gemara/blob/main/CONTRIBUTING.md) for details.
 
 ## Architecture Decisions
 
-Significant implementation changes are documented in [Architecture Decision Records (ADRs)](../adr.html).
+Significant implementation changes are documented in [Architecture Decision Records (ADRs)](/adr).
 
 ## Versioning and Maintenance
 
@@ -107,8 +107,8 @@ See the [Implementation Maintenance](maintenance) document for versioning and re
 
 ## Relationship to Other Components
 
-### [The Model](../model)
+### [The Model](/model)
 Provides the conceptual foundation. Each schema corresponds to a layer in the model.
 
-### [The Lexicon](../lexicon)
+### [The Lexicon](/lexicon)
 Informs Implementation design. Schema field names and SDK documentation use Lexicon definitions for consistency.
