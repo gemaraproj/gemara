@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -41,18 +42,25 @@ type Schema struct {
 func main() {
 	inputFile := flag.String("input", "openapi.yaml", "Input OpenAPI YAML file")
 	outputDir := flag.String("output", "spec", "Output directory for markdown files")
-	rootsFlag := flag.String("roots", "", "Comma-separated list of root schema names (e.g. GuidanceDocument,ControlCatalog)")
+	manifestPath := flag.String("manifest", "", "Path to schema-manifest.json for per-file mode")
+	rootsFlag := flag.String("roots", "", "Comma-separated list of root schema names (used when -manifest is not set)")
 	flag.Parse()
 
-	roots := splitRoots(*rootsFlag)
-	if len(roots) == 0 {
-		fmt.Fprintf(os.Stderr, "Error: -roots is required and must be non-empty\n")
-		os.Exit(1)
-	}
-
-	if err := convertOpenAPIToMarkdown(*inputFile, *outputDir, roots); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+	if *manifestPath != "" {
+		if err := convertPerFile(*inputFile, *outputDir, *manifestPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		roots := splitRoots(*rootsFlag)
+		if len(roots) == 0 {
+			fmt.Fprintf(os.Stderr, "Error: -roots is required when -manifest is not set\n")
+			os.Exit(1)
+		}
+		if err := convertOpenAPIToMarkdown(*inputFile, *outputDir, roots); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	fmt.Printf("Markdown documentation generated successfully in %s/\n", *outputDir)
@@ -70,6 +78,126 @@ func splitRoots(s string) []string {
 		}
 	}
 	return out
+}
+
+// displayNameFor returns a human-readable title for a schema file base name.
+func displayNameFor(base string) string {
+	switch base {
+	case "base":
+		return "Base"
+	case "metadata":
+		return "Metadata"
+	case "mapping":
+		return "Mapping"
+	case "layer-1":
+		return "Layer 1"
+	case "layer-2":
+		return "Layer 2"
+	case "layer-3":
+		return "Layer 3"
+	case "layer-5":
+		return "Layer 5"
+	default:
+		return strings.ReplaceAll(base, "-", " ")
+	}
+}
+
+func loadManifest(path string) (map[string][]string, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read manifest: %w", err)
+	}
+	var m map[string][]string
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, fmt.Errorf("parse manifest: %w", err)
+	}
+	return m, nil
+}
+
+func convertPerFile(inputFile, outputDir, manifestPath string) error {
+	manifest, err := loadManifest(manifestPath)
+	if err != nil {
+		return err
+	}
+
+	data, err := os.ReadFile(inputFile)
+	if err != nil {
+		return fmt.Errorf("failed to read OpenAPI file: %w", err)
+	}
+	var spec OpenAPISpec
+	if err := yaml.Unmarshal(data, &spec); err != nil {
+		return fmt.Errorf("failed to parse OpenAPI YAML: %w", err)
+	}
+
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return fmt.Errorf("failed to create output directory: %w", err)
+	}
+
+	version := spec.Info.Version
+	if version == "" {
+		version = "unknown"
+	}
+
+	fileOrder := make([]string, 0, len(manifest))
+	for k := range manifest {
+		fileOrder = append(fileOrder, k)
+	}
+	sort.Strings(fileOrder)
+
+	visited := make(map[string]bool)
+
+	for _, cueFile := range fileOrder {
+		schemaNames := manifest[cueFile]
+		if len(schemaNames) == 0 {
+			continue
+		}
+		base := strings.TrimSuffix(cueFile, ".cue")
+		displayName := displayNameFor(base)
+
+		var buf strings.Builder
+		buf.WriteString(fmt.Sprintf("# %s\n\n", displayName))
+
+		for _, name := range schemaNames {
+			schemaData, ok := spec.Components.Schemas[name]
+			if !ok {
+				continue
+			}
+			schemaBytes, _ := yaml.Marshal(schemaData)
+			var schema Schema
+			if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
+				continue
+			}
+			if isAlias(schema) {
+				buf.WriteString(generateAliasBlock(name, schema))
+			} else {
+				buf.WriteString(generateRootSection(name, schema, spec, version, visited))
+			}
+		}
+
+		outPath := filepath.Join(outputDir, base+".md")
+		if err := os.WriteFile(outPath, []byte(buf.String()), 0644); err != nil {
+			return fmt.Errorf("write %s: %w", outPath, err)
+		}
+	}
+
+	return nil
+}
+
+func generateAliasBlock(name string, schema Schema) string {
+	var buf strings.Builder
+	buf.WriteString(fmt.Sprintf("## `%s`\n\n", name))
+	if schema.Description != "" {
+		buf.WriteString(schema.Description + "\n\n")
+	}
+	buf.WriteString(fmt.Sprintf("- **Type**: `%s`\n", schema.Type))
+	if schema.Format != "" {
+		buf.WriteString(fmt.Sprintf("- **Format**: `%s`\n", schema.Format))
+	}
+	if schema.Pattern != "" {
+		buf.WriteString(fmt.Sprintf("- **Value**: `%s`\n", schema.Pattern))
+	}
+	buf.WriteString("\n---\n\n")
+	return buf.String()
 }
 
 func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error {

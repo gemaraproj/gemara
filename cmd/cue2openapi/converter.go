@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,9 +16,10 @@ import (
 
 // ConvertOpts configures CUE-to-OpenAPI conversion.
 type ConvertOpts struct {
-	Root    string // Optional #Name whose comment sets Info.Description
-	Version string // Override version (default: VERSION file or "unknown")
-	Title   string // OpenAPI info title (default: "Gemara")
+	ManifestPath string // If set, write schema→file manifest JSON here
+	Root         string // Optional #Name whose comment sets Info.Description
+	Version      string // Override version (default: VERSION file or "unknown")
+	Title        string // OpenAPI info title (default: "Gemara")
 }
 
 type OpenAPISpec struct {
@@ -98,6 +100,7 @@ func convertCUEToOpenAPI(schemaDir, outputPath string, opts ConvertOpts) error {
 	}
 
 	seen := make(map[string]bool)
+	manifest := make(map[string][]string) // filename → schema names
 	files := insts[0].Files
 	names := make([]string, 0, len(files))
 	byName := make(map[string]*ast.File)
@@ -112,19 +115,50 @@ func convertCUEToOpenAPI(schemaDir, outputPath string, opts ConvertOpts) error {
 	sort.Strings(names)
 
 	for _, name := range names {
+		if name == "<no filename>" {
+			continue
+		}
 		f := byName[name]
-		rootDesc := parseFile(f, spec, seen, opts.Root)
+		rootDesc, typeNames := parseFile(f, spec, seen, opts.Root)
 		if rootDesc != "" && opts.Root != "" {
 			spec.Info.Description = rootDesc
 		}
+		if len(typeNames) > 0 {
+			manifest[name] = typeNames
+		}
 	}
 
-	return writeOpenAPISpec(spec, outputPath)
+	if err := writeOpenAPISpec(spec, outputPath); err != nil {
+		return err
+	}
+	if opts.ManifestPath != "" {
+		if err := writeManifest(manifest, opts.ManifestPath); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func writeManifest(manifest map[string][]string, path string) error {
+	keys := make([]string, 0, len(manifest))
+	for k := range manifest {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	ordered := make(map[string][]string, len(manifest))
+	for _, k := range keys {
+		ordered[k] = manifest[k]
+	}
+	data, err := json.MarshalIndent(ordered, "", "  ")
+	if err != nil {
+		return fmt.Errorf("marshal manifest: %w", err)
+	}
+	return os.WriteFile(path, data, 0644)
 }
 
 // parseFile processes a single CUE file and merges definitions into spec.
-// It returns the description for the root type if opts.Root matches and one was found.
-func parseFile(file *ast.File, spec *OpenAPISpec, seen map[string]bool, rootName string) (rootDescription string) {
+// It returns the root type description (if opts.Root matches) and the list of type names added.
+func parseFile(file *ast.File, spec *OpenAPISpec, seen map[string]bool, rootName string) (rootDescription string, typeNames []string) {
 	for _, decl := range file.Decls {
 		field, ok := decl.(*ast.Field)
 		if !ok {
@@ -152,8 +186,9 @@ func parseFile(file *ast.File, spec *OpenAPISpec, seen map[string]bool, rootName
 		}
 		seen[typeName] = true
 		parseDefinitionField(field, spec)
+		typeNames = append(typeNames, typeName)
 	}
-	return rootDescription
+	return rootDescription, typeNames
 }
 
 func parseDefinitionField(field *ast.Field, spec *OpenAPISpec) {
