@@ -26,10 +26,10 @@ package schemas
 // Control describes a safeguard or countermeasure with a clear objective and assessment requirements
 #Control: {
 	// id allows this entry to be referenced by other elements
-	id:        string
+	id: string
 
 	// title describes the purpose of this control at a glance
-	title:     string
+	title: string
 
 	// objective is a unified statement of intent, which may encompass multiple situationally applicable requirements
 	objective: string
@@ -50,7 +50,7 @@ package schemas
 // AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
 #AssessmentRequirement: {
 	// id allows this entry to be referenced by other elements
-	id:   string
+	id: string
 
 	// text is the body of the requirement, typically written as a MUST condition
 	text: string
@@ -65,7 +65,7 @@ package schemas
 // ThreatCatalog describes a set of topically-associated threats
 #ThreatCatalog: {
 	// title describes the purpose of this catalog at a glance
-	title:       string
+	title: string
 
 	"metadata"?: #Metadata @go(Metadata)
 
@@ -106,10 +106,10 @@ package schemas
 // Capability describes a system capability such as a feature, component or object.
 #Capability: {
 	// id allows this entry to be referenced by other elements
-	id:          string
+	id: string
 
 	// title describes this capability at a glance
-	title:       string
+	title: string
 
 	// description provides a detailed overview of this capability
 	description: string
