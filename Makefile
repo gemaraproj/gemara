@@ -82,7 +82,7 @@ gendocs: genmd
 	@for f in $(SPEC_DIR)/*.md; do \
 		[ -f "$$f" ] || continue; \
 		base=$$(basename "$$f" .md); \
-		title=$$(sh "$(CURDIR)/scripts/schema-display-name.sh" "$$base"); \
+		title=$$(sh "$(CURDIR)/cmd/scripts/schema-display-name.sh" "$$base"); \
 		{ \
 			echo "---"; \
 			echo "layout: page"; \
@@ -105,7 +105,7 @@ gendocs: genmd
 		for f in $(SPEC_DIR)/base.md $(SPEC_DIR)/metadata.md $(SPEC_DIR)/mapping.md $(SPEC_DIR)/layer-1.md $(SPEC_DIR)/layer-2.md $(SPEC_DIR)/layer-3.md $(SPEC_DIR)/layer-5.md; do \
 			[ -f "$$f" ] || continue; \
 			base=$$(basename "$$f" .md); \
-			title=$$(sh "$(CURDIR)/scripts/schema-display-name.sh" "$$base"); \
+			title=$$(sh "$(CURDIR)/cmd/scripts/schema-display-name.sh" "$$base"); \
 			echo "- [$$title]($$base.html)"; \
 		done; \
 	} > "$(DOCS_SCHEMA_DIR)/index.md"
