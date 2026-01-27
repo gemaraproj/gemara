@@ -8,10 +8,10 @@ package schemas
 // GuidanceCatalog represents a concerted documentation effort to help bring about an optimal future without foreknowledge of the implementation details
 #GuidanceCatalog: {
 	// title describes the contents of this catalog at a glance
-	title:    string
+	title: string
 
 	// metadata provides detailed data about this catalog
-	metadata: #Metadata     @go(Metadata)
+	metadata: #Metadata @go(Metadata)
 
 	// type categorizes this document based on the intent of its contents
 	type: #GuidanceType @go(GuidanceType)
