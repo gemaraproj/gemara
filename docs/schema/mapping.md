@@ -22,11 +22,15 @@ Optional:
 
 ### `description` (optional)
 
+description is prose regarding the artifact's purpose or content
+
 - **Type**: `string`
 
 ---
 
 ### `id`
+
+id allows this entry to be referenced by other elements
 
 - **Type**: `string`
 
@@ -34,17 +38,23 @@ Optional:
 
 ### `title`
 
+title describes the purpose of this mapping reference at a glance
+
 - **Type**: `string`
 
 ---
 
 ### `url` (optional)
 
+url is the path where the artifact may be retrieved; preferrably responds with Gemara-compatible YAML/JSON
+
 - **Type**: `string`
 
 ---
 
 ### `version`
+
+version is the version identifier of the artifact being mapped to
 
 - **Type**: `string`
 
@@ -67,6 +77,8 @@ Optional:
 
 ### `entries`
 
+entries is a list of mapping entries
+
 - **Type**: `array`
 - **Items**: [MappingEntry]
 
@@ -81,6 +93,8 @@ ReferenceId should reference the corresponding MappingReference id from metadata
 ---
 
 ### `remarks` (optional)
+
+remarks is prose regarding the mapped artifact or the mapping relationship
 
 - **Type**: `string`
 
@@ -98,10 +112,13 @@ Optional:
 
 - `reference-id`
 - `remarks`
+- `strength`
 
 ---
 
 ### `entry-id`
+
+entry-id is the identifier being mapped to in the referenced artifact
 
 - **Type**: `string`
 
@@ -109,13 +126,23 @@ Optional:
 
 ### `reference-id` (optional)
 
-ReferenceId should reference the corresponding MappingReference id from metadata
+reference-id is the id for a MappingReference entry in the artifact's metadata
 
 - **Type**: `string`
 
 ---
 
 ### `remarks` (optional)
+
+remarks is prose describing the mapping relationship
+
+- **Type**: `string`
+
+---
+
+### `strength` (optional)
+
+strength is the author's estimate of how completely the current/source material satisfies the target/reference material;
 
 - **Type**: `string`
 
@@ -138,11 +165,15 @@ Optional:
 
 ### `reference-id`
 
+reference-id is the id for a MappingReference entry in the artifact's metadata
+
 - **Type**: `string`
 
 ---
 
 ### `remarks` (optional)
+
+remarks is prose describing the mapping relationship
 
 - **Type**: `string`
 
@@ -150,7 +181,7 @@ Optional:
 
 ### `strength` (optional)
 
-Strength quantifies the degree of correlation or relationship between the mapped items.
+strength is the author's estimate of how completely the current/source material satisfies the target/reference material;
 
 - **Type**: `string`
 

@@ -20,3 +20,17 @@ PRs MUST meet the following criteria:
 ### Useful make tasks when making schema changes
 
 Use `cue fmt .` and `make cuefmtcheck` to ensure proper formatting and `make lintcue` to validate the syntax of your changes. If you forget to do this before opening a PR and your changes are invalid, the [CI workflow](.github/workflows/ci.yml) will fail and alert you.
+
+## Releases
+
+Releases are automatically created when a PR is merged into `main` with the `release` label. To trigger a release:
+
+1. Add the `release` label to your PR before merging
+2. Merge the PR into `main`
+
+The release workflow will automatically:
+- Create a GitHub release with the appropriate version tag
+- Generate release notes from the PR using release-drafter
+- Publish the CUE module to the central registry
+
+**Note:** Only PRs merged into `main` with the `release` label will trigger a release. Other labels (such as `breaking`, `feature`, or `vuln`) will not trigger releases.

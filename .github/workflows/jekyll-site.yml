@@ -46,6 +46,13 @@ jobs:
         id: pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
 
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ./docs
+
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1.0.13
         with:
@@ -53,15 +60,7 @@ jobs:
           destination: ./docs/_site
 
       - name: Test HTML
-        run: |
-          # Check that key pages were generated
-          echo "Verifying generated pages..."
-          test -f docs/_site/index.html || { echo "Error: Missing index.html"; exit 1; }
-          test -f docs/_site/lexicon/lexicon.html || { echo "Error: Missing lexicon.html"; exit 1; }
-          # Verify sidebar is included in pages that should have it (not homepage)
-          grep -q "Quick Links" docs/_site/lexicon/lexicon.html || { echo "Error: Sidebar not found in lexicon.html"; exit 1; }
-          grep -q "Quick Links" docs/_site/adr.html || { echo "Error: Sidebar not found in adr.html"; exit 1; }
-          echo "Success: All expected pages generated successfully"
+        run: make test-links
 
       - name: Upload artifact for GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

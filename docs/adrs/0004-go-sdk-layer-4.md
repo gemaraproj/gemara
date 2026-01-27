@@ -5,7 +5,7 @@ title: Extend Go SDK for "Layer 4" Based on the Privateer Project
 
 - **ADR:** 0004
 - **Proposal Author(s):** @eddie-knight
-- **Status:** Accepted; Modified by [ADR-0009](./0009-sensitive-activities.md) (numbering for layers 3+)
+- **Status:** Accepted; Modified by [ADR-0009](./0009-sensitive-activities) (numbering for layers 3+)
 
 ## Context
 

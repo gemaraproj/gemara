@@ -49,6 +49,8 @@ Optional:
 
 #### `metadata.applicability-categories` (optional)
 
+applicability-categories is a list of categories used to classify within this artifact to specify scope
+
 - **Type**: `array`
 - **Items**: [Category]
 
@@ -56,7 +58,7 @@ Optional:
 
 #### `metadata.author`
 
-Actor represents an entity (human or tool) that can perform actions in evaluations.
+author is the person or group primarily responsible for this artifact
 
 - **Type**: [Actor]
 
@@ -77,7 +79,7 @@ Optional:
 
 ##### `metadata.author.contact` (optional)
 
-Contact provides contact information for the actor.
+contact is contact information for the actor
 
 - **Type**: [Contact]
 
@@ -95,7 +97,7 @@ Optional:
 
 ###### `metadata.author.contact.affiliation` (optional)
 
-The entity with which the contact is affiliated, such as a school or employer.
+affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
 
 - **Type**: `string`
 
@@ -103,7 +105,7 @@ The entity with which the contact is affiliated, such as a school or employer.
 
 ###### `metadata.author.contact.email` (optional)
 
-A preferred email address to reach the contact.
+email is the preferred email address to reach the contact
 
 - **Type**: [Email]
 
@@ -111,7 +113,7 @@ A preferred email address to reach the contact.
 
 ###### `metadata.author.contact.name`
 
-The contact person's name.
+name is the preferred descriptor for the contact entity
 
 - **Type**: `string`
 
@@ -119,7 +121,7 @@ The contact person's name.
 
 ###### `metadata.author.contact.social` (optional)
 
-A social media handle or profile for the contact.
+social is a social media handle or other profile for the contact, such as GitHub
 
 - **Type**: `string`
 
@@ -127,7 +129,7 @@ A social media handle or profile for the contact.
 
 ##### `metadata.author.description` (optional)
 
-Description provides additional context about the actor.
+description provides additional context about the actor
 
 - **Type**: `string`
 
@@ -135,7 +137,7 @@ Description provides additional context about the actor.
 
 ##### `metadata.author.id`
 
-Id uniquely identifies the actor.
+id uniquely identifies the actor and allows this entry to be referenced by other elements
 
 - **Type**: `string`
 
@@ -143,7 +145,7 @@ Id uniquely identifies the actor.
 
 ##### `metadata.author.name`
 
-Name provides the name of the actor.
+name is the name of the actor
 
 - **Type**: `string`
 
@@ -151,7 +153,7 @@ Name provides the name of the actor.
 
 ##### `metadata.author.type`
 
-Type specifies the type of entity interacting in the workflow.
+type specifies the type of entity interacting in the workflow
 
 - **Type**: [ActorType]
 
@@ -159,7 +161,7 @@ Type specifies the type of entity interacting in the workflow.
 
 ##### `metadata.author.uri` (optional)
 
-Uri provides a general URI for the actor information.
+uri is a general URI for the actor information
 
 - **Type**: `string`
 
@@ -167,7 +169,7 @@ Uri provides a general URI for the actor information.
 
 ##### `metadata.author.version` (optional)
 
-Version specifies the version of the actor (if applicable, e.g., for tools).
+version is the version of the actor (for tools; if applicable)
 
 - **Type**: `string`
 
@@ -175,11 +177,15 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 #### `metadata.date` (optional)
 
+date is the publication or effective date of this artifact
+
 - **Type**: [Date]
 
 ---
 
 #### `metadata.description`
+
+description provides a high-level summary of the artifact's purpose and scope
 
 - **Type**: `string`
 
@@ -187,11 +193,15 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 #### `metadata.draft` (optional)
 
+draft indicates whether this artifact is a pre-release version; open to modification
+
 - **Type**: `boolean`
 
 ---
 
 #### `metadata.id`
+
+id allows this entry to be referenced by other elements
 
 - **Type**: `string`
 
@@ -199,11 +209,15 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 #### `metadata.lexicon` (optional)
 
+lexicon is a URI pointing to a controlled vocabulary or glossary relevant to this artifact
+
 - **Type**: `string`
 
 ---
 
 #### `metadata.mapping-references` (optional)
+
+mapping-references is a list of external documents referenced within this artifact
 
 - **Type**: `array`
 - **Items**: [MappingReference]
@@ -211,6 +225,8 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 ---
 
 #### `metadata.version` (optional)
+
+version is the version identifier of this artifact
 
 - **Type**: `string`
 
@@ -254,10 +270,13 @@ Optional:
 
 - `reference-id`
 - `remarks`
+- `strength`
 
 ---
 
 #### `control.entry-id`
+
+entry-id is the identifier being mapped to in the referenced artifact
 
 - **Type**: `string`
 
@@ -265,13 +284,23 @@ Optional:
 
 #### `control.reference-id` (optional)
 
-ReferenceId should reference the corresponding MappingReference id from metadata
+reference-id is the id for a MappingReference entry in the artifact's metadata
 
 - **Type**: `string`
 
 ---
 
 #### `control.remarks` (optional)
+
+remarks is prose describing the mapping relationship
+
+- **Type**: `string`
+
+---
+
+#### `control.strength` (optional)
+
+strength is the author's estimate of how completely the current/source material satisfies the target/reference material;
 
 - **Type**: `string`
 
@@ -374,10 +403,13 @@ Optional:
 
 - `reference-id`
 - `remarks`
+- `strength`
 
 ---
 
 #### `plan.entry-id`
+
+entry-id is the identifier being mapped to in the referenced artifact
 
 - **Type**: `string`
 
@@ -385,13 +417,23 @@ Optional:
 
 #### `plan.reference-id` (optional)
 
-ReferenceId should reference the corresponding MappingReference id from metadata
+reference-id is the id for a MappingReference entry in the artifact's metadata
 
 - **Type**: `string`
 
 ---
 
 #### `plan.remarks` (optional)
+
+remarks is prose describing the mapping relationship
+
+- **Type**: `string`
+
+---
+
+#### `plan.strength` (optional)
+
+strength is the author's estimate of how completely the current/source material satisfies the target/reference material;
 
 - **Type**: `string`
 
@@ -419,10 +461,13 @@ Optional:
 
 - `reference-id`
 - `remarks`
+- `strength`
 
 ---
 
 #### `requirement.entry-id`
+
+entry-id is the identifier being mapped to in the referenced artifact
 
 - **Type**: `string`
 
@@ -430,13 +475,23 @@ Optional:
 
 #### `requirement.reference-id` (optional)
 
-ReferenceId should reference the corresponding MappingReference id from metadata
+reference-id is the id for a MappingReference entry in the artifact's metadata
 
 - **Type**: `string`
 
 ---
 
 #### `requirement.remarks` (optional)
+
+remarks is prose describing the mapping relationship
+
+- **Type**: `string`
+
+---
+
+#### `requirement.strength` (optional)
+
+strength is the author's estimate of how completely the current/source material satisfies the target/reference material;
 
 - **Type**: `string`
 

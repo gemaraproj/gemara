@@ -3,14 +3,16 @@ layout: page
 title: Layer 1
 ---
 
-## `GuidanceDocument`
+## `GuidanceCatalog`
+
+GuidanceCatalog represents a concerted documentation effort to help bring about an optimal future without foreknowledge of the implementation details
 
 Required:
 
 - `_validateExtensions`
-- `document-type`
 - `metadata`
 - `title`
+- `type`
 
 Optional:
 
@@ -23,19 +25,15 @@ Optional:
 
 ### `_validateExtensions`
 
-Guidelines that extend other guidelines must be in the same family as the
+guidelines that extend other guidelines must be in the same family as the extended guideline
 
 - **Type**: `object`
 
 ---
 
-### `document-type`
-
-- **Type**: [DocumentType]
-
----
-
 ### `exemptions` (optional)
+
+exemptions provides information about situations where this guidance is not applicable
 
 - **Type**: `array`
 - **Items**: [Exemption]
@@ -44,6 +42,8 @@ Guidelines that extend other guidelines must be in the same family as the
 
 ### `families` (optional)
 
+families contains a list of guidance families that can be referenced by guidance
+
 - **Type**: `array`
 - **Items**: [Family]
 
@@ -51,13 +51,15 @@ Guidelines that extend other guidelines must be in the same family as the
 
 ### `front-matter` (optional)
 
-Introductory text for the document to be used during rendering
+front-matter provides introductory text for the document to be used during rendering
 
 - **Type**: `string`
 
 ---
 
 ### `guidelines` (optional)
+
+guidelines is a list of unique guidelines defined by this catalog
 
 - **Type**: `array`
 - **Items**: [Guideline]
@@ -66,7 +68,7 @@ Introductory text for the document to be used during rendering
 
 ### `metadata`
 
-Metadata represents common metadata fields shared across all layers
+metadata provides detailed data about this catalog
 
 - **Type**: [Metadata]
 
@@ -89,6 +91,8 @@ Optional:
 
 #### `metadata.applicability-categories` (optional)
 
+applicability-categories is a list of categories used to classify within this artifact to specify scope
+
 - **Type**: `array`
 - **Items**: [Category]
 
@@ -96,7 +100,7 @@ Optional:
 
 #### `metadata.author`
 
-Actor represents an entity (human or tool) that can perform actions in evaluations.
+author is the person or group primarily responsible for this artifact
 
 - **Type**: [Actor]
 
@@ -117,7 +121,7 @@ Optional:
 
 ##### `metadata.author.contact` (optional)
 
-Contact provides contact information for the actor.
+contact is contact information for the actor
 
 - **Type**: [Contact]
 
@@ -135,7 +139,7 @@ Optional:
 
 ###### `metadata.author.contact.affiliation` (optional)
 
-The entity with which the contact is affiliated, such as a school or employer.
+affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
 
 - **Type**: `string`
 
@@ -143,7 +147,7 @@ The entity with which the contact is affiliated, such as a school or employer.
 
 ###### `metadata.author.contact.email` (optional)
 
-A preferred email address to reach the contact.
+email is the preferred email address to reach the contact
 
 - **Type**: [Email]
 
@@ -151,7 +155,7 @@ A preferred email address to reach the contact.
 
 ###### `metadata.author.contact.name`
 
-The contact person's name.
+name is the preferred descriptor for the contact entity
 
 - **Type**: `string`
 
@@ -159,7 +163,7 @@ The contact person's name.
 
 ###### `metadata.author.contact.social` (optional)
 
-A social media handle or profile for the contact.
+social is a social media handle or other profile for the contact, such as GitHub
 
 - **Type**: `string`
 
@@ -167,7 +171,7 @@ A social media handle or profile for the contact.
 
 ##### `metadata.author.description` (optional)
 
-Description provides additional context about the actor.
+description provides additional context about the actor
 
 - **Type**: `string`
 
@@ -175,7 +179,7 @@ Description provides additional context about the actor.
 
 ##### `metadata.author.id`
 
-Id uniquely identifies the actor.
+id uniquely identifies the actor and allows this entry to be referenced by other elements
 
 - **Type**: `string`
 
@@ -183,7 +187,7 @@ Id uniquely identifies the actor.
 
 ##### `metadata.author.name`
 
-Name provides the name of the actor.
+name is the name of the actor
 
 - **Type**: `string`
 
@@ -191,7 +195,7 @@ Name provides the name of the actor.
 
 ##### `metadata.author.type`
 
-Type specifies the type of entity interacting in the workflow.
+type specifies the type of entity interacting in the workflow
 
 - **Type**: [ActorType]
 
@@ -199,7 +203,7 @@ Type specifies the type of entity interacting in the workflow.
 
 ##### `metadata.author.uri` (optional)
 
-Uri provides a general URI for the actor information.
+uri is a general URI for the actor information
 
 - **Type**: `string`
 
@@ -207,7 +211,7 @@ Uri provides a general URI for the actor information.
 
 ##### `metadata.author.version` (optional)
 
-Version specifies the version of the actor (if applicable, e.g., for tools).
+version is the version of the actor (for tools; if applicable)
 
 - **Type**: `string`
 
@@ -215,11 +219,15 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 #### `metadata.date` (optional)
 
+date is the publication or effective date of this artifact
+
 - **Type**: [Date]
 
 ---
 
 #### `metadata.description`
+
+description provides a high-level summary of the artifact's purpose and scope
 
 - **Type**: `string`
 
@@ -227,11 +235,15 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 #### `metadata.draft` (optional)
 
+draft indicates whether this artifact is a pre-release version; open to modification
+
 - **Type**: `boolean`
 
 ---
 
 #### `metadata.id`
+
+id allows this entry to be referenced by other elements
 
 - **Type**: `string`
 
@@ -239,11 +251,15 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 #### `metadata.lexicon` (optional)
 
+lexicon is a URI pointing to a controlled vocabulary or glossary relevant to this artifact
+
 - **Type**: `string`
 
 ---
 
 #### `metadata.mapping-references` (optional)
+
+mapping-references is a list of external documents referenced within this artifact
 
 - **Type**: `array`
 - **Items**: [MappingReference]
@@ -252,17 +268,31 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 #### `metadata.version` (optional)
 
+version is the version identifier of this artifact
+
 - **Type**: `string`
 
 ---
 
 ### `title`
 
+title describes the contents of this catalog at a glance
+
 - **Type**: `string`
 
 ---
 
-## `DocumentType`
+### `type`
+
+type categorizes this document based on the intent of its contents
+
+- **Type**: [GuidanceType]
+
+---
+
+## `GuidanceType`
+
+GuidanceType restricts the possible types that a catalog may be listed as
 
 - **Type**: `string`
 
@@ -270,7 +300,7 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 ## `Exemption`
 
-Exemption represents those who are exempt from the full guidance document.
+Exemption describes a single scenario where the catalog is not applicable
 
 Required:
 
@@ -285,7 +315,7 @@ Optional:
 
 ### `description`
 
-Description identifies who or what is exempt from the full guidance
+description identifies who or what is exempt from the full guidance
 
 - **Type**: `string`
 
@@ -293,7 +323,7 @@ Description identifies who or what is exempt from the full guidance
 
 ### `reason`
 
-Reason explains why the exemption is granted
+reason explains why the exemption is granted
 
 - **Type**: `string`
 
@@ -301,7 +331,7 @@ Reason explains why the exemption is granted
 
 ### `redirect` (optional)
 
-Redirect points to alternative guidelines or controls that should be followed instead
+redirect points to alternative guidelines or controls that should be followed instead
 
 - **Type**: [MultiMapping]
 
@@ -318,6 +348,8 @@ Optional:
 
 #### `redirect.entries`
 
+entries is a list of mapping entries
+
 - **Type**: `array`
 - **Items**: [MappingEntry]
 
@@ -333,18 +365,21 @@ ReferenceId should reference the corresponding MappingReference id from metadata
 
 #### `redirect.remarks` (optional)
 
+remarks is prose regarding the mapped artifact or the mapping relationship
+
 - **Type**: `string`
 
 ---
 
 ## `Guideline`
 
-Guideline represents a single guideline within a guidance document
+Guideline provides explanatory context and recommendations for designing optimal outcomes
 
 Required:
 
 - `family`
 - `id`
+- `objective`
 - `title`
 
 Optional:
@@ -352,18 +387,18 @@ Optional:
 - `applicability`
 - `extends`
 - `guideline-mappings`
-- `objective`
 - `principle-mappings`
 - `rationale`
 - `recommendations`
 - `see-also`
 - `statements`
+- `vector-mappings`
 
 ---
 
 ### `applicability` (optional)
 
-Applicability specifies the contexts in which this guideline applies.
+applicability specifies the contexts in which this guideline applies
 
 - **Type**: `array`
 - **Items**: `string`
@@ -372,7 +407,7 @@ Applicability specifies the contexts in which this guideline applies.
 
 ### `extends` (optional)
 
-Extends allows you to add supplemental guidance within a local guidance document
+extends is an id for a guideline which this guideline adds to, in this document or elsewhere
 
 - **Type**: [SingleMapping]
 
@@ -384,10 +419,13 @@ Optional:
 
 - `reference-id`
 - `remarks`
+- `strength`
 
 ---
 
 #### `extends.entry-id`
+
+entry-id is the identifier being mapped to in the referenced artifact
 
 - **Type**: `string`
 
@@ -395,7 +433,7 @@ Optional:
 
 #### `extends.reference-id` (optional)
 
-ReferenceId should reference the corresponding MappingReference id from metadata
+reference-id is the id for a MappingReference entry in the artifact's metadata
 
 - **Type**: `string`
 
@@ -403,19 +441,31 @@ ReferenceId should reference the corresponding MappingReference id from metadata
 
 #### `extends.remarks` (optional)
 
+remarks is prose describing the mapping relationship
+
+- **Type**: `string`
+
+---
+
+#### `extends.strength` (optional)
+
+strength is the author's estimate of how completely the current/source material satisfies the target/reference material;
+
 - **Type**: `string`
 
 ---
 
 ### `family`
 
-Family id that this guideline belongs to
+family provides an id to the family that this guideline belongs to
 
 - **Type**: `string`
 
 ---
 
 ### `guideline-mappings` (optional)
+
+guideline-mappings documents the relationship between this guideline and external guidelines
 
 - **Type**: `array`
 - **Items**: [MultiMapping]
@@ -424,11 +474,15 @@ Family id that this guideline belongs to
 
 ### `id`
 
+id allows this entry to be referenced by other elements
+
 - **Type**: `string`
 
 ---
 
-### `objective` (optional)
+### `objective`
+
+objective is a unified statement of intent, which may encompass multiple situationally applicable statements
 
 - **Type**: `string`
 
@@ -436,7 +490,7 @@ Family id that this guideline belongs to
 
 ### `principle-mappings` (optional)
 
-A list for associated key principle ids
+principle-mappings documents the relationship between this guideline and one or more principles
 
 - **Type**: `array`
 - **Items**: [MultiMapping]
@@ -445,7 +499,7 @@ A list for associated key principle ids
 
 ### `rationale` (optional)
 
-Rationale provides contextual information to help with development and understanding of
+rationale provides the context for this guideline
 
 - **Type**: [Rationale]
 
@@ -458,6 +512,8 @@ Required if `rationale` is present:
 
 #### `rationale.goals`
 
+goals is a list of outcomes this guideline seeks to achieve
+
 - **Type**: `array`
 - **Items**: `string`
 
@@ -465,13 +521,15 @@ Required if `rationale` is present:
 
 #### `rationale.importance`
 
+importance is an explanation of why this guideline matters
+
 - **Type**: `string`
 
 ---
 
 ### `recommendations` (optional)
 
-Maps to fields commonly seen in controls with implementation guidance
+recommendations is a list of non-binding suggestions to aid in evaluation or enforcement of the guideline
 
 - **Type**: `array`
 - **Items**: `string`
@@ -480,7 +538,7 @@ Maps to fields commonly seen in controls with implementation guidance
 
 ### `see-also` (optional)
 
-SeeAlso lists related guideline IDs within the same Guidance document.
+see-also lists related guideline IDs within the same GuidanceCatalog
 
 - **Type**: `array`
 - **Items**: `string`
@@ -489,6 +547,8 @@ SeeAlso lists related guideline IDs within the same Guidance document.
 
 ### `statements` (optional)
 
+statements is a list of structural sub-requirements within a guideline
+
 - **Type**: `array`
 - **Items**: [Statement]
 
@@ -496,13 +556,24 @@ SeeAlso lists related guideline IDs within the same Guidance document.
 
 ### `title`
 
+title describes the contents of this guideline
+
 - **Type**: `string`
+
+---
+
+### `vector-mappings` (optional)
+
+vector-mappings documents the relationship between this guideline and one or more vectors
+
+- **Type**: `array`
+- **Items**: [MultiMapping]
 
 ---
 
 ## `Statement`
 
-Statement represents a structural sub-requirement within a guideline
+Statement represents a structural sub-requirement within a guideline;
 
 Required:
 
@@ -518,11 +589,15 @@ Optional:
 
 ### `id`
 
+id allows this entry to be referenced by other elements
+
 - **Type**: `string`
 
 ---
 
 ### `recommendations` (optional)
+
+recommendations is a list of non-binding suggestions to aid in evaluation or enforcement of the statement
 
 - **Type**: `array`
 - **Items**: `string`
@@ -531,11 +606,15 @@ Optional:
 
 ### `text`
 
+text is the body of this statement
+
 - **Type**: `string`
 
 ---
 
 ### `title` (optional)
+
+title describes the contents of this statement
 
 - **Type**: `string`
 
@@ -543,7 +622,7 @@ Optional:
 
 ## `Rationale`
 
-Rationale provides contextual information to help with development and understanding of
+Rationale provides a structured way to communicate a guideline author's intent
 
 Required:
 
@@ -554,12 +633,16 @@ Required:
 
 ### `goals`
 
+goals is a list of outcomes this guideline seeks to achieve
+
 - **Type**: `array`
 - **Items**: `string`
 
 ---
 
 ### `importance`
+
+importance is an explanation of why this guideline matters
 
 - **Type**: `string`
 

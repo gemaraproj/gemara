@@ -5,7 +5,7 @@ title: Base
 
 ## `Contact`
 
-Contact represents contact information used across multiple layers
+Contact is the contact information for a person or group
 
 Required:
 
@@ -21,7 +21,7 @@ Optional:
 
 ### `affiliation` (optional)
 
-The entity with which the contact is affiliated, such as a school or employer.
+affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
 
 - **Type**: `string`
 
@@ -29,7 +29,7 @@ The entity with which the contact is affiliated, such as a school or employer.
 
 ### `email` (optional)
 
-A preferred email address to reach the contact.
+email is the preferred email address to reach the contact
 
 - **Type**: [Email]
 
@@ -37,7 +37,7 @@ A preferred email address to reach the contact.
 
 ### `name`
 
-The contact person's name.
+name is the preferred descriptor for the contact entity
 
 - **Type**: `string`
 
@@ -45,7 +45,7 @@ The contact person's name.
 
 ### `social` (optional)
 
-A social media handle or profile for the contact.
+social is a social media handle or other profile for the contact, such as GitHub
 
 - **Type**: `string`
 
@@ -53,7 +53,7 @@ A social media handle or profile for the contact.
 
 ## `Actor`
 
-Actor represents an entity (human or tool) that can perform actions in evaluations.
+Actor represents an entity (human or tool) that can perform actions in evaluations
 
 Required:
 
@@ -72,7 +72,7 @@ Optional:
 
 ### `contact` (optional)
 
-Contact provides contact information for the actor.
+contact is contact information for the actor
 
 - **Type**: [Contact]
 
@@ -90,7 +90,7 @@ Optional:
 
 #### `contact.affiliation` (optional)
 
-The entity with which the contact is affiliated, such as a school or employer.
+affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
 
 - **Type**: `string`
 
@@ -98,7 +98,7 @@ The entity with which the contact is affiliated, such as a school or employer.
 
 #### `contact.email` (optional)
 
-A preferred email address to reach the contact.
+email is the preferred email address to reach the contact
 
 - **Type**: [Email]
 
@@ -106,7 +106,7 @@ A preferred email address to reach the contact.
 
 #### `contact.name`
 
-The contact person's name.
+name is the preferred descriptor for the contact entity
 
 - **Type**: `string`
 
@@ -114,7 +114,7 @@ The contact person's name.
 
 #### `contact.social` (optional)
 
-A social media handle or profile for the contact.
+social is a social media handle or other profile for the contact, such as GitHub
 
 - **Type**: `string`
 
@@ -122,7 +122,7 @@ A social media handle or profile for the contact.
 
 ### `description` (optional)
 
-Description provides additional context about the actor.
+description provides additional context about the actor
 
 - **Type**: `string`
 
@@ -130,7 +130,7 @@ Description provides additional context about the actor.
 
 ### `id`
 
-Id uniquely identifies the actor.
+id uniquely identifies the actor and allows this entry to be referenced by other elements
 
 - **Type**: `string`
 
@@ -138,7 +138,7 @@ Id uniquely identifies the actor.
 
 ### `name`
 
-Name provides the name of the actor.
+name is the name of the actor
 
 - **Type**: `string`
 
@@ -146,7 +146,7 @@ Name provides the name of the actor.
 
 ### `type`
 
-Type specifies the type of entity interacting in the workflow.
+type specifies the type of entity interacting in the workflow
 
 - **Type**: [ActorType]
 
@@ -154,7 +154,7 @@ Type specifies the type of entity interacting in the workflow.
 
 ### `uri` (optional)
 
-Uri provides a general URI for the actor information.
+uri is a general URI for the actor information
 
 - **Type**: `string`
 
@@ -162,7 +162,7 @@ Uri provides a general URI for the actor information.
 
 ### `version` (optional)
 
-Version specifies the version of the actor (if applicable, e.g., for tools).
+version is the version of the actor (for tools; if applicable)
 
 - **Type**: `string`
 
@@ -170,7 +170,7 @@ Version specifies the version of the actor (if applicable, e.g., for tools).
 
 ## `ActorType`
 
-ActorType specifies what entity is interacting in the workflow.
+ActorType specifies what entity is interacting in the workflow
 
 - **Type**: `string`
 
@@ -219,17 +219,23 @@ Required:
 
 ### `description`
 
+description explains the significance and traits of entries to this category
+
 - **Type**: `string`
 
 ---
 
 ### `id`
 
+id allows this entry to be referenced by other elements
+
 - **Type**: `string`
 
 ---
 
 ### `title`
+
+title describes the purpose of this category at a glance
 
 - **Type**: `string`
 
@@ -249,17 +255,23 @@ Required:
 
 ### `description`
 
+description explains the significance and traits of entries to this entity family
+
 - **Type**: `string`
 
 ---
 
 ### `id`
 
+id allows this entry to be referenced by other elements
+
 - **Type**: `string`
 
 ---
 
 ### `title`
+
+title describes the purpose of this family at a glance
 
 - **Type**: `string`
 

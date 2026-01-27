@@ -11,7 +11,7 @@ title: Refine Terms for Top-level Schema Types
 
 We have been organizing schemas based on the layer they fit into — one document per layer. The terms we use for the schema types have been evolving over time and do not successfully achieve consistency and clarity.
 
-Additionally, the model changes from [ADR-0010](./0010-dual-ladder-layers.md) have not all been applied to the latest schemas.
+Additionally, the model changes from [ADR-0010](./0010-dual-ladder-layers) have not all been applied to the latest schemas.
 
 Below are the current top-level types at the time of this proposal:
 

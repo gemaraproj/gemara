@@ -6,37 +6,46 @@ import "time"
 
 @go(gemara)
 
-// Contact represents contact information used across multiple layers
+// Contact is the contact information for a person or group
 #Contact: {
-	// The contact person's name.
+	// name is the preferred descriptor for the contact entity
 	name: string
-	// The entity with which the contact is affiliated, such as a school or employer.
+
+	// affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
 	affiliation?: string @go(Affiliation,type=*string)
-	// A preferred email address to reach the contact.
+
+	// email is the preferred email address to reach the contact
 	email?: #Email @go(Email,type=*Email)
-	// A social media handle or profile for the contact.
+
+	// social is a social media handle or other profile for the contact, such as GitHub
 	social?: string @go(Social,type=*string)
 }
 
-// Actor represents an entity (human or tool) that can perform actions in evaluations.
+// Actor represents an entity (human or tool) that can perform actions in evaluations
 #Actor: {
-	// Id uniquely identifies the actor.
+	// id uniquely identifies the actor and allows this entry to be referenced by other elements
 	id: string
-	// Name provides the name of the actor.
+
+	// name is the name of the actor
 	name: string
-	// Type specifies the type of entity interacting in the workflow.
+
+	// type specifies the type of entity interacting in the workflow
 	type: #ActorType @go(Type)
-	// Version specifies the version of the actor (if applicable, e.g., for tools).
+
+	// version is the version of the actor (for tools; if applicable)
 	version?: string
-	// Description provides additional context about the actor.
+
+	// description provides additional context about the actor
 	description?: string
-	// Uri provides a general URI for the actor information.
+
+	// uri is a general URI for the actor information
 	uri?: =~"^https?://[^\\s]+$"
-	// Contact provides contact information for the actor.
+
+	// contact is contact information for the actor
 	contact?: #Contact @go(Contact)
 }
 
-// ActorType specifies what entity is interacting in the workflow.
+// ActorType specifies what entity is interacting in the workflow
 #ActorType: "Human" | "Software" | "Software-Assisted" @go(-)
 
 // Email represents a validated email address pattern
@@ -50,14 +59,24 @@ import "time"
 
 // Category represents a category used for applicability or classification
 #Category: {
-	id:          string
-	title:       string
+	// id allows this entry to be referenced by other elements
+	id: string
+
+	// title describes the purpose of this category at a glance
+	title: string
+
+	// description explains the significance and traits of entries to this category
 	description: string
 }
 
 // Family represents a logical grouping of guidelines or controls which share a common purpose or function
 #Family: {
-	id:          string
-	title:       string
+	// id allows this entry to be referenced by other elements
+	id: string
+
+	// title describes the purpose of this family at a glance
+	title: string
+
+	// description explains the significance and traits of entries to this entity family
 	description: string
 }

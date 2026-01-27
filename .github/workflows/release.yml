@@ -2,8 +2,16 @@
 name: "Release"
 on:
   workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 jobs:
   release:
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'release'))
     permissions:
       contents: write
       pull-requests: read

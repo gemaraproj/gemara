@@ -93,13 +93,13 @@ The Implementation evolves based on community needs:
 - **Schema improvements?** Open an issue or submit a PR
 - **New features or APIs?** Propose changes via PR
 - **Found a bug?** Report it
-- **Significant architectural changes?** Document in an [ADR](../adr.html)
+- **Significant architectural changes?** Document in an [ADR](../adrs/index.html)
 
 See the [Contributing Guide](https://github.com/gemaraproj/gemara/blob/main/CONTRIBUTING.md) for details.
 
 ## Architecture Decisions
 
-Significant implementation changes are documented in [Architecture Decision Records (ADRs)](../adr.html).
+Significant implementation changes are documented in [Architecture Decision Records (ADRs)](../adrs/index.html).
 
 ## Versioning and Maintenance
 

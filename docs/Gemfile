@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 # Specify minimum Ruby version
-ruby ">= 3.0.0"
+ruby ">= 3.2.0"
 
 # Jekyll version
 gem "jekyll", "~> 4.4.1"
@@ -19,6 +19,11 @@ group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.12"
   gem "jekyll-seo-tag", "~> 2.8"
   gem "jekyll-remote-theme", "~> 0.4"
+end
+
+# Development and testing tools
+group :development, :test do
+  gem "html-proofer", "~> 5.0"
 end
 
 # Platform-specific gems

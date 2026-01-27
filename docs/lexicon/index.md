@@ -15,7 +15,7 @@ The Lexicon helps teams:
 
 ## Full Lexicon
 
-**[View the complete lexicon →](./lexicon.html)**
+**[View the complete lexicon →](./lexicon)**
 
 ## Contributing
 

@@ -1,12 +1,13 @@
 - title: Home
   url: /
 - title: The Model
-  url: /model.html
+  url: /model/
 - title: Roadmap
-  url: /roadmap.html
+  url: /roadmap
 - title: ADRs
-  url: /adr.html
+  url: /adrs/
 - title: Community
-  url: /community/index.html
+  url: /community/
 - title: Schema
   url: /schema/
+  
