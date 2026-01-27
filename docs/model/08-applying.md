@@ -31,3 +31,4 @@ When partnered with an Agent2Agent (A2A) enabled system — allowing GRC-special
 
 - **< Previous Page**: [Layer 7](./07.3-Layer-7.html)
 <!-- - **> Next Page**: [Gemara SDKs](TODO)-->
+- **> Next Page**: [Authors & Acknowledgments](/model/10-acknowledgement)
