@@ -15,7 +15,7 @@ title: Definitions
 | **Assessment Requirement** | Tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator | Layer 2 |
 | **Assessment** | Atomic process used to determine a resource's compliance with an assessment requirement | Layer 5 |
 | **Control Catalog** | A set of related controls and relevant metadata | Layer 2 |
-| **GRC** | Governance, risk, and compliance; especially a coordinated program dedicated to these elements within a business unit | | Governance, risk, and compliance; especially a coordinated program dedicated to these elements within a business unit | |
+| **GRC** | Governance, risk, and compliance; especially a coordinated program dedicated to these elements within a business unit | |
 | **Governance** | Strategic oversight of an organization and its activities | |
 | **Risk** | The potential for loss or damage when a threat is actualized, determined by calculating the impact of an event to an organization and the likelihood of its occurrence | Layer 3 |
 | **Compliance** | Adherence to an active policy | |
