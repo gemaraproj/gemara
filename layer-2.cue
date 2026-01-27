@@ -67,6 +67,7 @@ package schemas
 	// title describes the purpose of this catalog at a glance
 	title: string
 
+	// metadata provides detailed data about this catalog
 	"metadata"?: #Metadata @go(Metadata)
 
 	// threats is a list of threats defined by this catalog
