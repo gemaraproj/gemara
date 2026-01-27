@@ -11,7 +11,7 @@ import (
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/load"
 	"cuelang.org/go/cue/token"
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 // ConvertOpts configures CUE-to-OpenAPI conversion.
@@ -90,8 +90,8 @@ func convertCUEToOpenAPI(schemaDir, outputPath string, opts ConvertOpts) error {
 	spec := &OpenAPISpec{
 		OpenAPI: "3.0.3",
 		Info: OpenAPIInfo{
-			Title:   title,
-			Version: version,
+			Title:       title,
+			Version:     version,
 			Description: "Gemara schema definitions",
 		},
 		Components: OpenAPIComponents{
