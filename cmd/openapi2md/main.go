@@ -590,43 +590,7 @@ func generateFieldSection(fieldName string, fieldSchema Schema, spec OpenAPISpec
 
 		// Show type reference (refType already declared above)
 		buf.WriteString(fmt.Sprintf("- **Type**: [%s]\n", refType))
-
-		// Show required vs optional for the referenced type
-		if len(refSchema.Required) > 0 || refSchema.Properties != nil {
-			buf.WriteString("\n")
-			if len(refSchema.Required) > 0 {
-				buf.WriteString(fmt.Sprintf("Required if `%s` is present:\n\n", fieldPath))
-				required := make([]string, len(refSchema.Required))
-				copy(required, refSchema.Required)
-				sort.Strings(required)
-				for _, req := range required {
-					buf.WriteString(fmt.Sprintf("- `%s`\n", req))
-				}
-			}
-			if refSchema.Properties != nil {
-				var optional []string
-				for propName := range refSchema.Properties {
-					isRequired := false
-					for _, req := range refSchema.Required {
-						if req == propName {
-							isRequired = true
-							break
-						}
-					}
-					if !isRequired {
-						optional = append(optional, propName)
-					}
-				}
-				sort.Strings(optional)
-				if len(optional) > 0 {
-					buf.WriteString("\nOptional:\n\n")
-					for _, opt := range optional {
-						buf.WriteString(fmt.Sprintf("- `%s`\n", opt))
-					}
-				}
-			}
-			buf.WriteString("\n---\n\n")
-		}
+		buf.WriteString("\n---\n\n")
 
 		// Recursively generate nested fields
 		if refSchema.Properties != nil {
