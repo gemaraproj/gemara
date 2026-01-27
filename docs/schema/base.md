@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Base
+title: Aliases & Base Types
 ---
 
 ## `Contact`

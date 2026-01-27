@@ -6,7 +6,7 @@ nav-title: Schema
 
 Schema documentation generated from CUE. One page per schema file.
 
-- [Base](base.html)
+- [Aliases & Base Types](base.html)
 - [Metadata](metadata.html)
 - [Mapping](mapping.html)
 - [Layer 1](layer-1.html)

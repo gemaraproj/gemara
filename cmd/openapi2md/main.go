@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/goccy/go-yaml"
 )
@@ -39,14 +40,30 @@ type Schema struct {
 	Ref         string                 `yaml:"$ref"`
 }
 
+type NavPage struct {
+	Title    string   `yaml:"title"`
+	Filename string   `yaml:"filename"`
+	Schemas  []string `yaml:"schemas"`
+}
+
+type NavConfig struct {
+	Pages []NavPage `yaml:"pages"`
+}
+
 func main() {
 	inputFile := flag.String("input", "openapi.yaml", "Input OpenAPI YAML file")
 	outputDir := flag.String("output", "spec", "Output directory for markdown files")
 	manifestPath := flag.String("manifest", "", "Path to schema-manifest.json for per-file mode")
-	rootsFlag := flag.String("roots", "", "Comma-separated list of root schema names (used when -manifest is not set)")
+	navPath := flag.String("nav", "", "Path to schema-nav.yml for nav-based mode")
+	rootsFlag := flag.String("roots", "", "Comma-separated list of root schema names (used when -manifest and -nav are not set)")
 	flag.Parse()
 
-	if *manifestPath != "" {
+	if *navPath != "" {
+		if err := convertFromNav(*inputFile, *outputDir, *navPath); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+	} else if *manifestPath != "" {
 		if err := convertPerFile(*inputFile, *outputDir, *manifestPath); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
@@ -54,7 +71,7 @@ func main() {
 	} else {
 		roots := splitRoots(*rootsFlag)
 		if len(roots) == 0 {
-			fmt.Fprintf(os.Stderr, "Error: -roots is required when -manifest is not set\n")
+			fmt.Fprintf(os.Stderr, "Error: -roots is required when -manifest and -nav are not set\n")
 			os.Exit(1)
 		}
 		if err := convertOpenAPIToMarkdown(*inputFile, *outputDir, roots); err != nil {
@@ -112,6 +129,102 @@ func loadManifest(path string) (map[string][]string, error) {
 		return nil, fmt.Errorf("parse manifest: %w", err)
 	}
 	return m, nil
+}
+
+func loadNavFile(path string) (*NavConfig, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read nav file: %w", err)
+	}
+	var nav NavConfig
+	if err := yaml.Unmarshal(data, &nav); err != nil {
+		return nil, fmt.Errorf("parse nav file: %w", err)
+	}
+	return &nav, nil
+}
+
+func slugify(s string) string {
+	var result strings.Builder
+	for _, r := range s {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			result.WriteRune(unicode.ToLower(r))
+		} else if r == ' ' || r == '-' {
+			result.WriteRune('-')
+		}
+	}
+	return result.String()
+}
+
+func convertFromNav(inputFile, outputDir, navPath string) error {
+	// Load OpenAPI spec
+	data, err := os.ReadFile(inputFile)
+	if err != nil {
+		return fmt.Errorf("failed to read OpenAPI file: %w", err)
+	}
+	var spec OpenAPISpec
+	if err := yaml.Unmarshal(data, &spec); err != nil {
+		return fmt.Errorf("failed to parse OpenAPI YAML: %w", err)
+	}
+
+	// Load nav file
+	nav, err := loadNavFile(navPath)
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(outputDir, 0755); err != nil {
+		return fmt.Errorf("failed to create output directory: %w", err)
+	}
+
+	version := spec.Info.Version
+	if version == "" {
+		version = "unknown"
+	}
+
+	// For each page in nav
+	for _, page := range nav.Pages {
+		// Initialize a markdown buffer
+		var buf strings.Builder
+		// Initialize a visited map (for tracking circular references in field sections)
+		visited := make(map[string]bool)
+
+		// For each schema name listed in the page's schemas array
+		for _, schemaName := range page.Schemas {
+			// Look up schema in spec.Components.Schemas
+			schemaData, ok := spec.Components.Schemas[schemaName]
+			if !ok {
+				return fmt.Errorf("schema %q not found in OpenAPI spec (referenced in page %q)", schemaName, page.Title)
+			}
+
+			// Parse schema data into Schema struct
+			schemaBytes, _ := yaml.Marshal(schemaData)
+			var schema Schema
+			if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
+				return fmt.Errorf("failed to parse schema %q: %w", schemaName, err)
+			}
+
+			// Use isAlias() to determine schema type
+			if isAlias(schema) {
+				buf.WriteString(generateAliasBlock(schemaName, schema))
+			} else {
+				buf.WriteString(generateRootSection(schemaName, schema, spec, version, visited))
+			}
+		}
+
+		// Determine output filename
+		filename := page.Filename
+		if filename == "" {
+			filename = slugify(page.Title)
+		}
+
+		// Write page buffer to {filename}.md
+		outPath := filepath.Join(outputDir, filename+".md")
+		if err := os.WriteFile(outPath, []byte(buf.String()), 0644); err != nil {
+			return fmt.Errorf("write %s: %w", outPath, err)
+		}
+	}
+
+	return nil
 }
 
 func convertPerFile(inputFile, outputDir, manifestPath string) error {

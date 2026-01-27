@@ -73,6 +73,7 @@ OPENAPI_YAML := $(GENERATED_DIR)/openapi.yaml
 MANIFEST_JSON := $(GENERATED_DIR)/schema-manifest.json
 SPEC_DIR := $(GENERATED_DIR)/spec
 DOCS_SCHEMA_DIR := docs/schema
+SCHEMA_NAV := docs/schema-nav.yml
 
 genopenapi:
 	@echo "  >  Converting CUE schema to OpenAPI ..."
@@ -83,24 +84,23 @@ genopenapi:
 genmd: genopenapi
 	@echo "  >  Generating markdown from OpenAPI ..."
 	@mkdir -p $(SPEC_DIR)
-	@cd cmd/openapi2md && go run . -input ../../$(OPENAPI_YAML) -output ../../$(SPEC_DIR) -manifest ../../$(MANIFEST_JSON)
+	@cd cmd/openapi2md && go run . -input ../../$(OPENAPI_YAML) -output ../../$(SPEC_DIR) -nav ../../$(SCHEMA_NAV)
 	@echo "  >  Markdown generation complete!"
 
 gendocs: genmd
 	@echo "  >  Copying schema pages to $(DOCS_SCHEMA_DIR)/ for website ..."
 	@mkdir -p $(DOCS_SCHEMA_DIR)
-	@for f in $(SPEC_DIR)/*.md; do \
-		[ -f "$$f" ] || continue; \
-		base=$$(basename "$$f" .md); \
-		title=$$(sh "$(CURDIR)/cmd/scripts/schema-display-name.sh" "$$base"); \
-		{ \
-			echo "---"; \
-			echo "layout: page"; \
-			echo "title: $$title"; \
-			echo "---"; \
-			echo ""; \
-			cat "$$f"; \
-		} > "$(DOCS_SCHEMA_DIR)/$$base.md"; \
+	@sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+		if [ -f "$(SPEC_DIR)/$$filename.md" ]; then \
+			{ \
+				echo "---"; \
+				echo "layout: page"; \
+				echo "title: $$title"; \
+				echo "---"; \
+				echo ""; \
+				cat "$(SPEC_DIR)/$$filename.md"; \
+			} > "$(DOCS_SCHEMA_DIR)/$$filename.md"; \
+		fi; \
 	done
 	@echo "  >  Generating $(DOCS_SCHEMA_DIR)/index.md ..."
 	@{ \
@@ -112,11 +112,10 @@ gendocs: genmd
 		echo ""; \
 		echo "Schema documentation generated from CUE. One page per schema file."; \
 		echo ""; \
-		for f in $(SPEC_DIR)/base.md $(SPEC_DIR)/metadata.md $(SPEC_DIR)/mapping.md $(SPEC_DIR)/layer-1.md $(SPEC_DIR)/layer-2.md $(SPEC_DIR)/layer-3.md $(SPEC_DIR)/layer-5.md; do \
-			[ -f "$$f" ] || continue; \
-			base=$$(basename "$$f" .md); \
-			title=$$(sh "$(CURDIR)/cmd/scripts/schema-display-name.sh" "$$base"); \
-			echo "- [$$title]($$base.html)"; \
+		sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+			if [ -f "$(DOCS_SCHEMA_DIR)/$$filename.md" ]; then \
+				echo "- [$$title]($$filename.html)"; \
+			fi; \
 		done; \
 	} > "$(DOCS_SCHEMA_DIR)/index.md"
 	@echo "  >  Documentation generation complete!"
