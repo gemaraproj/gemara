@@ -1,11 +1,11 @@
 - title: Home
   url: /
 - title: The Model
-  url: /model.html
+  url: /model/index.html
 - title: Roadmap
   url: /roadmap.html
 - title: ADRs
-  url: /adr.html
+  url: /adrs/index.html
 - title: Community
   url: /community/index.html
   

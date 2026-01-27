@@ -3,25 +3,52 @@
     <h3 class="sidebar-title">Quick Links</h3>
     <nav class="sidebar-nav">
       {%- for item in site.data.navigation -%}
-        {%- assign nav_page = site.pages | where: "url", item.url | first -%}
-        {%- if nav_page.nav-title and nav_page.nav-title != "" -%}
-          {%- assign dir_name = nav_page.nav-title | downcase -%}
-          {%- assign dir_path = dir_name | append: "/" -%}
-          {%- assign index_file = dir_name | append: ".md" -%}
-          {%- assign index_file_html = dir_name | append: ".html" -%}
-          <details class="sidebar-details">
-            <summary class="sidebar-summary">
-              <a href="{{ item.url | relative_url }}" class="sidebar-summary-link" onclick="event.stopPropagation();">{{ item.title | escape }}</a>
-            </summary>
-            <div class="sidebar-nested">
-              {%- assign child_pages = site.pages | sort: "path" -%}
-              {%- for child_page in child_pages -%}
-                {%- if child_page.path contains dir_path and child_page.path contains ".md" and child_page.path != index_file and child_page.path != index_file_html -%}
-                  <a href="{{ child_page.url | relative_url }}" class="sidebar-link sidebar-nested-link">{{ child_page.title | default: child_page.name | escape }}</a>
+        {%- assign is_index_page = false -%}
+        {%- assign dir_name = "" -%}
+        {%- if item.url != "/" -%}
+          {%- if item.url contains "/index.html" -%}
+            {%- assign url_parts = item.url | split: "/" -%}
+            {%- assign dir_name = "" -%}
+            {%- for part in url_parts -%}
+              {%- if part != "" and part != "index.html" -%}
+                {%- if dir_name == "" -%}
+                  {%- assign dir_name = part -%}
+                {%- else -%}
+                  {%- assign dir_name = dir_name | append: "/" | append: part -%}
                 {%- endif -%}
-              {%- endfor -%}
-            </div>
-          </details>
+              {%- endif -%}
+            {%- endfor -%}
+            {%- if dir_name != "" -%}
+              {%- assign is_index_page = true -%}
+            {%- endif -%}
+          {%- endif -%}
+        {%- endif -%}
+        {%- if is_index_page -%}
+          {%- assign dir_path = dir_name | append: "/" -%}
+          {%- assign index_file = dir_name | append: "/index.md" -%}
+          {%- assign has_children = false -%}
+          {%- assign child_pages = site.pages | sort: "path" -%}
+          {%- for child_page in child_pages -%}
+            {%- if child_page.path contains dir_path and child_page.path contains ".md" and child_page.path != index_file -%}
+              {%- assign has_children = true -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- if has_children -%}
+            <details class="sidebar-details">
+              <summary class="sidebar-summary">
+                <a href="{{ item.url | relative_url }}" class="sidebar-summary-link" onclick="event.stopPropagation();">{{ item.title | escape }}</a>
+              </summary>
+              <div class="sidebar-nested">
+                {%- for child_page in child_pages -%}
+                  {%- if child_page.path contains dir_path and child_page.path contains ".md" and child_page.path != index_file -%}
+                    <a href="{{ child_page.url | relative_url }}" class="sidebar-link sidebar-nested-link">{{ child_page.title | default: child_page.name | escape }}</a>
+                  {%- endif -%}
+                {%- endfor -%}
+              </div>
+            </details>
+          {%- else -%}
+            <a href="{{ item.url | relative_url }}" class="sidebar-link">{{ item.title | escape }}</a>
+          {%- endif -%}
         {%- else -%}
           <a href="{{ item.url | relative_url }}" class="sidebar-link">{{ item.title | escape }}</a>
         {%- endif -%}

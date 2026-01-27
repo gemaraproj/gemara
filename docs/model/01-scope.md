@@ -9,7 +9,7 @@ The purpose of this model is to provide a common basis for approaching activitie
 
 ## Continue Reading
 
-- **< Previous Page**: [Introduction to the Model](../model.html)
+- **< Previous Page**: [Introduction to the Model](../index.html)
 - **> Next Page**: [Definitions](./02-definitions.html)
 
 ---

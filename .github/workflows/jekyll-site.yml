@@ -60,7 +60,7 @@ jobs:
           test -f docs/_site/lexicon/lexicon.html || { echo "Error: Missing lexicon.html"; exit 1; }
           # Verify sidebar is included in pages that should have it (not homepage)
           grep -q "Quick Links" docs/_site/lexicon/lexicon.html || { echo "Error: Sidebar not found in lexicon.html"; exit 1; }
-          grep -q "Quick Links" docs/_site/adr.html || { echo "Error: Sidebar not found in adr.html"; exit 1; }
+          grep -q "Quick Links" docs/_site/adrs/index.html || { echo "Error: Sidebar not found in adrs/index.html"; exit 1; }
           echo "Success: All expected pages generated successfully"
 
       - name: Upload artifact for GitHub Pages

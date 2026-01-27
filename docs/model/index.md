@@ -1,6 +1,5 @@
 ---
 layout: page
-nav-title: Model
 ---
 
 # The Gemara Model
@@ -81,6 +80,6 @@ This model is intentionally stable. Changes are rare and require significant com
 
 ## Continue Reading
 
-- **> Next Page**: [Scope](./model/01-scope.html)
+- **> Next Page**: [Scope](./01-scope.html)
 
 ---
