@@ -152,10 +152,8 @@ func convertPerFile(inputFile, outputDir, manifestPath string) error {
 			continue
 		}
 		base := strings.TrimSuffix(cueFile, ".cue")
-		displayName := displayNameFor(base)
 
 		var buf strings.Builder
-		buf.WriteString(fmt.Sprintf("# %s\n\n", displayName))
 
 		for _, name := range schemaNames {
 			schemaData, ok := spec.Components.Schemas[name]
