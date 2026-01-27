@@ -60,10 +60,10 @@ import "time"
 // Category represents a category used for applicability or classification
 #Category: {
 	// id allows this entry to be referenced by other elements
-	id:          string
+	id: string
 
 	// title describes the purpose of this category at a glance
-	title:       string
+	title: string
 
 	// description explains the significance and traits of entries to this category
 	description: string
@@ -72,10 +72,10 @@ import "time"
 // Family represents a logical grouping of guidelines or controls which share a common purpose or function
 #Family: {
 	// id allows this entry to be referenced by other elements
-	id:          string
+	id: string
 
 	// title describes the purpose of this family at a glance
-	title:       string
+	title: string
 
 	// description explains the significance and traits of entries to this entity family
 	description: string

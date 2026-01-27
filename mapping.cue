@@ -10,19 +10,19 @@ package schemas
 // MappingReference represents a reference to an external document with full metadata.
 #MappingReference: {
 	// id allows this entry to be referenced by other elements
-	id:           string
+	id: string
 
 	// title describes the purpose of this mapping reference at a glance
-	title:        string
+	title: string
 
 	// version is the version identifier of the artifact being mapped to
-	version:      string
+	version: string
 
 	// description is prose regarding the artifact's purpose or content
 	description?: string
 
 	// url is the path where the artifact may be retrieved; preferrably responds with Gemara-compatible YAML/JSON
-	url?:         =~"^(https?|file)://[^\\s]+$"
+	url?: =~"^(https?|file)://[^\\s]+$"
 }
 
 // MultiMapping represents a mapping to an external reference with one or more entries.
@@ -43,14 +43,14 @@ package schemas
 	"reference-id"?: string @go(ReferenceId)
 
 	// entry-id is the identifier being mapped to in the referenced artifact
-	"entry-id":      string @go(EntryId)
+	"entry-id": string @go(EntryId)
 
 	// strength is the author's estimate of how completely the current/source material satisfies the target/reference material;
 	// Range: 1-10. Zero value means not yet quantified.
 	strength?: int & >=1 & <=10
 
 	// remarks is prose describing the mapping relationship
-	remarks?:        string
+	remarks?: string
 }
 
 // MappingEntry represents a single entry within a mapping
@@ -63,5 +63,5 @@ package schemas
 	strength?: int & >=1 & <=10
 
 	// remarks is prose describing the mapping relationship
-	remarks?:  string
+	remarks?: string
 }
