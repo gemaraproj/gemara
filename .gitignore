@@ -35,6 +35,10 @@ go.work.sum
 # artifacts
 artifacts/
 
+# Generated CUE→OpenAPI→Markdown pipeline output
+generated/
+.gocache/
+
 # Jekyll build output and cache
 _site/
 docs/_site/
