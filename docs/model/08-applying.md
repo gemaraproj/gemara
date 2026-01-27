@@ -5,7 +5,7 @@ title: The Need for Machine-Optimized Documentation Standards
 
 ## Going Beyond Machine-Readable
 
-As mentioned in the _[Prior Work](/model/03-foundational-concepts)_, the *GRC Engineering Model for Automated Risk Assessments* is the product of many previous iterations and learnings. 
+As mentioned in the _[Prior Work](./03-foundational-concepts.md)_, the *GRC Engineering Model for Automated Risk Assessments* is the product of many previous iterations and learnings. 
 
 Immense value has come from the work on OSCAL, where a large body of machine-readable documents have been crafted both publicly and privately by highly regulated organizations. The work done in the OSCAL space cannot be overlooked or discounted, as it has provided a great benefit to countless firms.
 
@@ -29,6 +29,6 @@ When a properly designed MCP system sits on top of a machine-optimized GRC datab
 
 When partnered with an Agent2Agent (A2A) enabled system — allowing GRC-specialized systems to provide precisely contextualized information to engineering-specialized systems in a near-deterministic manner — our AI systems will require dramatically fewer resources, our security tools increase in accuracy, less time is spent on false positives or negatives, and more time is spent delivering real value to the organization.
 
-- **< Previous Page**: [Layer 7](/model/07.3-Layer-7)
+- **< Previous Page**: [Layer 7](./07.3-Layer-7.html)
 <!-- - **> Next Page**: [Gemara SDKs](TODO)-->
 - **> Next Page**: [Authors & Acknowledgments](/model/10-acknowledgement)

@@ -6,7 +6,7 @@ title: The Gemara Lexicon
 **Status**: <span class="badge badge-evolving">Evolving</span>
 
 
-While the **[Model](/model)** describes the structure and relationships of GRC activities, the Lexicon provides the vocabulary. It establishes term meanings within the Gemara context, ensuring consistent definitions when teams discuss "controls," "evaluations," or "policies."
+While the **[Model](../model)** describes the structure and relationships of GRC activities, the Lexicon provides the vocabulary. It establishes term meanings within the Gemara context, ensuring consistent definitions when teams discuss "controls," "evaluations," or "policies."
 
 The Lexicon helps teams:
 - **Agree on terminology** across activities and teams
@@ -15,7 +15,7 @@ The Lexicon helps teams:
 
 ## Full Lexicon
 
-**[View the complete lexicon →](./lexicon)**
+**[View the complete lexicon →](./lexicon.html)**
 
 ## Contributing
 
@@ -29,10 +29,10 @@ See the [Contributing Guide](https://github.com/gemaraproj/gemara/blob/main/CONT
 
 ## Relationship to Other Components
 
-### [The Model](/model)
+### [The Model](../model)
 Provides the structural framework. Terms are organized by their relationship to the Model's layers.
 
-### [The Implementation](/implementation)
+### [The Implementation](../implementation)
 Uses Lexicon definitions to inform schema design and SDK documentation. Refer to the Lexicon for precise term meanings.
 
 ## Using the Lexicon

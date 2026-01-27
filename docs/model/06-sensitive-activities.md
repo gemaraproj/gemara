@@ -29,7 +29,7 @@ We see a fuller example in **Figure 6.2**, continuing the process into evaluatio
 
 ## Continue Reading
 
-- **< Previous Page**: [Layer 3](/model/05.3-Layer-3)
-- **> Next Page**: [The Measurement Layers](/model/07-measurement-layers)
+- **< Previous Page**: [Layer 3](./05.3-Layer-3.html)
+- **> Next Page**: [The Measurement Layers](./07-measurement-layers.html)
 
 ---

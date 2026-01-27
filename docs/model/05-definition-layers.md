@@ -21,7 +21,7 @@ As [Goodhart’s law](https://en.wikipedia.org/wiki/Goodhart's_law) teaches us: 
 
 ## Continue Reading
 
-- **< Previous Page**: [The Model](/model/04-the-model)
-- **> Next Page**: [Layer 1](/model/05.1-Layer-1)
+- **< Previous Page**: [The Model](./04-the-model.html)
+- **> Next Page**: [Layer 1](./05.1-Layer-1.html)
 
 ---

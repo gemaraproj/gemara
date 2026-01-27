@@ -5,7 +5,7 @@ title: Unified Go SDK Package Structure
 
 - **ADR:** 0006
 - **Proposal Author(s):** @jpower432
-- **Status:** Accepted; Modified by [ADR 0007](./0007-isolate-concepts-from-code) (SDK isolation); ; Modified by [ADR-0009](./0009-sensitive-activities) (numbering for layers 3+)
+- **Status:** Accepted; Modified by [ADR 0007](./0007-isolate-concepts-from-code.md) (SDK isolation); ; Modified by [ADR-0009](./0009-sensitive-activities.md) (numbering for layers 3+)
 
 ## Context
 
@@ -130,4 +130,4 @@ Create a `common/` package for shared types (e.g., `Metadata`, `Actor`, `Mapping
 
 - [Go Package Design](https://go.dev/blog/package-names)
 - [Effective Go - Packages](https://go.dev/doc/effective_go#names)
-- [Gemara Model Documentation](/model)
+- [Gemara Model Documentation](../../README.md#the-model)

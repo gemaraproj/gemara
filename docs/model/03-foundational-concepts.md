@@ -25,7 +25,7 @@ Mirroring the layered approach, the Gemara model defines a contiguous seven-laye
 
 ## Continue Reading
 
-- **< Previous Page**: [Definitions](/model/02-definitions)
-- **> Next Page**: [The Model](/model/04-the-model)
+- **< Previous Page**: [Definitions](./02-definitions.html)
+- **> Next Page**: [The Model](./04-the-model.html)
 
 ---

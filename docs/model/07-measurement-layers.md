@@ -17,7 +17,7 @@ An old leadership adage states that “a unit only does well that which its comm
 
 ## Continue Reading
 
-- **< Previous Page**: [Layer 4: Sensitive Activities](/model/06-sensitive-activities)
-- **> Next Page**: [Layer 5](/model/07.1-Layer-5)
+- **< Previous Page**: [Layer 4: Sensitive Activities](./06-sensitive-activities.html)
+- **> Next Page**: [Layer 5](./07.1-Layer-5.html)
 
 ---

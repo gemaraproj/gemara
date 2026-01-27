@@ -81,6 +81,6 @@ This model is intentionally stable. Changes are rare and require significant com
 
 ## Continue Reading
 
-- **> Next Page**: [Scope](/model/01-scope)
+- **> Next Page**: [Scope](./model/01-scope.html)
 
 ---
