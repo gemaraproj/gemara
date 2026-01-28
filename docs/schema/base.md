@@ -7,166 +7,53 @@ title: Aliases & Base Types
 
 Contact is the contact information for a person or group
 
-Required:
-
-- `name`
-
-Optional:
-
-- `affiliation`
-- `email`
-- `social`
-
----
-
-### `affiliation` (optional)
-
-affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
-
-- **Type**: `string`
-
----
-
-### `email` (optional)
-
-email is the preferred email address to reach the contact
-
-- **Type**: [Email]
-
----
-
-### `name`
+`name` **string** _Required_
 
 name is the preferred descriptor for the contact entity
 
-- **Type**: `string`
+`affiliation` **string**
 
----
+affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
 
-### `social` (optional)
+`email` **Email**
+
+email is the preferred email address to reach the contact
+
+`social` **string**
 
 social is a social media handle or other profile for the contact, such as GitHub
-
-- **Type**: `string`
-
----
 
 ## `Actor`
 
 Actor represents an entity (human or tool) that can perform actions in evaluations
 
-Required:
-
-- `id`
-- `name`
-- `type`
-
-Optional:
-
-- `contact`
-- `description`
-- `uri`
-- `version`
-
----
-
-### `contact` (optional)
-
-contact is contact information for the actor
-
-- **Type**: [Contact]
-
-Required if `contact` is present:
-
-- `name`
-
-Optional:
-
-- `affiliation`
-- `email`
-- `social`
-
----
-
-#### `contact.affiliation` (optional)
-
-affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
-
-- **Type**: `string`
-
----
-
-#### `contact.email` (optional)
-
-email is the preferred email address to reach the contact
-
-- **Type**: [Email]
-
----
-
-#### `contact.name`
-
-name is the preferred descriptor for the contact entity
-
-- **Type**: `string`
-
----
-
-#### `contact.social` (optional)
-
-social is a social media handle or other profile for the contact, such as GitHub
-
-- **Type**: `string`
-
----
-
-### `description` (optional)
-
-description provides additional context about the actor
-
-- **Type**: `string`
-
----
-
-### `id`
+`id` **string** _Required_
 
 id uniquely identifies the actor and allows this entry to be referenced by other elements
 
-- **Type**: `string`
-
----
-
-### `name`
+`name` **string** _Required_
 
 name is the name of the actor
 
-- **Type**: `string`
-
----
-
-### `type`
+`type` **ActorType** _Required_
 
 type specifies the type of entity interacting in the workflow
 
-- **Type**: [ActorType]
+`contact` **Contact**
 
----
+contact is contact information for the actor
 
-### `uri` (optional)
+`description` **string**
+
+description provides additional context about the actor
+
+`uri` **string**
 
 uri is a general URI for the actor information
 
-- **Type**: `string`
-
----
-
-### `version` (optional)
+`version` **string**
 
 version is the version of the actor (for tools; if applicable)
-
-- **Type**: `string`
-
----
 
 ## `ActorType`
 
@@ -209,71 +96,31 @@ Date represents a date string (ISO 8601 date format)
 
 Category represents a category used for applicability or classification
 
-Required:
-
-- `description`
-- `id`
-- `title`
-
----
-
-### `description`
+`description` **string** _Required_
 
 description explains the significance and traits of entries to this category
 
-- **Type**: `string`
-
----
-
-### `id`
+`id` **string** _Required_
 
 id allows this entry to be referenced by other elements
 
-- **Type**: `string`
-
----
-
-### `title`
+`title` **string** _Required_
 
 title describes the purpose of this category at a glance
-
-- **Type**: `string`
-
----
 
 ## `Family`
 
 Family represents a logical grouping of guidelines or controls which share a common purpose or function
 
-Required:
-
-- `description`
-- `id`
-- `title`
-
----
-
-### `description`
+`description` **string** _Required_
 
 description explains the significance and traits of entries to this entity family
 
-- **Type**: `string`
-
----
-
-### `id`
+`id` **string** _Required_
 
 id allows this entry to be referenced by other elements
 
-- **Type**: `string`
-
----
-
-### `title`
+`title` **string** _Required_
 
 title describes the purpose of this family at a glance
-
-- **Type**: `string`
-
----
 
