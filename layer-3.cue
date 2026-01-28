@@ -50,7 +50,7 @@ package schemas
 
 // Imports defines external policies, controls, and guidelines required by this policy.
 #Imports: {
-	policies?: [...string]
+	policies?: [...#ArtifactMapping]
 	catalogs?: [...#CatalogImport]
 	guidance?: [...#GuidanceImport]
 }

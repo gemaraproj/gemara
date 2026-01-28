@@ -29,5 +29,5 @@ package schemas
 	draft?: bool
 
 	// lexicon is a URI pointing to a controlled vocabulary or glossary relevant to this artifact
-	lexicon?: string
+	lexicon?: #ArtifactMapping @go(Lexicon,optional=nillable)
 }
