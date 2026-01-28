@@ -3,10 +3,6 @@
 
 package schemas
 
-// ============================================================================
-// Mapping Types - MappingReference, MappingEntry, MultiEntryMapping, EntryMapping
-// ============================================================================
-
 // MappingReference represents a reference to an external document with full metadata.
 #MappingReference: {
 	// id allows this entry to be referenced by other elements
@@ -23,6 +19,14 @@ package schemas
 
 	// url is the path where the artifact may be retrieved; preferrably responds with Gemara-compatible YAML/JSON
 	url?: =~"^(https?|file)://[^\\s]+$"
+}
+
+#ArtifactMapping: {
+	// ReferenceId should reference the corresponding MappingReference id from metadata
+	"reference-id": string @go(ReferenceId)
+
+	// remarks is prose regarding the mapped artifact or the mapping relationship
+	"remarks": string
 }
 
 // MultiEntryMapping represents a mapping to an external reference with one or more entries.
