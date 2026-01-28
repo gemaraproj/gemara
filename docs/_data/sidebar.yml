@@ -1,0 +1,8 @@
+- title: The Model
+  url: /model/
+- title: The Schemas
+  url: /schema/
+- title: SDKs
+  url: /sdk/
+- title: ADRs
+  url: /adrs/

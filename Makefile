@@ -102,22 +102,18 @@ gendocs: genmd
 			} > "$(DOCS_SCHEMA_DIR)/$$filename.md"; \
 		fi; \
 	done
-	@echo "  >  Generating $(DOCS_SCHEMA_DIR)/index.md ..."
-	@{ \
-		echo "---"; \
-		echo "layout: page"; \
-		echo "title: Schema"; \
-		echo "nav-title: Schema"; \
-		echo "---"; \
-		echo ""; \
-		echo "Schema documentation generated from CUE. One page per schema file."; \
-		echo ""; \
-		sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
-			if [ -f "$(DOCS_SCHEMA_DIR)/$$filename.md" ]; then \
-				echo "- [$$title]($$filename.html)"; \
-			fi; \
-		done; \
-	} > "$(DOCS_SCHEMA_DIR)/index.md"
+	@echo "  >  Updating schema list in $(DOCS_SCHEMA_DIR)/index.md ..."
+	@if [ -f "$(DOCS_SCHEMA_DIR)/index.md" ]; then \
+		schema_list=$$(sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+			[ -f "$(DOCS_SCHEMA_DIR)/$$filename.md" ] && echo "- [$$title]($$filename.html)"; \
+		done); \
+		awk -v list="$$schema_list" ' \
+			/<!-- SCHEMA_LIST_START -->/ { print; print ""; print list; print ""; skip=1; next } \
+			/<!-- SCHEMA_LIST_END -->/ { print; skip=0; next } \
+			skip==0 { print } \
+		' "$(DOCS_SCHEMA_DIR)/index.md" > "$(DOCS_SCHEMA_DIR)/index.md.tmp" && \
+		mv "$(DOCS_SCHEMA_DIR)/index.md.tmp" "$(DOCS_SCHEMA_DIR)/index.md"; \
+	fi
 	@echo "  >  Documentation generation complete!"
 
 .PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test-links clean stop restart check-jekyll genopenapi genmd gendocs

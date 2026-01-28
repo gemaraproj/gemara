@@ -2,7 +2,7 @@
   <div class="sidebar-content">
     <h3 class="sidebar-title">Quick Links</h3>
     <nav class="sidebar-nav">
-      {%- for item in site.data.navigation -%}
+      {%- for item in site.data.sidebar -%}
         {%- assign is_index_page = false -%}
         {%- assign dir_name = "" -%}
         {%- if item.url != "/" -%}

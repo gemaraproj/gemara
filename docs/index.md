@@ -41,26 +41,26 @@ Gemara delivers three core components that work together to support automated GR
       </p>
   </a>
 
-  <a href="./lexicon/" class="component-card">
-      <h2>The Lexicon</h2>
+  <a href="./schema/" class="component-card">
+      <h2>The Schemas</h2>
       <p class="component-description">
-        A comprehensive set of definitions that extend the model, helping teams agree on 
-        terminology across different activities and organizations.
+        Schemas (CUE format) that standardize the expression of elements in the model.
       </p>
       <p class="component-content">
-        Establishes stable definitions for compliance activities, describes their interactions, 
-        and provides standards for term usage.
+        Provides CUE schemas for validation across all layers. Enables automated validation and 
+        interoperability between tools.
       </p>
   </a>
 
-  <a href="./implementation/" class="component-card">
-     <h2>The Implementation</h2>
+  <a href="./sdk/" class="component-card">
+     <h2>The SDKs</h2>
      <p class="component-description">
-        Schemas and SDKs that extend the lexicon into machine-readable formats and 
-        tooling to accelerate automated tool development.
+        Language-specific SDKs that provide programmatic access to Gemara documents and tooling 
+        to accelerate automated tool development.
       </p>
       <p class="component-content">
-        Provides CUE schemas for validation and Go SDK for programmatic access. Active development area.
+        Currently provides Go SDK for reading, writing, and manipulating Gemara documents. 
+        Active development area.
       </p>
   </a>
 </div>
@@ -71,8 +71,8 @@ Gemara delivers three core components that work together to support automated GR
 Choose your starting point based on your needs:
 
 - **Understanding GRC structure?** Start with **[The Model](./model)** component
-- **Need consistent terminology?** Begin with **[The Lexicon](./lexicon)** component
-- **Building tools?** Jump to **[The Implementation](./implementation)** component
+- **Validating documents?** Use **[The Schemas](./schema/)** component
+- **Building tools?** Jump to **[The SDKs](./sdk/)** component
 
 All three components work together - you'll likely use elements from each as you work with Gemara.
 
