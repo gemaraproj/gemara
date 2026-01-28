@@ -19,3 +19,67 @@ jobs:
         uses: ./.github/actions/validate-cue
       - name: Validate the security-insights file
         run: make lintinsights
+
+  check-generated-content:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Check for committed generated content
+        run: |
+          echo "Checking for generated content in PR..."
+
+          # Run cleanup to remove any generated content
+          make cleanup
+
+          # Check if cleanup produced any changes (meaning generated files were committed)
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "ERROR: Generated content detected in PR!"
+            echo ""
+            echo "The following changes were made by 'make cleanup', indicating generated files were committed:"
+            git diff --stat
+            echo ""
+            echo "Generated files should only exist during site builds, not in git."
+            echo "Please run 'make cleanup' locally and commit the changes to remove generated files."
+            exit 1
+          fi
+
+          echo "No generated content detected - PR is clean!"
+
+      - name: Verify generated files are gitignored
+        run: |
+          echo "Verifying generated files are properly gitignored..."
+
+          # Generate files to ensure they would be ignored
+          make gendocs
+
+          # Check if any generated schema files or definitions.md show up in git status
+          # (termlinker modifies tracked files, so we ignore those changes)
+          generated_files=$(git status --porcelain | grep -E "(docs/schema/.*\.md|docs/model/02-definitions\.md)" | grep -v "docs/schema/index.md" || true)
+
+          if [ -n "$generated_files" ]; then
+            echo "ERROR: Generated files are not properly gitignored!"
+            echo ""
+            echo "Files that should be ignored but are showing up in git status:"
+            echo "$generated_files"
+            echo ""
+            echo "Please check .gitignore configuration."
+            exit 1
+          fi
+
+          echo "Generated files are properly gitignored!"
+
+          # Clean up generated files and links
+          make cleanup
