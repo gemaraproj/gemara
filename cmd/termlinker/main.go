@@ -704,54 +704,80 @@ func cleanupContent(content string, termInfos []TermInfo, defPath string) string
 }
 
 func cleanupLine(line string, termInfos []TermInfo, defPath string) string {
-	// Pattern to match markdown links: [text](url#slug)
-	// We want to match links that point to the definitions page
-	linkPattern := regexp.MustCompile(`\[([^\]]+)\]\(([^\)]+)\)`)
-
 	// Create a map of term text to term info for quick lookup
 	termMap := make(map[string]TermInfo)
 	for _, termInfo := range termInfos {
 		termMap[strings.ToLower(termInfo.OriginalTerm)] = termInfo
 	}
 
-	result := linkPattern.ReplaceAllStringFunc(line, func(match string) string {
-		submatches := linkPattern.FindStringSubmatch(match)
-		if len(submatches) < 3 {
-			return match
+	// Manually parse markdown links to handle parentheses in link text correctly
+	// This is more robust than regex for handling nested parentheses
+	var result strings.Builder
+	i := 0
+	for i < len(line) {
+		// Look for the start of a markdown link: [
+		if line[i] == '[' {
+			// Find the matching closing bracket ]
+			bracketStart := i
+			bracketEnd := -1
+			for j := i + 1; j < len(line); j++ {
+				if line[j] == ']' {
+					bracketEnd = j
+					break
+				}
+			}
+
+			// If we found a closing bracket, check if it's followed by (
+			if bracketEnd != -1 && bracketEnd+1 < len(line) && line[bracketEnd+1] == '(' {
+				// Extract link text (everything between [ and ])
+				linkText := line[bracketStart+1 : bracketEnd]
+
+				// Find the matching closing parenthesis for the URL
+				parenStart := bracketEnd + 1
+				parenEnd := -1
+				parenDepth := 1
+				for j := parenStart + 1; j < len(line); j++ {
+					if line[j] == '(' {
+						parenDepth++
+					} else if line[j] == ')' {
+						parenDepth--
+						if parenDepth == 0 {
+							parenEnd = j
+							break
+						}
+					}
+				}
+
+				// If we found a matching closing parenthesis, extract the URL
+				if parenEnd != -1 {
+					linkURL := line[parenStart+1 : parenEnd]
+
+					// Check if this link points to the definitions page
+					if strings.Contains(linkURL, "02-definitions") {
+						// Extract the slug from the URL (part after #)
+						hashIndex := strings.Index(linkURL, "#")
+						if hashIndex != -1 {
+							slug := linkURL[hashIndex+1:]
+
+							// Check if the link text matches a term (case-insensitive)
+							lowerLinkText := strings.ToLower(linkText)
+							termInfo, found := termMap[lowerLinkText]
+							if found && termInfo.Slug == slug {
+								// This is a termlinker-generated link, remove it and return just the text
+								result.WriteString(linkText)
+								i = parenEnd + 1
+								continue
+							}
+						}
+					}
+				}
+			}
 		}
 
-		linkText := submatches[1]
-		linkURL := submatches[2]
+		// Not a termlinker link, or parsing failed, keep the character
+		result.WriteByte(line[i])
+		i++
+	}
 
-		// Check if this link points to the definitions page
-		// It could be relative paths like "02-definitions.html#slug" or "../model/02-definitions.html#slug"
-		// or absolute paths like "/model/02-definitions.html#slug"
-		if !strings.Contains(linkURL, "02-definitions") {
-			return match // Not a termlinker link, keep it
-		}
-
-		// Extract the slug from the URL (part after #)
-		hashIndex := strings.Index(linkURL, "#")
-		if hashIndex == -1 {
-			return match // No hash fragment, not a termlinker link
-		}
-		slug := linkURL[hashIndex+1:]
-
-		// Check if the link text matches a term (case-insensitive)
-		lowerLinkText := strings.ToLower(linkText)
-		termInfo, found := termMap[lowerLinkText]
-		if !found {
-			return match // Link text doesn't match a known term
-		}
-
-		// Check if the slug matches the term's slug
-		if termInfo.Slug != slug {
-			return match // Slug doesn't match, might not be a termlinker link
-		}
-
-		// This is a termlinker-generated link, remove it and return just the text
-		return linkText
-	})
-
-	return result
+	return result.String()
 }
