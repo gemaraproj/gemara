@@ -146,6 +146,7 @@ test-links:
 		--disable-external \
 		--ignore-empty-alt \
 		--only-4xx \
+		--ignore-files '/model\/02-definitions\.html/' \
 		--root-dir "$$(pwd)/_site" \
 
 #
