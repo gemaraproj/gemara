@@ -16,7 +16,7 @@ package schemas
 	name:    string
 	result:  #Result
 	message: string
-	control: #SingleMapping
+	control: #EntryMapping
 	"assessment-logs": [...#AssessmentLog] @go(AssessmentLogs,type=[]*AssessmentLog)
 	// Enforce that control reference and the assessments' references match
 	// This formulation uses the control's reference if the assessment doesn't include a reference
@@ -28,9 +28,9 @@ package schemas
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
 #AssessmentLog: {
 	// Requirement should map to the assessment requirement for this assessment.
-	requirement: #SingleMapping
+	requirement: #EntryMapping
 	// Plan maps to the policy assessment plan being executed.
-	plan?: #SingleMapping @go(Plan,optional=nillable)
+	plan?: #EntryMapping @go(Plan,optional=nillable)
 	// Description provides a summary of the assessment procedure.
 	description: string
 	// Result is the overall outcome of the assessment procedure, matching the result of the last step that was run.

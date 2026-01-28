@@ -18,8 +18,8 @@ pages:
     filename: "mapping"
     schemas:
       - "MappingReference"
-      - "MultiMapping"
-      - "SingleMapping"
+      - "MultiEntryMapping"
+      - "EntryMapping"
       - "MappingEntry"
   - title: "Layer 1"
     filename: "layer-1"

@@ -52,7 +52,7 @@ package schemas
 	reason: string
 
 	// redirect points to alternative guidelines or controls that should be followed instead
-	redirect?: #MultiMapping @go(Redirect,optional=nillable)
+	redirect?: #MultiEntryMapping @go(Redirect,optional=nillable)
 }
 
 // Guideline provides explanatory context and recommendations for designing optimal outcomes 
@@ -73,7 +73,7 @@ package schemas
 	recommendations?: [...string]
 
 	// extends is an id for a guideline which this guideline adds to, in this document or elsewhere
-	extends?: #SingleMapping @go(Extends,optional=nillable)
+	extends?: #EntryMapping @go(Extends,optional=nillable)
 
 	// applicability specifies the contexts in which this guideline applies
 	applicability?: [...string] @go(Applicability)
@@ -85,13 +85,13 @@ package schemas
 	statements?: [...#Statement] @go(Statements)
 
 	// guideline-mappings documents the relationship between this guideline and external guidelines
-	"guideline-mappings"?: [...#MultiMapping] @go(GuidelineMappings) @yaml("guideline-mappings,omitempty")
+	"guideline-mappings"?: [...#MultiEntryMapping] @go(GuidelineMappings) @yaml("guideline-mappings,omitempty")
 
 	// principle-mappings documents the relationship between this guideline and one or more principles
-	"principle-mappings"?: [...#MultiMapping] @go(PrincipleMappings) @yaml("principle-mappings,omitempty")
+	"principle-mappings"?: [...#MultiEntryMapping] @go(PrincipleMappings) @yaml("principle-mappings,omitempty")
 
 	// vector-mappings documents the relationship between this guideline and one or more vectors
-	"vector-mappings"?: [...#MultiMapping] @go(VectorMappings) @yaml("vector-mappings,omitempty")
+	"vector-mappings"?: [...#MultiEntryMapping] @go(VectorMappings) @yaml("vector-mappings,omitempty")
 
 	// see-also lists related guideline IDs within the same GuidanceCatalog
 	"see-also"?: [...string] @go(SeeAlso) @yaml("see-also,omitempty")

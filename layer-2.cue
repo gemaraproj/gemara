@@ -20,7 +20,7 @@ package schemas
 	controls?: [...#Control] @go(Controls)
 
 	// imported-controls is a list of controls from another source which are included as part of this document
-	"imported-controls"?: [...#MultiMapping] @go(ImportedControls)
+	"imported-controls"?: [...#MultiEntryMapping] @go(ImportedControls)
 }
 
 // Control describes a safeguard or countermeasure with a clear objective and assessment requirements
@@ -41,10 +41,10 @@ package schemas
 	"assessment-requirements": [...#AssessmentRequirement] @go(AssessmentRequirements)
 
 	// guideline-mappings documents relationships betwen this control and Layer 1 guideline artifacts
-	"guideline-mappings"?: [...#MultiMapping] @go(GuidelineMappings)
+	"guideline-mappings"?: [...#MultiEntryMapping] @go(GuidelineMappings)
 
 	// threat-mappings documents relationships betwen this control and Layer 2 threat artifacts
-	"threat-mappings"?: [...#MultiMapping] @go(ThreatMappings)
+	"threat-mappings"?: [...#MultiEntryMapping] @go(ThreatMappings)
 }
 
 // AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
@@ -77,10 +77,10 @@ package schemas
 	capabilities?: [...#Capability] @go(Capabilities)
 
 	// imported-threats is a list of threats from another source which are included as part of this document
-	"imported-threats"?: [...#MultiMapping] @go(ImportedThreats)
+	"imported-threats"?: [...#MultiEntryMapping] @go(ImportedThreats)
 
 	// imported-capabilities is a list of capabilities from another source which are included as part of this document
-	"imported-capabilities"?: [...#MultiMapping] @go(ImportedCapabilities)
+	"imported-capabilities"?: [...#MultiEntryMapping] @go(ImportedCapabilities)
 }
 
 // Threat describes a specifically-scoped opportunity for a negative impact to the organization
@@ -95,13 +95,13 @@ package schemas
 	description: string
 
 	// capabilities documents the relationship between this threat and a system capability
-	capabilities: [...#MultiMapping]
+	capabilities: [...#MultiEntryMapping]
 
 	// actors describes the relevant internal or external threat actors
 	actors?: [...#Actor]
 
 	// external-mappings documents relationships between this threat and any other artifacts
-	"external-mappings"?: [...#MultiMapping] @go(ExternalMappings)
+	"external-mappings"?: [...#MultiEntryMapping] @go(ExternalMappings)
 }
 
 // Capability describes a system capability such as a feature, component or object.

@@ -72,14 +72,14 @@ package schemas
 // Risks defines mitigated and accepted risks addressed by this policy.
 #Risks: {
 	// Mitigated risks only need reference-id and risk-id (no justification required)
-	mitigated?: [...#MultiMapping]
+	mitigated?: [...#MultiEntryMapping]
 	// Accepted risks require rationale (justification) and may include scope. Controls addressing these risks are implicitly identified through threat mappings.
 	accepted?: [...#AcceptedRisk]
 }
 
 // RiskMapping maps a risk to a reference and optionally includes scope and justification.
 #AcceptedRisk: {
-	risk: #SingleMapping
+	risk: #EntryMapping
 	// Scope and justification are only required for accepted risks (e.g., risk is accepted for TLP:Green and TLP:Clear because they contain non-sensitive data)
 	scope?:         #Scope
 	justification?: string

@@ -4,7 +4,7 @@
 package schemas
 
 // ============================================================================
-// Mapping Types - MappingReference, MappingEntry, MultiMapping, SingleMapping
+// Mapping Types - MappingReference, MappingEntry, MultiEntryMapping, EntryMapping
 // ============================================================================
 
 // MappingReference represents a reference to an external document with full metadata.
@@ -25,8 +25,8 @@ package schemas
 	url?: =~"^(https?|file)://[^\\s]+$"
 }
 
-// MultiMapping represents a mapping to an external reference with one or more entries.
-#MultiMapping: {
+// MultiEntryMapping represents a mapping to an external reference with one or more entries.
+#MultiEntryMapping: {
 	// ReferenceId should reference the corresponding MappingReference id from metadata
 	"reference-id": string @go(ReferenceId)
 
@@ -37,8 +37,8 @@ package schemas
 	remarks?: string
 }
 
-// SingleMapping represents how a specific entry (control/requirement/procedure) maps to a MappingReference.
-#SingleMapping: {
+// EntryMapping represents how a specific entry (control/requirement/procedure) maps to a MappingReference.
+#EntryMapping: {
 	// reference-id is the id for a MappingReference entry in the artifact's metadata
 	"reference-id"?: string @go(ReferenceId)
 
