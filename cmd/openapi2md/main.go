@@ -181,6 +181,18 @@ func convertFromNav(inputFile, outputDir, navPath string) error {
 		version = "unknown"
 	}
 
+	// Build schema-to-filename map for generating links
+	schemaToFile := make(map[string]string)
+	for _, page := range nav.Pages {
+		filename := page.Filename
+		if filename == "" {
+			filename = slugify(page.Title)
+		}
+		for _, schemaName := range page.Schemas {
+			schemaToFile[schemaName] = filename
+		}
+	}
+
 	// For each page in nav
 	for _, page := range nav.Pages {
 		// Initialize a markdown buffer
@@ -207,7 +219,7 @@ func convertFromNav(inputFile, outputDir, navPath string) error {
 			if isAlias(schema) {
 				buf.WriteString(generateAliasBlock(schemaName, schema))
 			} else {
-				buf.WriteString(generateRootSection(schemaName, schema, spec, version, visited))
+				buf.WriteString(generateRootSection(schemaName, schema, spec, version, visited, schemaToFile))
 			}
 		}
 
@@ -258,6 +270,8 @@ func convertPerFile(inputFile, outputDir, manifestPath string) error {
 	sort.Strings(fileOrder)
 
 	visited := make(map[string]bool)
+	// Empty map since we don't have nav file info in this mode
+	schemaToFile := make(map[string]string)
 
 	for _, cueFile := range fileOrder {
 		schemaNames := manifest[cueFile]
@@ -281,7 +295,7 @@ func convertPerFile(inputFile, outputDir, manifestPath string) error {
 			if isAlias(schema) {
 				buf.WriteString(generateAliasBlock(name, schema))
 			} else {
-				buf.WriteString(generateRootSection(name, schema, spec, version, visited))
+				buf.WriteString(generateRootSection(name, schema, spec, version, visited, schemaToFile))
 			}
 		}
 
@@ -374,6 +388,8 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 
 	var buf strings.Builder
 	visited := make(map[string]bool)
+	// Empty map since we don't have nav file info in this mode
+	schemaToFile := make(map[string]string)
 
 	// H1 and optional intro
 	buf.WriteString(fmt.Sprintf("# %s _(%s)_\n\n", title, version))
@@ -390,7 +406,7 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 	// One major section per root
 	for _, name := range roots {
 		schema := rootSchemas[name]
-		buf.WriteString(generateRootSection(name, schema, spec, version, visited))
+		buf.WriteString(generateRootSection(name, schema, spec, version, visited, schemaToFile))
 	}
 
 	// Aliases section
@@ -459,7 +475,7 @@ func resolveSchemaRef(ref string, spec OpenAPISpec) (*Schema, error) {
 // formatFieldInline formats a field's information and returns (fieldLine, description)
 // fieldLine format: `field` **type** _Required_ or `field` **type**
 // description is returned separately
-func formatFieldInline(fieldName string, fieldSchema Schema, spec OpenAPISpec, prefix string, isRequired bool) (string, string) {
+func formatFieldInline(fieldName string, fieldSchema Schema, spec OpenAPISpec, prefix string, isRequired bool, schemaToFile map[string]string) (string, string) {
 	// Field name with full path
 	fieldPath := fieldName
 	if prefix != "" {
@@ -467,7 +483,7 @@ func formatFieldInline(fieldName string, fieldSchema Schema, spec OpenAPISpec, p
 	}
 
 	// Type
-	typeStr := formatFieldType(fieldSchema, spec)
+	typeStr := formatFieldType(fieldSchema, spec, schemaToFile)
 
 	// Build field line: `field` **type** _Required_ or `field` **type**
 	var fieldLineParts []string
@@ -494,11 +510,17 @@ func formatFieldInline(fieldName string, fieldSchema Schema, spec OpenAPISpec, p
 	return fieldLine, description
 }
 
-// formatFieldType returns the type string for a field (plain text, no formatting)
-func formatFieldType(fieldSchema Schema, spec OpenAPISpec) string {
+// formatFieldType returns the type string for a field with markdown links for custom types
+func formatFieldType(fieldSchema Schema, spec OpenAPISpec, schemaToFile map[string]string) string {
 	if fieldSchema.Ref != "" {
 		refType := strings.TrimPrefix(fieldSchema.Ref, "#/components/schemas/")
-		// Return just the type name, no brackets or formatting
+		// Check if this is a custom type that should be linked
+		if filename, exists := schemaToFile[refType]; exists {
+			// Create markdown link: [TypeName](filename#typename) - no .md extension for Jekyll
+			anchor := strings.ToLower(refType)
+			return fmt.Sprintf("[%s](%s#%s)", refType, filename, anchor)
+		}
+		// Return just the type name if not found in schema map
 		return refType
 	}
 
@@ -511,8 +533,17 @@ func formatFieldType(fieldSchema Schema, spec OpenAPISpec) string {
 			var itemsSchema Schema
 			if err := yaml.Unmarshal(itemsBytes, &itemsSchema); err == nil {
 				var itemType string
+				var itemTypeLink string
 				if itemsSchema.Ref != "" {
-					itemType = strings.TrimPrefix(itemsSchema.Ref, "#/components/schemas/")
+					refType := strings.TrimPrefix(itemsSchema.Ref, "#/components/schemas/")
+					// Check if this is a custom type that should be linked
+					if filename, exists := schemaToFile[refType]; exists {
+						anchor := strings.ToLower(refType)
+						itemTypeLink = fmt.Sprintf("[%s](%s#%s)", refType, filename, anchor)
+					} else {
+						itemTypeLink = refType
+					}
+					itemType = itemTypeLink
 				} else if itemsSchema.Type != "" {
 					itemType = itemsSchema.Type
 				}
@@ -529,12 +560,12 @@ func formatFieldType(fieldSchema Schema, spec OpenAPISpec) string {
 }
 
 // formatFieldWithNested formats a field inline, including nested fields from referenced types
-func formatFieldWithNested(fieldName string, fieldSchema Schema, spec OpenAPISpec, visited map[string]bool, prefix string, indentLevel int, isRequired bool) string {
+func formatFieldWithNested(fieldName string, fieldSchema Schema, spec OpenAPISpec, visited map[string]bool, prefix string, indentLevel int, isRequired bool, schemaToFile map[string]string) string {
 	var buf strings.Builder
 	indent := strings.Repeat("  ", indentLevel)
 
 	// Format the main field: `field` **type** _Required_ or `field` **type** _
-	fieldLine, description := formatFieldInline(fieldName, fieldSchema, spec, prefix, isRequired)
+	fieldLine, description := formatFieldInline(fieldName, fieldSchema, spec, prefix, isRequired, schemaToFile)
 	buf.WriteString(fmt.Sprintf("%s%s\n", indent, fieldLine))
 	
 	// Add empty line
@@ -550,7 +581,7 @@ func formatFieldWithNested(fieldName string, fieldSchema Schema, spec OpenAPISpe
 	return buf.String()
 }
 
-func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, version string, visited map[string]bool) string {
+func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, version string, visited map[string]bool, schemaToFile map[string]string) string {
 	var buf strings.Builder
 
 	buf.WriteString(fmt.Sprintf("## `%s`\n\n", rootName))
@@ -605,7 +636,7 @@ func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, versi
 
 		// Output all fields
 		for _, field := range fields {
-			fieldLines := formatFieldWithNested(field.name, field.schema, spec, visited, "", 0, field.required)
+			fieldLines := formatFieldWithNested(field.name, field.schema, spec, visited, "", 0, field.required, schemaToFile)
 			// Remove the leading indent since we're at root level
 			fieldLines = strings.TrimPrefix(fieldLines, "  ")
 			buf.WriteString(fieldLines)

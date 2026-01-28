@@ -15,7 +15,7 @@ name is the preferred descriptor for the contact entity
 
 affiliation is the organization with which the contact entity is associated, such as a team, school, or employer
 
-`email` **Email**
+`email` **[Email](base#email)**
 
 email is the preferred email address to reach the contact
 
@@ -35,11 +35,11 @@ id uniquely identifies the actor and allows this entry to be referenced by other
 
 name is the name of the actor
 
-`type` **ActorType** _Required_
+`type` **[ActorType](base#actortype)** _Required_
 
 type specifies the type of entity interacting in the workflow
 
-`contact` **Contact**
+`contact` **[Contact](base#contact)**
 
 contact is contact information for the actor
 

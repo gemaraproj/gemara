@@ -11,7 +11,7 @@ GuidanceCatalog represents a concerted documentation effort to help bring about 
 
 guidelines that extend other guidelines must be in the same family as the extended guideline
 
-`metadata` **Metadata** _Required_
+`metadata` **[Metadata](metadata#metadata)** _Required_
 
 metadata provides detailed data about this catalog
 
@@ -19,15 +19,15 @@ metadata provides detailed data about this catalog
 
 title describes the contents of this catalog at a glance
 
-`type` **GuidanceType** _Required_
+`type` **[GuidanceType](layer-1#guidancetype)** _Required_
 
 type categorizes this document based on the intent of its contents
 
-`exemptions` **array[Exemption]**
+`exemptions` **array[[Exemption](layer-1#exemption)]**
 
 exemptions provides information about situations where this guidance is not applicable
 
-`families` **array[Family]**
+`families` **array[[Family](base#family)]**
 
 families contains a list of guidance families that can be referenced by guidance
 
@@ -35,7 +35,7 @@ families contains a list of guidance families that can be referenced by guidance
 
 front-matter provides introductory text for the document to be used during rendering
 
-`guidelines` **array[Guideline]**
+`guidelines` **array[[Guideline](layer-1#guideline)]**
 
 guidelines is a list of unique guidelines defined by this catalog
 
@@ -59,7 +59,7 @@ description identifies who or what is exempt from the full guidance
 
 reason explains why the exemption is granted
 
-`redirect` **MultiMapping**
+`redirect` **[MultiMapping](mapping#multimapping)**
 
 redirect points to alternative guidelines or controls that should be followed instead
 
@@ -87,19 +87,19 @@ title describes the contents of this guideline
 
 applicability specifies the contexts in which this guideline applies
 
-`extends` **SingleMapping**
+`extends` **[SingleMapping](mapping#singlemapping)**
 
 extends is an id for a guideline which this guideline adds to, in this document or elsewhere
 
-`guideline-mappings` **array[MultiMapping]**
+`guideline-mappings` **array[[MultiMapping](mapping#multimapping)]**
 
 guideline-mappings documents the relationship between this guideline and external guidelines
 
-`principle-mappings` **array[MultiMapping]**
+`principle-mappings` **array[[MultiMapping](mapping#multimapping)]**
 
 principle-mappings documents the relationship between this guideline and one or more principles
 
-`rationale` **Rationale**
+`rationale` **[Rationale](layer-1#rationale)**
 
 rationale provides the context for this guideline
 
@@ -111,11 +111,11 @@ recommendations is a list of non-binding suggestions to aid in evaluation or enf
 
 see-also lists related guideline IDs within the same GuidanceCatalog
 
-`statements` **array[Statement]**
+`statements` **array[[Statement](layer-1#statement)]**
 
 statements is a list of structural sub-requirements within a guideline
 
-`vector-mappings` **array[MultiMapping]**
+`vector-mappings` **array[[MultiMapping](mapping#multimapping)]**
 
 vector-mappings documents the relationship between this guideline and one or more vectors
 

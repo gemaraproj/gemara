@@ -7,10 +7,10 @@ title: Layer 5
 
 EvaluationLog contains the results of evaluating a set of Layer 2 controls.
 
-`evaluations` **array[ControlEvaluation]** _Required_
+`evaluations` **array[[ControlEvaluation](layer-5#controlevaluation)]** _Required_
 
 
-`metadata` **Metadata**
+`metadata` **[Metadata](metadata#metadata)**
 
 Metadata represents common metadata fields shared across all layers
 
@@ -22,7 +22,7 @@ ControlEvaluation contains the results of evaluating a single Layer 5 control.
 
 Enforce that control reference and the assessments' references match
 
-`control` **SingleMapping** _Required_
+`control` **[SingleMapping](mapping#singlemapping)** _Required_
 
 SingleMapping represents how a specific entry (control/requirement/procedure) maps to a MappingReference.
 
@@ -32,7 +32,7 @@ SingleMapping represents how a specific entry (control/requirement/procedure) ma
 `name` **string** _Required_
 
 
-`result` **Result** _Required_
+`result` **[Result](layer-5#result)** _Required_
 
 
 ## `AssessmentLog`
@@ -51,31 +51,31 @@ Description provides a summary of the assessment procedure.
 
 Message provides additional context about the assessment result.
 
-`requirement` **SingleMapping** _Required_
+`requirement` **[SingleMapping](mapping#singlemapping)** _Required_
 
 Requirement should map to the assessment requirement for this assessment.
 
-`result` **Result** _Required_
+`result` **[Result](layer-5#result)** _Required_
 
 Result is the overall outcome of the assessment procedure, matching the result of the last step that was run.
 
-`start` **Datetime** _Required_
+`start` **[Datetime](base#datetime)** _Required_
 
 Start is the timestamp when the assessment began.
 
-`steps` **array[AssessmentStep]** _Required_
+`steps` **array[[AssessmentStep](layer-5#assessmentstep)]** _Required_
 
 Steps are sequential actions taken as part of the assessment, which may halt the assessment if a failure occurs.
 
-`confidence-level` **ConfidenceLevel**
+`confidence-level` **[ConfidenceLevel](layer-5#confidencelevel)**
 
 ConfidenceLevel indicates the evaluator's confidence level in this specific assessment result.
 
-`end` **Datetime**
+`end` **[Datetime](base#datetime)**
 
 End is the timestamp when the assessment concluded.
 
-`plan` **SingleMapping**
+`plan` **[SingleMapping](mapping#singlemapping)**
 
 Plan maps to the policy assessment plan being executed.
 

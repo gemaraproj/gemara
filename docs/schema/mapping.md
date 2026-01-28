@@ -31,7 +31,7 @@ url is the path where the artifact may be retrieved; preferrably responds with G
 
 MultiMapping represents a mapping to an external reference with one or more entries.
 
-`entries` **array[MappingEntry]** _Required_
+`entries` **array[[MappingEntry](mapping#mappingentry)]** _Required_
 
 entries is a list of mapping entries
 
