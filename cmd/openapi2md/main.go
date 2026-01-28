@@ -97,28 +97,6 @@ func splitRoots(s string) []string {
 	return out
 }
 
-// displayNameFor returns a human-readable title for a schema file base name.
-func displayNameFor(base string) string {
-	switch base {
-	case "base":
-		return "Base"
-	case "metadata":
-		return "Metadata"
-	case "mapping":
-		return "Mapping"
-	case "layer-1":
-		return "Layer 1"
-	case "layer-2":
-		return "Layer 2"
-	case "layer-3":
-		return "Layer 3"
-	case "layer-5":
-		return "Layer 5"
-	default:
-		return strings.ReplaceAll(base, "-", " ")
-	}
-}
-
 func loadManifest(path string) (map[string][]string, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -176,11 +154,6 @@ func convertFromNav(inputFile, outputDir, navPath string) error {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
-	version := spec.Info.Version
-	if version == "" {
-		version = "unknown"
-	}
-
 	// Build schema-to-filename map for generating links
 	schemaToFile := make(map[string]string)
 	for _, page := range nav.Pages {
@@ -195,10 +168,7 @@ func convertFromNav(inputFile, outputDir, navPath string) error {
 
 	// For each page in nav
 	for _, page := range nav.Pages {
-		// Initialize a markdown buffer
 		var buf strings.Builder
-		// Initialize a visited map (for tracking circular references in field sections)
-		visited := make(map[string]bool)
 
 		// For each schema name listed in the page's schemas array
 		for _, schemaName := range page.Schemas {
@@ -217,9 +187,9 @@ func convertFromNav(inputFile, outputDir, navPath string) error {
 
 			// Use isAlias() to determine schema type
 			if isAlias(schema) {
-				buf.WriteString(generateAliasBlock(schemaName, schema))
+				buf.WriteString(generateAliasBlock(schemaName, schema, false))
 			} else {
-				buf.WriteString(generateRootSection(schemaName, schema, spec, version, visited, schemaToFile))
+				buf.WriteString(generateRootSection(schemaName, schema, spec, schemaToFile))
 			}
 		}
 
@@ -258,18 +228,12 @@ func convertPerFile(inputFile, outputDir, manifestPath string) error {
 		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
-	version := spec.Info.Version
-	if version == "" {
-		version = "unknown"
-	}
-
 	fileOrder := make([]string, 0, len(manifest))
 	for k := range manifest {
 		fileOrder = append(fileOrder, k)
 	}
 	sort.Strings(fileOrder)
 
-	visited := make(map[string]bool)
 	// Empty map since we don't have nav file info in this mode
 	schemaToFile := make(map[string]string)
 
@@ -293,9 +257,9 @@ func convertPerFile(inputFile, outputDir, manifestPath string) error {
 				continue
 			}
 			if isAlias(schema) {
-				buf.WriteString(generateAliasBlock(name, schema))
+				buf.WriteString(generateAliasBlock(name, schema, false))
 			} else {
-				buf.WriteString(generateRootSection(name, schema, spec, version, visited, schemaToFile))
+				buf.WriteString(generateRootSection(name, schema, spec, schemaToFile))
 			}
 		}
 
@@ -308,9 +272,13 @@ func convertPerFile(inputFile, outputDir, manifestPath string) error {
 	return nil
 }
 
-func generateAliasBlock(name string, schema Schema) string {
+func generateAliasBlock(name string, schema Schema, subheading bool) string {
 	var buf strings.Builder
-	buf.WriteString(fmt.Sprintf("## `%s`\n\n", name))
+	level := "##"
+	if subheading {
+		level = "###"
+	}
+	buf.WriteString(fmt.Sprintf("%s `%s`\n\n", level, name))
 	if schema.Description != "" {
 		buf.WriteString(schema.Description + "\n\n")
 	}
@@ -328,16 +296,16 @@ func generateAliasBlock(name string, schema Schema) string {
 func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error {
 	data, err := os.ReadFile(inputFile)
 	if err != nil {
-		return fmt.Errorf("failed to read OpenAPI file: %v", err)
+		return fmt.Errorf("failed to read OpenAPI file: %w", err)
 	}
 
 	var spec OpenAPISpec
 	if err := yaml.Unmarshal(data, &spec); err != nil {
-		return fmt.Errorf("failed to parse OpenAPI YAML: %v", err)
+		return fmt.Errorf("failed to parse OpenAPI YAML: %w", err)
 	}
 
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
-		return fmt.Errorf("failed to create output directory: %v", err)
+		return fmt.Errorf("failed to create output directory: %w", err)
 	}
 
 	rootSet := make(map[string]bool)
@@ -355,7 +323,7 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 		var s Schema
 		bytes, _ := yaml.Marshal(data)
 		if err := yaml.Unmarshal(bytes, &s); err != nil {
-			return fmt.Errorf("failed to parse root schema %q: %v", name, err)
+			return fmt.Errorf("failed to parse root schema %q: %w", name, err)
 		}
 		rootSchemas[name] = s
 	}
@@ -375,7 +343,7 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 			aliasTypes = append(aliasTypes, schemaName)
 		}
 	}
-	sortStrings(aliasTypes)
+	sort.Strings(aliasTypes)
 
 	title := spec.Info.Title
 	if title == "" {
@@ -387,7 +355,6 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 	}
 
 	var buf strings.Builder
-	visited := make(map[string]bool)
 	// Empty map since we don't have nav file info in this mode
 	schemaToFile := make(map[string]string)
 
@@ -406,7 +373,7 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 	// One major section per root
 	for _, name := range roots {
 		schema := rootSchemas[name]
-		buf.WriteString(generateRootSection(name, schema, spec, version, visited, schemaToFile))
+		buf.WriteString(generateRootSection(name, schema, spec, schemaToFile))
 	}
 
 	// Aliases section
@@ -417,33 +384,19 @@ func convertOpenAPIToMarkdown(inputFile, outputDir string, roots []string) error
 		for _, name := range aliasTypes {
 			schemaBytes, _ := yaml.Marshal(spec.Components.Schemas[name])
 			var schema Schema
-			yaml.Unmarshal(schemaBytes, &schema)
-
-			buf.WriteString(fmt.Sprintf("### `%s`\n\n", strings.ToLower(name)))
-			if schema.Description != "" {
-				buf.WriteString(schema.Description + "\n\n")
+			if err := yaml.Unmarshal(schemaBytes, &schema); err != nil {
+				continue
 			}
-			buf.WriteString(fmt.Sprintf("- **Type**: `%s`\n", schema.Type))
-			if schema.Format != "" {
-				buf.WriteString(fmt.Sprintf("- **Format**: `%s`\n", schema.Format))
-			}
-			if schema.Pattern != "" {
-				buf.WriteString(fmt.Sprintf("- **Value**: `%s`\n", schema.Pattern))
-			}
-			buf.WriteString("\n---\n\n")
+			buf.WriteString(generateAliasBlock(name, schema, true))
 		}
 	}
 
 	outputPath := filepath.Join(outputDir, "schema.md")
 	if err := os.WriteFile(outputPath, []byte(buf.String()), 0644); err != nil {
-		return fmt.Errorf("failed to write %s: %v", outputPath, err)
+		return fmt.Errorf("failed to write %s: %w", outputPath, err)
 	}
 
 	return nil
-}
-
-func sortStrings(s []string) {
-	sort.Strings(s)
 }
 
 func isAlias(schema Schema) bool {
@@ -559,29 +512,18 @@ func formatFieldType(fieldSchema Schema, spec OpenAPISpec, schemaToFile map[stri
 	return ""
 }
 
-// formatFieldWithNested formats a field inline, including nested fields from referenced types
-func formatFieldWithNested(fieldName string, fieldSchema Schema, spec OpenAPISpec, visited map[string]bool, prefix string, indentLevel int, isRequired bool, schemaToFile map[string]string) string {
+// formatFieldWithNested formats a field inline (nested expansion disabled).
+func formatFieldWithNested(fieldName string, fieldSchema Schema, spec OpenAPISpec, isRequired bool, schemaToFile map[string]string) string {
 	var buf strings.Builder
-	indent := strings.Repeat("  ", indentLevel)
-
-	// Format the main field: `field` **type** _Required_ or `field` **type** _
-	fieldLine, description := formatFieldInline(fieldName, fieldSchema, spec, prefix, isRequired, schemaToFile)
-	buf.WriteString(fmt.Sprintf("%s%s\n", indent, fieldLine))
-	
-	// Add empty line
-	buf.WriteString("\n")
-	
-	// Add description on the next line if present
+	fieldLine, description := formatFieldInline(fieldName, fieldSchema, spec, "", isRequired, schemaToFile)
+	buf.WriteString(fieldLine + "\n\n")
 	if description != "" {
-		buf.WriteString(fmt.Sprintf("%s%s\n", indent, description))
+		buf.WriteString(description + "\n")
 	}
-
-	// Note: Nested fields are not expanded - only the main field is shown
-
 	return buf.String()
 }
 
-func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, version string, visited map[string]bool, schemaToFile map[string]string) string {
+func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, schemaToFile map[string]string) string {
 	var buf strings.Builder
 
 	buf.WriteString(fmt.Sprintf("## `%s`\n\n", rootName))
@@ -617,8 +559,9 @@ func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, versi
 			propData := schema.Properties[propName]
 			propBytes, _ := yaml.Marshal(propData)
 			var prop Schema
-			yaml.Unmarshal(propBytes, &prop)
-			
+			if err := yaml.Unmarshal(propBytes, &prop); err != nil {
+				continue
+			}
 			fields = append(fields, fieldInfo{
 				name: propName,
 				schema: prop,
@@ -636,10 +579,7 @@ func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, versi
 
 		// Output all fields
 		for _, field := range fields {
-			fieldLines := formatFieldWithNested(field.name, field.schema, spec, visited, "", 0, field.required, schemaToFile)
-			// Remove the leading indent since we're at root level
-			fieldLines = strings.TrimPrefix(fieldLines, "  ")
-			buf.WriteString(fieldLines)
+			buf.WriteString(formatFieldWithNested(field.name, field.schema, spec, field.required, schemaToFile))
 			buf.WriteString("\n")
 		}
 	}

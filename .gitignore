@@ -38,6 +38,7 @@ artifacts/
 # Generated CUE→OpenAPI→Markdown pipeline output
 generated/
 .gocache/
+.cache
 
 # Jekyll build output and cache
 _site/
