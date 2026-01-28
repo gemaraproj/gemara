@@ -40,6 +40,12 @@ generated/
 .gocache/
 .cache
 
+# Sometimes AI agents get a wild hair and build the go code into a binary
+cmd/lexicon2md/lexicon2md
+cmd/termlinker/termlinker
+cmd/openapi2md/openapi2md
+cmd/cue2openapi/cue2openapi
+
 # Jekyll build output and cache
 _site/
 docs/_site/
@@ -62,3 +68,8 @@ docs/assets/css/*.css
 docs/assets/css/*.css.map
 !docs/assets/css/style.css
 !docs/assets/css/style.css.map
+
+# Generated documentation files (only present during site build)
+docs/schema/*.md
+!docs/schema/index.md
+docs/model/02-definitions.md
