@@ -1,0 +1,17 @@
+---
+layout: page
+title: Definitions
+---
+
+| Term | Definition | Layer |
+|------|------------|-------|
+{{.Table}}
+
+---
+
+## Continue Reading
+
+- **< Previous Page**: [Scope](./01-scope)
+- **> Next Page**: [Foundational Concepts](./03-foundational-concepts)
+
+---
