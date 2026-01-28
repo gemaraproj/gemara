@@ -2,7 +2,7 @@
   url: /model/
 - title: The Schemas
   url: /schema/
-- title: SDKs
+- title: The SDKs
   url: /sdk/
 - title: ADRs
   url: /adrs/
