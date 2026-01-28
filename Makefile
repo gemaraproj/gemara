@@ -1,4 +1,9 @@
-all: tidy cuefmtcheck lintcue lintinsights
+all: tidy cuefmtcheck lintcue lintinsights gendocs test-links cleanup
+
+
+#
+# CUE DEVELOPMENT TOOLS
+#
 
 tidy:
 	@echo "  >  Tidying cue.mod ..."
@@ -13,8 +18,6 @@ tidycheck: tidy
 	fi
 	@echo "  >  CUE module is tidy."
 
-
-# Verify CUE formatting
 cuefmtcheck:
 	@echo "  >  Verifying CUE formatting ..."
 	@cue fmt --check --files .
@@ -23,6 +26,9 @@ lintcue:
 	@echo "  >  Linting CUE files (with module support) ..."
 	@cue eval . --all-errors --verbose
 
+#
+# SECURITY INSIGHTS VALIDATION
+#
 lintinsights:
 	@echo "  >  Linting security-insights.yml ..."
 	@curl -O --silent https://raw.githubusercontent.com/ossf/security-insights-spec/refs/tags/v2.1.0/schema.cue
@@ -30,7 +36,9 @@ lintinsights:
 	@rm schema.cue
 	@echo "  >  Linting security-insights.yml complete."
 
-# Documentation site targets
+#
+# WEBSITE DEVELOPMENT TOOLS
+#
 check-jekyll:
 	@if ! command -v jekyll >/dev/null 2>&1; then \
 		echo "ERROR: Jekyll not found."; \
@@ -48,39 +56,14 @@ build: check-jekyll gendocs
 	@echo "  >  Building Jekyll documentation site..."
 	@cd docs && bundle exec jekyll build
 
-test-links:
-	@echo "  >  Validating links with html-proofer..."
-	@cd docs && bundle exec htmlproofer _site \
-		--allow-hash-href \
-		--disable-external \
-		--ignore-empty-alt \
-		--only-4xx \
-		--root-dir "$$(pwd)/_site" \
-		--ignore-urls "/localhost/,/0.0.0.0/,/127.0.0.1/,/\/pages\//"
-
-clean:
-	@echo "  >  Cleaning build artifacts..."
-	@rm -rf generated docs/_site docs/.jekyll-cache docs/.jekyll-metadata
-	@echo "  >  Clean complete!"
-
-cleanup: cleanup-links
-	@echo "  >  Removing generated documentation files..."
-	@sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
-		rm -f "$(DOCS_SCHEMA_DIR)/$$filename.md"; \
-	done
-	@rm -f docs/model/02-definitions.md
-	@git checkout -- docs/schema/index.md 2>/dev/null || true
-	@echo "  >  Cleanup complete!"
-
-cleanup-links:
-	@echo "  >  Removing termlinker-generated links from documentation ..."
-	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs -cleanup
-	@echo "  >  Link cleanup complete!"
-
 stop:
 	@echo "  >  Use Ctrl+C to stop the Jekyll server if it's running."
 
 restart: stop serve
+
+#
+# GENERATE WEBSITE DOCUMENTATION FROM SCHEMAS & LEXICON
+#
 
 GENERATED_DIR := generated
 OPENAPI_YAML := $(GENERATED_DIR)/openapi.yaml
@@ -152,9 +135,41 @@ gendocs: genmd
 	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs
 	@echo "  >  Documentation generation complete!"
 
+#
+# TEST GENERATED DOCUMENTATION
+#
+
+test-links:
+	@echo "  >  Validating all site pages and links with html-proofer..."
+	@cd docs && bundle exec htmlproofer _site \
+		--allow-hash-href \
+		--disable-external \
+		--ignore-empty-alt \
+		--only-4xx \
+		--root-dir "$$(pwd)/_site" \
+
+#
+# REMOVE GENERATED DOCUMENTATION
+#
+
+clean-jekyll:
+	@echo "  >  Cleaning jekyll build artifacts..."
+	@rm -rf generated docs/_site docs/.jekyll-cache docs/.jekyll-metadata
+	@echo "  >  Clean jekyll build artifacts complete!"
+
 cleanup-links:
 	@echo "  >  Removing termlinker-generated links from documentation ..."
 	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs -cleanup
 	@echo "  >  Link cleanup complete!"
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test-links clean cleanup cleanup-links stop restart check-jekyll genopenapi genmd gendocs
+cleanup: clean-jekyll cleanup-links
+	@echo "  >  Removing generated documentation files and links..."
+	@sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+		rm -f "$(DOCS_SCHEMA_DIR)/$$filename.md"; \
+	done
+	@rm -f docs/model/02-definitions.md
+	@git checkout -- docs/schema/index.md 2>/dev/null || true
+	@rm -rf docs/_site docs/.jekyll-cache docs/.jekyll-metadata
+	@echo "  >  Cleanup complete!"
+
+.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test-links html-proofer clean cleanup cleanup-links stop restart check-jekyll genopenapi genmd gendocs
