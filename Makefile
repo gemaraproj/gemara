@@ -38,13 +38,13 @@ check-jekyll:
 		exit 1; \
 	fi
 
-serve: check-jekyll
+serve: check-jekyll gendocs
 	@echo "  >  Starting Jekyll documentation site..."
 	@echo "  >  Site will be available at: http://localhost:4000/gemara"
 	@echo ""
 	@cd docs && bundle exec jekyll serve --host 0.0.0.0 --livereload
 
-build: check-jekyll
+build: check-jekyll gendocs
 	@echo "  >  Building Jekyll documentation site..."
 	@cd docs && bundle exec jekyll build
 
@@ -59,9 +59,23 @@ test-links:
 		--ignore-urls "/localhost/,/0.0.0.0/,/127.0.0.1/,/\/pages\//"
 
 clean:
-	@echo "  >  Cleaning generated files..."
+	@echo "  >  Cleaning build artifacts..."
 	@rm -rf generated docs/_site docs/.jekyll-cache docs/.jekyll-metadata
 	@echo "  >  Clean complete!"
+
+cleanup: cleanup-links
+	@echo "  >  Removing generated documentation files..."
+	@sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+		rm -f "$(DOCS_SCHEMA_DIR)/$$filename.md"; \
+	done
+	@rm -f docs/model/02-definitions.md
+	@git checkout -- docs/schema/index.md 2>/dev/null || true
+	@echo "  >  Cleanup complete!"
+
+cleanup-links:
+	@echo "  >  Removing termlinker-generated links from documentation ..."
+	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs -cleanup
+	@echo "  >  Link cleanup complete!"
 
 stop:
 	@echo "  >  Use Ctrl+C to stop the Jekyll server if it's running."
@@ -104,16 +118,43 @@ gendocs: genmd
 	done
 	@echo "  >  Updating schema list in $(DOCS_SCHEMA_DIR)/index.md ..."
 	@if [ -f "$(DOCS_SCHEMA_DIR)/index.md" ]; then \
-		schema_list=$$(sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
+		schema_list_file="$(DOCS_SCHEMA_DIR)/index.md.schema_list.tmp"; \
+		sh "$(CURDIR)/cmd/scripts/parse-nav.sh" "$(SCHEMA_NAV)" list-pages | while IFS='|' read -r filename title; do \
 			[ -f "$(DOCS_SCHEMA_DIR)/$$filename.md" ] && echo "- [$$title]($$filename.html)"; \
-		done); \
-		awk -v list="$$schema_list" ' \
-			/<!-- SCHEMA_LIST_START -->/ { print; print ""; print list; print ""; skip=1; next } \
+		done > "$$schema_list_file"; \
+		awk -v list_file="$$schema_list_file" ' \
+			BEGIN { \
+				while ((getline line < list_file) > 0) { \
+					schema_list = schema_list line "\n"; \
+				} \
+				close(list_file); \
+			} \
+			/<!-- SCHEMA_LIST_START -->/ { \
+				print; \
+				print ""; \
+				printf "%s", schema_list; \
+				print ""; \
+				skip=1; \
+				next \
+			} \
 			/<!-- SCHEMA_LIST_END -->/ { print; skip=0; next } \
 			skip==0 { print } \
 		' "$(DOCS_SCHEMA_DIR)/index.md" > "$(DOCS_SCHEMA_DIR)/index.md.tmp" && \
+		rm -f "$$schema_list_file" && \
 		mv "$(DOCS_SCHEMA_DIR)/index.md.tmp" "$(DOCS_SCHEMA_DIR)/index.md"; \
 	fi
+	@echo "  >  Generating definitions table from lexicon ..."
+	@if [ -f "docs/model/02-definitions.md.template" ]; then \
+		cp "docs/model/02-definitions.md.template" "docs/model/02-definitions.md"; \
+	fi
+	@cd cmd/lexicon2md && go run . -lexicon ../../docs/lexicon.yaml -output ../../docs/model/02-definitions.md
+	@echo "  >  Linking defined terms across documentation ..."
+	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs
 	@echo "  >  Documentation generation complete!"
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test-links clean stop restart check-jekyll genopenapi genmd gendocs
+cleanup-links:
+	@echo "  >  Removing termlinker-generated links from documentation ..."
+	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs -cleanup
+	@echo "  >  Link cleanup complete!"
+
+.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test-links clean cleanup cleanup-links stop restart check-jekyll genopenapi genmd gendocs
