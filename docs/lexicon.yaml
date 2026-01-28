@@ -1,0 +1,81 @@
+- term: Assessment
+  definition: Atomic process used to determine a resource's compliance with an assessment requirement
+  references: ["Layer 5"]
+- term: Assessment Requirement
+  definition: Tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
+  references: ["Layer 2"]
+- term: Audit
+  definition: A formal, opinionated review of an organization's policies and posture, conducted at a specific point in time to verify that established requirements are met
+  references: ["Layer 7"]
+- term: Behavior Evaluation
+  definition: An opinionated observation of simulated or real-world activities
+  references: ["Layer 5"]
+- term: Compliance
+  definition: Adherence to an active policy
+  references: []
+- term: Continuous Monitoring
+  definition: A multi-system process designed to collect evaluation and telemetry data in an ongoing process to better detect malicious action, enable remediation activities, and observe trends over time
+  references: ["Layer 7"]
+- term: Control
+  definition: Safeguard or countermeasure containing a clear objective and assessment requirements
+  references: ["Layer 2"]
+- term: Control Catalog
+  definition: A set of related controls and relevant metadata
+  references: ["Layer 2"]
+- term: Enforcement
+  definition: An action taken in response to noncompliance findings and their causes
+  references: ["Layer 6"]
+- term: Evaluation
+  definition: The manual or automated process of forming an opinion on the state of compliance, guided by a set of assessment requirements
+  references: ["Layer 5"]
+- term: Finding
+  definition: The evidence and opinionated result of an assessment; often used as shorthand for *noncompliance finding*
+  references: ["Layer 5"]
+- term: Governance
+  definition: Strategic oversight of an organization and its activities
+  references: []
+- term: GRC
+  definition: Governance, risk, and compliance; especially a coordinated program dedicated to these elements within a business unit
+  references: []
+- term: Guidance
+  definition: A concerted documentation effort to help bring about an optimal future without foreknowledge of the implementation details
+  references: ["Layer 1"]
+- term: Guideline
+  definition: Atomic element of a guidance document; often includes explanatory context and recommendations for designing optimal outcomes
+  references: ["Layer 1"]
+- term: Intent Evaluation
+  definition: An evaluation ensuring that a resource is set up to succeed, such as through proper training, configuration, or code
+  references: ["Layer 5"]
+- term: Opinion
+  definition: A firmly held approximation of reality formed within the constraints of an evaluator's philosophy, perspective, and capabilities
+  references: ["Layer 5"]
+- term: Organization
+  definition: Any logical grouping of human, physical, and information resources such as a company, business unit, or team
+  references: []
+- term: Policy
+  definition: A clearly-scoped set of rules based on an organization's risk appetite
+  references: ["Layer 3"]
+- term: Prescriptive Implementation Documentation
+  definition: Design documentation that includes clear functional requirements for an activity, including security and other specifications that must be met
+  references: []
+- term: Preventive Enforcement
+  definition: Any action that interrupts another process which would otherwise cause noncompliance
+  references: ["Layer 6"]
+- term: Remediative Enforcement
+  definition: Corrective action in response to noncompliance in a deployed activity
+  references: ["Layer 6"]
+- term: Risk
+  definition: The potential for loss or damage when a threat is actualized, determined by calculating the impact of an event to an organization and the likelihood of its occurrence
+  references: ["Layer 3"]
+- term: Risk Acceptance
+  definition: A clearly documented decision to accept an unmitigated risk as necessary or unavoidable
+  references: ["Layer 3"]
+- term: Risk Catalog
+  definition: A group of related risks relevant to an organization; used to determine when and how rules are created for the organization
+  references: ["Layer 3"]
+- term: Threat
+  definition: Specifically-scoped opportunity for a negative impact to the organization
+  references: ["Layer 2"]
+- term: Vector
+  definition: (1) opportunity for an attacker to exploit a vulnerability in the system, or (2) a path by which neglect could result in unintentional negative outcomes
+  references: ["Layer 1"]
