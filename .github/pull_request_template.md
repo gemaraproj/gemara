@@ -54,11 +54,9 @@
 
 <!-- Maintainer Note: Update the checklist before requesting a review on your PR.-->
 
-- [ ] I understand the changes proposed in this PR without the help or usage of AI.
-- [ ] I have the experience and knowledge necessary to understand, review, and validate all content in this PR.[^I-know-whats-up]
-
-[^I-know-whats-up]:
-    Yes, I can answer maintainer questions about the content of this PR, without using AI.
+- [ ] This PR has content that was created with AI assistance. 
+   - [ ]  I have read and followed the [Generative AI Contribution Policy](https://www.linuxfoundation.org/legal/generative-ai).
+- [ ] I have the experience and knowledge necessary to answer maintainer questions about the content of this PR, without using AI.
 
 
 ---
