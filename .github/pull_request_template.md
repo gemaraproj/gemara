@@ -48,3 +48,17 @@
 - Testing approach or edge cases to verify
 - Files or functions that changed significantly
 -->
+
+
+## Self-review checklist
+
+<!-- Maintainer Note: Update the checklist before requesting a review on your PR.-->
+
+- [ ] I understand the changes proposed in this PR without the help or usage of AI.
+- [ ] I have the experience and knowledge necessary to understand, review, and validate all content in this PR.[^I-know-whats-up]
+
+[^I-know-whats-up]:
+    Yes, I can answer maintainer questions about the content of this PR, without using AI.
+
+
+---
