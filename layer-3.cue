@@ -107,7 +107,7 @@ package gemara
 #AcceptedMethod: {
 	type:         #MethodType | string
 	description?: string
-	executor?:    #Actor
+	executor?:    #Entity
 }
 
 #MethodType: "manual" | "behavioral" | "automated" | "autoremediation" | "gate"

@@ -98,7 +98,7 @@ package gemara
 	capabilities: [...#MultiEntryMapping]
 
 	// actors describes the relevant internal or external threat actors
-	actors?: [...#Actor]
+	actors?: [...#Entity]
 
 	// external-mappings documents relationships between this threat and any other artifacts
 	"external-mappings"?: [...#MultiEntryMapping] @go(ExternalMappings)

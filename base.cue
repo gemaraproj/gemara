@@ -21,32 +21,32 @@ import "time"
 	social?: string @go(Social,type=*string)
 }
 
-// Actor represents an entity (human or tool) that can perform actions in evaluations
-#Actor: {
-	// id uniquely identifies the actor and allows this entry to be referenced by other elements
+// Entity represents an entity (human or tool) that can perform actions in evaluations
+#Entity: {
+	// id uniquely identifies the entity and allows this entry to be referenced by other elements
 	id: string
 
-	// name is the name of the actor
+	// name is the name of the entity
 	name: string
 
 	// type specifies the type of entity interacting in the workflow
-	type: #ActorType @go(Type)
+	type: #EntityType @go(Type)
 
-	// version is the version of the actor (for tools; if applicable)
+	// version is the version of the entity (for tools; if applicable)
 	version?: string
 
-	// description provides additional context about the actor
+	// description provides additional context about the entity
 	description?: string
 
-	// uri is a general URI for the actor information
+	// uri is a general URI for the entity information
 	uri?: =~"^https?://[^\\s]+$"
 
-	// contact is contact information for the actor
+	// contact is contact information for the entity
 	contact?: #Contact @go(Contact)
 }
 
-// ActorType specifies what entity is interacting in the workflow
-#ActorType: "Human" | "Software" | "Software-Assisted" @go(-)
+// EntityType specifies what entity is interacting in the workflow
+#EntityType: "Human" | "Software" | "Software-Assisted" @go(-)
 
 // Email represents a validated email address pattern
 #Email: =~"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"

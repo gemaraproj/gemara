@@ -9,6 +9,7 @@ package gemara
 #EvaluationLog: {
 	"evaluations": [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
 	"metadata"?: #Metadata @go(Metadata)
+	"target": #Entity @go(Target)
 }
 
 // ControlEvaluation contains the results of evaluating a single Layer 5 control.
