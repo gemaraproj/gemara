@@ -7,7 +7,6 @@ pages:
       - "ActorType"
       - "Email"
       - "Datetime"
-      - "Date"
       - "Group"
   - title: "Metadata"
     filename: "metadata"
