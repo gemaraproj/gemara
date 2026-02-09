@@ -1,8 +1,7 @@
-package main
+package cmd
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,23 +10,8 @@ import (
 	"unicode"
 
 	"github.com/goccy/go-yaml"
+	"github.com/spf13/cobra"
 )
-
-type OpenAPISpec struct {
-	OpenAPI    string            `yaml:"openapi"`
-	Info       OpenAPIInfo       `yaml:"info"`
-	Components OpenAPIComponents `yaml:"components"`
-}
-
-type OpenAPIInfo struct {
-	Title       string `yaml:"title"`
-	Version     string `yaml:"version"`
-	Description string `yaml:"description"`
-}
-
-type OpenAPIComponents struct {
-	Schemas map[string]interface{} `yaml:"schemas"`
-}
 
 type Schema struct {
 	Type        string                 `yaml:"type"`
@@ -50,37 +34,55 @@ type NavConfig struct {
 	Pages []NavPage `yaml:"pages"`
 }
 
-func main() {
-	inputFile := flag.String("input", "openapi.yaml", "Input OpenAPI YAML file")
-	outputDir := flag.String("output", "spec", "Output directory for markdown files")
-	manifestPath := flag.String("manifest", "", "Path to schema-manifest.json for per-file mode")
-	navPath := flag.String("nav", "", "Path to schema-nav.yml for nav-based mode")
-	rootsFlag := flag.String("roots", "", "Comma-separated list of root schema names (used when -manifest and -nav are not set)")
-	flag.Parse()
+var openAPI2MDCmd = &cobra.Command{
+	Use:   "openapi2md",
+	Short: "Convert OpenAPI YAML to Markdown documentation",
+	Long: `Convert OpenAPI 3.0.3 YAML specifications to Markdown documentation.
+Supports three modes:
+  - Navigation-based: Uses a nav.yml file to organize schemas into pages
+  - Manifest-based: Uses a manifest.json to map CUE files to schemas
+  - Roots-based: Uses a comma-separated list of root schema names`,
+	RunE: runOpenAPI2MD,
+}
 
-	if *navPath != "" {
-		if err := convertFromNav(*inputFile, *outputDir, *navPath); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+var openAPI2MDFlags struct {
+	inputFile    string
+	outputDir    string
+	manifestPath string
+	navPath      string
+	rootsFlag    string
+}
+
+func newOpenAPI2MDCmd() *cobra.Command {
+	openAPI2MDCmd.Flags().StringVarP(&openAPI2MDFlags.inputFile, "input", "i", "openapi.yaml", "Input OpenAPI YAML file")
+	openAPI2MDCmd.Flags().StringVarP(&openAPI2MDFlags.outputDir, "output", "o", "spec", "Output directory for markdown files")
+	openAPI2MDCmd.Flags().StringVarP(&openAPI2MDFlags.manifestPath, "manifest", "m", "", "Path to schema-manifest.json for per-file mode")
+	openAPI2MDCmd.Flags().StringVarP(&openAPI2MDFlags.navPath, "nav", "n", "", "Path to schema-nav.yml for nav-based mode")
+	openAPI2MDCmd.Flags().StringVarP(&openAPI2MDFlags.rootsFlag, "roots", "r", "", "Comma-separated list of root schema names (used when -manifest and -nav are not set)")
+	return openAPI2MDCmd
+}
+
+func runOpenAPI2MD(cmd *cobra.Command, args []string) error {
+	if openAPI2MDFlags.navPath != "" {
+		if err := convertFromNav(openAPI2MDFlags.inputFile, openAPI2MDFlags.outputDir, openAPI2MDFlags.navPath); err != nil {
+			return err
 		}
-	} else if *manifestPath != "" {
-		if err := convertPerFile(*inputFile, *outputDir, *manifestPath); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+	} else if openAPI2MDFlags.manifestPath != "" {
+		if err := convertPerFile(openAPI2MDFlags.inputFile, openAPI2MDFlags.outputDir, openAPI2MDFlags.manifestPath); err != nil {
+			return err
 		}
 	} else {
-		roots := splitRoots(*rootsFlag)
+		roots := splitRoots(openAPI2MDFlags.rootsFlag)
 		if len(roots) == 0 {
-			fmt.Fprintf(os.Stderr, "Error: -roots is required when -manifest and -nav are not set\n")
-			os.Exit(1)
+			return fmt.Errorf("Error: -roots is required when -manifest and -nav are not set")
 		}
-		if err := convertOpenAPIToMarkdown(*inputFile, *outputDir, roots); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+		if err := convertOpenAPIToMarkdown(openAPI2MDFlags.inputFile, openAPI2MDFlags.outputDir, roots); err != nil {
+			return err
 		}
 	}
 
-	fmt.Printf("Markdown documentation generated successfully in %s/\n", *outputDir)
+	fmt.Printf("Markdown documentation generated successfully in %s/\n", openAPI2MDFlags.outputDir)
+	return nil
 }
 
 func splitRoots(s string) []string {
@@ -541,12 +543,12 @@ func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, schem
 		// Output all fields in order (required first, then optional)
 		// Sort by required status, then by name
 		type fieldInfo struct {
-			name      string
-			schema    Schema
-			required  bool
+			name     string
+			schema   Schema
+			required bool
 		}
 		var fields []fieldInfo
-		
+
 		for _, propName := range propNames {
 			isRequired := false
 			for _, req := range schema.Required {
@@ -563,12 +565,12 @@ func generateRootSection(rootName string, schema Schema, spec OpenAPISpec, schem
 				continue
 			}
 			fields = append(fields, fieldInfo{
-				name: propName,
-				schema: prop,
+				name:     propName,
+				schema:   prop,
 				required: isRequired,
 			})
 		}
-		
+
 		// Sort: required first, then by name
 		sort.Slice(fields, func(i, j int) bool {
 			if fields[i].required != fields[j].required {
