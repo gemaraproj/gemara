@@ -11,7 +11,7 @@ package gemara
 	version?: string
 
 	// date is the publication or effective date of this artifact
-	date?: #Date @go(Date)
+	date?: #Datetime @go(Date)
 
 	// description provides a high-level summary of the artifact's purpose and scope
 	description: string

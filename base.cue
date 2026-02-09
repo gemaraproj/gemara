@@ -54,9 +54,6 @@ import "time"
 // Datetime represents an ISO 8601 formatted datetime string
 #Datetime: time.Format("2006-01-02T15:04:05Z07:00") @go(Datetime,format="date-time")
 
-// Date represents a date string (ISO 8601 date format)
-#Date: time.Format("2006-01-02") @go(Date,format="date")
-
 // Group represents a classification or grouping that can be used in different contexts with semantic meaning derived from its usage
 #Group: {
 	// id allows this entry to be referenced by other elements
