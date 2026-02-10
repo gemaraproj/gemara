@@ -42,7 +42,22 @@ import "time"
 	uri?: =~"^https?://[^\\s]+$"
 
 	// contact is contact information for the entity
+
+}
+
+// Actor represents an entity (human or tool) that performs actions in evaluations
+#Actor: #Entity & {
+	// contact is contact information for the actor
 	contact?: #Contact @go(Contact)
+}
+
+// Resource represents an entity that exists in the system and can be evaluated
+#Resource: #Entity & {
+	// environment describes where the resource exists (e.g., production, staging, development, specific region)
+	environment?: string @go(Environment)
+
+	// owner is the contact information for the person or group responsible for managing or owning this resource
+	owner?: #Contact @go(Owner)
 }
 
 // EntityType specifies what entity is interacting in the workflow

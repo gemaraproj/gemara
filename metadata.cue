@@ -17,7 +17,7 @@ package gemara
 	description: string
 
 	// author is the person or group primarily responsible for this artifact
-	author: #Entity
+	author: #Actor
 
 	// mapping-references is a list of external documents referenced within this artifact
 	"mapping-references"?: [...#MappingReference] @go(MappingReferences) @yaml("mapping-references,omitempty")
