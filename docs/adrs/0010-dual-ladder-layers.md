@@ -19,7 +19,7 @@ Here is an overview of some common phrasing we've been using:
 - Layer 4: Sensitive Activities
 - Layer 5: Evaluation (config scans and behavior scans)
 - Layer 6: Enforcement (gates and remediation)
-- Layer 7: Audit (manual and continuous monitoring)
+- Layer 7: Audit (manual and continuous monitoring
 
 ## Decision
 

@@ -1,7 +1,6 @@
-package main
+package cmd
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -11,6 +10,7 @@ import (
 	"unicode"
 
 	"github.com/goccy/go-yaml"
+	"github.com/spf13/cobra"
 )
 
 type Term struct {
@@ -26,27 +26,42 @@ type TermInfo struct {
 	Regex        *regexp.Regexp
 }
 
-func main() {
-	lexiconFile := flag.String("lexicon", "docs/lexicon.yaml", "Input lexicon YAML file")
-	docsDir := flag.String("docs", "docs", "Documentation directory to process")
-	cleanup := flag.Bool("cleanup", false, "Remove termlinker-generated links instead of adding them")
-	flag.Parse()
+var termLinkerCmd = &cobra.Command{
+	Use:   "termlinker",
+	Short: "Link defined terms across documentation",
+	Long: `Link defined terms from the lexicon across all markdown files in the documentation.
+This command finds occurrences of terms defined in the lexicon and creates markdown
+links to the definitions page. Use the --cleanup flag to remove previously generated links.`,
+	RunE: runTermLinker,
+}
 
+var termLinkerFlags struct {
+	lexiconFile string
+	docsDir     string
+	cleanup     bool
+}
+
+func newTermLinkerCmd() *cobra.Command {
+	termLinkerCmd.Flags().StringVarP(&termLinkerFlags.lexiconFile, "lexicon", "l", "docs/lexicon.yaml", "Input lexicon YAML file")
+	termLinkerCmd.Flags().StringVarP(&termLinkerFlags.docsDir, "docs", "d", "docs", "Documentation directory to process")
+	termLinkerCmd.Flags().BoolVarP(&termLinkerFlags.cleanup, "cleanup", "c", false, "Remove termlinker-generated links instead of adding them")
+	return termLinkerCmd
+}
+
+func runTermLinker(cmd *cobra.Command, args []string) error {
 	// Load terms from lexicon
-	terms, err := loadTerms(*lexiconFile)
+	terms, err := loadTerms(termLinkerFlags.lexiconFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading terms: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error loading terms: %v", err)
 	}
 
 	// Build term info with regex patterns (sorted by length, longest first)
 	termInfos := buildTermInfos(terms)
 
 	// Find all markdown files
-	mdFiles, err := findMarkdownFiles(*docsDir)
+	mdFiles, err := findMarkdownFiles(termLinkerFlags.docsDir)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error finding markdown files: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("Error finding markdown files: %v", err)
 	}
 
 	// Process each file
@@ -57,13 +72,13 @@ func main() {
 			continue
 		}
 
-		if *cleanup {
-			if err := cleanupFile(file, termInfos, *docsDir); err != nil {
+		if termLinkerFlags.cleanup {
+			if err := cleanupFile(file, termInfos, termLinkerFlags.docsDir); err != nil {
 				fmt.Fprintf(os.Stderr, "Error cleaning up %s: %v\n", file, err)
 				continue
 			}
 		} else {
-			if err := processFile(file, termInfos, *docsDir); err != nil {
+			if err := processFile(file, termInfos, termLinkerFlags.docsDir); err != nil {
 				fmt.Fprintf(os.Stderr, "Error processing %s: %v\n", file, err)
 				continue
 			}
@@ -71,11 +86,12 @@ func main() {
 		processedCount++
 	}
 
-	if *cleanup {
+	if termLinkerFlags.cleanup {
 		fmt.Printf("Successfully cleaned up %d markdown files\n", processedCount)
 	} else {
 		fmt.Printf("Successfully processed %d markdown files\n", processedCount)
 	}
+	return nil
 }
 
 func loadTerms(lexiconFile string) ([]Term, error) {
@@ -214,75 +230,14 @@ func processContent(content string, termInfos []TermInfo, defPath string) string
 	lines := strings.Split(content, "\n")
 	var result strings.Builder
 
-	inCodeBlock := false
-	inFrontMatter := false
-	frontMatterCount := 0
-	inHTMLBlock := false
-	htmlTagStack := 0
+	state := &contentState{}
 
 	for i, line := range lines {
 		originalLine := line
+		state.update(line)
+		skip := state.skipLine(line)
 
-		// Track front matter
-		if strings.HasPrefix(strings.TrimSpace(line), "---") {
-			if !inFrontMatter {
-				inFrontMatter = true
-				frontMatterCount = 1
-			} else {
-				frontMatterCount++
-				if frontMatterCount == 2 {
-					inFrontMatter = false
-				}
-			}
-		}
-
-		// Skip processing in front matter
-		if inFrontMatter {
-			result.WriteString(originalLine)
-			if i < len(lines)-1 {
-				result.WriteString("\n")
-			}
-			continue
-		}
-
-		// Track code blocks (fenced with ```)
-		trimmed := strings.TrimSpace(line)
-		if strings.HasPrefix(trimmed, "```") {
-			inCodeBlock = !inCodeBlock
-		}
-
-		// Skip code blocks
-		if inCodeBlock {
-			result.WriteString(originalLine)
-			if i < len(lines)-1 {
-				result.WriteString("\n")
-			}
-			continue
-		}
-
-		// Track HTML blocks - check for opening and closing HTML tags
-		// This handles multi-line HTML blocks like <div>...</div>
-		htmlTagPattern := regexp.MustCompile(`<[^>]+>`)
-		htmlTags := htmlTagPattern.FindAllString(line, -1)
-		for _, tag := range htmlTags {
-			tagLower := strings.ToLower(strings.TrimSpace(tag))
-			// Check for opening tags (not self-closing and not closing tags)
-			if !strings.HasPrefix(tagLower, "</") && !strings.HasSuffix(tagLower, "/>") {
-				htmlTagStack++
-				inHTMLBlock = true
-			}
-			// Check for closing tags
-			if strings.HasPrefix(tagLower, "</") {
-				htmlTagStack--
-				if htmlTagStack <= 0 {
-					htmlTagStack = 0
-					inHTMLBlock = false
-				}
-			}
-		}
-
-		// Skip headers and HTML Blocks (lines starting with #)
-		if strings.HasPrefix(trimmed, "#") || inHTMLBlock || htmlTagStack > 0 {
+		if skip {
 			result.WriteString(originalLine)
 			if i < len(lines)-1 {
 				result.WriteString("\n")
@@ -299,6 +254,89 @@ func processContent(content string, termInfos []TermInfo, defPath string) string
 	}
 
 	return result.String()
+}
+
+type contentState struct {
+	inCodeBlock     bool
+	inFrontMatter   bool
+	inHTMLBlock     bool
+	htmlTagStack    int
+	inJekyllInclude bool
+}
+
+func (s *contentState) update(line string) {
+	trimmed := strings.TrimSpace(line)
+
+	// Track front matter - (fenced with ---)
+	if strings.HasPrefix(trimmed, "---") {
+		s.inFrontMatter = !s.inFrontMatter
+	}
+
+	// Track code blocks (fenced with ```)
+	if strings.HasPrefix(trimmed, "```") {
+		s.inCodeBlock = !s.inCodeBlock
+	}
+
+	// Track Jekyll includes - starts with {% include and ends with %}
+	if strings.Contains(trimmed, "{%") && strings.Contains(trimmed, "include") {
+		s.inJekyllInclude = true
+	}
+	if s.inJekyllInclude && strings.Contains(trimmed, "%}") {
+		s.inJekyllInclude = false
+	}
+
+	// Track HTML blocks - check for opening and closing HTML tags
+	// This handles multi-line HTML blocks like <div>...</div>
+	htmlTagPattern := regexp.MustCompile(`<[^>]+>`)
+	htmlTags := htmlTagPattern.FindAllString(line, -1)
+	for _, tag := range htmlTags {
+		tagLower := strings.ToLower(strings.TrimSpace(tag))
+		// Check for opening tags (not self-closing and not closing tags)
+		if !strings.HasPrefix(tagLower, "</") && !strings.HasSuffix(tagLower, "/>") {
+			s.htmlTagStack++
+			s.inHTMLBlock = true
+		}
+		// Check for closing tags
+		if strings.HasPrefix(tagLower, "</") {
+			s.htmlTagStack--
+			if s.htmlTagStack <= 0 {
+				s.htmlTagStack = 0
+				s.inHTMLBlock = false
+			}
+		}
+	}
+}
+
+// skipLine determines whether a line should be skipped when linking terms
+func (s *contentState) skipLine(line string) bool {
+	trimmed := strings.TrimSpace(line)
+
+	// Skip processing in front matter (including title and other front matter fields)
+	if s.inFrontMatter {
+		return true
+	}
+
+	// Skip code blocks
+	if s.inCodeBlock {
+		return true
+	}
+
+	// Skip Jekyll includes (entire block including caption parameters)
+	if s.inJekyllInclude {
+		return true
+	}
+
+	// Skip HTML Blocks
+	if s.inHTMLBlock || s.htmlTagStack > 0 {
+		return true
+	}
+
+	// Skip headers (lines starting with #)
+	if strings.HasPrefix(trimmed, "#") {
+		return true
+	}
+
+	return false
 }
 
 func processLine(line string, termInfos []TermInfo, defPath string) string {
