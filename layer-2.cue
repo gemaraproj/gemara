@@ -45,6 +45,12 @@ package gemara
 
 	// threat-mappings documents relationships betwen this control and Layer 2 threat artifacts
 	"threat-mappings"?: [...#MultiEntryMapping] @go(ThreatMappings)
+
+	// state is the lifecycle state of this control
+	state?: #Lifecycle @go(State) @yaml("state,omitempty")
+
+	// replaced-by references the control that supersedes this one when deprecated or retired
+	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
 }
 
 // AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
@@ -60,6 +66,17 @@ package gemara
 
 	// recommendation provides readers with non-binding suggestions to aid in evaluation or enforcement of the requirement
 	recommendation?: string
+
+	// state is the lifecycle state of this assessment requirement
+	state?: #Lifecycle @go(State) @yaml("state,omitempty")
+
+	// replaced-by references the assessment requirement that supersedes this one when deprecated or retired
+	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
+
+	// retired assessment requirements must not have a recommendation
+	if state == "retired" {
+		recommendation?: _|_
+	}
 }
 
 // ThreatCatalog describes a set of topically-associated threats
