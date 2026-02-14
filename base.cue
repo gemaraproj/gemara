@@ -65,3 +65,6 @@ import "time"
 	// description explains the significance and traits of entries to this group
 	description: string
 }
+
+// Lifecycle represents the lifecycle state of a guideline, control, or assessment requirement
+#Lifecycle: "active" | "draft" | "deprecated" | "retired" @go(-)

@@ -95,6 +95,17 @@ package gemara
 
 	// see-also lists related guideline IDs within the same GuidanceCatalog
 	"see-also"?: [...string] @go(SeeAlso) @yaml("see-also,omitempty")
+
+	// state is the lifecycle state of this guideline
+	state?: #Lifecycle @go(State) @yaml("state,omitempty")
+
+	// replaced-by references the guideline that supersedes this one when deprecated or retired
+	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
+
+	// retired guidelines must not have recommendations
+	if state == "retired" {
+		recommendations?: _|_
+	}
 }
 
 // Statement represents a structural sub-requirement within a guideline;
