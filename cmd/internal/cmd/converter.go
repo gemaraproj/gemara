@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"encoding/json"
@@ -47,6 +47,7 @@ type SchemaInfo struct {
 	Format      string                 `yaml:"format,omitempty" json:"format,omitempty"`
 	Items       interface{}            `yaml:"items,omitempty" json:"items,omitempty"`
 	Ref         string                 `yaml:"$ref,omitempty" json:"$ref,omitempty"`
+	XStatus     string                 `yaml:"x-status,omitempty" json:"x-status,omitempty"`
 }
 
 func readVersion(schemaDir string) string {
@@ -119,7 +120,8 @@ func convertCUEToOpenAPI(schemaDir, outputPath string, opts ConvertOpts) error {
 			continue
 		}
 		f := byName[name]
-		rootDesc, typeNames := parseFile(f, spec, seen, opts.Root)
+		fileStatus := extractFileStatus(f)
+		rootDesc, typeNames := parseFile(f, spec, seen, opts.Root, fileStatus)
 		if rootDesc != "" && opts.Root != "" {
 			spec.Info.Description = rootDesc
 		}
@@ -156,9 +158,41 @@ func writeManifest(manifest map[string][]string, path string) error {
 	return os.WriteFile(path, data, 0644)
 }
 
+// extractFileStatus extracts the @status attribute from a CUE file.
+func extractFileStatus(file *ast.File) string {
+	if file.Filename == "" {
+		return ""
+	}
+
+	data, err := os.ReadFile(file.Filename)
+	if err != nil {
+		return ""
+	}
+
+	// Look for @status("value") pattern in the first few lines
+	lines := strings.Split(string(data), "\n")
+	for i := 0; i < len(lines) && i < 10; i++ {
+		line := strings.TrimSpace(lines[i])
+		// Match @status("experimental"), @status("stable"), etc.
+		if strings.HasPrefix(line, "@status(") {
+			// Extract the value between quotes
+			start := strings.Index(line, `"`)
+			if start == -1 {
+				continue
+			}
+			end := strings.Index(line[start+1:], `"`)
+			if end == -1 {
+				continue
+			}
+			return line[start+1 : start+1+end]
+		}
+	}
+	return ""
+}
+
 // parseFile processes a single CUE file and merges definitions into spec.
 // It returns the root type description (if opts.Root matches) and the list of type names added.
-func parseFile(file *ast.File, spec *OpenAPISpec, seen map[string]bool, rootName string) (rootDescription string, typeNames []string) {
+func parseFile(file *ast.File, spec *OpenAPISpec, seen map[string]bool, rootName string, fileStatus string) (rootDescription string, typeNames []string) {
 	for _, decl := range file.Decls {
 		field, ok := decl.(*ast.Field)
 		if !ok {
@@ -185,13 +219,13 @@ func parseFile(file *ast.File, spec *OpenAPISpec, seen map[string]bool, rootName
 			continue
 		}
 		seen[typeName] = true
-		parseDefinitionField(field, spec)
+		parseDefinitionField(field, spec, fileStatus)
 		typeNames = append(typeNames, typeName)
 	}
 	return rootDescription, typeNames
 }
 
-func parseDefinitionField(field *ast.Field, spec *OpenAPISpec) {
+func parseDefinitionField(field *ast.Field, spec *OpenAPISpec, fileStatus string) {
 	var typeName string
 
 	// Extract type name from label
@@ -225,6 +259,9 @@ func parseDefinitionField(field *ast.Field, spec *OpenAPISpec) {
 	// Parse struct body
 	if st, ok := field.Value.(*ast.StructLit); ok {
 		schema := convertStructToSchema(st, spec, description)
+		if fileStatus != "" {
+			schema.XStatus = fileStatus
+		}
 		spec.Components.Schemas[typeName] = schema
 	} else {
 		// Handle type aliases (like #URL, #Email with patterns)
@@ -235,11 +272,15 @@ func parseDefinitionField(field *ast.Field, spec *OpenAPISpec) {
 				// Extract the pattern from the BasicLit
 				if lit, ok := ue.X.(*ast.BasicLit); ok && lit.Kind == token.STRING {
 					pattern := strings.Trim(lit.Value, "\"")
-					spec.Components.Schemas[typeName] = &SchemaInfo{
+					schema := &SchemaInfo{
 						Type:        "string",
 						Description: description,
 						Pattern:     pattern,
 					}
+					if fileStatus != "" {
+						schema.XStatus = fileStatus
+					}
+					spec.Components.Schemas[typeName] = schema
 					return
 				}
 			}
@@ -254,11 +295,15 @@ func parseDefinitionField(field *ast.Field, spec *OpenAPISpec) {
 					pattern = strings.Trim(lit.Value, "\"")
 				}
 				if pattern != "" {
-					spec.Components.Schemas[typeName] = &SchemaInfo{
+					schema := &SchemaInfo{
 						Type:        "string",
 						Description: description,
 						Pattern:     pattern,
 					}
+					if fileStatus != "" {
+						schema.XStatus = fileStatus
+					}
+					spec.Components.Schemas[typeName] = schema
 					return
 				}
 			}
@@ -267,6 +312,9 @@ func parseDefinitionField(field *ast.Field, spec *OpenAPISpec) {
 		if ce, ok := field.Value.(*ast.CallExpr); ok {
 			schema := convertTypeAlias(ce, spec, description)
 			if schema != nil && (schema.Pattern != "" || schema.Format != "") {
+				if fileStatus != "" {
+					schema.XStatus = fileStatus
+				}
 				spec.Components.Schemas[typeName] = schema
 				return
 			}
@@ -274,10 +322,17 @@ func parseDefinitionField(field *ast.Field, spec *OpenAPISpec) {
 		// Use convertExprToSchema for other cases
 		schema := convertExprToSchema(field.Value, spec, description)
 		if schemaInfo, ok := schema.(*SchemaInfo); ok {
+			if fileStatus != "" {
+				schemaInfo.XStatus = fileStatus
+			}
 			spec.Components.Schemas[typeName] = schemaInfo
 		} else {
 			// Fallback: create a basic string schema
-			spec.Components.Schemas[typeName] = &SchemaInfo{Type: "string", Description: description}
+			schemaInfo := &SchemaInfo{Type: "string", Description: description}
+			if fileStatus != "" {
+				schemaInfo.XStatus = fileStatus
+			}
+			spec.Components.Schemas[typeName] = schemaInfo
 		}
 	}
 }
