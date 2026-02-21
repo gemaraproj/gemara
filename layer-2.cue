@@ -21,6 +21,10 @@ package gemara
 
 	// imported-controls is a list of controls from another source which are included as part of this document
 	"imported-controls"?: [...#MultiEntryMapping] @go(ImportedControls)
+
+	if controls != _|_ {
+		families: [_, ...#Group]
+	}
 }
 
 // Control describes a safeguard or countermeasure with a clear objective and assessment requirements
