@@ -28,6 +28,10 @@ package gemara
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [...#Exemption] @go(Exemptions)
 
+	if guidelines != _|_ {
+		families: [_, ...#Group]
+	}
+
 	// guidelines that extend other guidelines must be in the same family as the extended guideline
 	_validateExtensions: {
 		for guideline in guidelines if guideline.extends != _|_ {
