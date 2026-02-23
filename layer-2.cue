@@ -13,6 +13,9 @@ package gemara
 	// metadata provides detailed data about this catalog
 	"metadata": #Metadata @go(Metadata)
 
+	// extends references control catalogs that this catalog builds upon
+	extends?: [...#ArtifactMapping] @go(Extends)
+
 	// families contains a list of control families that can be referenced by controls
 	families?: [...#Group] @go(Families)
 
@@ -90,6 +93,9 @@ package gemara
 
 	// metadata provides detailed data about this catalog
 	"metadata": #Metadata @go(Metadata)
+
+	// extends references threat catalogs that this catalog builds upon
+	extends?: [...#ArtifactMapping] @go(Extends)
 
 	// threats is a list of threats defined by this catalog
 	threats?: [...#Threat] @go(Threats)

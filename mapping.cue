@@ -26,7 +26,7 @@ package gemara
 	"reference-id": string @go(ReferenceId)
 
 	// remarks is prose regarding the mapped artifact or the mapping relationship
-	"remarks": string
+	remarks?: string
 }
 
 // MultiEntryMapping represents a mapping to an external reference with one or more entries.
