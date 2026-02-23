@@ -1,0 +1,42 @@
+# Minimal Secure Software Development Guidance
+# Conforms to Gemara Layer 1 #GuidanceCatalog (layer-1.cue).
+# See guidance-tutorial.md for the full guide.
+
+title: Secure Software Development Guidance
+type: Best Practice
+metadata:
+  id: ORG.SSD.001
+  description: Internal secure development guidelines aligned to industry standards
+  version: 1.0.0
+  author:
+    id: example
+    name: Example
+    type: Human
+  mapping-references:
+    - id: OWASP
+      title: OWASP Top 10
+      version: "2021"
+      url: https://owasp.org/Top10
+      description: OWASP Top 10 Web Application Security Risks
+
+families:
+  - id: ORG.SSD.FAM01
+    title: Secure Dependencies and Supply Chain
+    description: Guidelines for selecting, updating, and verifying dependencies and images.
+
+guidelines:
+  - id: ORG.SSD.GL01
+    title: Prefer Immutable Image References
+    objective: |
+      Use digest-based or otherwise immutable references for container images
+      to prevent tampering and ensure repeatable deployments.
+    family: ORG.SSD.FAM01
+    recommendations:
+      - Prefer pull-by-digest over tags for production.
+      - Pin base image digests in Dockerfiles or equivalent.
+    applicability: ["containerized workloads", "CI/CD"]
+    guideline-mappings:
+      - reference-id: OWASP
+        entries:
+          - reference-id: A06:2021-Vulnerable-and-Outdated-Components
+            remarks: Reduces risk of outdated or substituted components
