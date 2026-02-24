@@ -13,5 +13,9 @@
           url: /tutorials/controls/threat-assessment-guide
         - title: Control Catalog Guide
           url: /tutorials/controls/control-catalog-guide
+    - title: Guidance
+      children:
+        - title: Guidance Catalog Guide
+          url: /tutorials/guidance/guidance-guide
 - title: ADRs
   url: /adrs/

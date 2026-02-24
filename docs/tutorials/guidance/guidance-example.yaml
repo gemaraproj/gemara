@@ -1,12 +1,12 @@
 # Minimal Secure Software Development Guidance
 # Conforms to Gemara Layer 1 #GuidanceCatalog (layer-1.cue).
-# See guidance-tutorial.md for the full guide.
+# See guidance-guide.md for the full guide.
 
 title: Secure Software Development Guidance
 type: Best Practice
 metadata:
   id: ORG.SSD.001
-  description: Internal secure development guidelines aligned to industry standards
+  description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
     id: example
@@ -28,15 +28,39 @@ guidelines:
   - id: ORG.SSD.GL01
     title: Prefer Immutable Image References
     objective: |
-      Use digest-based or otherwise immutable references for container images
-      to prevent tampering and ensure repeatable deployments.
+      Use digest-based or immutable references for container images to prevent
+      tampering and ensure repeatable deployments.
     family: ORG.SSD.FAM01
+    state: active
     recommendations:
       - Prefer pull-by-digest over tags for production.
       - Pin base image digests in Dockerfiles or equivalent.
     applicability: ["containerized workloads", "CI/CD"]
-    guideline-mappings:
-      - reference-id: OWASP
-        entries:
-          - reference-id: A06:2021-Vulnerable-and-Outdated-Components
-            remarks: Reduces risk of outdated or substituted components
+    see-also:
+      - ORG.SSD.GL02
+      - ORG.SSD.GL03
+  - id: ORG.SSD.GL02
+    title: Prefer GitHub Branch Protection Rules
+    objective: |
+      Use branch protection so only approved changes reach the main branch and
+      malicious code cannot be merged without review.
+    family: ORG.SSD.FAM01
+    state: active
+    recommendations:
+      - Prefer pull requests submitted from fork branch.
+      - Required maintainer/non-author review and approval for merge.
+      - Prefer GitHub Actions Quality checks in CI on pull request.
+    applicability: ["containerized workloads", "CI/CD", "GitHub Repositories"]
+    see-also:
+      - ORG.SSD.GL01
+  - id: ORG.SSD.GL03
+    title: Prefer VPN on Untrusted Networks
+    objective: |
+      Use a VPN on untrusted networks to protect traffic from interception and
+      DNS spoofing.
+    family: ORG.SSD.FAM01
+    state: active
+    recommendations:
+      - Use a VPN for registry and build traffic on untrusted networks.
+    see-also:
+      - ORG.SSD.GL02

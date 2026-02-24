@@ -1,10 +1,8 @@
-<!-- ---
+---
+layout: page
 title: Guidance Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible guidance catalogs
-tags: ["Inspector"]
---- -->
-
-# Guidance Catalog Guide
+---
 
 ## What This Is
 
@@ -13,8 +11,9 @@ This guide walks through creating a **guidance catalog** using the [Gemara](http
 **The basic idea:** A guidance catalog is a structured set of **guidelines**—recommendations, requirements, or best practices—that help readers achieve desired outcomes. Guidelines are grouped into **families** and can reference external standards so you can align internal guidance with industry or regulatory sources.
 
 In technical terms:
-* **Guidance catalogs** have a **type** (Standard, Regulation, Best Practice, or Framework), **families** that group guidelines by theme, and **guidelines** with an objective, optional recommendations, and optional mappings to other artifacts.
-* **Guidelines** state intent and context; they can map to external guidance (e.g., OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) via `guideline-mappings` and to controls via downstream Gemara layers.
+* **Guidance catalogs** have a **type** (Standard, Regulation, Best Practice, or Framework), **families** that group guidelines by theme, and **guidelines** with an objective, optional recommendations, and optional references to other guidelines within the *same* guidance catalog.
+* **Guidelines:** state the intent and context; they have statements which act as sub-requirements of the guideline (e.g., `ORG.SSD.001` and statements.id `ORG.SSD.001.1`). The guidance includes a see-also for linking other guidelines within the same guidance catalog (e.g., `ORG.SSD.001` see-also `ORG.SSD.002`, `ORG.SSD.003`).
+* **Guidelines** have the ability to be mapped to external guidance (e.g., OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) and to controls in a *separate* **Mapping Document**. Downstream Gemara Layers can reference `guidelines`, defining support for specific controls.
 
 **Who might write guidance:** Authors can represent **internal** teams (unique organizational circumstances), **industry groups** (e.g., OWASP Top 10, PCI standards), **government agencies** (e.g., NIST Cybersecurity Framework, HIPAA), or **international standards bodies** (e.g., GDPR, CRA, ISO). Compliance professionals can use Gemara as a logical model for categorizing and mapping compliance activities to these sources.
 
@@ -31,7 +30,7 @@ Choose the scope of your guidance (e.g., secure development, supply chain, data 
 | `Best Practice`| Non-mandatory recommendations (e.g., internal playbooks, OWASP-style)      |
 | `Framework`    | High-level structure or taxonomy (e.g., NIST CSF)                          |
 
-You can later add `mapping-references` to external documents (OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) and use `guideline-mappings` on each guideline to align with those sources.
+You can later add `mapping-references` to external documents (OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) and use the **external** Mapping Document to align those sources.
 
 ### Step 1: Setting Up Metadata
 
@@ -42,7 +41,7 @@ Declare your catalog and, if you will reference external standards, add mapping 
 | `title`                 | Display name for the guidance catalog (top-level)         | Human-readable label in reports and tooling                         |
 | `type`                  | One of Standard, Regulation, Best Practice, Framework      | Required by schema; clarifies intent                                |
 | `metadata.id`           | Unique identifier for this catalog                        | Used when other artifacts reference this catalog                    |
-| `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)  | Resolve IDs used in `guideline-mappings` on guidelines             |
+| `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)  | Resolve IDs used in external Mapping Document on guidelines             |
 
 **Example (YAML):**
 
@@ -51,7 +50,7 @@ title: Secure Software Development Guidance
 type: Best Practice
 metadata:
   id: ORG.SSD.001
-  description: Internal secure development guidelines aligned to industry standards
+  description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
     id: example
@@ -67,7 +66,7 @@ metadata:
 
 ### Step 2: Define Families
 
-**Families** group guidelines by theme. The Layer 1 schema requires at least one family when the catalog defines `guidelines`. Each guideline’s `family` field must match the `id` of one of these groups (`#Group`: id, title, description).
+**Families** group guidelines by theme. The Layer 1 schema requires at least one family when the catalog defines `guidelines`. Each guideline’s `family` field must match the `id` of one of these groups (id, title, description).
 
 **Example (YAML):**
 
@@ -80,7 +79,7 @@ families:
 
 ### Step 3: Define Guidelines
 
-**Guidelines** are the core content. Required fields for each guideline (`#Guideline` in `layer-1.cue`):
+**Guidelines** are the core content. Required fields for each guideline (see `layer-1.cue`):
 
 | Field       | Required | Description                                              |
 |-------------|----------|----------------------------------------------------------|
@@ -89,32 +88,56 @@ families:
 | `objective` | Yes      | Unified statement of intent                              |
 | `family`    | Yes      | `id` of a family in this catalog                         |
 
-Optional but useful: `recommendations`, `applicability`, `rationale`, `statements`, and `guideline-mappings` (to link to OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO, etc.).
+Optional: `state` (Active, Draft, Deprecated, Retired; defaults to Active in schema), `recommendations`, `applicability`, `rationale`, `statements`, `guidelines`, `vectors`, and others (see `layer-1.cue`).
 
-**Example (YAML):**
+**Example (YAML):** The following guidelines illustrate supply chain security for dependencies and images (artifact integrity, source/code integrity, and secure transit):
 
 ```yaml
 guidelines:
   - id: ORG.SSD.GL01
     title: Prefer Immutable Image References
     objective: |
-      Use digest-based or otherwise immutable references for container images
-      to prevent tampering and ensure repeatable deployments.
+      Use digest-based or immutable references for container images to prevent
+      tampering and ensure repeatable deployments.
     family: ORG.SSD.FAM01
+    state: active
     recommendations:
       - Prefer pull-by-digest over tags for production.
       - Pin base image digests in Dockerfiles or equivalent.
     applicability: ["containerized workloads", "CI/CD"]
-    guideline-mappings:
-      - reference-id: OWASP
-        entries:
-          - reference-id: A06:2021-Vulnerable-and-Outdated-Components
-            remarks: Reduces risk of outdated or substituted components
+    see-also:
+      - ORG.SSD.GL02 # Create extra guidelines
+      - ORG.SSD.GL03
+  - id: ORG.SSD.GL02
+    title: Prefer GitHub Branch Protection Rules 
+    objective: |
+      Use branch protection so only approved changes reach the main branch and
+      malicious code cannot be merged without review.
+    family: ORG.SSD.FAM01
+    state: active
+    recommendations:
+      - Prefer pull requests submitted from fork branch.
+      - Required maintainer/non-author review and approval for merge.
+      - Prefer GitHub Actions Quality checks in CI on pull request.
+    applicability: ["containerized workloads", "CI/CD", "GitHub Repositories"]
+    see-also:
+      - ORG.SSD.GL01
+  - id: ORG.SSD.GL03
+    title: Prefer VPN on Untrusted Networks
+    objective: |
+      Use a VPN on untrusted networks to protect traffic from interception and
+      DNS spoofing.
+    family: ORG.SSD.FAM01
+    state: active
+    recommendations:
+      - Use a VPN for registry and build traffic on untrusted networks.
+    see-also:
+      - ORG.SSD.GL02 
 ```
 
 ### Step 4: Validate
 
-The catalog must conform to `#GuidanceCatalog` in the Gemara Layer 1 schema (`layer-1.cue`). Validate with CUE:
+The catalog must conform to the Gemara Layer 1 schema in `layer-1.cue`. Validate with CUE:
 
 **Validation commands:**
 
@@ -123,22 +146,16 @@ go install cuelang.org/go/cmd/cue@latest
 cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@latest your-guidance.yaml
 ```
 
-Or from a local clone (repo root):
-
-```bash
-cue vet -c -d '#GuidanceCatalog' ./layer-1.cue ./metadata.cue ./mapping.cue ./base.cue docs/tutorials/guidance/guidance-example.yaml
-```
-
 ### Minimal Full Example
 
-A copy of this catalog is in `guidance-example.yaml` in this directory. Combined minimal catalog:
+A complete, schema-valid copy of this catalog is in [guidance-example.yaml](guidance-example.yaml) in this directory. Combined minimal catalog:
 
 ```yaml
 title: Secure Software Development Guidance
 type: Best Practice
 metadata:
   id: ORG.SSD.001
-  description: Internal secure development guidelines aligned to industry standards
+  description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
     id: example
@@ -160,20 +177,44 @@ guidelines:
   - id: ORG.SSD.GL01
     title: Prefer Immutable Image References
     objective: |
-      Use digest-based or otherwise immutable references for container images
-      to prevent tampering and ensure repeatable deployments.
+      Use digest-based or immutable references for container images to prevent
+      tampering and ensure repeatable deployments.
     family: ORG.SSD.FAM01
+    state: active
     recommendations:
       - Prefer pull-by-digest over tags for production.
       - Pin base image digests in Dockerfiles or equivalent.
     applicability: ["containerized workloads", "CI/CD"]
-    guideline-mappings:
-      - reference-id: OWASP
-        entries:
-          - reference-id: A06:2021-Vulnerable-and-Outdated-Components
-            remarks: Reduces risk of outdated or substituted components
+    see-also:
+      - ORG.SSD.GL02
+      - ORG.SSD.GL03
+  - id: ORG.SSD.GL02
+    title: Prefer GitHub Branch Protection Rules 
+    objective: |
+      Use branch protection so only approved changes reach the main branch and
+      malicious code cannot be merged without review.
+    family: ORG.SSD.FAM01
+    state: active
+    recommendations:
+      - Prefer pull requests submitted from fork branch.
+      - Required maintainer/non-author review and approval for merge.
+      - Prefer GitHub Actions Quality checks in CI on pull request.
+    applicability: ["containerized workloads", "CI/CD", "GitHub Repositories"]
+    see-also:
+      - ORG.SSD.GL01
+  - id: ORG.SSD.GL03
+    title: Prefer VPN on Untrusted Networks
+    objective: |
+      Use a VPN on untrusted networks to protect traffic from interception and
+      DNS spoofing.
+    family: ORG.SSD.FAM01
+    state: active
+    recommendations:
+      - Use a VPN for registry and build traffic on untrusted networks.
+    see-also:
+      - ORG.SSD.GL02 
 ```
 
 ## What's Next
 
-Map guidelines to Layer 2 controls via control catalogs’ `guideline-mappings`, or reference this guidance from policy and evaluation layers. See the [Gemara Layer 1 schema documentation](https://gemara.openssf.org/schema/layer-1.html) for optional fields such as `exemptions`, `front-matter`, `rationale`, `statements`, and `principle-mappings` or `vector-mappings`.
+Map guidelines to Layer 2 controls via control catalogs’ `guideline-mappings`, or reference this guidance from policy and evaluation layers. See the [Gemara Layer 1 schema documentation](https://gemara.openssf.org/schema/layer-1.html) for optional fields such as `exemptions`, `see-also`, `replaced-by`, `front-matter`, `rationale`, `statements`, and `principles` or `vectors`.
