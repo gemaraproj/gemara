@@ -3,8 +3,8 @@ pages:
     filename: "base"
     schemas:
       - "Contact"
-      - "Actor"
-      - "ActorType"
+      - "Entity"
+      - "EntityType"
       - "Email"
       - "Datetime"
       - "Group"
