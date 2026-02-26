@@ -799,6 +799,23 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
   }
 }
 
+.sidebar-details-nested {
+  margin: 0;
+  padding: 0;
+
+  > .sidebar-summary {
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    color: var(--color-text-primary);
+  }
+
+  > .sidebar-nested {
+    margin-left: var(--spacing-sm);
+    padding-left: var(--spacing-sm);
+  }
+}
+
 /* ============================================
    Logo and Title (Homepage)
    ============================================ */

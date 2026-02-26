@@ -8,8 +8,6 @@ description: Step-by-step guide to creating Gemara-compatible control catalogs
 
 This guide walks through creating a **control catalog** using the [Gemara](https://gemara.openssf.org/) project, building on the threats and scope you identified in the [Threat Assessment Guide](threat-assessment-guide).
 
-**The basic idea:** After you know what can go wrong (threats), you define **controls**—safeguards or countermeasures—that mitigate those threats. Each control has a clear **objective**, belongs to a **family** (e.g., "Image Integrity"), and includes **assessment requirements**: verifiable conditions that an evaluator can check to confirm the control is met.
-
 In technical terms:
 * **Controls** are safeguards with a stated objective and a list of assessment requirements.
 * **Families** group controls by theme (e.g., supply chain, access control.
@@ -21,10 +19,6 @@ This exercise produces a structured, machine-readable catalog you can validate w
 
 Complete the [Threat Assessment Guide](threat-assessment-guide) for your scope (e.g., the container management tool **SEC.SLAM.CM**). You will reference the threat catalog’s ID and threat IDs when defining controls and threat-mappings.
 
-
-## Scenario
-
-**Pang**, the Product Security Engineer, has completed the threat assessment for the container management tool and identified threats such as **Container Image Tampering or Poisoning** (SEC.SLAM.CM.THR01) and the imported **Older Resource Versions are Used** (CCC.Core.TH14). This walkthrough produces a control catalog that defines safeguards mitigating those threats and that you can use for evaluations and guideline mappings.
 
 ## Walkthrough
 

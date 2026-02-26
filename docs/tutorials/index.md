@@ -3,30 +3,66 @@ layout: page
 title: Tutorials
 ---
 
-## What You'll Need
+## Find Your Tutorial
 
-* `go` installed 
-* `cue` installed for validation
-* (Optional) [OpenSSF Toolbelt personas](https://github.com/ossf/toolbelt/tree/main/personas) for persona-based framing
+Pick your role, then your goal — each path leads to the right guide.
+
+### I am a Product Security Engineer
+
+- **I want to define engineering standards** for my organization
+  → [Guidance Catalog Guide](guidance/guidance-guide) — create a guidance catalog (Layer 1) with guidelines, families, and mapping-references to standards like OWASP, NIST, and SLSA.
+- **I want to perform a threat assessment** for a system or component
+  → [Threat Assessment Guide](controls/threat-assessment-guide) — identify capabilities and threats, map them to attack surfaces (Layer 2).
+- **I want to define security controls** that mitigate those threats
+  → [Control Catalog Guide](controls/control-catalog-guide) — create a control catalog with assessment requirements and threat-mappings (Layer 2).
+
+### I am a GRC / Security Governance Lead
+
+- **I want to create organizational policy** that captures risk appetite and compliance
+  → [Organizational Risk & Policy Guide](policy/policy-guide) — create a policy document with scope, imports, adherence, and risks (Layer 3).
+- **I want to define guidance for distributed teams** to follow
+  → [Guidance Catalog Guide](guidance/guidance-guide) — create reusable guidance catalogs that feed into policy and controls (Layer 1).
+- **I want to understand what threats and controls exist** before writing policy
+  → [Threat Assessment Guide](controls/threat-assessment-guide) and [Control Catalog Guide](controls/control-catalog-guide) — review or author threat-informed controls that your policy will reference (Layer 2).
+
+### I am a Solution Architect
+
+- **I want to create secure-by-design guidance** for my organization or domain
+  → [Guidance Catalog Guide](guidance/guidance-guide) — share reusable blueprints aligned with SLSA, SAMM, and other frameworks (Layer 1).
+- **I want to see how guidance feeds into controls and policy**
+  → [Persona–Layer Alignment](persona-layer-alignment) — understand the full flow from guidance to controls to policy.
+
+### I am a Risk Manager / Compliance Analyst
+
+- **I want to define policy and adherence requirements**
+  → [Organizational Risk & Policy Guide](policy/policy-guide) — create policy with assessment plans, enforcement methods, and risk acceptance (Layer 3).
+- **I want to review the controls my policy will reference**
+  → [Control Catalog Guide](controls/control-catalog-guide) — understand the control catalog structure and assessment requirements (Layer 2).
+
+### I am a Vendor / Manufacturer consuming OSS
+
+- **I want to understand the security posture** of software I consume
+  → [Threat Assessment Guide](controls/threat-assessment-guide) — review threat catalogs for your dependencies (Layer 2).
+- **I want to comply with regulatory requirements** and manage consumption risk
+  → [Control Catalog Guide](controls/control-catalog-guide) — use control catalogs (e.g. OSPS, CCC) to assess and communicate posture (Layer 2).
+
+---
 
 ## What You'll Build
 
-* **Vectors & Guidance** — [Guidance Catalog Guide](guidance/guidance-guide): create a guidance catalog (guidelines, families, mapping-references) that conforms to Layer 1.
-* **Threats & Controls** — [Threat Assessment](controls/threat-assessment-guide) and [Control Catalog Guide](controls/control-catalog-guide): create threat and control catalogs that conform to Layer 2.
-* **Risk & Policy** — [Organizational Risk & Policy Guide](policy/policy-guide): create a policy document (scope, imports, adherence, risks) that conforms to Layer 3.
-* **Intent & Behavior Evaluation** — *(wip)*
+| Layer | Artifact | Guide |
+|-------|----------|-------|
+| **Layer 1** — Guidance | Guidance Catalog (guidelines, families, mapping-references) | [Guidance Catalog Guide](guidance/guidance-guide) |
+| **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threat-mappings) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
+| **Layer 3** — Policy | Policy Document (scope, imports, adherence, risks) | [Policy Guide](policy/policy-guide) |
 
-If you prefer to follow the same steps through a **persona** (who typically writes each layer), see [Persona–Layer Alignment](persona-layer-alignment): **Sachiko** (Layer 1), **Pang** (Layer 2), **Guinevere** (Layer 3), with links to [persona-based guides](guidance/guidance-tutorial-persona), [threat/control persona](controls/threat-and-control-tutorial-persona), and [policy persona](policy/policy-tutorial-persona).
+For who *writes* vs. who *ingests* each layer, see [Persona–Layer Alignment](persona-layer-alignment).
 
-## Who Are You?
+## What You'll Need
 
-* **Product Security Engineer** — threat and control catalogs → [Threat Assessment](controls/threat-assessment-guide), [Control Catalog Guide](controls/control-catalog-guide) (or as [Pang](controls/threat-and-control-tutorial-persona).
-* **GRC / Security Governance Lead** — policy and risk → [Organizational Risk & Policy Guide](policy/policy-guide) (or as [Guinevere](policy/policy-tutorial-persona); guidance for distributed teams → [Guidance Catalog Guide](guidance/guidance-guide).
-* **Solution Architect** — secure-by-design guidance → [Guidance Catalog Guide](guidance/guidance-guide) (or as [Sachiko](guidance/guidance-tutorial-persona).
-* **Risk Manager / Compliance Analyst** — policy and adherence → [Organizational Risk & Policy Guide](policy/policy-guide).
-* **Vendor / Manufacturer (consumer of OSS)** — understand security posture of dependencies, comply with regulations, manage consumption risk → [Threat Assessment](controls/threat-assessment-guide), [Control Catalog Guide](controls/control-catalog-guide); see [Carl the Consumer](persona-layer-alignment#layer-2-threats-and-controls) in the [Toolbelt personas](https://github.com/ossf/toolbelt/tree/main/personas).
-
-For who *writes* vs. who *ingests* each layer (user journeys), see [Tutorial user journeys](persona-layer-alignment#tutorial-user-journeys-writing-vs-ingesting).
+* `go` installed
+* `cue` installed for validation
+* (Optional) [OpenSSF Toolbelt personas](https://github.com/ossf/toolbelt/tree/main/personas) for persona-based framing
 
 ## Have Ideas? 
 

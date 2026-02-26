@@ -6,5 +6,28 @@
   url: /sdk/
 - title: Tutorials
   url: /tutorials/
+  children:
+    - title: Guidance
+      children:
+        - title: Guidance Catalog Guide
+          url: /tutorials/guidance/guidance-guide
+        - title: Persona Guide (Sachiko)
+          url: /tutorials/guidance/guidance-tutorial-persona
+    - title: Threats & Controls
+      children:
+        - title: Threat Assessment Guide
+          url: /tutorials/controls/threat-assessment-guide
+        - title: Control Catalog Guide
+          url: /tutorials/controls/control-catalog-guide
+        - title: Persona Guide (Pang)
+          url: /tutorials/controls/threat-and-control-tutorial-persona
+    - title: Policy
+      children:
+        - title: Policy Guide
+          url: /tutorials/policy/policy-guide
+        - title: Persona Guide (Guinevere)
+          url: /tutorials/policy/policy-tutorial-persona
+    - title: Persona–Layer Alignment
+      url: /tutorials/persona-layer-alignment
 - title: ADRs
   url: /adrs/
