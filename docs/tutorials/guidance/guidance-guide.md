@@ -4,8 +4,6 @@ title: Guidance Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible guidance catalogs
 ---
 
-# Guidance Catalog Guide
-
 ## What This Is
 
 This guide walks through creating a **guidance catalog** using the [Gemara](https://gemara.openssf.org/) project.

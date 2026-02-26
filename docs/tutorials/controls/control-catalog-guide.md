@@ -4,24 +4,22 @@ title: Control Catalog Guide
 description: Step-by-step guide to creating Gemara-compatible control catalogs
 ---
 
-# Control Catalog Guide
-
 ## What This Is
 
-This guide walks through creating a **control catalog** using the [Gemara](https://gemara.openssf.org/) project, building on the threats and scope you identified in the [Threat Assessment Guide](threat-assessment-guide.md).
+This guide walks through creating a **control catalog** using the [Gemara](https://gemara.openssf.org/) project, building on the threats and scope you identified in the [Threat Assessment Guide](threat-assessment-guide).
 
 **The basic idea:** After you know what can go wrong (threats), you define **controls**—safeguards or countermeasures—that mitigate those threats. Each control has a clear **objective**, belongs to a **family** (e.g., "Image Integrity"), and includes **assessment requirements**: verifiable conditions that an evaluator can check to confirm the control is met.
 
 In technical terms:
 * **Controls** are safeguards with a stated objective and a list of assessment requirements.
-* **Families** group controls by theme (e.g., supply chain, access control).
+* **Families** group controls by theme (e.g., supply chain, access control.
 * **Threat mappings** link each control to the threat(s) it mitigates, connecting your control catalog to your threat catalog.
 
 This exercise produces a structured, machine-readable catalog you can validate with the [Gemara Layer 2 schema](https://gemara.openssf.org/schema/layer-2.html) (see `layer-2.cue`).
 
 ## Prerequisites
 
-Complete the [Threat Assessment Guide](threat-assessment-guide.md) for your scope (e.g., the container management tool **SEC.SLAM.CM**). You will reference the threat catalog’s ID and threat IDs when defining controls and threat-mappings.
+Complete the [Threat Assessment Guide](threat-assessment-guide) for your scope (e.g., the container management tool **SEC.SLAM.CM**). You will reference the threat catalog’s ID and threat IDs when defining controls and threat-mappings.
 
 
 ## Scenario

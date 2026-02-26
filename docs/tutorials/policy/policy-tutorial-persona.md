@@ -1,18 +1,16 @@
 ---
 layout: page
-title: Organizational Policy Tutorial (Guinevere Persona)
+title: Organizational Risk & Policy Tutorial (Guinevere Persona)
 description: Layer 3 policy document tutorial through the lens of Guinevere GRC, Security Governance Lead
 ---
 
-# Organizational Policy Tutorial — As Guinevere (Layer 3 Persona)
-
-This tutorial presents **Layer 3: Risk and Policy** through the lens of the best-fit persona for authoring or consuming organizational policy documents. Use it together with the [Organization Risk & Policy Tutorial](policy-guide.md); here we frame the work as **Guinevere GRC (Security Governance Lead)** would.
+This tutorial presents **Layer 3: Risk and Policy** through the lens of the best-fit persona for authoring or consuming organizational policy documents. Use it together with the [Organizational Risk & Policy Guide](policy-guide); here we frame the work as **Guinevere GRC (Security Governance Lead)** would.
 
 ## Persona: Guinevere GRC — Security Governance Lead
 
 **Role:** Security Policy / GRC lead (e.g. at an international research institute). She bridges policy and engineering: she defines what “secure enough” means for dev environments, tools, and internal infra. She collaborates across compliance, security, and platform teams to keep things aligned and reduce risk without crushing velocity. She cares about policy-as-code, reusable baselines, and templates that teams actually use.
 
-**Why she fits Layer 3:** Guinevere turns **organizational risk appetite** and **control selections** into a **policy document** that conforms to the Layer 3 schema. She is the **risk manager** who contextualizes **Pang’s Layer 2** threat and control catalogs into a **risk register** (business impact and likelihood), then defines which risks are **accepted** vs **mitigated** and sets **adherence** (evaluation methods, assessment plans) so Pang’s automation can validate controls in scope. A **Compliance** persona may assist with assessment plan and scope. **Governance leads** and **Grear** (for GDPR/HIPAA) ingest the policy to ensure adherence and how often assessments run. See [Tutorial user journeys](../persona-layer-alignment.md#tutorial-user-journeys-writing-vs-ingesting).
+**Why she fits Layer 3:** Guinevere turns **organizational risk appetite** and **control selections** into a **policy document** that conforms to the Layer 3 schema. She is the **risk manager** who contextualizes **Pang’s Layer 2** threat and control catalogs into a **risk register** (business impact and likelihood), then defines which risks are **accepted** vs **mitigated** and sets **adherence** (evaluation methods, assessment plans) so Pang’s automation can validate controls in scope. A **Compliance** persona may assist with assessment plan and scope. **Governance leads** and **Grear** (for GDPR/HIPAA) ingest the policy to ensure adherence and how often assessments run. See [Tutorial user journeys](../persona-layer-alignment#tutorial-user-journeys-writing-vs-ingesting).
 
 ---
 
@@ -24,14 +22,14 @@ This tutorial presents **Layer 3: Risk and Policy** through the lens of the best
 
 ## What You’ll Build
 
-For the policy document structure and full schema overview (fields, imports, adherence), see [Organization Risk & Policy Tutorial — What You'll Build](policy-guide.md#what-youll-build) in the base tutorial.
+For the policy document structure and full schema overview (fields, imports, adherence), see [Organizational Risk & Policy Guide — What You'll Build](policy-guide#what-youll-build) in the base tutorial.
 
 ---
 
 ## Walkthrough (with Guinevere in mind)
 
 1. **Use the base tutorial**  
-   Follow the structure and steps in the [Organization Risk & Policy Tutorial](policy-guide.md), which is outlined from the current **layer-3.cue** schema (metadata, contacts, scope, imports, implementation-plan, risks, adherence).
+   Follow the structure and steps in the [Organizational Risk & Policy Guide](policy-guide), which is outlined from the current **layer-3.cue** schema (metadata, contacts, scope, imports, implementation-plan, risks, adherence).
 
 2. **Start from risk and controls**  
    Before writing policy, you need:
@@ -60,7 +58,7 @@ For the policy document structure and full schema overview (fields, imports, adh
 - **Layer 7** audit and continuous monitoring will assess the effectiveness of this policy and of the evaluation and enforcement activities.
 
 Upstream, your policy relies on:
-- **Layer 2** control catalogs (and threat catalogs): [Threat Assessment Guide](../controls/threat-assessment-guide.md), [Control Catalog Guide](../controls/control-catalog-guide.md), and the [Layer 2 persona tutorial](../controls/threat-and-control-tutorial-persona.md) (Pang).
-- **Layer 1** guidance catalogs (optional): [Guidance Catalog Guide](../guidance/guidance-guide.md) and the [Layer 1 persona tutorial](../guidance/guidance-tutorial-persona.md) (Sachiko).
+- **Layer 2** control catalogs (and threat catalogs): [Threat Assessment Guide](../controls/threat-assessment-guide), [Control Catalog Guide](../controls/control-catalog-guide), and the [Threat Assessment & Control Catalog Tutorial (Pang)](../controls/threat-and-control-tutorial-persona).
+- **Layer 1** guidance catalogs (optional): [Guidance Catalog Guide](../guidance/guidance-guide) and the [Guidance Catalog Tutorial (Sachiko)](../guidance/guidance-tutorial-persona).
 
-See the [Persona–Layer Alignment](../persona-layer-alignment.md) for how Guinevere maps to Layer 3 and how the definition layers (1, 2, 3) connect.
+See the [Persona–Layer Alignment](../persona-layer-alignment) for how Guinevere maps to Layer 3 and how the definition layers (1, 2, 3) connect.

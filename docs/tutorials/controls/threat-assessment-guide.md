@@ -4,8 +4,6 @@ title: Threat Assessment Guide
 description: Step-by-step guide to performing Gemara-compatible threat assessments
 ---
 
-# Threat Assessment Guide
-
 ## What This Is
 
 This guide walks through a threat assessment using the [Gemara](https://gemara.openssf.org/) project.
@@ -215,4 +213,4 @@ cue vet -c -d '#ThreatCatalog' github.com/gemaraproj/gemara@latest your-threats.
 
 ## What's Next
 
-Create a Gemara Control Catalog that maps security controls to the identified threats using the [Control Catalog Guide](control-catalog-guide.md). See the [Gemara Layer 2 schema documentation](https://gemara.openssf.org/schema/layer-2.html) for the full specification.
+Create a Gemara Control Catalog that maps security controls to the identified threats using the [Control Catalog Guide](control-catalog-guide). See the [Gemara Layer 2 schema documentation](https://gemara.openssf.org/schema/layer-2.html) for the full specification.

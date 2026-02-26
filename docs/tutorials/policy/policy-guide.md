@@ -1,9 +1,7 @@
 ---
 layout: page
-title: Organization Risk & Policy Tutorial
+title: Organizational Risk & Policy Guide
 ---
-
-# Organization Risk & Policy Tutorial
 
 This guide walks through creating a **policy document** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to the **Layer 3** schema in `layer-3.cue`.
 
@@ -54,7 +52,7 @@ Your organization needs a policy that applies to cloud and web applications in s
 4. Import control catalogs and/or guidance, with optional constraints or assessment-requirement-modifications.
 5. Optionally add an implementation-plan (evaluation and enforcement timelines).
 6. Optionally list risks (mitigated and accepted with justification).
-7. Define adherence (evaluation methods, assessment plans, enforcement methods, non-compliance).
+7. Define adherence (evaluation methods, assessment plans, enforcement methods, non-compliance.
 
 ## Walkthrough
 

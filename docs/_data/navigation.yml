@@ -4,5 +4,7 @@
   url: /community/
 - title: Roadmap
   url: /roadmap
+- title: Tutorials
+  url: /tutorials/
 - title: ADRs
   url: /adrs/

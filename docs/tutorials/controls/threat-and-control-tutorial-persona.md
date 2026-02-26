@@ -1,18 +1,16 @@
 ---
 layout: page
-title: Threat Assessment & Control Catalog Guide (Pang Persona)
+title: Threat Assessment & Control Catalog Tutorial (Pang Persona)
 description: Layer 2 threat and control catalog tutorials through the lens of Pang the Product Security Engineer
 ---
 
-# Threat Assessment & Control Catalog — As Pang (Layer 2 Persona)
-
-This tutorial presents **Layer 2: Threats and Controls** through the lens of the best-fit persona for authoring or adopting threat catalogs and control catalogs. Follow the same steps as in the [Threat Assessment Guide](threat-assessment-guide.md) and the [Control Catalog Guide](control-catalog-guide.md); here we frame them as **Pang the Product Security Engineer** would.
+This tutorial presents **Layer 2: Threats and Controls** through the lens of the best-fit persona for authoring or adopting threat catalogs and control catalogs. Follow the same steps as in the [Threat Assessment Guide](threat-assessment-guide) and the [Control Catalog Guide](control-catalog-guide); here we frame them as **Pang the Product Security Engineer** would.
 
 ## Persona: Pang the Product Security Engineer
 
 **Role:** Product Security Engineer (security champion) embedded in engineering. He bakes security into backlogs, uses standards like SLSA and SAMM, and integrates tooling with CI/CD. He’s familiar with secure SDLC, security standards, and controls; he sees himself as the bridge between security policy and practical engineering.
 
-**Why he fits Layer 2:** Pang defines **controls with assessment requirements** so teams can be evaluated against them. He works with **threat-informed** controls—capabilities and threats first (threat catalog), then safeguards with verifiable assessment requirements (control catalog). He uses the **[FINOS CCC](https://www.finos.org/common-cloud-controls-project) Core** reusable catalog whenever possible to import capabilities, threats, or controls. The output is exactly what Layer 5 evaluation tooling (e.g. Privateer) consumes and what **Guinevere** (Layer 3) and **Carl the Consumer** (vendor/manufacturer from the [OSSF Toolbelt personas](https://github.com/ossf/toolbelt/tree/main/personas)) ingest: Carl must understand the **security posture** of the OSS his project consumes and wants the software he's building to **comply with regulatory requirements** and **manage risks associated with consumption**. See [Tutorial user journeys](../persona-layer-alignment.md#tutorial-user-journeys-writing-vs-ingesting).
+**Why he fits Layer 2:** Pang defines **controls with assessment requirements** so teams can be evaluated against them. He works with **threat-informed** controls—capabilities and threats first (threat catalog), then safeguards with verifiable assessment requirements (control catalog). He uses the **[FINOS CCC](https://www.finos.org/common-cloud-controls-project) Core** reusable catalog whenever possible to import capabilities, threats, or controls. The output is exactly what Layer 5 evaluation tooling (e.g. Privateer) consumes and what **Guinevere** (Layer 3) and **Carl the Consumer** (vendor/manufacturer from the [OSSF Toolbelt personas](https://github.com/ossf/toolbelt/tree/main/personas) ingest: Carl must understand the **security posture** of the OSS his project consumes and wants the software he's building to **comply with regulatory requirements** and **manage risks associated with consumption**. See [Tutorial user journeys](../persona-layer-alignment#tutorial-user-journeys-writing-vs-ingesting).
 
 ---
 
@@ -26,7 +24,7 @@ This tutorial presents **Layer 2: Threats and Controls** through the lens of the
 
 ### Part 1: Threat catalog
 
-Use the full steps in the [Threat Assessment Guide](threat-assessment-guide.md). While you do:
+Use the full steps in the [Threat Assessment Guide](threat-assessment-guide). While you do:
 
 1. **Step 0 – Scope**  
    Pick the component or technology you’re securing (e.g. container management tool, SEC.SLAM.CM). Same scope will be reused for the control catalog.
@@ -45,7 +43,7 @@ Use the full steps in the [Threat Assessment Guide](threat-assessment-guide.md).
 
 ### Part 2: Control catalog
 
-Use the full steps in the [Control Catalog Guide](control-catalog-guide.md). While you do:
+Use the full steps in the [Control Catalog Guide](control-catalog-guide). While you do:
 
 1. **Step 0 – Scope and references**  
    Reuse the same scope and threat catalog ID. Add a mapping reference to your threat catalog and, if you import controls, to CCC or another control catalog.
@@ -80,7 +78,7 @@ Use the full steps in the [Control Catalog Guide](control-catalog-guide.md). Whi
 ## What’s Next
 
 - Use the control catalog in **Layer 5 evaluations** (e.g. Privateer) to record which assessment requirements passed or failed.
-- Let **Guinevere** (Layer 3) reference your controls in **policy documents**: [Organizational Policy Tutorial](../policy/policy-guide.md) and the [Layer 3 persona tutorial](../policy/policy-tutorial-persona.md).
-- Optionally add **guideline-mappings** on controls to link back to **Layer 1 guidance** (Sachiko’s catalogs): [Guidance Catalog Guide](../guidance/guidance-guide.md) and [Layer 1 persona tutorial](../guidance/guidance-tutorial-persona.md).
+- Let **Guinevere** (Layer 3) reference your controls in **policy documents**: [Organizational Risk & Policy Guide](../policy/policy-guide) and the [Organizational Risk & Policy Tutorial (Guinevere)](../policy/policy-tutorial-persona).
+- Optionally add **guideline-mappings** on controls to link back to **Layer 1 guidance** (Sachiko’s catalogs): [Guidance Catalog Guide](../guidance/guidance-guide) and [Guidance Catalog Tutorial (Sachiko)](../guidance/guidance-tutorial-persona).
 
-See the [Persona–Layer Alignment](../persona-layer-alignment.md) for how Pang maps to Layer 2.
+See the [Persona–Layer Alignment](../persona-layer-alignment) for how Pang maps to Layer 2.
