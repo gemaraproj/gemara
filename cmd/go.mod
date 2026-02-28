@@ -1,8 +1,6 @@
 module github.com/gemaraproj/gemara
 
-go 1.24.0
-
-toolchain go1.24.12
+go 1.24.13
 
 require (
 	cuelang.org/go v0.15.4
