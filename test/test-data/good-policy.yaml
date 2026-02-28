@@ -1,0 +1,87 @@
+metadata:
+  id: "security-policy-001"
+  description: "Establish comprehensive information security controls and procedures to protect organizational assets"
+  version: "2.1.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+    contact:
+      name: "Security Team Lead"
+      affiliation: "Security Department"
+      email: "security-lead@company.com"
+  mapping-references:
+    - id: "NIST-800-53"
+      title: "NIST Special Publication 800-53"
+      version: "Rev. 5"
+      description: "Security and Privacy Controls for Federal Information Systems"
+      url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+    - id: "ISO-27001"
+      title: "ISO/IEC 27001"
+      version: "2022"
+      description: "Information security management systems"
+      url: "https://www.iso.org/standard/27001"
+
+title: "Information Security Policy"
+contacts:
+  responsible:
+    - name: "IT Director"
+      affiliation: "Information Technology"
+      email: "it-director@company.com"
+    - name: "Compliance Officer"
+      affiliation: "Legal & Compliance"
+      email: "compliance@company.com"
+  accountable:
+    - name: "Chief Information Security Officer"
+      affiliation: "Executive Team"
+      email: "ciso@company.com"
+  consulted:
+    - name: "Legal Counsel"
+      affiliation: "Legal Department"
+      email: "legal@company.com"
+  informed:
+    - name: "All Employees"
+      affiliation: "Company-wide"
+
+scope:
+  in:
+    geopolitical:
+      - "United States"
+      - "European Union"
+      - "Canada"
+    technologies:
+      - "Cloud Computing"
+      - "Mobile Devices"
+      - "Web Applications"
+      - "Database Systems"
+
+imports:
+  catalogs:
+    - reference-id: "NIST-800-53"
+      constraints:
+        - id: "nist-cloud-constraint"
+          target-id: "AC-1"
+          text: "Enhanced access control requirements for cloud environments"
+      assessment-requirement-modifications:
+        - id: "nist-ac1-mod"
+          target-id: "AC-1.1"
+          modification-type: "modify"
+          modification-rationale: "Clarified assessment procedures for multi-cloud environments"
+          text: "Assessment procedures must include multi-cloud environment considerations"
+          applicability:
+            - "cloud"
+            - "multi-cloud"
+          recommendation: "Conduct quarterly assessments"
+  guidance:
+    - reference-id: "ISO-27001"
+
+adherence:
+  evaluation-methods:
+    - type: "automated"
+      description: "Automated compliance scanning of cloud environments"
+    - type: "manual"
+      description: "Annual security audit by external assessors"
+  enforcement-methods:
+    - type: "gate"
+      description: "Pre-deployment compliance gate in CI/CD pipeline"
+  non-compliance: "Non-compliant systems will be quarantined pending remediation"

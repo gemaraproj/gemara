@@ -1,8 +1,13 @@
 {
+  "title": "FINOS Cloud Control Catalog",
   "metadata": {
     "id": "FINOS-CCC",
-    "title": "FINOS Cloud Control Catalog",
     "description": "FINOS CCC is an open standard project that describes consistent controls for\ncompliant public cloud deployments in the financial services sector.\n",
+    "author": {
+      "id": "finos",
+      "name": "FINOS",
+      "type": "Human"
+    },
     "applicability-categories": [
       {
         "id": "tlp_clear",

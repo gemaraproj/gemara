@@ -15,7 +15,7 @@ metadata:
       title: Example Principles Document for the Framework
       version: 0.1.0
 title: AI Governance Framework
-document-type: Framework
+type: Framework
 front-matter: The following framework has been developed by FINOS (Fintech Open Source Foundation).
 families:
   - id: DET
