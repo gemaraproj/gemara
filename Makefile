@@ -1,5 +1,14 @@
 all: tidy cuefmtcheck lintcue lintinsights gendocs test-links cleanup
 
+#
+# SCHEMA VALIDATION TESTS
+#
+
+test:
+	@echo "  >  Running schema validation tests ..."
+	@cd test && go test -v ./...
+	@echo "  >  Schema validation tests complete."
+
 
 #
 # CUE DEVELOPMENT TOOLS
@@ -173,4 +182,4 @@ cleanup: clean-jekyll cleanup-links
 	@rm -rf docs/_site docs/.jekyll-cache docs/.jekyll-metadata
 	@echo "  >  Cleanup complete!"
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test-links html-proofer clean cleanup cleanup-links stop restart check-jekyll genopenapi genmd gendocs
+.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test test-links html-proofer clean cleanup cleanup-links stop restart check-jekyll genopenapi genmd gendocs

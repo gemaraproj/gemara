@@ -2,6 +2,8 @@
 @status("stable")
 package gemara
 
+@go(gemara)
+
 // Metadata represents common metadata fields shared across all layers
 #Metadata: {
 	// id allows this entry to be referenced by other elements

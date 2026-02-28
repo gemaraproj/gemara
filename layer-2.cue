@@ -11,7 +11,7 @@ package gemara
 	title: string
 
 	// metadata provides detailed data about this catalog
-	"metadata": #Metadata @go(Metadata)
+	metadata: #Metadata @go(Metadata)
 
 	// families contains a list of control families that can be referenced by controls
 	families?: [...#Group] @go(Families)
@@ -44,11 +44,11 @@ package gemara
 	// assessment-requirements is a list of requirements that must be verified to confirm the control objective has been met
 	"assessment-requirements": [...#AssessmentRequirement] @go(AssessmentRequirements)
 
-	// guideline-mappings documents relationships betwen this control and Layer 1 guideline artifacts
-	"guideline-mappings"?: [...#MultiEntryMapping] @go(GuidelineMappings)
+	// guidelines documents relationships between this control and Layer 1 guideline artifacts
+	guidelines?: [...#MultiEntryMapping] @go(Guidelines)
 
-	// threat-mappings documents relationships betwen this control and Layer 2 threat artifacts
-	"threat-mappings"?: [...#MultiEntryMapping] @go(ThreatMappings)
+	// threats documents relationships between this control and Layer 2 threat artifacts
+	threats?: [...#MultiEntryMapping] @go(Threats)
 
 	// state is the lifecycle state of this control
 	state: #Lifecycle @go(State) @yaml("state,omitempty")
@@ -78,7 +78,7 @@ package gemara
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
 
 	// retired assessment requirements must not have a recommendation
-	if state == "retired" {
+	if state == "Retired" {
 		recommendation?: _|_
 	}
 }
@@ -89,7 +89,7 @@ package gemara
 	title: string
 
 	// metadata provides detailed data about this catalog
-	"metadata": #Metadata @go(Metadata)
+	metadata: #Metadata @go(Metadata)
 
 	// threats is a list of threats defined by this catalog
 	threats?: [...#Threat] @go(Threats)
@@ -118,11 +118,11 @@ package gemara
 	// capabilities documents the relationship between this threat and a system capability
 	capabilities: [...#MultiEntryMapping]
 
+	// vectors documents the relationship between this threat and one or more vectors
+	vectors?: [...#MultiEntryMapping] @go(Vectors)
+
 	// actors describes the relevant internal or external threat actors
 	actors?: [...#Actor]
-
-	// external-mappings documents relationships between this threat and any other artifacts
-	"external-mappings"?: [...#MultiEntryMapping] @go(ExternalMappings)
 }
 
 // Capability describes a system capability such as a feature, component or object.

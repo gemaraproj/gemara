@@ -46,7 +46,7 @@ import "time"
 }
 
 // ActorType specifies what entity is interacting in the workflow
-#ActorType: "Human" | "Software" | "Software-Assisted" @go(-)
+#ActorType: "Human" | "Software" | "Software Assisted" @go(-)
 
 // Email represents a validated email address pattern
 #Email: =~"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
@@ -67,4 +67,7 @@ import "time"
 }
 
 // Lifecycle represents the lifecycle state of a guideline, control, or assessment requirement
-#Lifecycle: *"active" | "draft" | "deprecated" | "retired" @go(-)
+#Lifecycle: *"Active" | "Draft" | "Deprecated" | "Retired" @go(-)
+
+// ConfidenceLevel indicates the evaluator's confidence level in an assessment result.
+#ConfidenceLevel: "Undetermined" | "Low" | "Medium" | "High" @go(-)

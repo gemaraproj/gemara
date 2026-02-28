@@ -1,0 +1,71 @@
+metadata:
+  id: "data-protection-policy-002"
+  description: "Ensure compliance with data protection regulations and safeguard personal information"
+  version: "1.5.0"
+  author:
+    id: privacy-team
+    name: "Privacy Team"
+    type: Human
+    contact:
+      name: "Privacy Officer"
+      affiliation: "Legal & Compliance"
+      email: "privacy@company.com"
+  mapping-references:
+    - id: "GDPR"
+      title: "General Data Protection Regulation"
+      version: "2016/679"
+      description: "EU regulation on data protection and privacy"
+      url: "https://gdpr-info.eu/"
+    - id: "CCPA"
+      title: "California Consumer Privacy Act"
+      version: "2020"
+      description: "California state law on consumer privacy"
+      url: "https://oag.ca.gov/privacy/ccpa"
+
+title: "Data Protection and Privacy Policy"
+contacts:
+  responsible:
+    - name: "Data Protection Officer"
+      affiliation: "Legal & Compliance"
+      email: "dpo@company.com"
+  accountable:
+    - name: "Chief Privacy Officer"
+      affiliation: "Executive Team"
+      email: "cpo@company.com"
+
+scope:
+  in:
+    geopolitical:
+      - "European Union"
+      - "California"
+      - "United Kingdom"
+    technologies:
+      - "Customer Data Systems"
+      - "Analytics Platforms"
+      - "Marketing Tools"
+      - "HR Information Systems"
+
+imports:
+  guidance:
+    - reference-id: "GDPR"
+      constraints:
+        - id: "gdpr-encryption-constraint"
+          target-id: "Art. 32"
+          text: "Enhanced technical and organizational measures for data security"
+  catalogs:
+    - reference-id: "CCPA"
+      constraints:
+        - id: "ccpa-consumer-rights"
+          target-id: "1798.150"
+          text: "Enhanced consumer rights implementation"
+
+adherence:
+  evaluation-methods:
+    - type: "Automated"
+      description: "Continuous data protection monitoring"
+    - type: "Manual"
+      description: "Quarterly privacy impact assessments"
+  enforcement-methods:
+    - type: "Gate"
+      description: "Data classification verification before processing"
+  non-compliance: "Data breaches must be reported within 72 hours of discovery"

@@ -105,12 +105,12 @@ package gemara
 
 // AcceptedMethod defines a method for evaluation or enforcement.
 #AcceptedMethod: {
-	type:         #MethodType | string
+	type:         #MethodType
 	description?: string
 	executor?:    #Actor
 }
 
-#MethodType: "manual" | "behavioral" | "automated" | "autoremediation" | "gate"
+#MethodType: "Manual" | "Behavioral" | "Automated" | "Autoremediation" | "Gate"
 
 // Parameter defines a configurable parameter for assessment or enforcement activities.
 #Parameter: {
@@ -143,7 +143,7 @@ package gemara
 	// Links to the specific Guidance or Control being constrained
 	"target-id": string @go(TargetId)
 	// The prescriptive requirement/constraint text
-	"text": string
+	text: string
 }
 
 // AssessmentRequirementModifier allows organizations to customize assessment requirements based on how an organization wants to gather evidence for the objective.
@@ -161,4 +161,4 @@ package gemara
 }
 
 // ModType defines the type of modification to the assessment requirement.
-#ModType: "add" | "modify" | "remove" | "replace" | "override"
+#ModType: "Add" | "Modify" | "Remove" | "Replace" | "Override"
