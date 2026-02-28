@@ -65,7 +65,7 @@ imports:
       assessment-requirement-modifications:
         - id: "nist-ac1-mod"
           target-id: "AC-1.1"
-          modification-type: "modify"
+          modification-type: "Modify"
           modification-rationale: "Clarified assessment procedures for multi-cloud environments"
           text: "Assessment procedures must include multi-cloud environment considerations"
           applicability:
@@ -77,11 +77,11 @@ imports:
 
 adherence:
   evaluation-methods:
-    - type: "automated"
+    - type: "Automated"
       description: "Automated compliance scanning of cloud environments"
-    - type: "manual"
+    - type: "Manual"
       description: "Annual security audit by external assessors"
   enforcement-methods:
-    - type: "gate"
+    - type: "Gate"
       description: "Pre-deployment compliance gate in CI/CD pipeline"
   non-compliance: "Non-compliant systems will be quarantined pending remediation"

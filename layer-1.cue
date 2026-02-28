@@ -103,7 +103,7 @@ package gemara
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
 
 	// retired guidelines must not have recommendations
-	if state == "retired" {
+	if state == "Retired" {
 		recommendations?: _|_
 	}
 }

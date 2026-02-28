@@ -61,11 +61,11 @@ imports:
 
 adherence:
   evaluation-methods:
-    - type: "automated"
+    - type: "Automated"
       description: "Continuous data protection monitoring"
-    - type: "manual"
+    - type: "Manual"
       description: "Quarterly privacy impact assessments"
   enforcement-methods:
-    - type: "gate"
+    - type: "Gate"
       description: "Data classification verification before processing"
   non-compliance: "Data breaches must be reported within 72 hours of discovery"
