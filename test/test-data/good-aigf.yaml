@@ -44,30 +44,6 @@ guidelines:
         text: Implementing an effective human feedback loop involves clear collection processes.
         recommendations:
           - "Quantitative Feedback:\nDescription: Involves collecting structured responses that can be easily aggregated and measured, such as numerical ratings (e.g., \"Rate this response on a scale of 1-5 for helpfulness\"), categorical choices (e.g., \"Was this answer: Correct/Incorrect/Partially Correct\"), or binary responses (e.g., thumbs up/down).\nUse Cases: Effective for tracking trends, measuring against KPIs, and quickly identifying areas of high or low performance."
-    guideline-mappings:
-      - reference-id: NIST-800-53
-        entries:
-          - reference-id: CA-7
-            strength: 7
-            remarks: This control is closely related to CA-7.
-          - reference-id: IR-6
-            strength: 5
-            remarks: This control has some relevance to IR-6.
-          - reference-id: PM-26
-            strength: 3
-            remarks: This control is loosely related to PM-26.
-          - reference-id: RA-5
-            strength: 7
-            remarks: This control is closely related to RA-5.
-          - reference-id: SI-2
-            strength: 5
-            remarks: This control has some relevance to SI-2.
-    principle-mappings:
-      - reference-id: AIR-PRIN
-        entries:
-          - reference-id: TIMELINESS
-            strength: 7
-            remarks: This principle emphasizes the importance of timely feedback.
     see-also:
       - AIR-DET-015
       - AIR-DET-004

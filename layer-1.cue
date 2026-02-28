@@ -84,14 +84,11 @@ package gemara
 	// statements is a list of structural sub-requirements within a guideline
 	statements?: [...#Statement] @go(Statements)
 
-	// guideline-mappings documents the relationship between this guideline and external guidelines
-	"guideline-mappings"?: [...#MultiEntryMapping] @go(GuidelineMappings) @yaml("guideline-mappings,omitempty")
-
-	// principle-mappings documents the relationship between this guideline and one or more principles
-	"principle-mappings"?: [...#MultiEntryMapping] @go(PrincipleMappings) @yaml("principle-mappings,omitempty")
+	// principles documents the relationship between this guideline and one or more principles
+	"principles"?: [...#MultiEntryMapping] @go(Principles) @yaml("principles,omitempty")
 
 	// vector-mappings documents the relationship between this guideline and one or more vectors
-	"vector-mappings"?: [...#MultiEntryMapping] @go(VectorMappings) @yaml("vector-mappings,omitempty")
+	"vectors"?: [...#MultiEntryMapping] @go(Vectors) @yaml("vectors,omitempty")
 
 	// see-also lists related guideline IDs within the same GuidanceCatalog
 	"see-also"?: [...string] @go(SeeAlso) @yaml("see-also,omitempty")

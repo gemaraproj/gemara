@@ -1,0 +1,173 @@
+title: OSPS Baseline to ACME Engineering Standard
+metadata:
+  id: ACME-MAP-001
+  version: "1.0.0"
+  description: >
+    Maps OSPS Baseline controls to ACME internal engineering
+    standard guidelines for compliance traceability.
+  author:
+    id: acme-security
+    name: ACME Security Team
+    type: Human
+  mapping-references:
+    - id: OSPS
+      title: Open Source Project Security Baseline
+      version: "2026.02.19"
+      url: "https://baseline.openssf.org/versions/2026-02-19.html"
+    - id: ACME-ES
+      title: ACME Engineering Standard
+      version: "3.0"
+
+source-reference:
+  reference-id: OSPS
+target-reference:
+  reference-id: ACME-ES
+remarks: >
+  One-way gap analysis from OSPS Baseline to ACME Engineering
+  Standard v3.0, authored by the ACME security team.
+
+mappings:
+  - source:
+      entry-id: OSPS-AC-01
+      entry-type: Control
+    target:
+      entry-id: ES-IAM-001
+      entry-type: Guideline
+    relationship: implements
+    confidence-level: High
+    applicability:
+      - "web-applications"
+      - "internal-services"
+    scope: >
+      Authentication assurance only. Does not extend to
+      hardware token enforcement or session management.
+    rationale: >
+      OSPS-AC-01 MFA requirement directly addresses
+      the authentication assurance objective in ES-IAM-001.
+    remarks: >
+      ES-IAM-001 also requires hardware token enforcement,
+      which OSPS-AC-01 does not specify.
+
+  - source:
+      entry-id: OSPS-AC-02
+      entry-type: Control
+    target:
+      entry-id: ES-IAM-002
+      entry-type: Guideline
+    relationship: equivalent
+    confidence-level: High
+    applicability:
+      - "all-environments"
+    scope: >
+      Default permission minimization for human and
+      service accounts across all project resources.
+    rationale: >
+      Both entries require least-privilege defaults with
+      identical permission boundaries and escalation rules.
+
+  - source:
+      entry-id: OSPS-BR-01
+      entry-type: Control
+    target:
+      entry-id: ES-SDLC-010
+      entry-type: Guideline
+    relationship: supports
+    confidence-level: Medium
+    applicability:
+      - "containerized-workloads"
+      - "compiled-languages"
+    scope: >
+      Build reproducibility only. Does not address signed
+      build attestations, pipeline integrity, or provenance.
+    rationale: >
+      OSPS-BR-01 contributes to ES-SDLC-010 build integrity
+      objective but leaves attestation and provenance unmet.
+
+  - source:
+      entry-id: OSPS-AC-01.01
+      entry-type: Assessment Requirement
+    target:
+      entry-id: ES-IAM-001.S1
+      entry-type: Statement
+    relationship: implemented-by
+    confidence-level: High
+    applicability:
+      - "web-applications"
+    scope: >
+      MFA enforcement on sensitive version control operations.
+      Does not cover MFA for CI/CD pipeline credentials.
+    rationale: >
+      OSPS-AC-01.01 requires MFA on sensitive resources.
+      ES-IAM-001.S1 fulfills this through mandatory
+      hardware token enrollment for repository access.
+
+  - source:
+      entry-id: OSPS-QA-02
+      entry-type: Control
+    target:
+      entry-id: ES-SDLC-005
+      entry-type: Guideline
+    relationship: supported-by
+    confidence-level: Medium
+    applicability:
+      - "containerized-workloads"
+      - "interpreted-languages"
+    scope: >
+      Peer review process for application code. Does not
+      cover infrastructure-as-code or configuration review.
+    rationale: >
+      ES-SDLC-005 peer review process contributes to
+      OSPS-QA-02 code review requirements but does not
+      mandate tooling or coverage thresholds.
+
+  - source:
+      entry-id: OSPS-VM-01
+      entry-type: Control
+    target:
+      entry-id: ES-SEC-020
+      entry-type: Guideline
+    relationship: subsumes
+    confidence-level: High
+    applicability:
+      - "all-environments"
+    scope: >
+      Vulnerability disclosure, triage, severity
+      classification, and remediation timelines.
+      ES-SEC-020 only covers disclosure.
+    rationale: >
+      OSPS-VM-01 fully contains ES-SEC-020 disclosure
+      requirements and adds triage workflow, severity
+      classification, and remediation SLAs.
+
+  - source:
+      entry-id: OSPS-SC-01
+      entry-type: Control
+    relationship: no-match
+    confidence-level: High
+    applicability:
+      - "all-environments"
+    scope: >
+      Secure coding education and annual training
+      requirements for project contributors.
+    rationale: >
+      ACME Engineering Standard has no guideline for
+      developer security education. This is a gap.
+
+  - source:
+      entry-id: OSPS-DP-03
+      entry-type: Control
+    target:
+      entry-id: ES-DATA-007
+      entry-type: Guideline
+    relationship: relates-to
+    confidence-level: Low
+    applicability:
+      - "data-processing-services"
+    scope: >
+      Data retention and disposal procedures for
+      project telemetry and user-submitted data.
+    rationale: >
+      Both entries address data handling but differ
+      in mechanism. OSPS-DP-03 focuses on retention
+      periods; ES-DATA-007 focuses on classification.
+      Relationship requires further analysis.

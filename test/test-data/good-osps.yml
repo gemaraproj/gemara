@@ -137,47 +137,32 @@ controls:
     Reduce the risk of account compromise or insider threats by requiring
     multi-factor authentication for collaborators modifying the project
     repository settings or accessing sensitive data.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: CC-G-1
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2d
-      strength: 7
     - reference-id: 1.2e
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: PR.A-02
-      strength: 7
     - reference-id: PR.A-05
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 347-352
-      strength: 7
     - reference-id: 333-858
-      strength: 7
     - reference-id: 152-725
-      strength: 7
     - reference-id: 201-246
-      strength: 7
   assessment-requirements:
   - id: OSPS-AC-01.01
     text: |
@@ -201,39 +186,27 @@ controls:
   objective: |
     Reduce the risk of unauthorized access to the project's repository by
     limiting the permissions granted to new collaborators.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO2
-      strength: 7
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: PR.AA-02
-      strength: 7
     - reference-id: PR.AA-05
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 802-056
-      strength: 7
     - reference-id: 368-633
-      strength: 7
     - reference-id: 152-725
-      strength: 7
   assessment-requirements:
   - id: OSPS-AC-02.01
     text: |
@@ -257,37 +230,27 @@ controls:
   objective: |
     Reduce the risk of accidental changes or deletion of the primary branch
     of the project's repository by preventing unintentional modification.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: PR.A-02
-      strength: 7
     - reference-id: PR.A-05
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 152-725
-      strength: 7
   - reference-id: ScCrd
     entries:
     - reference-id: Branch-Protection
-      strength: 7
   assessment-requirements:
   - id: OSPS-AC-03.01
     text: |
@@ -324,49 +287,33 @@ controls:
     Reduce the risk of unauthorized access to the project's build and release
     processes by limiting the permissions granted to steps within the CI/CD
     pipelines.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2d
-      strength: 7
     - reference-id: 1.2e
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO2
-      strength: 7
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: PR.AA-02
-      strength: 7
     - reference-id: PR.AA-05
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 347-507
-      strength: 7
     - reference-id: 263-284
-      strength: 7
     - reference-id: 123-124
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Producer - Choose an appropriate build platform
-      strength: 7
     - reference-id: Build platform - Isolation strength - Isolated
-      strength: 7
   assessment-requirements:
   - id: OSPS-AC-04.01
     text: |
@@ -402,37 +349,27 @@ controls:
     Reduce the risk of code injection or other security vulnerabilities in the
     project's build and release pipelines by preventing untrusted input from
     accessing privileged resources.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PO5.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: PR.AA-02
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 357-352
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Choose an appropriate build platform
-      strength: 7
   assessment-requirements:
   - id: OSPS-BR-01.01
     text: |
@@ -460,41 +397,29 @@ controls:
     Ensure that each software asset produced by the project is uniquely
     identified, enabling users to track changes and updates to the project
     over time.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: CC-B-5
-      strength: 7
     - reference-id: CC-B-6
-      strength: 7
     - reference-id: CC-B-7
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
     - reference-id: PS3
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Follow a consistent build process
-      strength: 7
     - reference-id: Provenance generation- Exists, Authentic
-      strength: 7
   assessment-requirements:
   - id: OSPS-BR-02.01
     text: |
@@ -525,47 +450,32 @@ controls:
   objective: |
     Protect the confidentiality and integrity of project source code during
     development, reducing the risk of eavesdropping or data tampering.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-11
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2d
-      strength: 7
     - reference-id: 1.2e
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
     - reference-id: 1.2i
-      strength: 7
     - reference-id: 1.2j
-      strength: 7
     - reference-id: 1.2k
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PO5.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 483-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 263-184
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Choose an appropriate build platform
-      strength: 7
   assessment-requirements:
   - id: OSPS-BR-03.01
     text: |
@@ -598,71 +508,44 @@ controls:
     Provide transparency and accountability for changes made to the project's
     software releases, enabling users to understand the modifications and
     improvements included in each release.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: CC-B-8
-      strength: 7
     - reference-id: CC-B-9
-      strength: 7
     - reference-id: Q-B-7
-      strength: 7
     - reference-id: A-B-1
-      strength: 7
     - reference-id: A-S-1
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2d
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
     - reference-id: 1.2h
-      strength: 7
     - reference-id: 1.2j
-      strength: 7
     - reference-id: 1.2l
-      strength: 7
     - reference-id: '2.5'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
     - reference-id: PS3
-      strength: 7
     - reference-id: PW1.2
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 483-813
-      strength: 7
     - reference-id: 068-486
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 757-271
-      strength: 7
     - reference-id: 347-352
-      strength: 7
     - reference-id: 263-184
-      strength: 7
     - reference-id: 208-355
-      strength: 7
     - reference-id: 745-356
-      strength: 7
     - reference-id: 732-148
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Choose an appropriate build platform
-      strength: 7
     - reference-id: Follow a consistent build process
-      strength: 7
     - reference-id: Build platform - Isolation strength - isolated
-      strength: 7
   assessment-requirements:
   - id: OSPS-BR-04.01
     text: |
@@ -688,51 +571,34 @@ controls:
     Ensure that the project's build and release pipelines use standardized tools
     and processes to manage dependencies, reducing the risk of compatibility
     issues or security vulnerabilities in the software.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: Q-B-2
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
-      strength: 7
     - reference-id: 1.2d
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
     - reference-id: 1.2h
-      strength: 7
     - reference-id: 1.2j
-      strength: 7
     - reference-id: '2.1'
-      strength: 7
     - reference-id: '2.2'
-      strength: 7
     - reference-id: '2.3'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 347-352
-      strength: 7
     - reference-id: 715-334
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Isolation strength - isolated
-      strength: 7
   assessment-requirements:
   - id: OSPS-BR-05.01
     text: |
@@ -754,25 +620,19 @@ controls:
   objective: |
     All released software assets MUST be signed or accounted for in a
     signed manifest including each asset's cryptographic hashes.
-  guideline-mappings:
+  guidelines:
   - reference-id: SSDF
     entries:
     - reference-id: PO5.2
-      strength: 7
     - reference-id: PS2
-      strength: 7
     - reference-id: PS2.1
-      strength: 7
     - reference-id: PW6.2
-      strength: 7
   - reference-id: ScCrd
     entries:
     - reference-id: Signed-Releases
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Distribute provenance - Exists
-      strength: 7
   assessment-requirements:
   - id: OSPS-BR-06.01
     text: |
@@ -796,43 +656,31 @@ controls:
     Ensure that users have a clear and comprehensive understanding of the
     project's current features in order to prevent damage from misuse or
     misconfiguration.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-1
-      strength: 7
     - reference-id: B-B-9
-      strength: 7
     - reference-id: B-S-7
-      strength: 7
     - reference-id: B-S-9
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
-      strength: 7
     - reference-id: 1.2j
-      strength: 7
     - reference-id: 1.2k
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PW1.2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: GV.OC-04
-      strength: 7
     - reference-id: GV.OC-05
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.4
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 036-275
-      strength: 7
   assessment-requirements:
   - id: OSPS-DO-01.01
     text: |
@@ -855,53 +703,35 @@ controls:
     Enable users and contributors to report defects or issues with the
     released software assets, facilitating communication and collaboration on
     defect fixes and improvements.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-3
-      strength: 7
     - reference-id: R-B-1+
-      strength: 7
     - reference-id: R-B-1
-      strength: 7
     - reference-id: R-B-2
-      strength: 7
     - reference-id: R-S-2
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2c
-      strength: 7
     - reference-id: 1.2l
-      strength: 7
     - reference-id: '2.1'
-      strength: 7
     - reference-id: '2.2'
-      strength: 7
     - reference-id: '2.5'
-      strength: 7
     - reference-id: '2.6'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PW1.2
-      strength: 7
     - reference-id: RV1.1
-      strength: 7
     - reference-id: RV2.1
-      strength: 7
     - reference-id: RV1.2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: RS.MA-02
-      strength: 7
     - reference-id: GV.RM-05
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.2.1
-      strength: 7
   assessment-requirements:
   - id: OSPS-DO-02.01
     text: |
@@ -928,31 +758,23 @@ controls:
     Enable users to verify the authenticity and integrity of the project's
     released software assets, reducing the risk of using tampered or
     unauthorized versions of the software.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: CC-B-8
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2d
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO4.2
-      strength: 7
     - reference-id: PS.2
-      strength: 7
     - reference-id: PS2.1
-      strength: 7
     - reference-id: PS3.1
-      strength: 7
     - reference-id: RV1.3
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 171-222
-      strength: 7
   assessment-requirements:
   - id: OSPS-DO-03.01
     text: |
@@ -992,7 +814,7 @@ controls:
     Provide users with clear expectations regarding the project's support
     lifecycle. This allows downstream consumers to take relevant actions to
     ensure the continued functionality and security of their systems.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: R-B-3
@@ -1026,25 +848,19 @@ controls:
     Communicating when the project maintainers will no longer fix defects or
     security vulnerabilities is crucial for downstream consumers to find
     alternative solutions or alternative means of support for the project.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2c
-      strength: 7
     - reference-id: '2.6'
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.1
-      strength: 7
     - reference-id: 4.3.1
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 673-475
-      strength: 7
     - reference-id: 053-751
-      strength: 7
   assessment-requirements:
   - id: OSPS-DO-05.01
     text: |
@@ -1067,25 +883,20 @@ controls:
     dependencies, libraries, frameworks, etc. to help downstream consumers
     understand how the project operates in regards to third-party components
     that are required necessary for the software to function.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: A-S-1
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: '2.1'
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 613-286
-      strength: 7
     - reference-id: 053-751
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: Pinned-Dependencies
-      strength: 7
   assessment-requirements:
   - id: OSPS-DO-06.01
     text: |
@@ -1109,17 +920,14 @@ controls:
     potential contributors, and downstream consumers have an accurate
     understanding of who is working on the project and what areas of authority
     they may have.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-S-3
-      strength: 7
     - reference-id: B-S-4
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 013-021
-      strength: 7
   assessment-requirements:
   - id: OSPS-GV-01.01
     text: |
@@ -1154,29 +962,21 @@ controls:
     Encourages open communication and collaboration within the project
     community, enabling users to provide feedback and discuss proposed changes
     or usage challenges.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-3
-      strength: 7
     - reference-id: B-B-12
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2l
-      strength: 7
     - reference-id: '2.3'
-      strength: 7
     - reference-id: '2.4'
-      strength: 7
     - reference-id: '2.6'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PS3
-      strength: 7
     - reference-id: PW1.2
-      strength: 7
   assessment-requirements:
   - id: OSPS-GV-02.01
     text: |
@@ -1199,33 +999,24 @@ controls:
     Provide guidance to new contributors on how to participate in the project,
     outlining the steps required to submit changes or enhancements to the
     project's codebase.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-4
-      strength: 7
     - reference-id: B-S-3
-      strength: 7
     - reference-id: B-B-4+
-      strength: 7
     - reference-id: R-B-1
-      strength: 7
     - reference-id: Q-G-2
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2l
-      strength: 7
     - reference-id: '2.4'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PW1.2
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.2
-      strength: 7
   assessment-requirements:
   - id: OSPS-GV-03.01
     text: |
@@ -1262,7 +1053,7 @@ controls:
     Ensure that code contributors are vetted and reviewed before being granted
     elevated permissions to sensitive resources within the project, reducing
     the risk of unauthorized access or misuse.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-5
@@ -1317,27 +1108,20 @@ controls:
     Ensure that code contributors are aware of and acknowledge their legal
     responsibility for the contributions they make to the project, reducing
     the risk of intellectual property disputes against the project.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-S-1
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PW1.2
-      strength: 7
     - reference-id: PW2.1
-      strength: 7
   assessment-requirements:
   - id: OSPS-LE-01.01
     text: |
@@ -1363,25 +1147,20 @@ controls:
     Ensure that the project's source code is distributed under a recognized
     and legally enforceable open source software license, providing clarity on
     how the code can be used and shared by others.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-6
-      strength: 7
     - reference-id: B-B-7
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: GV.OC-03
-      strength: 7
   assessment-requirements:
   - id: OSPS-LE-02.01
     text: |
@@ -1422,19 +1201,16 @@ controls:
     Ensure that the project's source code and released software assets are
     distributed with the appropriate license terms, making it clear to users
     and contributors how each can be used and shared.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-8
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
   assessment-requirements:
   - id: OSPS-LE-03.01
     text: |
@@ -1476,61 +1252,41 @@ controls:
   objective: |
     Enable users to access and review the project's source code and history,
     promoting transparency and collaboration within the project community.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: CC-B-1
-      strength: 7
     - reference-id: CC-B-2
-      strength: 7
     - reference-id: CC-B-3
-      strength: 7
     - reference-id: R-B-5
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
     - reference-id: 1.2j
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
     - reference-id: PS3
-      strength: 7
     - reference-id: PW1.2
-      strength: 7
     - reference-id: PW2.1
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 757-271
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: ID.AM-02
-      strength: 7
     - reference-id: ID.RA-01
-      strength: 7
     - reference-id: ID.RA-08
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.4
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Build platform - isolation strength - Isolated
-      strength: 7
   assessment-requirements:
   - id: OSPS-QA-01.01
     text: |
@@ -1567,7 +1323,7 @@ controls:
     Provide transparency and accountability for the project's dependencies
     while enabling users and contributors to understand the software's direct
     dependencies.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: Q-S-8
@@ -1580,39 +1336,25 @@ controls:
   - reference-id: SSDF
     entries:
     - reference-id: PO3.3
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
     - reference-id: PS3.2
-      strength: 7
     - reference-id: PW4
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: ID.AM.01
-      strength: 7
     - reference-id: ID.AM-02
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.5
-      strength: 7
     - reference-id: 4.3.1
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
     - reference-id: 673-475
-      strength: 7
     - reference-id: 863-521
-      strength: 7
     - reference-id: 613-286
-      strength: 7
   assessment-requirements:
   - id: OSPS-QA-02.01
     text: |
@@ -1648,37 +1390,27 @@ controls:
     failing status checks, even if arbitrary, because it increases the risk of
     overlooking security vulnerabilities or defects identified by automated
     checks.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2f
-      strength: 7
     - reference-id: 1.2k
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO4.1
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
     - reference-id: RV1.2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: ID.IM-02
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.5
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 263-184
-      strength: 7
     - reference-id: 253-452
-      strength: 7
   assessment-requirements:
   - id: OSPS-QA-03.01
     text: |
@@ -1703,35 +1435,25 @@ controls:
     Ensure that additional code repositories or subprojects produced by the
     project are held to a standard that is clear and appropriate for that
     codebase.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
-      strength: 7
     - reference-id: 1.2f
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO3.2
-      strength: 7
     - reference-id: PO4.1
-      strength: 7
     - reference-id: PS1
-      strength: 7
     - reference-id: PS2
-      strength: 7
     - reference-id: RV1.2
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 486-813
-      strength: 7
     - reference-id: 124-564
-      strength: 7
   - reference-id: SLSA
     entries:
     - reference-id: Build platform - isolation strength - Isolated
-      strength: 7
   assessment-requirements:
   - id: OSPS-QA-04.01
     text: |
@@ -1769,7 +1491,7 @@ controls:
     Reduce the risk of including generated executable artifacts in the
     project's version control system, ensuring that only source code and
     necessary files are stored in the repository.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2b
@@ -1804,41 +1526,30 @@ controls:
   objective: |
     Ensure that the project uses at least one automated test suite for the
     source code repository which clearly documents when and how tests are run.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: Q-B-4
-      strength: 7
     - reference-id: Q-B-8
-      strength: 7
     - reference-id: Q-B-9
-      strength: 7
     - reference-id: Q-B-10
-      strength: 7
     - reference-id: Q-S-2
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: '2.3'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PW8.2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: ID.AM-02
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.5
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 207-435
-      strength: 7
     - reference-id: 088-377
-      strength: 7
   assessment-requirements:
   - id: OSPS-QA-06.01
     text: |
@@ -1887,11 +1598,10 @@ controls:
     Ensure that the project's version control system requires at least one
     non-author approval of changes before merging into the release or primary
     branch.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-G-3
-      strength: 7
   assessment-requirements:
   - id: OSPS-QA-07.01
     text: |
@@ -1916,44 +1626,31 @@ controls:
     the interactions and components of the system to help contributors and
     security reviewers understand the internal logic of the released software
     assets.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-1
-      strength: 7
     - reference-id: B-S-7
-      strength: 7
     - reference-id: B-S-8
   - reference-id: CRA
     entries:
     - reference-id: 1.2a
-      strength: 7
     - reference-id: 1.2b
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO.1
-      strength: 7
     - reference-id: PO.2
-      strength: 7
     - reference-id: PO3.2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: ID.AM-02
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 155-155
-      strength: 7
     - reference-id: 326-704
-      strength: 7
     - reference-id: 068-102
-      strength: 7
     - reference-id: 036-275
-      strength: 7
     - reference-id: 162-655
-      strength: 7
   assessment-requirements:
   - id: OSPS-SA-01.01
     text: |
@@ -1977,43 +1674,31 @@ controls:
     Provide users and developers with an understanding of how to interact with
     the project's software and integrate it with other systems, enabling them
     to use the software effectively.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-B-10
-      strength: 7
     - reference-id: B-S-7
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: 1.2a
-      strength: 7
     - reference-id: 1.2b
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PW1.2
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: GV.OC-05
-      strength: 7
     - reference-id: ID.AM-01
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.4
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 155-155
-      strength: 7
     - reference-id: 068-102
-      strength: 7
     - reference-id: 072-713
-      strength: 7
     - reference-id: 820-878
-      strength: 7
   assessment-requirements:
   - id: OSPS-SA-02.01
     text: |
@@ -2036,51 +1721,35 @@ controls:
     Provide project maintainers an understanding of how the software can be
     misused or broken allows them to plan mitigations to close off the potential
     of those threats from occurring.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-S-8
-      strength: 7
     - reference-id: S-G-1
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: '1.1'
-      strength: 7
     - reference-id: 1.2j
-      strength: 7
     - reference-id: 1.2k
-      strength: 7
     - reference-id: '2.2'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO5.1
-      strength: 7
     - reference-id: PW1.1
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: ID.RA-01
-      strength: 7
     - reference-id: ID.RA-04
-      strength: 7
     - reference-id: ID.RA-05
-      strength: 7
     - reference-id: DE.AE-07
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.5
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 068-102
-      strength: 7
     - reference-id: 154-031
-      strength: 7
     - reference-id: 888-770
-      strength: 7
   assessment-requirements:
   - id: OSPS-SA-03.01
     text: |
@@ -2113,63 +1782,42 @@ controls:
     The project documentation MUST include a policy for coordinated
     vulnerability reporting, with a clear timeframe for response.
   objective: "Establish a process for reporting and addressing vulnerabilities in the\nproject, ensuring that security issues are handled promptly and \ntransparently.\n"
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: R-B-6
-      strength: 7
     - reference-id: R-B-8
-      strength: 7
     - reference-id: R-S-2
-      strength: 7
     - reference-id: S-B-14
-      strength: 7
     - reference-id: S-B-15
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: '2.1'
-      strength: 7
     - reference-id: '2.2'
-      strength: 7
     - reference-id: '2.3'
-      strength: 7
     - reference-id: '2.6'
-      strength: 7
     - reference-id: '2.7'
-      strength: 7
     - reference-id: '2.8'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: RV1.3
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: GV.PO-01
-      strength: 7
     - reference-id: GV.PO-02
-      strength: 7
     - reference-id: ID.RA-01
-      strength: 7
     - reference-id: ID.RA-08
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.5
-      strength: 7
     - reference-id: 4.2.1
-      strength: 7
     - reference-id: 4.3.2
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 887-750
-      strength: 7
   - reference-id: ScCrd
     entries:
     - reference-id: Security-policy
-      strength: 7
   assessment-requirements:
   - id: OSPS-VM-01.01
     text: |
@@ -2194,45 +1842,33 @@ controls:
     vulnerabilities in a project. People with vulnerabilities to report should
     have a clear understanding of the process so that they can quickly submit
     the report to the project.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-S-8
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: '2.5'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: RV1.3
-      strength: 7
   - reference-id: CSF
     entries:
     - reference-id: GV.PO-01
-      strength: 7
     - reference-id: GV.PO-02
-      strength: 7
     - reference-id: ID.RA-01
-      strength: 7
   - reference-id: OC
     entries:
     - reference-id: 4.1.1
-      strength: 7
     - reference-id: 4.1.3
-      strength: 7
     - reference-id: 4.1.5
-      strength: 7
     - reference-id: 4.2.2
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 464-513
-      strength: 7
   - reference-id: ScCrd
     entries:
     - reference-id: Security-policy
-      strength: 7
   assessment-requirements:
   - id: OSPS-VM-02.01
     text: |
@@ -2249,21 +1885,17 @@ controls:
     The project MUST provide a means for reporting security
     vulnerabilities privately to the security contacts within the project.
   objective: "Security vulnerabilities should not be shared with the public until such\ntime the project has been provided time to analyze and prepare \nremediations to protect users of the project.\n"
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: R-B-7
-      strength: 7
   - reference-id: CRA
     entries:
     - reference-id: '2.5'
-      strength: 7
     - reference-id: '2.6'
-      strength: 7
   - reference-id: OCRE
     entries:
     - reference-id: 308-514
-      strength: 7
   assessment-requirements:
   - id: OSPS-VM-03.01
     text: |
@@ -2285,19 +1917,14 @@ controls:
   objective: |
     Consumers of the project must be informed about known vulnerabilities
     found within the project.
-  guideline-mappings:
+  guidelines:
   - reference-id: CRA
     entries:
     - reference-id: 1.2a
-      strength: 7
     - reference-id: 1.2b
-      strength: 7
     - reference-id: '2.1'
-      strength: 7
     - reference-id: '2.4'
-      strength: 7
     - reference-id: '2.6'
-      strength: 7
   - reference-id: SSDF
     entries:
     - reference-id: PO4.1
@@ -2344,30 +1971,21 @@ controls:
     is merged as well as before it releases, reducing the risk of compromised
     delivery mechanisms or released software assets that are vulnerable or
     malicious.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-S-8
-      strength: 7
     - reference-id: Q-B-12
-      strength: 7
     - reference-id: Q-S-9
-      strength: 7
     - reference-id: S-B-14
-      strength: 7
     - reference-id: S-B-15
-      strength: 7
     - reference-id: A-B-1
-      strength: 7
     - reference-id: A-B-3
-      strength: 7
     - reference-id: A-B-8
-      strength: 7
     - reference-id: A-S-1
   - reference-id: CRA
     entries:
     - reference-id: 1.2a
-      strength: 7
     - reference-id: 1.2b
     - reference-id: 1.2c
     - reference-id: '2.1'
@@ -2377,44 +1995,30 @@ controls:
   - reference-id: SSDF
     entries:
     - reference-id: PO.4
-      strength: 7
     - reference-id: PW1.2
-      strength: 7
     - reference-id: PW8.1
-      strength: 7
     - reference-id: RV1.2
-      strength: 7
     - reference-id: RV1.3
-      strength: 7
     - reference-id: RV2.1
-      strength: 7
     - reference-id: RV 2.2
   - reference-id: CSF
     entries:
     - reference-id: GV.RM-05
-      strength: 7
     - reference-id: PV.RM-06
-      strength: 7
     - reference-id: PV.PO-01
-      strength: 7
     - reference-id: PV.PO-02
-      strength: 7
     - reference-id: ID.RA-01
-      strength: 7
     - reference-id: ID.RA-08
-      strength: 7
     - reference-id: ID.IM-02
   - reference-id: OC
     entries:
     - reference-id: 4.1.5
-      strength: 7
     - reference-id: 4.2.1
     - reference-id: 4.2.2
     - reference-id: 4.3.2
   - reference-id: OCRE
     entries:
     - reference-id: 155-155
-      strength: 7
     - reference-id: 124-564
     - reference-id: 757-271
     - reference-id: 464-513
@@ -2471,30 +2075,21 @@ controls:
     Identify and address defects and security weaknesses in the project's
     codebase early in the development process, reducing the risk of shipping
     insecure software.
-  guideline-mappings:
+  guidelines:
   - reference-id: BPB
     entries:
     - reference-id: B-S-8
-      strength: 7
     - reference-id: Q-B-12
-      strength: 7
     - reference-id: Q-S-9
-      strength: 7
     - reference-id: S-B-14
-      strength: 7
     - reference-id: S-B-15
-      strength: 7
     - reference-id: A-B-1
-      strength: 7
     - reference-id: A-B-3
-      strength: 7
     - reference-id: A-B-8
-      strength: 7
     - reference-id: A-S-1
   - reference-id: CRA
     entries:
     - reference-id: 1.2a
-      strength: 7
     - reference-id: 1.2b
     - reference-id: 1.2c
     - reference-id: '2.1'
@@ -2504,44 +2099,30 @@ controls:
   - reference-id: SSDF
     entries:
     - reference-id: PO.4
-      strength: 7
     - reference-id: PW1.2
-      strength: 7
     - reference-id: PW8.1
-      strength: 7
     - reference-id: RV1.2
-      strength: 7
     - reference-id: RV1.3
-      strength: 7
     - reference-id: RV2.1
-      strength: 7
     - reference-id: RV 2.2
   - reference-id: CSF
     entries:
     - reference-id: GV.RM-05
-      strength: 7
     - reference-id: PV.RM-06
-      strength: 7
     - reference-id: PV.PO-01
-      strength: 7
     - reference-id: PV.PO-02
-      strength: 7
     - reference-id: ID.RA-01
-      strength: 7
     - reference-id: ID.RA-08
-      strength: 7
     - reference-id: ID.IM-02
   - reference-id: OC
     entries:
     - reference-id: 4.1.5
-      strength: 7
     - reference-id: 4.2.1
     - reference-id: 4.2.2
     - reference-id: 4.3.2
   - reference-id: OCRE
     entries:
     - reference-id: 155-155
-      strength: 7
     - reference-id: 124-564
     - reference-id: 757-271
     - reference-id: 464-513

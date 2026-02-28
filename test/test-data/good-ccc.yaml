@@ -41,35 +41,28 @@ controls:
     objective: |
       Ensure that all communications are encrypted in transit to protect data
       integrity and confidentiality.
-    threat-mappings:
+    threats:
       - reference-id: CCC
         entries:
           - reference-id: CCC.TH02
-            strength: 7
             remarks: Data is Intercepted in Transit
-    guideline-mappings:
+    guidelines:
       - reference-id: CSF
         entries:
           - reference-id: PR.DS-02
-            strength: 7
             remarks: Data-in-transit is protected
       - reference-id: CCM
         entries:
           - reference-id: IVS-03
-            strength: 7
           - reference-id: IVS-07
-            strength: 7
       - reference-id: ISO-27001
         entries:
           - reference-id: 2013 A.13.1.1
-            strength: 7
             remarks: This control is closely related to 2013 A.13.1.1.
       - reference-id: NIST-800-53
         entries:
           - reference-id: SC-8
-            strength: 7
           - reference-id: SC-13
-            strength: 7
     assessment-requirements:
       - id: CCC.C01.TR01
         text: |
@@ -99,35 +92,29 @@ controls:
       designated as restricted or prohibited, to comply with
       regulatory requirements and reduce exposure to geopolitical
       risks.
-    threat-mappings:
+    threats:
       - reference-id: CCC
         entries:
           - reference-id: CCC.TH03
-            strength: 7
             remarks: Deployment Region Network is Untrusted
-    guideline-mappings:
+    guidelines:
       - reference-id: CCM
         entries:
           - reference-id: DSI-06
-            strength: 7
             remarks: This control is closely related to DSI-06.
           - reference-id: DSI-08
-            strength: 7
             remarks: This control is closely related to DSI-08.
       - reference-id: ISO-27001
         entries:
           - reference-id: 2013 A.11.1.1
-            strength: 7
             remarks: This control is closely related to 2013 A.11.1.1.
       - reference-id: NIST-800-53
         entries:
           - reference-id: AC-6
-            strength: 7
             remarks: This control is closely related to AC-6.
       - reference-id: CSF
         entries:
           - reference-id: PR.DS-1
-            strength: 7
             remarks: Data-at-rest is protected
     assessment-requirements:
       - id: CCC.C06.TR01
@@ -158,30 +145,25 @@ controls:
       Ensure that data is replicated across multiple
       zones or regions to protect against data loss due to hardware
       failures, natural disasters, or other catastrophic events.
-    threat-mappings:
+    threats:
       - reference-id: CCC
         entries:
           - reference-id: CCC.TH06
-            strength: 7
             remarks: Data is Lost or Corrupted
-    guideline-mappings:
+    guidelines:
       - reference-id: CSF
         entries:
           - reference-id: PR.DS-5
-            strength: 7
             remarks: Protections against data leaks are implemented
       - reference-id: CCM
         entries:
           - reference-id: BCR-08
-            strength: 7
             remarks: Backup
       - reference-id: NIST-800-53
         entries:
           - reference-id: CP-2
-            strength: 7
             remarks: Contingency plan
           - reference-id: CP-10
-            strength: 7
             remarks: Information system recovery and reconstitution
     assessment-requirements:
       - id: CCC.C08.TR01
@@ -210,34 +192,27 @@ controls:
       Access logs should always be considered sensitive.
       Ensure that access logs are protected against unauthorized
       access, tampering, or deletion.
-    threat-mappings:
+    threats:
       - reference-id: CCC
         entries:
           - reference-id: CCC.TH07
-            strength: 7
             remarks: Logs are Tampered with or Deleted
           - reference-id: CCC.TH09
-            strength: 7
             remarks: Logs or Monitoring Data are Read by Unauthorized Users
           - reference-id: CCC.TH04
-            strength: 7
             remarks: Data is Replicated to Untrusted or External Locations
-    guideline-mappings:
+    guidelines:
       - reference-id: CCM
         entries:
           - reference-id: LOG-02
-            strength: 7
             remarks: Audit log protection
           - reference-id: LOG-04
-            strength: 7
             remarks: Audit log access and accountability
           - reference-id: LOG-09
-            strength: 7
             remarks: Log protection
       - reference-id: NIST-800-53
         entries:
           - reference-id: AU-9
-            strength: 7
             remarks: Protection of audit information
     assessment-requirements:
       - id: CCC.C09.TR01
@@ -278,30 +253,25 @@ controls:
       of defined trust perimeter. An untrusted destination is defined
       as a resource that exists outside of a specified trusted
       identity or network or data perimeter.
-    threat-mappings:
+    threats:
       - reference-id: CCC
         entries:
           - reference-id: CCC.TH04
-            strength: 7
             remarks: Data is Replicated to Untrusted or External Locations
-    guideline-mappings:
+    guidelines:
       - reference-id: CSF
         entries:
           - reference-id: PR.DS-5
-            strength: 7
             remarks: Protections against data leaks are implemented
       - reference-id: CCM
         entries:
           - reference-id: DSP-10
-            strength: 7
             remarks: Sensitive data transfer
           - reference-id: DSP-19
-            strength: 7
             remarks: Data location
       - reference-id: NIST-800-53
         entries:
           - reference-id: AC-4
-            strength: 7
             remarks: Information flow enforcement
     assessment-requirements:
       - id: CCC.C10.TR01

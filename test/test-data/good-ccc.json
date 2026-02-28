@@ -43,26 +43,22 @@
       "id": "CCC.C01",
       "title": "Prevent Unencrypted Requests",
       "objective": "Ensure that all communications are encrypted in transit to protect data\nintegrity and confidentiality.\n",
-      "threat-mappings": [
+      "threats": [
         {
           "reference-id": "CCC",
           "entries": [
             {
-              "reference-id": "CCC.TH02",
-              "strength": 7,
-              "remarks": "Data is Intercepted in Transit"
+              "reference-id": "CCC.TH02",              "remarks": "Data is Intercepted in Transit"
             }
           ]
         }
       ],
-      "guideline-mappings": [
+      "guidelines": [
         {
           "reference-id": "CSF",
           "entries": [
             {
-              "reference-id": "PR.DS-02",
-              "strength": 7,
-              "remarks": "Data-in-transit is protected"
+              "reference-id": "PR.DS-02",              "remarks": "Data-in-transit is protected"
             }
           ]
         },
@@ -70,22 +66,16 @@
           "reference-id": "CCM",
           "entries": [
             {
-              "reference-id": "IVS-03",
-              "strength": 7
-            },
+              "reference-id": "IVS-03"            },
             {
-              "reference-id": "IVS-07",
-              "strength": 7
-            }
+              "reference-id": "IVS-07"            }
           ]
         },
         {
           "reference-id": "ISO-27001",
           "entries": [
             {
-              "reference-id": "2013 A.13.1.1",
-              "strength": 7,
-              "remarks": "This control is closely related to 2013 A.13.1.1."
+              "reference-id": "2013 A.13.1.1",              "remarks": "This control is closely related to 2013 A.13.1.1."
             }
           ]
         },
@@ -93,13 +83,9 @@
           "reference-id": "NIST-800-53",
           "entries": [
             {
-              "reference-id": "SC-8",
-              "strength": 7
-            },
+              "reference-id": "SC-8"            },
             {
-              "reference-id": "SC-13",
-              "strength": 7
-            }
+              "reference-id": "SC-13"            }
           ]
         }
       ],
@@ -131,31 +117,25 @@
       "id": "CCC.C06",
       "title": "Prevent Deployment in Restricted Regions",
       "objective": "Ensure that resources are not provisioned or deployed in\ngeographic regions or cloud availability zones that have been\ndesignated as restricted or prohibited, to comply with\nregulatory requirements and reduce exposure to geopolitical\nrisks.\n",
-      "threat-mappings": [
+      "threats": [
         {
           "reference-id": "CCC",
           "entries": [
             {
-              "reference-id": "CCC.TH03",
-              "strength": 7,
-              "remarks": "Deployment Region Network is Untrusted"
+              "reference-id": "CCC.TH03",              "remarks": "Deployment Region Network is Untrusted"
             }
           ]
         }
       ],
-      "guideline-mappings": [
+      "guidelines": [
         {
           "reference-id": "CCM",
           "entries": [
             {
-              "reference-id": "DSI-06",
-              "strength": 7,
-              "remarks": "This control is closely related to DSI-06."
+              "reference-id": "DSI-06",              "remarks": "This control is closely related to DSI-06."
             },
             {
-              "reference-id": "DSI-08",
-              "strength": 7,
-              "remarks": "This control is closely related to DSI-08."
+              "reference-id": "DSI-08",              "remarks": "This control is closely related to DSI-08."
             }
           ]
         },
@@ -163,9 +143,7 @@
           "reference-id": "ISO-27001",
           "entries": [
             {
-              "reference-id": "2013 A.11.1.1",
-              "strength": 7,
-              "remarks": "This control is closely related to 2013 A.11.1.1."
+              "reference-id": "2013 A.11.1.1",              "remarks": "This control is closely related to 2013 A.11.1.1."
             }
           ]
         },
@@ -173,9 +151,7 @@
           "reference-id": "NIST-800-53",
           "entries": [
             {
-              "reference-id": "AC-6",
-              "strength": 7,
-              "remarks": "This control is closely related to AC-6."
+              "reference-id": "AC-6",              "remarks": "This control is closely related to AC-6."
             }
           ]
         },
@@ -183,9 +159,7 @@
           "reference-id": "CSF",
           "entries": [
             {
-              "reference-id": "PR.DS-1",
-              "strength": 7,
-              "remarks": "Data-at-rest is protected"
+              "reference-id": "PR.DS-1",              "remarks": "Data-at-rest is protected"
             }
           ]
         }
@@ -218,26 +192,22 @@
       "id": "CCC.C08",
       "title": "Enable Multi-zone or Multi-region Data Replication",
       "objective": "Ensure that data is replicated across multiple\nzones or regions to protect against data loss due to hardware\nfailures, natural disasters, or other catastrophic events.\n",
-      "threat-mappings": [
+      "threats": [
         {
           "reference-id": "CCC",
           "entries": [
             {
-              "reference-id": "CCC.TH06",
-              "strength": 7,
-              "remarks": "Data is Lost or Corrupted"
+              "reference-id": "CCC.TH06",              "remarks": "Data is Lost or Corrupted"
             }
           ]
         }
       ],
-      "guideline-mappings": [
+      "guidelines": [
         {
           "reference-id": "CSF",
           "entries": [
             {
-              "reference-id": "PR.DS-5",
-              "strength": 7,
-              "remarks": "Protections against data leaks are implemented"
+              "reference-id": "PR.DS-5",              "remarks": "Protections against data leaks are implemented"
             }
           ]
         },
@@ -245,9 +215,7 @@
           "reference-id": "CCM",
           "entries": [
             {
-              "reference-id": "BCR-08",
-              "strength": 7,
-              "remarks": "Backup"
+              "reference-id": "BCR-08",              "remarks": "Backup"
             }
           ]
         },
@@ -255,14 +223,10 @@
           "reference-id": "NIST-800-53",
           "entries": [
             {
-              "reference-id": "CP-2",
-              "strength": 7,
-              "remarks": "Contingency plan"
+              "reference-id": "CP-2",              "remarks": "Contingency plan"
             },
             {
-              "reference-id": "CP-10",
-              "strength": 7,
-              "remarks": "Information system recovery and reconstitution"
+              "reference-id": "CP-10",              "remarks": "Information system recovery and reconstitution"
             }
           ]
         }
@@ -293,46 +257,34 @@
       "id": "CCC.C09",
       "title": "Prevent Tampering, Deletion, or Unauthorized Access to Access Logs",
       "objective": "Access logs should always be considered sensitive.\nEnsure that access logs are protected against unauthorized\naccess, tampering, or deletion.\n",
-      "threat-mappings": [
+      "threats": [
         {
           "reference-id": "CCC",
           "entries": [
             {
-              "reference-id": "CCC.TH07",
-              "strength": 7,
-              "remarks": "Logs are Tampered with or Deleted"
+              "reference-id": "CCC.TH07",              "remarks": "Logs are Tampered with or Deleted"
             },
             {
-              "reference-id": "CCC.TH09",
-              "strength": 7,
-              "remarks": "Logs or Monitoring Data are Read by Unauthorized Users"
+              "reference-id": "CCC.TH09",              "remarks": "Logs or Monitoring Data are Read by Unauthorized Users"
             },
             {
-              "reference-id": "CCC.TH04",
-              "strength": 7,
-              "remarks": "Data is Replicated to Untrusted or External Locations"
+              "reference-id": "CCC.TH04",              "remarks": "Data is Replicated to Untrusted or External Locations"
             }
           ]
         }
       ],
-      "guideline-mappings": [
+      "guidelines": [
         {
           "reference-id": "CCM",
           "entries": [
             {
-              "reference-id": "LOG-02",
-              "strength": 7,
-              "remarks": "Audit log protection"
+              "reference-id": "LOG-02",              "remarks": "Audit log protection"
             },
             {
-              "reference-id": "LOG-04",
-              "strength": 7,
-              "remarks": "Audit log access and accountability"
+              "reference-id": "LOG-04",              "remarks": "Audit log access and accountability"
             },
             {
-              "reference-id": "LOG-09",
-              "strength": 7,
-              "remarks": "Log protection"
+              "reference-id": "LOG-09",              "remarks": "Log protection"
             }
           ]
         },
@@ -340,9 +292,7 @@
           "reference-id": "NIST-800-53",
           "entries": [
             {
-              "reference-id": "AU-9",
-              "strength": 7,
-              "remarks": "Protection of audit information"
+              "reference-id": "AU-9",              "remarks": "Protection of audit information"
             }
           ]
         }
@@ -385,26 +335,22 @@
       "id": "CCC.C10",
       "title": "Prevent Data Replication to Destinations Outside of Defined\nTrust Perimeter\n",
       "objective": "Prevent replication of data to untrusted destinations outside\nof defined trust perimeter. An untrusted destination is defined\nas a resource that exists outside of a specified trusted\nidentity or network or data perimeter.\n",
-      "threat-mappings": [
+      "threats": [
         {
           "reference-id": "CCC",
           "entries": [
             {
-              "reference-id": "CCC.TH04",
-              "strength": 7,
-              "remarks": "Data is Replicated to Untrusted or External Locations"
+              "reference-id": "CCC.TH04",              "remarks": "Data is Replicated to Untrusted or External Locations"
             }
           ]
         }
       ],
-      "guideline-mappings": [
+      "guidelines": [
         {
           "reference-id": "CSF",
           "entries": [
             {
-              "reference-id": "PR.DS-5",
-              "strength": 7,
-              "remarks": "Protections against data leaks are implemented"
+              "reference-id": "PR.DS-5",              "remarks": "Protections against data leaks are implemented"
             }
           ]
         },
@@ -412,14 +358,10 @@
           "reference-id": "CCM",
           "entries": [
             {
-              "reference-id": "DSP-10",
-              "strength": 7,
-              "remarks": "Sensitive data transfer"
+              "reference-id": "DSP-10",              "remarks": "Sensitive data transfer"
             },
             {
-              "reference-id": "DSP-19",
-              "strength": 7,
-              "remarks": "Data location"
+              "reference-id": "DSP-19",              "remarks": "Data location"
             }
           ]
         },
@@ -427,9 +369,7 @@
           "reference-id": "NIST-800-53",
           "entries": [
             {
-              "reference-id": "AC-4",
-              "strength": 7,
-              "remarks": "Information flow enforcement"
+              "reference-id": "AC-4",              "remarks": "Information flow enforcement"
             }
           ]
         }
