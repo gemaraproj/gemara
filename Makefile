@@ -75,13 +75,13 @@ SCHEMA_NAV := docs/schema-nav.yml
 genopenapi:
 	@echo "  >  Converting CUE schema to OpenAPI ..."
 	@mkdir -p $(GENERATED_DIR)
-	@cd cmd/cue2openapi && go run . -schema ../.. -output ../../$(OPENAPI_YAML) -manifest ../../$(MANIFEST_JSON)
+	@cd cmd && go run . cue2openapi --schema .. --output ../$(OPENAPI_YAML) --manifest ../$(MANIFEST_JSON)
 	@echo "  >  OpenAPI schema generation complete!"
 
 genmd: genopenapi
 	@echo "  >  Generating markdown from OpenAPI ..."
 	@mkdir -p $(SPEC_DIR)
-	@cd cmd/openapi2md && go run . -input ../../$(OPENAPI_YAML) -output ../../$(SPEC_DIR) -nav ../../$(SCHEMA_NAV)
+	@cd cmd && go run . openapi2md --input ../$(OPENAPI_YAML) --output ../$(SPEC_DIR) --nav ../$(SCHEMA_NAV)
 	@echo "  >  Markdown generation complete!"
 
 gendocs: genmd
@@ -130,9 +130,9 @@ gendocs: genmd
 	@if [ -f "docs/model/02-definitions.md.template" ]; then \
 		cp "docs/model/02-definitions.md.template" "docs/model/02-definitions.md"; \
 	fi
-	@cd cmd/lexicon2md && go run . -lexicon ../../docs/lexicon.yaml -output ../../docs/model/02-definitions.md
+	@cd cmd && go run . lexicon2md --lexicon ../docs/lexicon.yaml --output ../docs/model/02-definitions.md
 	@echo "  >  Linking defined terms across documentation ..."
-	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs
+	@cd cmd && go run . termlinker --lexicon ../docs/lexicon.yaml --docs ../docs
 	@echo "  >  Documentation generation complete!"
 
 #
@@ -160,7 +160,7 @@ clean-jekyll:
 
 cleanup-links:
 	@echo "  >  Removing termlinker-generated links from documentation ..."
-	@cd cmd/termlinker && go run . -lexicon ../../docs/lexicon.yaml -docs ../../docs -cleanup
+	@cd cmd && go run . termlinker --lexicon ../docs/lexicon.yaml --docs ../docs --cleanup
 	@echo "  >  Link cleanup complete!"
 
 cleanup: clean-jekyll cleanup-links

@@ -1104,6 +1104,30 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
   border: 1px solid rgba(139, 92, 246, 0.4);
 }
 
+.badge-experimental {
+  background: rgba(243, 156, 18, 0.15);
+  color: #b45309;
+  border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+[data-theme="dark"] .badge-experimental {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.badge-deprecated {
+  background: rgba(231, 76, 60, 0.15);
+  color: #c0392b;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+[data-theme="dark"] .badge-deprecated {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
 /* ============================================
    Component Content Styling
    ============================================ */
