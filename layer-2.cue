@@ -11,7 +11,7 @@ package gemara
 	title: string
 
 	// metadata provides detailed data about this catalog
-	"metadata": #Metadata @go(Metadata)
+	metadata: #Metadata @go(Metadata)
 
 	// families contains a list of control families that can be referenced by controls
 	families?: [...#Group] @go(Families)
@@ -78,7 +78,7 @@ package gemara
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
 
 	// retired assessment requirements must not have a recommendation
-	if state == "retired" {
+	if state == "Retired" {
 		recommendation?: _|_
 	}
 }
@@ -89,7 +89,7 @@ package gemara
 	title: string
 
 	// metadata provides detailed data about this catalog
-	"metadata": #Metadata @go(Metadata)
+	metadata: #Metadata @go(Metadata)
 
 	// threats is a list of threats defined by this catalog
 	threats?: [...#Threat] @go(Threats)

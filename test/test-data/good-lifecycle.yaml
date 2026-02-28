@@ -32,14 +32,10 @@ controls:
     family: dp
     title: Encrypt Data at Rest Using DES
     objective: Ensure all stored data is encrypted using DES.
-    state: retired
-    replaced-by:
-      entry-id: TC-001
+    state: Retired
     assessment-requirements:
       - id: TC-002.AR01
         text: The system MUST encrypt all data at rest using DES.
         applicability:
           - production
-        state: retired
-        replaced-by:
-          entry-id: TC-001.AR01
+        state: Retired

@@ -3,6 +3,8 @@
 
 package gemara
 
+@go(gemara)
+
 // MappingReference represents a reference to an external document with full metadata.
 #MappingReference: {
 	// id allows this entry to be referenced by other elements
@@ -26,7 +28,7 @@ package gemara
 	"reference-id": string @go(ReferenceId)
 
 	// remarks is prose regarding the mapped artifact or the mapping relationship
-	"remarks": string
+	remarks: string
 }
 
 // MultiEntryMapping represents a mapping to an external reference with one or more entries.

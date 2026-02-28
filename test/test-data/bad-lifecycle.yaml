@@ -18,6 +18,6 @@ guidelines:
     family: fam-1
     title: Retired Guideline With Recommendations
     objective: This should fail because retired guidelines cannot have recommendations.
-    state: retired
+    state: Retired
     recommendations:
       - This recommendation should not exist on a retired guideline.

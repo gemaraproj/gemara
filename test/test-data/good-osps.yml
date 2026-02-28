@@ -442,7 +442,6 @@ controls:
     - Maturity Level 1
     - Maturity Level 2
     - Maturity Level 3
-    recommendation: null
   - id: OSPS-BR-01.02
     text: |
       When a CI/CD pipeline uses a branch name in its functionality, that
@@ -452,7 +451,6 @@ controls:
     - Maturity Level 1
     - Maturity Level 2
     - Maturity Level 3
-    recommendation: null
   family: build-and-release
 - id: OSPS-BR-02
   title: |
@@ -586,7 +584,7 @@ controls:
     text: |
       When the project lists a URI as an official distribution channel,
       that URI MUST be exclusively delivered using encrypted channels.
-    applicability: null
+    applicability: []
     recommendation: |
       Configure the project's release pipeline to only fetch data from
       websites, API responses, and other services which use encrypted
@@ -625,7 +623,7 @@ controls:
       strength: 7
     - reference-id: 1.2l
       strength: 7
-    - reference-id: 2.5
+    - reference-id: '2.5'
       strength: 7
   - reference-id: SSDF
     entries:
@@ -707,11 +705,11 @@ controls:
       strength: 7
     - reference-id: 1.2j
       strength: 7
-    - reference-id: 2.1
+    - reference-id: '2.1'
       strength: 7
-    - reference-id: 2.2
+    - reference-id: '2.2'
       strength: 7
-    - reference-id: 2.3
+    - reference-id: '2.3'
       strength: 7
   - reference-id: SSDF
     entries:
@@ -876,13 +874,13 @@ controls:
       strength: 7
     - reference-id: 1.2l
       strength: 7
-    - reference-id: 2.1
+    - reference-id: '2.1'
       strength: 7
-    - reference-id: 2.2
+    - reference-id: '2.2'
       strength: 7
-    - reference-id: 2.5
+    - reference-id: '2.5'
       strength: 7
-    - reference-id: 2.6
+    - reference-id: '2.6'
       strength: 7
   - reference-id: SSDF
     entries:
@@ -1005,7 +1003,7 @@ controls:
     - reference-id: RV1.3
   - reference-id: OC
     entries:
-    - reference-id: 4.1
+    - reference-id: '4.1'
     - reference-id: 4.3.1
   assessment-requirements:
   - id: OSPS-DO-04.01
@@ -1033,7 +1031,7 @@ controls:
     entries:
     - reference-id: 1.2c
       strength: 7
-    - reference-id: 2.6
+    - reference-id: '2.6'
       strength: 7
   - reference-id: OC
     entries:
@@ -1076,7 +1074,7 @@ controls:
       strength: 7
   - reference-id: CRA
     entries:
-    - reference-id: 2.1
+    - reference-id: '2.1'
       strength: 7
   - reference-id: OCRE
     entries:
@@ -1167,11 +1165,11 @@ controls:
     entries:
     - reference-id: 1.2l
       strength: 7
-    - reference-id: 2.3
+    - reference-id: '2.3'
       strength: 7
-    - reference-id: 2.4
+    - reference-id: '2.4'
       strength: 7
-    - reference-id: 2.6
+    - reference-id: '2.6'
       strength: 7
   - reference-id: SSDF
     entries:
@@ -1218,7 +1216,7 @@ controls:
     entries:
     - reference-id: 1.2l
       strength: 7
-    - reference-id: 2.4
+    - reference-id: '2.4'
       strength: 7
   - reference-id: SSDF
     entries:
@@ -1275,10 +1273,10 @@ controls:
     entries:
     - reference-id: 1.2d
     - reference-id: 1.2l
-    - reference-id: 2.1
-    - reference-id: 2.2
-    - reference-id: 2.5
-    - reference-id: 2.6
+    - reference-id: '2.1'
+    - reference-id: '2.2'
+    - reference-id: '2.5'
+    - reference-id: '2.6'
   - reference-id: SSDF
     entries:
     - reference-id: PO2
@@ -1576,9 +1574,9 @@ controls:
     - reference-id: Q-S-9
   - reference-id: CRA
     entries:
-    - reference-id: 2.1
-    - reference-id: 2.2
-    - reference-id: 2.3
+    - reference-id: '2.1'
+    - reference-id: '2.2'
+    - reference-id: '2.3'
   - reference-id: SSDF
     entries:
     - reference-id: PO3.3
@@ -1821,7 +1819,7 @@ controls:
       strength: 7
   - reference-id: CRA
     entries:
-    - reference-id: 2.3
+    - reference-id: '2.3'
       strength: 7
   - reference-id: SSDF
     entries:
@@ -2047,13 +2045,13 @@ controls:
       strength: 7
   - reference-id: CRA
     entries:
-    - reference-id: 1.1
+    - reference-id: '1.1'
       strength: 7
     - reference-id: 1.2j
       strength: 7
     - reference-id: 1.2k
       strength: 7
-    - reference-id: 2.2
+    - reference-id: '2.2'
       strength: 7
   - reference-id: SSDF
     entries:
@@ -2372,10 +2370,10 @@ controls:
       strength: 7
     - reference-id: 1.2b
     - reference-id: 1.2c
-    - reference-id: 2.1
-    - reference-id: 2.2
-    - reference-id: 2.3
-    - reference-id: 2.4
+    - reference-id: '2.1'
+    - reference-id: '2.2'
+    - reference-id: '2.3'
+    - reference-id: '2.4'
   - reference-id: SSDF
     entries:
     - reference-id: PO.4
@@ -2499,10 +2497,10 @@ controls:
       strength: 7
     - reference-id: 1.2b
     - reference-id: 1.2c
-    - reference-id: 2.1
-    - reference-id: 2.2
-    - reference-id: 2.3
-    - reference-id: 2.4
+    - reference-id: '2.1'
+    - reference-id: '2.2'
+    - reference-id: '2.3'
+    - reference-id: '2.4'
   - reference-id: SSDF
     entries:
     - reference-id: PO.4
