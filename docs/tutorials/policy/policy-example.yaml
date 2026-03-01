@@ -1,0 +1,120 @@
+# Container Management Tool Security Policy (Layer 3)
+# Conforms to Gemara Layer 3 #Policy (layer-3.cue).
+# Aligned to threat-assessment-guide.md scope (SEC.SLAM.CM) and policy-tutorial-persona.md.
+
+title: Container Management Tool Security Policy
+
+metadata:
+  id: org-policy-sec-slam-cm
+  description: |
+    Organizational policy for container management tool security; applies to tools
+    that pull and run container images. References the SEC.SLAM.CM control catalog
+    and threat catalog from the threat assessment scope.
+  version: 1.0.0
+  author:
+    id: example
+    name: Example
+    type: Human
+  mapping-references:
+    - id: SEC.SLAM.CM
+      title: Container Management Tool Security Control Catalog
+      version: "1.0.0"
+      url: https://example.org/catalogs/SEC.SLAM.CM-controls.yaml
+      description: Control catalog for container management tool security.
+    - id: SEC.SLAM.CM-THREATS
+      title: Container Management Tool Security Threat Catalog
+      version: "1.0.0"
+      url: https://example.org/catalogs/SEC.SLAM.CM-threats.yaml
+      description: Threat catalog for the same scope; provides threat IDs for risk mappings.
+    - id: CCC
+      title: Common Cloud Controls Core
+      version: v2025.10
+      url: https://github.com/finos/common-cloud-controls/releases
+      description: Foundational repository of reusable security controls and threat models (FINOS).
+
+contacts:
+  responsible:
+    - name: Platform Engineering
+      affiliation: Engineering
+      email: platform@example.com
+  accountable:
+    - name: Security Governance
+      affiliation: GRC
+      email: grc@example.com
+  consulted:
+    - name: Compliance
+      affiliation: Legal & Compliance
+  informed:
+    - name: All Engineering
+      affiliation: Engineering
+
+scope:
+  in:
+    technologies:
+      - Container management tools
+      - Container registries
+      - Container runtimes
+    users:
+      - platform-engineers
+      - developers
+    sensitivity:
+      - production
+      - sensitive workloads
+  out:
+    technologies:
+      - Legacy on-premises only
+    sensitivity:
+      - TLP Green (non-sensitive)
+
+imports:
+  catalogs:
+    - reference-id: SEC.SLAM.CM
+      assessment-requirement-modifications:
+        - id: CTL01-AR01-strict
+          target-id: SEC.SLAM.CM.CTL01.AR01
+          modification-type: override
+          modification-rationale: Require digest in all in-scope deployments for this org.
+          text: The system MUST resolve image references to a digest before pull or run in all in-scope deployments.
+
+implementation-plan:
+  notification-process: Policy communicated via internal wiki and team leads; rollout via Platform Engineering.
+  evaluation-timeline:
+    start: 2025-03-01T00:00:00Z
+    end: 2025-06-01T00:00:00Z
+    notes: Initial evaluation phase; automated checks rolled out by Q2.
+  enforcement-timeline:
+    start: 2025-06-01T00:00:00Z
+    notes: Enforcement begins after evaluation baseline is established.
+
+risks:
+  mitigated:
+    - reference-id: SEC.SLAM.CM-THREATS
+      entries:
+        - reference-id: SEC.SLAM.CM.THR01
+      remarks: Container image tampering or poisoning addressed by SEC.SLAM.CM control catalog (digest-based references).
+  accepted:
+    - risk:
+        reference-id: SEC.SLAM.CM-THREATS
+        entry-id: SEC.SLAM.CM.THR01
+      scope:
+        in:
+          sensitivity:
+            - TLP Green
+      justification: Tag-only references accepted only for TLP Green non-sensitive workloads with no production data.
+
+adherence:
+  evaluation-methods:
+    - type: automated
+      description: CI pipeline runs control checks for image digest resolution.
+    - type: manual
+      description: Quarterly review of exception requests and compliance reports.
+  assessment-plans:
+    - id: plan-ctl01-ar01
+      requirement-id: SEC.SLAM.CM.CTL01.AR01
+      frequency: every push
+      evaluation-methods:
+        - type: automated
+  enforcement-methods:
+    - type: gate
+      description: Block merge if control check fails (e.g. tag-only image reference in scope).
+  non-compliance: Non-compliance is reported to responsible contacts and tracked in the issue tracker; critical failures block deployment.
