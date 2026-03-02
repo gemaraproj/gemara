@@ -1,6 +1,6 @@
 # Container Management Tool Security Policy (Layer 3)
 # Conforms to Gemara Layer 3 #Policy (layer-3.cue).
-# Aligned to threat-assessment-guide.md scope (SEC.SLAM.CM) and policy-tutorial-persona.md.
+# Aligned to threat-assessment-guide scope (SEC.SLAM.CM) and policy guide.
 
 title: Container Management Tool Security Policy
 
