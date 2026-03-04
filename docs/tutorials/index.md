@@ -17,7 +17,9 @@ Pick your role, then your goal — each path leads to the right guide.
 ### I am a GRC / Security Governance Lead
 
 - **I want to understand what threats and controls exist** before writing policy
-  → [Threat Assessment Guide](controls/threat-assessment-guide) and [Control Catalog Guide](controls/control-catalog-guide) — review or author threat-informed controls that your policy will reference (Layer 2).
+  → [Threat Assessment Guide](controls/threat-assessment-guide) 
+  
+  → **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — review or author threat-informed controls that your policy will reference (Layer 2).
 - **I want to see how layers connect**
   → [Persona–Layer Alignment](persona-layer-alignment) — understand the full flow from guidance to controls to policy.
 
@@ -29,13 +31,15 @@ Pick your role, then your goal — each path leads to the right guide.
 ### I am a Risk Manager
 
 - **I want to review the controls my policy will reference**
-  → [Control Catalog Guide](controls/control-catalog-guide) — understand the control catalog structure and assessment requirements (Layer 2).
+ 
+  → **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — understand the control catalog structure and assessment requirements (Layer 2).
 
 ### I am a Software Consumer
 
 - **I want to understand the security posture** of software I consume
   → [Threat Assessment Guide](controls/threat-assessment-guide) — review threat catalogs for your dependencies (Layer 2).
-  → [Control Catalog Guide](controls/control-catalog-guide) — use control catalogs (e.g. OSPS, CCC) to act as hardening guides (Layer 2).
+
+  → **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — use control catalogs (e.g. OSPS, CCC) to act as hardening guides (Layer 2).
 
 ---
 
