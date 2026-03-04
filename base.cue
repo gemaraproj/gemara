@@ -21,8 +21,8 @@ import "time"
 	social?: string @go(Social,type=*string)
 }
 
-// Actor represents an entity that performs actions in evaluations
-#Actor: {
+// Entity represents a human or tool
+#Entity: {
 	// id uniquely identifies the entity and allows this entry to be referenced by other elements
 	id: string
 
@@ -40,6 +40,11 @@ import "time"
 
 	// uri is a general URI for the entity information
 	uri?: =~"^https?://[^\\s]+$"
+}
+
+// Actor represents an entity (human or tool) that performs actions in evaluations
+#Actor: {
+	#Entity
 
 	// contact is contact information for the actor
 	contact?: #Contact @go(Contact)
@@ -47,23 +52,7 @@ import "time"
 
 // Resource represents an entity that exists in the system and can be evaluated
 #Resource: {
-	// id uniquely identifies the entity and allows this entry to be referenced by other elements
-	id: string
-
-	// name is the name of the entity
-	name: string
-
-	// type specifies the type of entity interacting in the workflow
-	type: #EntityType @go(Type)
-
-	// version is the version of the entity (for tools; if applicable)
-	version?: string
-
-	// description provides additional context about the entity
-	description?: string
-
-	// uri is a general URI for the entity information
-	uri?: =~"^https?://[^\\s]+$"
+	#Entity
 
 	// environment describes where the resource exists (e.g., production, staging, development, specific region)
 	environment?: string @go(Environment)
