@@ -19,6 +19,12 @@ jobs:
         uses: ./.github/actions/validate-cue
       - name: Validate the security-insights file
         run: make lintinsights
+      - name: Setup Go
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417
+        with:
+          go-version: stable
+      - name: Run Schema Test
+        run: make test
 
   check-generated-content:
     runs-on: ubuntu-latest
@@ -36,9 +42,6 @@ jobs:
         uses: actions/setup-go@v6
         with:
           go-version: stable
-
-      - name: Run Schema Test
-        run: make test
 
       - name: Check for committed generated content
         run: |
