@@ -26,7 +26,7 @@ Complete the [Threat Assessment Guide](threat-assessment-guide) for your scope (
 
 Reuse the same component or technology as your threat assessment. You will reference that threat catalog so controls can map to the threats you identified.
 
-**Leverage existing resources**: As with threat catalogs, you can import controls from external catalogs (e.g., FINOS Common Cloud Controls, OSPS Baseline) via `mapping-references` and specify further using `source-reference` and `target-reference` in a **separate Mapping Document**. Review the mapping tutorial to map external catalogs to your target objectives. 
+**Leverage existing resources**: As with threat catalogs, you can import controls from external catalogs (e.g., FINOS Common Cloud Controls, OSPS Baseline) via `mapping-references` and list imported controls in your catalog. 
 
 We continue with the container management tool example (SEC.SLAM.CM) and assume a threat catalog for it already exists.
 
@@ -37,7 +37,7 @@ Declare your control catalog and mapping references. Key fields:
 | Field                               | What It Is                                                   | Why                                                                                       |
 |-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `title`                             | Display name for the control catalog (top-level field)       | Human-readable label used in reports and tooling output                                   |
-| `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog in separate Mapping Document    |  Reference Mapping Document tutorial  |
+| `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog    | Resolve imported capability and control IDs from the referenced catalog |
 
 **Example (YAML):**
 
@@ -294,7 +294,7 @@ Fix any reported errors (e.g., missing required fields, invalid `family` referen
 
 | From threat assessment        | Use in control catalog                                      |
 |-------------------------------|-------------------------------------------------------------|
-| Scope / catalog id (e.g. SEC.SLAM.CM) | Same id in control catalog metadata; reference in Mapping Document Tutorial|
+| Scope / catalog id (e.g. SEC.SLAM.CM) | Same id in control catalog metadata |
 | Threat IDs (e.g. SEC.SLAM.CM.THR01, CCC.Core.TH14) | `threats` on each control that mitigates those threats |
 | Understanding of what goes wrong | Control objectives and assessment requirements that prevent or detect it |
 
