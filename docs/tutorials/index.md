@@ -35,7 +35,6 @@ Pick your role, then your goal — each path leads to the right guide.
 
 - **I want to understand the security posture** of software I consume
   → [Threat Assessment Guide](controls/threat-assessment-guide) — review threat catalogs for your dependencies (Layer 2).
-- **I want to comply with regulatory requirements** and manage consumption risk
   → [Control Catalog Guide](controls/control-catalog-guide) — use control catalogs (e.g. OSPS, CCC) to act as hardening guides (Layer 2).
 
 ---
