@@ -37,7 +37,10 @@ Declare your control catalog and mapping references. Key fields:
 | Field                               | What It Is                                                   | Why                                                                                       |
 |-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `title`                             | Display name for the control catalog (top-level field)       | Human-readable label used in reports and tooling output                                   |
-| `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog    | Resolve imported capability and control IDs from the referenced catalog |
+| `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog   | Resolve imported capability and control IDs from the referenced catalog                  |
+| `applicability-categories`          | List of categories (id, title, description) for when controls apply | Scope assessment requirements by context (e.g., production, CI/CD) so evaluators know when each requirement applies |
+
+> **Note:** Applicability categories must be defined to assign applicability to controls.
 
 **Example (YAML):**
 
@@ -65,6 +68,25 @@ metadata:
       description: |
         Foundational repository of reusable security controls, capabilities,
         and threat models maintained by FINOS.
+  applicability-categories:
+    - id: production
+      title: Production
+      description: |
+        Production container workloads and clusters; controls apply to
+        live environments where security posture is enforced.
+    - id: all_deployments
+      title: All Deployments
+      description: |
+        Requirements that apply whenever container images are built, pulled, or run—
+        regardless of environment (dev, staging, production) or pipeline stage.
+    - id: untrusted_networks
+      title: Untrusted Networks
+      description: |
+        Applies when registry or image traffic traverses untrusted networks.
+    - id: ci_cd
+      title: CI/CD
+      description: |
+        Applies in continuous integration and deployment pipelines.
 ```
 
 ### Step 2: Define Control Families
@@ -91,6 +113,9 @@ families:
 ```
 
 ### Step 3: Import or Define Controls
+
+> **Note:** For how controls are automatically pulled into policy to mitigate high-severity risks, see the FAQ.
+
 
 **Option A — Import Controls:** If an external catalog (e.g., CCC) defines controls that address your threats, reference it in the `mapping-references` and list the control IDs in `imported-controls`.
 
@@ -162,18 +187,18 @@ controls:
       - id: SEC.SLAM.CM.CTL02.AR01
         text: |
           The system MUST use TLS/SSL for all registry communication and MUST pin to the expected server certificate or public key (or certificate chain) for the registry.
-        applicability: ["all deployments"]
+        applicability: ["all_deployments"]
         state: Active
       - id: SEC.SLAM.CM.CTL02.AR02
         text: |
           On untrusted networks, the system or deployment pipeline MUST use a VPN or other trusted path for registry traffic, or MUST restrict
           image pulls to environments where the network is trusted.
-        applicability: ["untrusted networks", "CI/CD"]
+        applicability: ["untrusted_networks", "ci_cd"]
         state: Active
       - id: SEC.SLAM.CM.CTL02.AR03
         text: |
           The system MUST verify artifact signatures or hashes (e.g. signature verification, digest check) before use so that tampered or redirected artifacts are rejected.
-        applicability: ["all deployments"]
+        applicability: ["all_deployments"]
         state: Active
 ```
 
@@ -223,6 +248,25 @@ metadata:
       description: |
         Foundational repository of reusable security controls, capabilities,
         and threat models maintained by FINOS.
+  applicability-categories:
+    - id: production
+      title: Production
+      description: |
+        Production container workloads and clusters; controls apply to
+        live environments where security posture is enforced.
+    - id: all_deployments
+      title: All Deployments
+      description: |
+        Requirements that apply whenever container images are built, pulled, or run—
+        regardless of environment (dev, staging, production) or pipeline stage.
+    - id: untrusted_networks
+      title: Untrusted Networks
+      description: |
+        Applies when registry or image traffic traverses untrusted networks.
+    - id: ci_cd
+      title: CI/CD
+      description: |
+        Applies in continuous integration and deployment pipelines.
 
 families:
   - id: SEC.SLAM.CM.FAM01
@@ -268,17 +312,17 @@ controls:
       - id: SEC.SLAM.CM.CTL02.AR01
         text: |
           The system MUST use TLS/SSL for all registry communication and MUST pin to the expected server certificate or public key (or certificate chain) for the registry.
-        applicability: ["all deployments"]
+        applicability: ["all_deployments"]
         state: Active
       - id: SEC.SLAM.CM.CTL02.AR02
         text: |
           On untrusted networks, the system or deployment pipeline MUST use a VPN or other trusted path for registry traffic, or MUST restrict image pulls to environments where the network is trusted.
-        applicability: ["untrusted networks", "CI/CD"]
+        applicability: ["untrusted_networks", "ci_cd"]
         state: Active
       - id: SEC.SLAM.CM.CTL02.AR03
         text: |
           The system MUST verify artifact signatures or hashes (e.g. signature verification, digest check) before use so that tampered or redirected artifacts are rejected.
-        applicability: ["all deployments"]
+        applicability: ["all_deployments"]
         state: Active
 ```
 

@@ -3,43 +3,38 @@ layout: page
 title: Tutorials
 ---
 
+## Start here
+
+**Gemara Layers — Knowledge, Inputs & Outputs** — Start here if you're new to the model.
+
+---
+
 ## Find Your Tutorial
 
-Pick your role, then your goal — each path leads to the right guide.
+Pick your goal — each path leads to the right guide.
 
-### I am a Security Engineer
+### Performing a threat assessment
 
-- **I want to perform a threat assessment** for a system or component
-  → [Threat Assessment Guide](controls/threat-assessment-guide) — identify capabilities and threats, map them to attack surfaces (Layer 2).
-- **I want to define security controls** that mitigate those threats
-  → [Control Catalog Guide](controls/control-catalog-guide) — create a control catalog with assessment requirements and threat-mappings (Layer 2).
+For a system or component → [Threat Assessment Guide](controls/threat-assessment-guide) — identify capabilities and threats, map them to attack surfaces (Layer 2).
 
-### I am a GRC / Security Governance Lead
+### Defining security controls
 
-- **I want to understand what threats and controls exist** before writing policy
-  → [Threat Assessment Guide](controls/threat-assessment-guide) 
-  
-  → **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — review or author threat-informed controls that your policy will reference (Layer 2).
-- **I want to see how layers connect**
-  → [Persona–Layer Alignment](persona-layer-alignment) — understand the full flow from guidance to controls to policy.
+That mitigate those threats → [Control Catalog Guide](controls/control-catalog-guide) — create a control catalog with assessment requirements and threat-mappings (Layer 2).
 
-### I am a Solution Architect
+### Understanding what threats and controls exist
 
-- **I want to see how guidance feeds into controls and policy**
-  → [Persona–Layer Alignment](persona-layer-alignment) — understand the full flow from guidance to controls to policy.
+Before writing policy → [Threat Assessment Guide](controls/threat-assessment-guide)
 
-### I am a Risk Manager
+→ **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — review or author threat-informed controls that your policy will reference (Layer 2).
 
-- **I want to review the controls my policy will reference**
- 
-  → **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — understand the control catalog structure and assessment requirements (Layer 2).
+### Reviewing the controls to reference in a policy
 
-### I am a Software Consumer
+→ **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — understand the control catalog structure and assessment requirements (Layer 2).
 
-- **I want to understand the security posture** of software I consume
-  → [Threat Assessment Guide](controls/threat-assessment-guide) — review threat catalogs for your dependencies (Layer 2).
+### Understanding the security posture of consumed software
+→ [Threat Assessment Guide](controls/threat-assessment-guide) — review threat catalogs for your dependencies (Layer 2).
 
-  → **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — use control catalogs (e.g. OSPS, CCC) to act as hardening guides (Layer 2).
+→ **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — use control catalogs (e.g. OSPS, CCC) to act as hardening guides (Layer 2).
 
 ---
 
@@ -48,16 +43,13 @@ Pick your role, then your goal — each path leads to the right guide.
 | Layer | Artifact | Guide |
 |-------|----------|-------|
 | **Layer 1** — Guidance | Guidance Catalog (guidelines, families, mapping-references) | *(tutorial coming later)* |
-| **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threat-mappings) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
+| **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threats) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
 | **Layer 3** — Policy | Policy Document (scope, imports, adherence, risks) | *(tutorial coming later)* |
-
-For who *writes* vs. who *ingests* each layer, see [Persona–Layer Alignment](persona-layer-alignment).
 
 ## What You'll Need
 
 * `go` installed
 * `cue` installed for validation
-* (Optional) [OpenSSF Toolbelt personas](https://github.com/ossf/toolbelt/tree/main/personas) for persona-based framing
 
 ## Have Ideas? 
 
