@@ -19,6 +19,19 @@ PRs MUST meet the following criteria:
 
 ### Useful make tasks when making schema changes
 
+Make sure to update the `docs/schema-nav.yml`, after making any changes to the schemas in the layer.cue files
+For instance:
+You have added a new schema 'newschema' in layerN.cue( where N is a number from 1 - 7), the `docs/schema-nav.yml` should look like:
+```
+- title: "Layer N"
+    filename: "layer-N"
+    schemas:
+      - "SchemaA"
+      - "SchemaB"
+      - "SchemaC"
+      - newschema //new schema added
+```
+
 Use `cue fmt .` and `make cuefmtcheck` to ensure proper formatting and `make lintcue` to validate the syntax of your changes. If you forget to do this before opening a PR and your changes are invalid, the [CI workflow](.github/workflows/ci.yml) will fail and alert you.
 
 ## Releases
