@@ -117,12 +117,13 @@ families:
 > **Note:** For how controls are automatically pulled into policy to mitigate high-severity risks, see the FAQ.
 
 
-**Option A — Import Controls:** If an external catalog (e.g., CCC) defines controls that address your threats, reference it in the `mapping-references` and list the control IDs in `imported-controls`.
+**Option A — Import Controls:** If an external catalog (e.g., CCC) defines controls that address your threats, reference it in the `mapping-references` and list the control IDs in `imports.controls`.
 
 **Example (YAML):**
 
 ```yaml
-imported-controls:
+imports:
+  controls
   - reference-id: CCC
     entries:
       - reference-id: CCC.Core.CTL42
@@ -274,7 +275,8 @@ families:
     description: |
       Controls that ensure container images are authentic, unmodified, and from trusted sources throughout retrieval and use.
 
-imported-controls:
+imports:
+  controls:
   - reference-id: CCC
     entries:
       - reference-id: CCC.Core.CTL42

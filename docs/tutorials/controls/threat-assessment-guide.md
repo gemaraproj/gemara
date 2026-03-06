@@ -73,7 +73,8 @@ CCC Core defines this as **CP18** (Resource Versioning), so we import that as we
 **Example (YAML)**
 
 ```yaml
-imported-capabilities:
+imports:
+  capabilities:
   - reference-id: CCC
     entries:
       - reference-id: CCC.Core.CP29
@@ -112,7 +113,8 @@ It applies because mutable image tags let the tool resolve to a stale or comprom
 **Example (YAML)**
 
 ```yaml
-imported-threats:
+imports
+  threats:
   - reference-id: CCC
     entries:
       - reference-id: CCC.Core.TH14
