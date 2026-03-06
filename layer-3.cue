@@ -4,6 +4,48 @@ package gemara
 
 @go(gemara)
 
+// A RiskCatalog is a structured collection of documented risks that may affect an organization,
+// system, or service. It provides a centralized reference for risks that can be mapped to threats
+// and referenced by policies when documenting how those risks are mitigated or accepted.
+#RiskCatalog: {
+
+	// title describes the contents of this catalog at a glance
+	title: string
+
+	// metadata provides detailed data about this catalog
+	metadata: #Metadata @go(Metadata)
+
+	// risks is a list of risks defined by this catalog
+	risks?: [...#Risk] @go(Risks)
+}
+
+// A Risk represents the potential for negative impact resulting from one or more threats.
+#Risk: {
+	// id allows this risk to be referenced by other elements
+	id: string
+
+	// title describes the risk
+	title: string
+
+	// description explains the risk scenario
+	description: string
+
+	// severity describes the impact level
+	severity: "Low" | "Medium" | "High" | "Critical"
+
+	// owner identifies the responsible party for managing the risk
+	owner?: string
+
+	// impact describes the business or operational impact
+	impact?: string
+
+	// threat-mappings link this risk to Layer 2 threats
+	"threat-mappings"?: [...#MultiEntryMapping] @go(ThreatMappings)
+
+	// residual-risk describes risk remaining after controls are applied
+	"residual-risk"?: string
+}
+
 // Policy represents a policy document with metadata, contacts, scope, imports, implementation plan, risks, and adherence requirements.
 #Policy: {
 	title:                  string
