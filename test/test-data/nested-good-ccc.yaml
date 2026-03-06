@@ -42,12 +42,12 @@ controls:
         objective: |
           Ensure that all communications are encrypted in transit to protect data
           integrity and confidentiality.
-        threat-mappings:
+        threats:
         - reference-id: CCC
           entries:
           - reference-id: CCC.TH02
             remarks: Data is Intercepted in Transit
-        guideline-mappings:
+        guidelines:
         - reference-id: CSF
           entries:
           - reference-id: PR.DS-02
@@ -92,12 +92,12 @@ controls:
           designated as restricted or prohibited, to comply with
           regulatory requirements and reduce exposure to geopolitical
           risks.
-        threat-mappings:
+        threats:
         - reference-id: CCC
           entries:
           - reference-id: CCC.TH03
             remarks: Deployment Region Network is Untrusted
-        guideline-mappings:
+        guidelines:
         - reference-id: CCM
           entries:
           - reference-id: DSI-06
@@ -144,12 +144,12 @@ controls:
           Ensure that data is replicated across multiple
           zones or regions to protect against data loss due to hardware
           failures, natural disasters, or other catastrophic events.
-        threat-mappings:
+        threats:
         - reference-id: CCC
           entries:
           - reference-id: CCC.TH06
             remarks: Data is Lost or Corrupted
-        guideline-mappings:
+        guidelines:
         - reference-id: CSF
           entries:
           - reference-id: PR.DS-5
@@ -190,7 +190,7 @@ controls:
           Access logs should always be considered sensitive.
           Ensure that access logs are protected against unauthorized
           access, tampering, or deletion.
-        threat-mappings:
+        threats:
         - reference-id: CCC
           entries:
           - reference-id: CCC.TH07
@@ -199,7 +199,7 @@ controls:
             remarks: Logs or Monitoring Data are Read by Unauthorized Users
           - reference-id: CCC.TH04
             remarks: Data is Replicated to Untrusted or External Locations
-        guideline-mappings:
+        guidelines:
         - reference-id: CCM
           entries:
           - reference-id: LOG-02
@@ -250,12 +250,12 @@ controls:
           of defined trust perimeter. An untrusted destination is defined
           as a resource that exists outside of a specified trusted
           identity or network or data perimeter.
-        threat-mappings:
+        threats:
         - reference-id: CCC
           entries:
           - reference-id: CCC.TH04
             remarks: Data is Replicated to Untrusted or External Locations
-        guideline-mappings:
+        guidelines:
         - reference-id: CSF
           entries:
           - reference-id: PR.DS-5

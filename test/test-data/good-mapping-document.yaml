@@ -2,6 +2,8 @@ title: OSPS Baseline to EU Cyber Resilience Act (CRA) Annex I
 metadata:
   id: OSPS-CRA-MAP-001
   version: "1.0.0"
+  type: MappingDocument
+  gemara-version: "0.20.0"
   description: >
     Maps OSPS Baseline controls to essential cybersecurity requirements
     in Annex I of the EU Cyber Resilience Act (Regulation 2024/2847).
