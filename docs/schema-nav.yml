@@ -44,6 +44,8 @@ pages:
   - title: "Layer 3"
     filename: "layer-3"
     schemas:
+      - "RiskCatalog"
+      - "Risk"
       - "Policy"
       - "Contacts"
       - "Scope"
