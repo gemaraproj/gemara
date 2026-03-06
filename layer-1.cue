@@ -136,7 +136,6 @@ package gemara
 	goals: [...string]
 }
 
-
 // A VectorCatalog is a structured collection of documented vectors,
 // serving as a centralized reference for known attack methods and exploitation pathways that may be relevant to a particular domain, framework, or security model.
 
@@ -161,5 +160,7 @@ package gemara
 
 	// description explains how the attack vector works
 	description: string
-}
 
+	// applicability specifies the contexts in which this vector can manifest
+	applicability?: [...string] @go(Applicability)
+}
