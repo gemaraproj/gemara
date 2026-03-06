@@ -30,8 +30,6 @@ pages:
       - "Guideline"
       - "Statement"
       - "Rationale"
-      - "VectorCatalog"
-      - "Vector"
   - title: "Layer 2"
     filename: "layer-2"
     schemas:
