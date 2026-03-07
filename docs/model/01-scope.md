@@ -3,7 +3,7 @@ layout: page
 title: Scope
 ---
 
-The purpose of this model is to provide a common basis for approaching activities and topics related to governance, risk, and compliance (GRC), while leaving room for specific implementation details to grow and mature over time.
+The purpose of this model is to provide a common basis for approaching activities and topics related to Governance, Risk, and Compliance (GRC), while leaving room for specific implementation details to grow and mature over time.
 
 ---
 
