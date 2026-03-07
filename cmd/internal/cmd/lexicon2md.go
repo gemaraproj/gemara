@@ -52,14 +52,11 @@ func runLexicon2MD(cmd *cobra.Command, args []string) error {
 
 		termName := fmt.Sprintf("<a id=\"%s\"></a>**%s**", slug, term.Term)
 
-		layer := ""
-		if len(term.References) > 0 {
-			layer = term.References[0]
-		}
+		appliesTo := strings.Join(term.References, "<br>")
 
 		definition := strings.ReplaceAll(term.Definition, "|", "\\|")
 
-		tableRows.WriteString(fmt.Sprintf("| %s | %s | %s |\n", termName, definition, layer))
+		tableRows.WriteString(fmt.Sprintf("| %s | %s | %s |\n", termName, definition, appliesTo))
 	}
 
 	templateContent, err := os.ReadFile(lexicon2MDFlags.outputFile)

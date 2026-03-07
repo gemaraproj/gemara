@@ -3,8 +3,8 @@ layout: page
 title: Definitions
 ---
 
-| Term | Definition | Layer |
-|------|------------|-------|
+| Term | Definition | Applies to |
+|------|------------|------------|
 {{.Table}}
 
 ---
