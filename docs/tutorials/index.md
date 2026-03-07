@@ -25,16 +25,16 @@ That mitigate those threats → [Control Catalog Guide](controls/control-catalog
 
 Before writing policy → [Threat Assessment Guide](controls/threat-assessment-guide)
 
-→ **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — review or author threat-informed controls that your policy will reference (Layer 2).
+→ **COMING SOON:** Review or author threat-informed controls that your policy will reference (Layer 2).
 
 ### Reviewing the controls to reference in a policy
 
-→ **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — understand the control catalog structure and assessment requirements (Layer 2).
+→ **COMING SOON:** Understand the control catalog structure and assessment requirements (Layer 2).
 
 ### Understanding the security posture of consumed software
 → [Threat Assessment Guide](controls/threat-assessment-guide) — review threat catalogs for your dependencies (Layer 2).
 
-→ **COMING SOON:** [Control Catalog Guide](controls/control-catalog-guide) — use control catalogs (e.g. OSPS, CCC) to act as hardening guides (Layer 2).
+→ **COMING SOON:** Use control catalogs (e.g. OSPS, CCC) to act as hardening guides (Layer 2).
 
 ---
 
