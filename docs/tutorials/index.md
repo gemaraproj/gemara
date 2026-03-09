@@ -43,7 +43,7 @@ From a spreadsheet or checklist — create a guidance catalog (guidelines, famil
 
 ### Creating organizational policy
 
-Create a policy document that captures risk appetite and compliance — [Policy Guide](policy/policy-guide) — scope, imports, adherence, and risks (Layer 3).
+Create a policy document that translates risk appetite into mandatory rules — [Policy Guide](policy/policy-guide) — scope, imports, adherence, and risks (Layer 3).
 
 ---
 

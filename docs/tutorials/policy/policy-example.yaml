@@ -17,6 +17,10 @@ metadata:
       title: "Container Management Tool Security Control Catalog"
       version: "1.0.0"
       description: "Control catalog for container management tool security."
+    - id: "SEC.SLAM.CM-THREATS"
+      title: "Container Management Tool Security Threat Catalog"
+      version: "1.0.0"
+      description: "Threat catalog for the same scope; provides threat IDs for risk mappings."
 
 contacts:
   responsible:
@@ -41,12 +45,48 @@ imports:
   catalogs:
     - reference-id: "SEC.SLAM.CM"
       assessment-requirement-modifications:
+        - id: "CTL01-AR01-strict"
+          target-id: "SEC.SLAM.CM.CTL01.AR01"
+          modification-type: Override
+          modification-rationale: "Require digest in all environments for this org."
+          text: "The system MUST verify image signature before pull or run, then pin the image to a digest (e.g., sha256:...) after the check and use that digest for all subsequent use in all environments."
         - id: "CTL02-AR01-strict"
           target-id: "SEC.SLAM.CM.CTL02.AR01"
           modification-type: Override
           modification-rationale: "Require TLS and certificate pinning for all registry communication in this org."
           text: "The system MUST use TLS/SSL for all registry communication and MUST pin to the expected server certificate or public key (or certificate chain) for the registry."
-      
+        - id: "CTL02-AR02-strict"
+          target-id: "SEC.SLAM.CM.CTL02.AR02"
+          modification-type: Override
+          modification-rationale: "Require VPN or trusted path on untrusted networks for registry traffic in this org."
+          text: "On untrusted networks, the system or deployment pipeline MUST use a VPN or other trusted path for registry traffic, or MUST restrict image pulls to environments where the network is trusted."
+
+implementation-plan:
+  notification-process: "Policy communicated via internal wiki and team leads; rollout via Platform Engineering."
+  evaluation-timeline:
+    start: "2025-03-01T00:00:00Z"
+    end: "2025-06-01T00:00:00Z"
+    notes: "Initial evaluation phase; automated checks rolled out by Q2."
+  enforcement-timeline:
+    start: "2025-06-01T00:00:00Z"
+    notes: "Enforcement begins after evaluation baseline is established."
+
+risks:
+  mitigated:
+    - reference-id: "SEC.SLAM.CM-THREATS"
+      entries:
+        - reference-id: "SEC.SLAM.CM.THR01"
+      remarks: "Container image tampering or poisoning addressed by SEC.SLAM.CM control catalog (digest-based references)."
+  accepted:
+    - risk:
+        reference-id: "SEC.SLAM.CM-THREATS"
+        entry-id: "SEC.SLAM.CM.THR01"
+      scope:
+        in:
+          sensitivity:
+            - "TLP Green"
+      justification: "Tag-only references accepted only for TLP Green non-sensitive workloads with no production data."
+
 adherence:
   evaluation-methods:
     - type: "Automated"
@@ -54,7 +94,7 @@ adherence:
     - type: "Manual"
       description: "Quarterly review of exception requests."
   assessment-plans:
-    - id: "SEC.SLAM.CM.CTL01"
+    - id: "plan-ctl01-ar01"
       requirement-id: "SEC.SLAM.CM.CTL01.AR01"
       frequency: "every push"
       evaluation-methods:
