@@ -17,10 +17,6 @@ metadata:
       title: "Container Management Tool Security Control Catalog"
       version: "1.0.0"
       description: "Control catalog for container management tool security."
-    - id: "SEC.SLAM.CM-THREATS"
-      title: "Container Management Tool Security Threat Catalog"
-      version: "1.0.0"
-      description: "Threat catalog for the same scope; provides threat IDs for risk mappings."
 
 contacts:
   responsible:
@@ -45,11 +41,6 @@ imports:
   catalogs:
     - reference-id: "SEC.SLAM.CM"
       assessment-requirement-modifications:
-        - id: "CTL01-AR01-strict"
-          target-id: "SEC.SLAM.CM.CTL01.AR01"
-          modification-type: Override
-          modification-rationale: "Require digest in all environments for this org."
-          text: "The system MUST verify image signature before pull or run, then pin the image to a digest (e.g., sha256:...) after the check and use that digest for all subsequent use in all environments."
         - id: "CTL02-AR01-strict"
           target-id: "SEC.SLAM.CM.CTL02.AR01"
           modification-type: Override
@@ -70,22 +61,6 @@ implementation-plan:
   enforcement-timeline:
     start: "2025-06-01T00:00:00Z"
     notes: "Enforcement begins after evaluation baseline is established."
-
-risks:
-  mitigated:
-    - reference-id: "SEC.SLAM.CM-THREATS"
-      entries:
-        - reference-id: "SEC.SLAM.CM.THR01"
-      remarks: "Container image tampering or poisoning addressed by SEC.SLAM.CM control catalog (digest-based references)."
-  accepted:
-    - risk:
-        reference-id: "SEC.SLAM.CM-THREATS"
-        entry-id: "SEC.SLAM.CM.THR01"
-      scope:
-        in:
-          sensitivity:
-            - "TLP Green"
-      justification: "Tag-only references accepted only for TLP Green non-sensitive workloads with no production data."
 
 adherence:
   evaluation-methods:

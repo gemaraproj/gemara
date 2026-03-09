@@ -129,11 +129,6 @@ imports:
   catalogs:
     - reference-id: "SEC.SLAM.CM"
       assessment-requirement-modifications:
-        - id: "CTL01-AR01-strict"
-          target-id: "SEC.SLAM.CM.CTL01.AR01"
-          modification-type: Override
-          modification-rationale: "Require digest in all environments for this org."
-          text: "The system MUST verify image signature before pull or run, then pin the image to a digest and use that digest for all subsequent use in all environments."
         - id: "CTL02-AR01-strict"
           target-id: "SEC.SLAM.CM.CTL02.AR01"
           modification-type: Override
@@ -144,6 +139,7 @@ imports:
           modification-type: Override
           modification-rationale: "Require VPN or trusted path on untrusted networks for registry traffic in this org."
           text: "On untrusted networks, the system or deployment pipeline MUST use a VPN or other trusted path for registry traffic, or MUST restrict image pulls to environments where the network is trusted."
+
 ```
 
 ### Step 4: Implementation plan (optional)
@@ -259,6 +255,11 @@ imports:
           modification-type: Override
           modification-rationale: "Require TLS and certificate pinning for all registry communication in this org."
           text: "The system MUST use TLS/SSL for all registry communication and MUST pin to the expected server certificate or public key (or certificate chain) for the registry."
+        - id: "CTL02-AR02-strict"
+          target-id: "SEC.SLAM.CM.CTL02.AR02"
+          modification-type: Override
+          modification-rationale: "Require VPN or trusted path on untrusted networks for registry traffic in this org."
+          text: "On untrusted networks, the system or deployment pipeline MUST use a VPN or other trusted path for registry traffic, or MUST restrict image pulls to environments where the network is trusted."
 
 adherence:
   evaluation-methods:
