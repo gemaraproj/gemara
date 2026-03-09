@@ -29,6 +29,6 @@ When a properly designed MCP system sits on top of a machine-optimized GRC datab
 
 When partnered with an Agent2Agent (A2A) enabled system — allowing GRC-specialized systems to provide precisely contextualized information to engineering-specialized systems in a near-deterministic manner — our AI systems will require dramatically fewer resources, our security tools increase in accuracy, less time is spent on false positives or negatives, and more time is spent delivering real value to the organization.
 
-- **< Previous Page**: [Layer 7](./07.3-Layer-7)
+- **< Previous Page**: [Layer 7](./07.4-Layer-7)
 <!-- - **> Next Page**: [Gemara SDKs](TODO)-->
 - **> Next Page**: [Authors & Acknowledgments](./10-acknowledgement)

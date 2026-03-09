@@ -1,0 +1,79 @@
+# Minimal Secure Software Development Guidance
+# Conforms to Gemara Layer 1 #GuidanceCatalog (layer-1.cue).
+# See guidance-guide.md for the full guide.
+
+title: Secure Software Development Guidance
+metadata:
+  id: ORG.SSD.001
+  type: GuidanceCatalog
+  gemara-version: "0.20.0"
+  description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
+  version: 1.0.0
+  author:
+    id: example
+    name: Example
+    type: Human
+  mapping-references:
+    - id: OWASP
+      title: OWASP Top 10
+      version: "2021"
+      url: https://owasp.org/Top10
+      description: OWASP Top 10 Web Application Security Risks
+  applicability-categories:
+    - id: containerized_workloads
+      title: Containerized Workloads
+      description: Guidelines that apply to container-based deployments and images.
+    - id: ci_cd
+      title: CI/CD
+      description: Guidelines that apply in continuous integration and deployment pipelines.
+    - id: github_repositories
+      title: GitHub Repositories
+      description: Guidelines that apply to projects using GitHub for source and collaboration.
+type: Best Practice
+front-matter: Example best-practices text for tutorials developed by Gemara maintainers.
+families:
+  - id: ORG.SSD.FAM01
+    title: Secure Dependencies and Supply Chain
+    description: Guidelines for selecting, updating, and verifying dependencies and images.
+
+guidelines:
+  - id: ORG.SSD.GL01
+    title: Prefer Immutable Image References
+    objective: |
+      Use digest-based or immutable references for container images to prevent
+      tampering and ensure repeatable deployments.
+    family: ORG.SSD.FAM01
+    state: Active
+    recommendations:
+      - Prefer pull-by-digest over tags for production.
+      - Pin base image digests in Dockerfiles or equivalent.
+    applicability: ["containerized_workloads", "ci_cd"]
+    see-also:
+      - ORG.SSD.GL02
+      - ORG.SSD.GL03
+  - id: ORG.SSD.GL02
+    title: Prefer GitHub Branch Protection Rules
+    objective: |
+      Use branch protection so only approved changes reach the main branch and
+      malicious code cannot be merged without review.
+    family: ORG.SSD.FAM01
+    state: Active
+    recommendations:
+      - Prefer pull requests submitted from fork branch.
+      - Required maintainer/non-author review and approval for merge.
+      - Prefer GitHub Actions Quality checks in CI on pull request.
+    applicability: ["containerized_workloads", "ci_cd", "github_repositories"]
+    see-also:
+      - ORG.SSD.GL01
+  - id: ORG.SSD.GL03
+    title: Prefer VPN on Untrusted Networks
+    objective: |
+      Use a VPN on untrusted networks to protect traffic from interception and
+      DNS spoofing.
+    family: ORG.SSD.FAM01
+    state: Active
+    recommendations:
+      - Use a VPN for registry and build traffic on untrusted networks.
+    applicability: ["containerized_workloads", "ci_cd"]
+    see-also:
+      - ORG.SSD.GL02

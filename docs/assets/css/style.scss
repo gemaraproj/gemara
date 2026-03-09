@@ -20,9 +20,21 @@ html, body {
 }
 
 .wrapper {
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 1rem;
+}
+
+@media screen and (min-width: 1000px) {
+  .wrapper {
+    padding: 0 2rem;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .wrapper {
+    padding: 0 3rem;
+  }
 }
 
 /* ============================================
@@ -610,11 +622,20 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
 .main-wrapper {
   display: flex;
   gap: var(--spacing-xl);
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 var(--spacing-lg);
+  padding: 0 1rem;
   background-color: var(--color-bg-primary);
   transition: background-color 0.3s ease;
+
+
+  @media screen and (min-width: 1000px) {
+    padding: 0 2rem;
+  }
+
+  @media screen and (min-width: 1200px) {
+    padding: 0 3rem;
+  }
 
   @media screen and (max-width: 900px) {
     flex-direction: column;
@@ -632,7 +653,7 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
 
 /* Constrain the readable text column on sidebar pages only (not the home layout). */
 .main-wrapper .page-content > .wrapper {
-  max-width: 820px;
+  max-width: none;
 }
 
 .home,
@@ -669,7 +690,7 @@ a[href^="http"]:not([href*="gemara"]):not([href*="openssf"]):not(.social-media-l
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
   box-shadow: var(--shadow-sm);
 }
 
@@ -1248,6 +1269,15 @@ table {
     border-bottom: 2px solid var(--openssf-purple-light);
   }
 
+  th:last-child {
+    min-width: 9rem;
+    white-space: nowrap;
+  }
+
+  td:last-child {
+    min-width: 9rem;
+  }
+
   tbody tr {
     transition: background-color 0.2s ease;
 
@@ -1414,6 +1444,14 @@ table {
 @media screen and (max-width: 600px) {
   :root {
     font-size: 14px;
+  }
+
+  .wrapper {
+    padding: 0 0.75rem;
+  }
+
+  .main-wrapper {
+    padding: 0 0.75rem;
   }
 
   .layer-grid,

@@ -1,0 +1,59 @@
+title: Secure Software Development Guidance to OWASP Top 10
+metadata:
+  id: SSD-OWASP-MAP-001
+  version: "1.0.0"
+  type: MappingDocument
+  gemara-version: "0.20.0"
+  description: >
+    Maps Secure Software Development Guidance guidelines to OWASP Top 10
+    categories. Minimal example for tutorials; relationship types are relates-to.
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+  mapping-references:
+    - id: ORG-SSD
+      title: Secure Software Development Guidance
+      version: "1.0.0"
+      url: "file://guidance-example.yaml"
+    - id: OWASP
+      title: OWASP Top 10
+      version: "2021"
+      url: "https://owasp.org/Top10"
+
+source-reference:
+  reference-id: ORG-SSD
+target-reference:
+  reference-id: OWASP
+remarks: Guidance guidelines ORG.SSD.GL01–GL03 mapped to OWASP for tutorial use.
+
+mappings:
+  - id: GL01-A06
+    source:
+      entry-id: ORG.SSD.GL01
+      entry-type: Guideline
+    target:
+      entry-id: "A06"
+      entry-type: Guideline
+    relationship: relates-to
+    rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
+
+  - id: GL02-A01
+    source:
+      entry-id: ORG.SSD.GL02
+      entry-type: Guideline
+    target:
+      entry-id: "A01"
+      entry-type: Guideline
+    relationship: relates-to
+    rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
+
+  - id: GL03-A02
+    source:
+      entry-id: ORG.SSD.GL03
+      entry-type: Guideline
+    target:
+      entry-id: "A02"
+      entry-type: Guideline
+    relationship: relates-to
+    rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.

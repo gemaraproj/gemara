@@ -39,7 +39,7 @@ Before writing policy → [Threat Assessment Guide](controls/threat-assessment-g
 
 ### Creating a guidance catalog from best practices
 
-From a spreadsheet or checklist — create a guidance catalog (guidelines, families, mapping-references) that threat-informed controls can reference; express relationships to other frameworks in a Mapping Document.
+From a spreadsheet or checklist — create a guidance catalog (guidelines, families, mapping-references) that threat-informed controls can reference; express relationships to other frameworks in a [Mapping Document](https://gemara.openssf.org/schema/mapping.html). → [Guidance Catalog Guide](guidance/guidance-guide).
 
 ### Creating organizational policy
 
@@ -49,9 +49,9 @@ Create a policy document that translates risk appetite into mandatory rules — 
 
 ## What You'll Build
 
-| Layer                  | Artifact                                                            | Guide                     |
-| ---------------------- | ------------------------------------------------------------------- | ------------------------- |
-| **Layer 1** — Guidance | Guidance Catalog (guidelines, families, mapping-references)         | *(tutorial coming later)* |
+| Layer | Artifact | Guide |
+|-------|----------|-------|
+| **Layer 1** — Guidance | Guidance Catalog (guidelines, families, mapping-references) | [Guidance Catalog Guide](guidance/guidance-guide) |
 | **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threats) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
 | **Layer 3** — Policy   | Policy Document (scope, imports, adherence, risks)                  | [Policy Guide](policy/policy-guide) |
 
