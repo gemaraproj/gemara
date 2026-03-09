@@ -5,7 +5,7 @@ title: Organizational Risk & Policy Guide
 
 ## What This Is
 
-This guide walks through creating a **policy document** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to the **Policy** schema in `layer-3.cue`.
+This guide walks through creating a **Policy Document** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to the **Policy** schema in `layer-3.cue`.
 
 Terms to know:
 * **RACI**: Who is responsible, accountable, consulted, and informed.
@@ -15,7 +15,7 @@ Terms to know:
 * **Risks**: Which risks are mitigated vs accepted (with justification for accepted risks).
 * **Adherence**: How compliance is evaluated and enforced (evaluation methods, assessment plans, enforcement methods, non-compliance handling).
 
-This exercise produces a policy document that captures risk appetite, scope, and how adherence is evaluated and enforced.
+This exercise produces a policy document that captures scope, imported controls and guidance, and how adherence is evaluated and enforced.
 
 ## Walkthrough
 
