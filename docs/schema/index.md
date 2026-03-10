@@ -60,13 +60,84 @@ Schema documentation generated from CUE. One page per schema file:
 
 ### Validation with CUE
 
+The base package contains field-level type definitions and validation subpackage extends them with cross-field constraints.
+
 ```bash
 # Install CUE
 go install cuelang.org/go/cmd/cue@latest
 
-# Validate a control catalog using the Layer 2 ControlCatalog definition
+# Validate with base types only
 cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@latest your-controls.yaml
+
+# Validate with base types + cross-field constraints
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@latest:validation your-controls.yaml
 ```
+
+#### Metadata Type Consistency
+
+Each top-level type pins its expected `metadata.type` value.
+
+| Artifact | Required `metadata.type` |
+|:---|:---|
+| GuidanceCatalog | `"GuidanceCatalog"` |
+| ControlCatalog | `"ControlCatalog"` |
+| ThreatCatalog | `"ThreatCatalog"` |
+| VectorCatalog | `"VectorCatalog"` |
+| MappingDocument | `"MappingDocument"` |
+| EvaluationLog | `"EvaluationLog"` |
+| Policy | `"Policy"` |
+
+#### ID Uniqueness
+
+Duplicate IDs within a collection are rejected.
+
+| Type | Field |
+|:---|:---|
+| Metadata | `mapping-references[].id`, `applicability-categories[].id` |
+| GuidanceCatalog | `guidelines[].id`, `families[].id`, `guidelines[].statements[].id` |
+| VectorCatalog | `vectors[].id` |
+| ControlCatalog | `controls[].id`, `families[].id`, `controls[].assessment-requirements[].id` |
+| ThreatCatalog | `threats[].id`, `capabilities[].id` |
+| MappingDocument | `mappings[].id` |
+| Policy | `adherence.assessment-plans[].id` |
+
+#### Mapping-Reference Integrity
+
+All `reference-id` fields must point to a valid `metadata.mapping-references` entry.
+
+| Type | Fields Validated |
+|:---|:---|
+| GuidanceCatalog | `guidelines[].principles`, `guidelines[].vectors`, `exemptions[].redirect` |
+| ControlCatalog | `extends`, `controls[].guidelines`, `controls[].threats`, `imports.controls` |
+| ThreatCatalog | `threats[].capabilities`, `threats[].vectors`, `extends`, `imports.threats`, `imports.capabilities` |
+| MappingDocument | `source-reference`, `target-reference` |
+| Policy | `imports.policies`, `imports.catalogs`, `imports.guidance`, `risks.mitigated` |
+
+#### Lifecycle Constraints
+
+| Type | Constraint |
+|:---|:---|
+| Guideline | Retired → no recommendations; Deprecated/Retired → `replaced-by` required |
+| Control | Deprecated/Retired → `replaced-by` required |
+| AssessmentRequirement | Retired → no recommendation; Deprecated/Retired → `replaced-by` required |
+
+#### Structural Constraints
+
+| Type | Constraint |
+|:---|:---|
+| GuidanceCatalog | Families required when guidelines exist |
+| GuidanceCatalog | Guideline family IDs must reference existing families |
+| GuidanceCatalog | Guideline extensions must match families |
+| GuidanceCatalog | Guideline applicability must reference existing categories |
+| GuidanceCatalog | Guideline see-also must reference existing guideline IDs |
+| VectorCatalog | Vector applicability must reference existing categories |
+| ControlCatalog | Families required when controls exist |
+| ControlCatalog | Control family IDs must reference existing families |
+| ControlCatalog | Assessment requirement applicability must reference existing categories |
+| EvaluationLog | Assessment log requirement reference must match control reference |
+| MappingDocument | mapping-references required (non-empty) |
+| MappingDocument | Mapping applicability must reference existing categories |
+| Mapping | Target required when relationship is not no-match |
 
 ## Architecture Decisions
 

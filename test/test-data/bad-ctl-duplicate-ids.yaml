@@ -1,0 +1,33 @@
+metadata:
+  id: TEST-DUP-CTL-IDS
+  type: ControlCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Two controls share the same ID.
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Duplicate Control IDs Test
+families:
+  - id: fam-1
+    title: Family One
+    description: Test family.
+
+controls:
+  - id: CTL-001
+    family: fam-1
+    title: First Control
+    objective: First objective.
+    assessment-requirements:
+      - id: CTL-001.AR01
+        text: First requirement.
+
+  - id: CTL-001
+    family: fam-1
+    title: Duplicate Control
+    objective: Same ID as above.
+    assessment-requirements:
+      - id: CTL-001.AR02
+        text: Another requirement.

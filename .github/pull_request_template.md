@@ -9,10 +9,13 @@
 ### Schema Changes Made
 
 - [ ] No schema changes
-- [ ] Layer 1 schema (`layer-1.cue`) changes
-- [ ] Layer 2 schema (`layer-2.cue`) changes
-- [ ] Layer 3 schema (`layer-3.cue`) changes
-- [ ] Layer 5 schema (`layer-5.cue`) changes
+- [ ] Control Catalog schema (`controlcatalog.cue`) changes
+- [ ] Guidance Catalog schema (`guidancecatalog.cue`) changes
+- [ ] Threat Catalog schema (`threatcatalog.cue`) changes
+- [ ] Vector Catalog schema (`vectorcatalog.cue`) changes
+- [ ] Policy schema (`policy.cue`) changes
+- [ ] Mapping Document schema (`mappingdocument.cue`) changes
+- [ ] Evaluation Log schema (`evaluationlog.cue`) changes
 
 ### Schema Change Details
 

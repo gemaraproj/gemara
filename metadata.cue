@@ -39,3 +39,6 @@ package gemara
 	// lexicon is a URI pointing to a controlled vocabulary or glossary relevant to this artifact
 	lexicon?: #ArtifactMapping @go(Lexicon,optional=nillable)
 }
+
+// ArtifactType identifies the kind of Gemara artifact for unambiguous parsing
+#ArtifactType: "ControlCatalog" | "GuidanceCatalog" | "ThreatCatalog" | "Policy" | "MappingDocument" | "EvaluationLog" | "VectorCatalog" @go(-)

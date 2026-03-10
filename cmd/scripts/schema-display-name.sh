@@ -8,5 +8,6 @@ layer-1) echo "Layer 1" ;;
 layer-2) echo "Layer 2" ;;
 layer-3) echo "Layer 3" ;;
 layer-5) echo "Layer 5" ;;
+controlcatalog|guidancecatalog|threatcatalog|vectorcatalog|policy|mappingdocument|evaluationlog) echo "$1" ;;
 *) echo "$1" ;;
 esac

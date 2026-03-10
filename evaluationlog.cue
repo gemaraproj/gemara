@@ -18,11 +18,6 @@ package gemara
 	message: string
 	control: #EntryMapping
 	"assessment-logs": [...#AssessmentLog] @go(AssessmentLogs,type=[]*AssessmentLog)
-	// Enforce that control reference and the assessments' references match
-	// This formulation uses the control's reference if the assessment doesn't include a reference
-	"assessment-logs": [...{
-		requirement: "reference-id": (control."reference-id")
-	}]
 }
 
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.

@@ -1,0 +1,32 @@
+metadata:
+  id: TEST-MD-BAD-SRC
+  type: MappingDocument
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Source reference-id not in mapping-references.
+  author:
+    id: test
+    name: Test
+    type: Human
+  mapping-references:
+    - id: REF-A
+      title: Reference A
+      version: "1.0"
+    - id: REF-B
+      title: Reference B
+      version: "1.0"
+
+title: Bad Source Reference Test
+source-reference:
+  reference-id: NONEXISTENT-REF
+target-reference:
+  reference-id: REF-B
+mappings:
+  - id: MAP-001
+    source:
+      entry-id: SRC-001
+      entry-type: AssessmentRequirement
+    relationship: equivalent
+    target:
+      entry-id: TGT-001
+      entry-type: AssessmentRequirement
