@@ -67,7 +67,7 @@ package gemara
 #Policy: {
 	title:                  string
 	metadata:               #Metadata
-	contacts:               #Contacts
+	contacts:               #RACI
 	scope:                  #Scope
 	imports:                #Imports
 	"implementation-plan"?: #ImplementationPlan @go(ImplementationPlan)
@@ -85,9 +85,6 @@ package gemara
 		metadata: "mapping-references": [_, ...]
 	}
 }
-
-// Contacts defines RACI roles for policy compliance and notification.
-#contacts?: #RACI @go(Contacts)
 
 // Scope defines what is included and excluded from policy applicability.
 #Scope: {
