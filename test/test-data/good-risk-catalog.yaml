@@ -1,0 +1,54 @@
+title: "Cloud Native Security Risk Catalog"
+metadata:
+  id: EXAMPLE-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: "0.20.0"
+  version: "0.1.0"
+  draft: true
+  description: "Test risk catalog for cloud-native infrastructure risks"
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+categories:
+  - id: cat-supply-chain
+    title: Supply Chain
+    description: "Risks arising from third-party dependencies, build pipelines, and artifact integrity"
+    appetite: Low
+    max-severity: Critical
+  - id: cat-infrastructure
+    title: Infrastructure
+    description: "Risks related to misconfiguration, drift, or compromise of compute, network, and storage resources"
+    appetite: Moderate
+    max-severity: High
+  - id: cat-identity
+    title: Identity & Access
+    description: "Risks from excessive permissions, credential exposure, or weak authentication mechanisms"
+    appetite: Zero
+    max-severity: Critical
+risks:
+  - id: RISK-001
+    title: Compromised container image
+    description: "A container image pulled from a public or private registry contains known vulnerabilities or malicious code"
+    severity: Critical
+    impact: "Potential remote code execution, data exfiltration, or lateral movement within the cluster"
+  - id: RISK-002
+    title: Overly permissive RBAC
+    description: "Kubernetes RBAC roles grant broader access than required, violating least-privilege principles"
+    severity: High
+    impact: "Unauthorized access to secrets, workloads, or cluster-level resources"
+  - id: RISK-003
+    title: Unencrypted data in transit
+    description: "Service-to-service communication within the cluster occurs without mutual TLS or equivalent encryption"
+    severity: Medium
+    impact: "Sensitive data exposed to interception via network sniffing or man-in-the-middle attacks"
+  - id: RISK-004
+    title: Stale dependencies in build pipeline
+    description: "CI/CD pipelines consume dependencies that are outdated, unmaintained, or no longer receiving security patches"
+    severity: High
+    impact: "Introduction of known CVEs into production artifacts without detection"
+  - id: RISK-005
+    title: Exposed cloud provider credentials
+    description: "Cloud provider access keys or service account tokens are stored in plaintext within source code, environment variables, or container images"
+    severity: Critical
+    impact: "Full compromise of cloud account resources, data destruction, or cryptomining"

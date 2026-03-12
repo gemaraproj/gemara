@@ -1,0 +1,21 @@
+metadata:
+  id: TEST-VC-DUP-IDS
+  type: VectorCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Two vectors share the same ID.
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Duplicate Vector IDs Test
+
+vectors:
+  - id: VEC-001
+    title: First Vector
+    description: First vector.
+
+  - id: VEC-001
+    title: Duplicate Vector
+    description: Same ID as above.

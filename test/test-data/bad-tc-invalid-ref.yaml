@@ -1,0 +1,29 @@
+metadata:
+  id: TEST-TC-INVALID-REF
+  type: ThreatCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Threat capability reference-id not in mapping-references.
+  author:
+    id: test
+    name: Test
+    type: Human
+  mapping-references:
+    - id: VALID-REF
+      title: Valid Reference
+      version: "1.0"
+
+title: Invalid Threat Reference Test
+
+threats:
+  - id: THREAT-001
+    title: Test Threat
+    description: A threat with an invalid capability reference.
+    capabilities:
+      - reference-id: NONEXISTENT-REF
+        entries:
+          - reference-id: CAP-001
+    actors:
+      - id: attacker
+        name: Attacker
+        type: Human

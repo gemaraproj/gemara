@@ -1,0 +1,25 @@
+metadata:
+  id: TEST-INVALID-CTL-FAMILY
+  type: ControlCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Control references a family that does not exist.
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Invalid Control Family Test
+families:
+  - id: fam-1
+    title: Family One
+    description: Test family.
+
+controls:
+  - id: CTL-001
+    family: nonexistent-family
+    title: Control With Bad Family
+    objective: References a family not in the families list.
+    assessment-requirements:
+      - id: CTL-001.AR01
+        text: A requirement.

@@ -73,7 +73,7 @@ jobs:
 
           # Check if any generated schema files or definitions.md show up in git status
           # (termlinker modifies tracked files, so we ignore those changes)
-          generated_files=$(git status --porcelain | grep -E "(docs/schema/.*\.md|docs/model/02-definitions\.md)" | grep -v "docs/schema/index.md" || true)
+          generated_files=$(git status --porcelain | grep -E "(docs/schema/.*\.md|docs/model/02-definitions\.md)" | grep -v -E "(docs/schema/index\.md|docs/schema/layer-[0-9]+\.md)" || true)
 
           if [ -n "$generated_files" ]; then
             echo "ERROR: Generated files are not properly gitignored!"

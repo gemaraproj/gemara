@@ -5,7 +5,7 @@ title: Unified Go SDK Package Structure
 
 - **ADR:** 0006
 - **Proposal Author(s):** @jpower432
-- **Status:** Accepted; Modified by [ADR 0007](./0007-isolate-concepts-from-code) (SDK isolation); ; Modified by [ADR-0009](./0009-sensitive-activities) (numbering for layers 3+)
+- **Status:** Accepted; Modified by [ADR 0007](./0007-isolate-concepts-from-code) (SDK isolation); Modified by [ADR-0009](./0009-sensitive-activities) (numbering for layers 3+); Modified by [ADR 0015](./0015-schema-organization-by-artifact-type.md) (schema organization)
 
 ## Context
 
@@ -105,7 +105,7 @@ All Go files are now in the root package:
 
 2. **Testing**: Tests remain organized by functionality, not package boundaries
 
-3. **Schema Organization**: CUE schemas remain organized by layer (`schemas/layer-1.cue`, etc.)
+3. **Schema Organization**: CUE schemas are organized by artifact type (see [ADR 0015](./0015-schema-organization-by-artifact-type.md) for details)
 
 ## Alternatives Considered
 

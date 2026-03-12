@@ -2,6 +2,37 @@
   url: /model/
 - title: The Schemas
   url: /schema/
+  children:
+    - title: Shared Types
+      children:
+        - title: Aliases & Base Types
+          url: /schema/base
+        - title: Metadata
+          url: /schema/metadata
+        - title: Mapping
+          url: /schema/mapping
+    - title: Layer 1 — Guidance
+      children:
+        - title: Guidance Catalog
+          url: /schema/guidancecatalog
+        - title: Vector Catalog
+          url: /schema/vectorcatalog
+    - title: Layer 2 — Controls
+      children:
+        - title: Control Catalog
+          url: /schema/controlcatalog
+        - title: Threat Catalog
+          url: /schema/threatcatalog
+    - title: Layer 3 — Policy
+      children:
+        - title: Policy
+          url: /schema/policy
+        - title: Risk Catalog
+          url: /schema/riskcatalog
+    - title: Layer 5 — Evaluation
+      children:
+        - title: Evaluation Log
+          url: /schema/evaluationlog
 - title: The SDKs
   url: /sdk/
 - title: Tutorials

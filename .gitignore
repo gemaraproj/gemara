@@ -72,4 +72,8 @@ docs/assets/css/*.css.map
 # Generated documentation files (only present during site build)
 docs/schema/*.md
 !docs/schema/index.md
+!docs/schema/layer-1.md
+!docs/schema/layer-2.md
+!docs/schema/layer-3.md
+!docs/schema/layer-5.md
 docs/model/02-definitions.md

@@ -1,0 +1,25 @@
+metadata:
+  id: TEST-WRONG-TYPE
+  type: GuidanceCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: metadata.type does not match the artifact definition.
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Wrong Metadata Type Test
+families:
+  - id: fam-1
+    title: Family One
+    description: Test family.
+
+controls:
+  - id: CTL-001
+    family: fam-1
+    title: First Control
+    objective: First objective.
+    assessment-requirements:
+      - id: CTL-001.AR01
+        text: First requirement.

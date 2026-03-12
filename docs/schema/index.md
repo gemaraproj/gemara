@@ -6,7 +6,7 @@ nav-title: Schema
 
 Schemas (CUE format) standardize the expression of elements in the model and enable automated interoperability between [GRC](../model/02-definitions.html#grc) tools. These schemas provide validation across all layers.
 
-Click on a layer to view its schema: 
+Click on a layer to view its available schemas: 
 
 <div class="layer-grid">
   <a href="layer-1.html" class="layer-card">
@@ -60,12 +60,17 @@ Schema documentation generated from CUE. One page per schema file:
 
 ### Validation with CUE
 
+The base package contains field-level type definitions and validation subpackage extends them with cross-field constraints.
+
 ```bash
 # Install CUE
 go install cuelang.org/go/cmd/cue@latest
 
-# Validate a control catalog using the Layer 2 ControlCatalog definition
+# Validate with base types only; no cross-field constraints
 cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@latest your-controls.yaml
+
+# Validate with base types + cross-field constraints
+cue vet -c -d '#ControlCatalog' github.com/gemaraproj/gemara@latest:validation your-controls.yaml
 ```
 
 ## Architecture Decisions

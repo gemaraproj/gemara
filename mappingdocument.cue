@@ -23,9 +23,6 @@ package gemara
 
 	// remarks is prose regarding this mapping document
 	remarks?: string
-
-	// mapping-references is required for MappingDocument
-	_validateMappingReferences: metadata."mapping-references" != _|_
 }
 
 // Mapping represents an atomic relationship between a source entry and an optional target entry
@@ -42,13 +39,6 @@ package gemara
 	// relationship describes the nature or purpose of the mapping
 	relationship: #RelationshipType @go(Relationship)
 
-	// target is required for all relationships except no-match
-	_validateTarget: {
-		if relationship != "no-match" {
-			target: #EntryReference
-		}
-	}
-
 	"confidence-level"?: #ConfidenceLevel @go(ConfidenceLevel)
 
 	// applicability constrains the contexts in which this mapping holds
@@ -59,6 +49,15 @@ package gemara
 
 	// remarks is general prose regarding this mapping
 	remarks?: string
+}
+
+// EntryReference identifies a specific entry within a referenced artifact
+#EntryReference: {
+	// entry-id identifies the specific entry in the referenced artifact
+	"entry-id": string @go(EntryId)
+
+	// entry-type identifies what kind of atomic unit this entry is
+	"entry-type": #EntryType @go(EntryType)
 }
 
 // RelationshipType enumerates the nature of the mapping between entries.
@@ -80,11 +79,5 @@ package gemara
 	// source and target are related but the nature is unspecified
 	"relates-to" @go(-)
 
-// EntryReference identifies a specific entry within a referenced artifact
-#EntryReference: {
-	// entry-id identifies the specific entry in the referenced artifact
-	"entry-id": string @go(EntryId)
-
-	// entry-type identifies what kind of atomic unit this entry is
-	"entry-type": #EntryType @go(EntryType)
-}
+// EntryType enumerates the atomic units within Gemara artifacts that can participate in mappings
+#EntryType: "Guideline" | "Statement" | "Control" | "AssessmentRequirement" | "Vector" @go(-)

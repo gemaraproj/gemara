@@ -4,6 +4,13 @@
 
 **Gemara** is a standardized, machine-readable data model designed to bridge the gap between high-level compliance requirements and low-level technical evidence. By providing a structured schema (powered by [CUE](https://cuelang.org/)), Gemara enables automated risk assessment, consistent reporting, and interoperability across the security toolchain.
 
+## Packages
+
+| **Package**         | **Purpose**                                                                                                               | **Consumption**                          |
+|:--------------------|:--------------------------------------------------------------------------------------------------------------------------|:-----------------------------------------|
+| `gemara`            | Type definitions with basic field-level constraints. Optimized for Go type generation.                                    | Go SDK, codegen tooling                  |
+| `gemara/validation` | Cross-field constraints, referential integrity, and uniqueness rules.                                                     | `cue vet`, authoring tools, CI pipelines |
+
 ## Resources
 
 1. View the model and supporting resources at [gemara.openssf.org](https://gemara.openssf.org)

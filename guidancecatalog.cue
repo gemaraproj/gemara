@@ -26,38 +26,10 @@ package gemara
 
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [...#Exemption] @go(Exemptions)
-
-	// Constraints
-	if guidelines != _|_ {
-		families: [_, ...#Group]
-	}
-
-	// guidelines that extend other guidelines must be in the same family as the extended guideline
-	_validateExtensions: {
-		for guideline in guidelines if guideline.extends != _|_ {
-			if (guideline.extends."reference-id" == "" || guideline.extends."reference-id" == _|_) {
-				for extended in guidelines if extended.id == guideline.extends."entry-id" {
-					guideline.family == extended.family
-				}
-			}
-		}
-	}
 }
 
 // GuidanceType restricts the possible types that a catalog may be listed as
 #GuidanceType: "Standard" | "Regulation" | "Best Practice" | "Framework" @go(-)
-
-// Exemption describes a single scenario where the catalog is not applicable
-#Exemption: {
-	// description identifies who or what is exempt from the full guidance
-	description: string
-
-	// reason explains why the exemption is granted
-	reason: string
-
-	// redirect points to alternative guidelines or controls that should be followed instead
-	redirect?: #MultiEntryMapping @go(Redirect,optional=nillable)
-}
 
 // Guideline provides explanatory context and recommendations for designing optimal outcomes 
 #Guideline: {
@@ -102,11 +74,6 @@ package gemara
 
 	// replaced-by references the guideline that supersedes this one when deprecated or retired
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
-
-	// retired guidelines must not have recommendations
-	if state == "Retired" {
-		recommendations?: _|_
-	}
 }
 
 // Statement represents a structural sub-requirement within a guideline;
@@ -134,31 +101,14 @@ package gemara
 	goals: [...string]
 }
 
-// A VectorCatalog is a structured collection of documented vectors,
-// serving as a centralized reference for known attack methods and exploitation pathways that may be relevant to a particular domain, framework, or security model.
-
-#VectorCatalog: {
-	// title describes the contents of this catalog
-	title: string
-
-	// metadata provides detailed data about this catalog
-	metadata: #Metadata @go(Metadata)
-
-	// vectors is a list of attack vectors documented in this catalog
-	vectors?: [...#Vector] @go(Vectors)
-}
-
-// A Vector represents a method, pathway, or technique through which a threat may be realized or an attack may be carried out.
-#Vector: {
-	// id allows this vector to be referenced by other elements
-	id: string
-
-	// title describes the vector
-	title: string
-
-	// description explains how the attack vector works
+// Exemption describes a single scenario where the catalog is not applicable
+#Exemption: {
+	// description identifies who or what is exempt from the full guidance
 	description: string
 
-	// applicability specifies the contexts in which this vector can manifest
-	applicability?: [...string] @go(Applicability)
+	// reason explains why the exemption is granted
+	reason: string
+
+	// redirect points to alternative guidelines or controls that should be followed instead
+	redirect?: #MultiEntryMapping @go(Redirect,optional=nillable)
 }

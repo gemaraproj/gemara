@@ -1,0 +1,41 @@
+metadata:
+  id: TEST-MD-DUP-IDS
+  type: MappingDocument
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Two mappings share the same ID.
+  author:
+    id: test
+    name: Test
+    type: Human
+  mapping-references:
+    - id: REF-A
+      title: Reference A
+      version: "1.0"
+    - id: REF-B
+      title: Reference B
+      version: "1.0"
+
+title: Duplicate Mapping IDs Test
+source-reference:
+  reference-id: REF-A
+target-reference:
+  reference-id: REF-B
+mappings:
+  - id: MAP-001
+    source:
+      entry-id: SRC-001
+      entry-type: AssessmentRequirement
+    relationship: equivalent
+    target:
+      entry-id: TGT-001
+      entry-type: AssessmentRequirement
+
+  - id: MAP-001
+    source:
+      entry-id: SRC-002
+      entry-type: AssessmentRequirement
+    relationship: equivalent
+    target:
+      entry-id: TGT-002
+      entry-type: AssessmentRequirement

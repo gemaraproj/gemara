@@ -1,0 +1,33 @@
+metadata:
+  id: TEST-EVAL-REF-MISMATCH
+  type: EvaluationLog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Assessment-log requirement reference-id does not match control reference-id.
+  author:
+    id: test
+    name: Test
+    type: Software
+target:
+  id: test-target
+  name: Test Target
+  type: Software
+evaluations:
+  - name: Mismatched Evaluation
+    control:
+      reference-id: CATALOG-A
+      entry-id: CTL-001
+    result: Failed
+    message: Test evaluation.
+    assessment-logs:
+      - requirement:
+          reference-id: CATALOG-B
+          entry-id: CTL-001.AR01
+        description: Requirement from wrong catalog.
+        result: Failed
+        message: This reference-id should match control reference-id.
+        applicability:
+          - production
+        steps:
+          - step-1
+        start: "2025-01-01T00:00:00Z"
