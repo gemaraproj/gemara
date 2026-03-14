@@ -64,17 +64,29 @@ implementation-plan:
 
 adherence:
   evaluation-methods:
-    - type: "Automated"
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
       description: "CI pipeline runs control checks via Privateer."
-    - type: "Manual"
+    - id: "EV-MANUAL-01"
+      type: "Behavioral"
+      mode: "Manual"
+      required: true
       description: "Quarterly review of exception requests."
   assessment-plans:
     - id: "plan-ctl01-ar01"
       requirement-id: "SEC.SLAM.CM.CTL01.AR01"
       frequency: "every push"
       evaluation-methods:
-        - type: "Automated"
+        - id: "EV-AUTO-02"
+          type: "Behavioral"
+          mode: "Automated"
+          required: true
   enforcement-methods:
-    - type: "Gate"
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
+      required: true
       description: "Block merge if control check fails."
   non-compliance: "Non-compliance is reported to responsible contacts and tracked in issue tracker; critical failures block deployment."

@@ -1,0 +1,145 @@
+metadata:
+  id: "enforcement-log-001"
+  type: EnforcementLog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: "Enforcement actions taken against pvtr evaluation findings for the Gemara repository"
+  author:
+    id: enforcement-engine
+    name: "ComplyTime Enforcement Engine"
+    type: Software
+    version: "1.2.0"
+    uri: "https://github.com/gemaraproj/gemara"
+  mapping-references:
+    - id: OSPS
+      title: "Open Source Project Security Baseline"
+      version: "2025.1"
+      url: "https://github.com/ossf/S2C2F/blob/main/specification/Open_Source_Project_Security_Baseline.md"
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+    - id: eval-log
+      title: "pvtr Evaluation Log"
+      version: "2025-08-22"
+    - id: exception-register
+      title: "Approved Exception Register"
+      version: "2025-Q3"
+
+disposition: Enforced
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+  uri: "https://github.com/gemaraproj/gemara"
+  environment: production
+  owner:
+    name: "Gemara Maintainers"
+    affiliation: "OpenSSF"
+
+actions:
+  - disposition: Enforced
+    method:
+      reference-id: security-policy
+      entry-id: EM-GATE-01
+    message: "Blocked merge: missing user documentation"
+    start: "2025-08-22T16:05:00Z"
+    end: "2025-08-22T16:05:01Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/gate.BlockMerge
+    justification:
+      assessments:
+        - result: Failed
+          requirement:
+            reference-id: OSPS
+            entry-id: OSPS-DO-01.01
+          plan:
+            reference-id: security-policy
+            entry-id: AP-DO-01
+          log:
+            reference-id: eval-log
+            entry-id: OSPS-DO-01
+
+  - disposition: Enforced
+    method:
+      reference-id: security-policy
+      entry-id: EM-REMEDIATE-01
+    message: "Auto-remediation: enabled private vulnerability reporting"
+    start: "2025-08-22T16:06:00Z"
+    end: "2025-08-22T16:06:03Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/remediate.EnablePrivateVulnReporting
+      - github.com/gemaraproj/gemara/enforcement/remediate.VerifyVulnReportingActive
+    justification:
+      assessments:
+        - result: Failed
+          requirement:
+            reference-id: OSPS
+            entry-id: OSPS-DO-02.01
+          plan:
+            reference-id: security-policy
+            entry-id: AP-DO-02
+          log:
+            reference-id: eval-log
+            entry-id: OSPS-DO-02
+
+  - disposition: Clear
+    method:
+      reference-id: security-policy
+      entry-id: EM-PASS-01
+    message: "All access control assessments passed; no enforcement action required"
+    start: "2025-08-22T16:07:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/allow.PassThrough
+    justification:
+      assessments:
+        - result: Passed
+          plan:
+            reference-id: security-policy
+            entry-id: AP-AC-01
+          log:
+            reference-id: eval-log
+            entry-id: OSPS-AC-01
+
+  - disposition: Tolerated
+    method:
+      reference-id: security-policy
+      entry-id: EM-WAIVE-01
+    message: "Waived: subproject listing requirement deferred per approved exception EXC-2025-042"
+    start: "2025-08-22T16:08:00Z"
+    end: "2025-08-22T16:08:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/waive.RecordException
+    justification:
+      assessments:
+        - result: Failed
+          requirement:
+            reference-id: OSPS
+            entry-id: OSPS-QA-04.01
+          plan:
+            reference-id: security-policy
+            entry-id: AP-QA-04
+          log:
+            reference-id: eval-log
+            entry-id: OSPS-QA-04
+      exceptions:
+        - reference-id: exception-register
+          remarks: "EXC-2025-042: Single-repository projects are exempt from the subproject listing requirement"
+
+  - disposition: Clear
+    method:
+      reference-id: security-policy
+      entry-id: EM-REMEDIATE-01
+    message: "Autoremediation enforcement active; no noncompliance findings to act on"
+    start: "2025-08-22T16:09:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/remediate.EnablePrivateVulnReporting
+    justification:
+      assessments:
+        - result: Passed
+          plan:
+            reference-id: security-policy
+            entry-id: AP-DO-02
+          log:
+            reference-id: eval-log
+            entry-id: OSPS-DO-02

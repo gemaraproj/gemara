@@ -101,7 +101,7 @@ import "time"
 #Lifecycle: *"Active" | "Draft" | "Deprecated" | "Retired" @go(-)
 
 // ArtifactType identifies the kind of Gemara artifact for unambiguous parsing
-#ArtifactType: "ControlCatalog" | "GuidanceCatalog" | "ThreatCatalog" | "RiskCatalog" | "Policy" | "MappingDocument" | "EvaluationLog" | "VectorCatalog" @go(-)
+#ArtifactType: "ControlCatalog" | "GuidanceCatalog" | "ThreatCatalog" | "RiskCatalog" | "Policy" | "MappingDocument" | "EvaluationLog" | "EnforcementLog" | "VectorCatalog" @go(-)
 
 // EntryType enumerates the atomic units within Gemara artifacts that can participate in mappings
 #EntryType: "Guideline" | "Statement" | "Control" | "AssessmentRequirement" | "Vector" @go(-)

@@ -29,10 +29,10 @@ Click on a layer to view its schema:
     <p>Inspection of code, configurations, and deployments against policies and controls.</p>
   </a>
 
-  <div class="layer-card">
+  <a href="layer-6.html" class="layer-card">
     <h3>Layer 6: Enforcement</h3>
-    <p>Prevention or remediation based on assessment findings. (Coming Soon)</p>
-  </div>
+    <p>Prevention or remediation based on assessment findings.</p>
+  </a>
 
   <div class="layer-card">
     <h3>Layer 7: Audit</h3>
@@ -55,6 +55,7 @@ Schema documentation generated from CUE. One page per schema file:
 - [Layer 2](layer-2.html)
 - [Layer 3](layer-3.html)
 - [Layer 5](layer-5.html)
+- [Layer 6](layer-6.html)
 
 <!-- SCHEMA_LIST_END -->
 

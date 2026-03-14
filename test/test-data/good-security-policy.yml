@@ -63,11 +63,18 @@ imports:
 
 adherence:
   evaluation-methods:
-    - type: "Automated"
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
       description: "Continuous data protection monitoring"
-    - type: "Manual"
+    - id: "EV-MANUAL-01"
+      type: "Behavioral"
+      mode: "Manual"
+      required: true
       description: "Quarterly privacy impact assessments"
   enforcement-methods:
-    - type: "Gate"
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
       description: "Data classification verification before processing"
   non-compliance: "Data breaches must be reported within 72 hours of discovery"

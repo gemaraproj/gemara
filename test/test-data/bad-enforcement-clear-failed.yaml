@@ -1,0 +1,46 @@
+metadata:
+  id: "enforcement-log-bad-clear"
+  type: EnforcementLog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: "Invalid enforcement log: Clear disposition with Failed assessment result"
+  author:
+    id: enforcement-engine
+    name: "ComplyTime Enforcement Engine"
+    type: Software
+    version: "1.2.0"
+    uri: "https://github.com/gemaraproj/gemara"
+  mapping-references:
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+    - id: eval-log
+      title: "pvtr Evaluation Log"
+      version: "2025-08-22"
+
+disposition: Clear
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+  uri: "https://github.com/gemaraproj/gemara"
+
+actions:
+  - disposition: Clear
+    method:
+      reference-id: security-policy
+      entry-id: EM-PASS-01
+    message: "Falsely cleared despite failed assessment"
+    start: "2025-08-22T16:07:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/allow.PassThrough
+    justification:
+      assessments:
+        - result: Failed
+          plan:
+            reference-id: security-policy
+            entry-id: AP-AC-01
+          log:
+            reference-id: eval-log
+            entry-id: OSPS-AC-01

@@ -88,6 +88,13 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 
+		// EnforcementLog — positive
+		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
+
+		// EnforcementLog — negative
+		{"enforcement action missing log reference", "./test-data/bad-enforcement-log.yaml", "#EnforcementLog", true, ""},
+		{"clear disposition with failed assessment", "./test-data/bad-enforcement-clear-failed.yaml", "#EnforcementLog", true, ""},
+
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},
 	}

@@ -180,12 +180,16 @@ package gemara
 
 // AcceptedMethod defines a method for evaluation or enforcement.
 #AcceptedMethod: {
+	id:           string
 	type:         #MethodType
+	mode:         #ModeType
+	required:     *false | bool
 	description?: string
 	executor?:    #Actor
 }
 
-#MethodType: "Manual" | "Behavioral" | "Automated" | "Autoremediation" | "Gate" @go(-)
+#ModeType:   "Manual" | "Automated"                           @go(-)
+#MethodType: "Behavioral" | "Intent" | "Remediation" | "Gate" @go(-)
 
 // Parameter defines a configurable parameter for assessment or enforcement activities.
 #Parameter: {

@@ -8,6 +8,7 @@ metadata:
     id: pvtr
     name: PVTR
     type: Software
+result: Failed
 target:
   id: github-repo
   name: GitHub Repository
