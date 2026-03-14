@@ -16,10 +16,10 @@ package gemara
 	metadata: #Metadata @go(Metadata)
 
 	// categories is a list of risk categories used to classify risks
-	categories?: [...#RiskCategory] @go(Categories)
+	categories?: [#RiskCategory, ...#RiskCategory] @go(Categories)
 
 	// risks is a list of risks defined by this catalog
-	risks?: [...#Risk] @go(Risks)
+	risks?: [#Risk, ...#Risk] @go(Risks)
 
 	// Constraints
 	if risks != _|_ {
@@ -68,7 +68,7 @@ package gemara
 	impact?: string
 
 	// threats link this risk to Layer 2 threats
-	"threats"?: [...#MultiEntryMapping] @go(Threats)
+	"threats"?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Threats)
 }
 
 // Policy represents a policy document with metadata, contacts, scope, imports, implementation plan, risks, and adherence requirements.
@@ -92,21 +92,21 @@ package gemara
 // Dimensions specify the applicability criteria for a policy
 #Dimensions: {
 	// technologies is an optional list of technology categories or services
-	technologies?: [...string]
+	technologies?: [string, ...string]
 	// geopolitical is an optional list of geopolitical regions
-	geopolitical?: [...string]
+	geopolitical?: [string, ...string]
 	// sensitivity is an optional list of data classification levels
-	sensitivity?: [...string]
+	sensitivity?: [string, ...string]
 	// users is an optional list of user roles
-	users?: [...string]
-	groups?: [...string]
+	users?: [string, ...string]
+	groups?: [string, ...string]
 }
 
 // Imports defines external policies, controls, and guidelines required by this policy.
 #Imports: {
-	policies?: [...#ArtifactMapping]
-	catalogs?: [...#CatalogImport]
-	guidance?: [...#GuidanceImport]
+	policies?: [#ArtifactMapping, ...#ArtifactMapping]
+	catalogs?: [#CatalogImport, ...#CatalogImport]
+	guidance?: [#GuidanceImport, ...#GuidanceImport]
 }
 
 // ImplementationPlan defines when and how the policy becomes active.
@@ -126,9 +126,9 @@ package gemara
 // Risks defines mitigated and accepted risks addressed by this policy.
 #Risks: {
 	// Mitigated risks only need reference-id and risk-id (no justification required)
-	mitigated?: [...#MitigatedRisk]
+	mitigated?: [#MitigatedRisk, ...#MitigatedRisk]
 	// Accepted risks require rationale (justification) and may include scope. Controls addressing these risks are implicitly identified through threat mappings.
-	accepted?: [...#AcceptedRisk]
+	accepted?: [#AcceptedRisk, ...#AcceptedRisk]
 }
 
 // MitigatedRisk represents a risk addressed by the policy
@@ -162,9 +162,9 @@ package gemara
 
 // Adherence defines evaluation methods, assessment plans, enforcement methods, and non-compliance notifications.
 #Adherence: {
-	"evaluation-methods"?: [...#AcceptedMethod] @go(EvaluationMethods)
-	"assessment-plans"?: [...#AssessmentPlan] @go(AssessmentPlans)
-	"enforcement-methods"?: [...#AcceptedMethod] @go(EnforcementMethods)
+	"evaluation-methods"?: [#AcceptedMethod, ...#AcceptedMethod] @go(EvaluationMethods)
+	"assessment-plans"?: [#AssessmentPlan, ...#AssessmentPlan] @go(AssessmentPlans)
+	"enforcement-methods"?: [#AcceptedMethod, ...#AcceptedMethod] @go(EnforcementMethods)
 	"non-compliance"?: string @go(NonCompliance)
 }
 
@@ -173,9 +173,9 @@ package gemara
 	id:               string
 	"requirement-id": string @go(RequirementId)
 	frequency:        string
-	"evaluation-methods": [...#AcceptedMethod] @go(EvaluationMethods)
+	"evaluation-methods": [#AcceptedMethod, ...#AcceptedMethod] @go(EvaluationMethods)
 	"evidence-requirements"?: string @go(EvidenceRequirements)
-	parameters?: [...#Parameter]
+	parameters?: [#Parameter, ...#Parameter]
 }
 
 // AcceptedMethod defines a method for evaluation or enforcement.
@@ -192,23 +192,23 @@ package gemara
 	id:          string
 	label:       string
 	description: string
-	"accepted-values"?: [...string] @go(AcceptedValues)
+	"accepted-values"?: [string, ...string] @go(AcceptedValues)
 }
 
 // GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
 #GuidanceImport: {
 	"reference-id": string @go(ReferenceId)
-	exclusions?: [...string]
+	exclusions?: [string, ...string]
 	// Constraints allow policy authors to define ad hoc minimum requirements (e.g., "review at least annually").
-	constraints?: [...#Constraint]
+	constraints?: [#Constraint, ...#Constraint]
 }
 
 // CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
 #CatalogImport: {
 	"reference-id": string @go(ReferenceId)
-	exclusions?: [...string]
-	constraints?: [...#Constraint]
-	"assessment-requirement-modifications"?: [...#AssessmentRequirementModifier] @go(AssessmentRequirementModifications)
+	exclusions?: [string, ...string]
+	constraints?: [#Constraint, ...#Constraint]
+	"assessment-requirement-modifications"?: [#AssessmentRequirementModifier, ...#AssessmentRequirementModifier] @go(AssessmentRequirementModifications)
 }
 
 // Constraint defines a prescriptive requirement that applies to a specific guidance or control.
@@ -230,7 +230,7 @@ package gemara
 	// The updated text of the assessment requirement
 	text?: string
 	// The updated applicability of the assessment requirement
-	applicability?: [...string]
+	applicability?: [string, ...string]
 	// The updated recommendation for the assessment requirement
 	recommendation?: string
 }

@@ -19,13 +19,13 @@ package gemara
 	"front-matter"?: string @go(FrontMatter) @yaml("front-matter,omitempty")
 
 	// families contains a list of guidance families that can be referenced by guidance
-	families?: [...#Group] @go(Families)
+	families?: [#Group, ...#Group] @go(Families)
 
 	// guidelines is a list of unique guidelines defined by this catalog
-	guidelines?: [...#Guideline] @go(Guidelines)
+	guidelines?: [#Guideline, ...#Guideline] @go(Guidelines)
 
 	// exemptions provides information about situations where this guidance is not applicable
-	exemptions?: [...#Exemption] @go(Exemptions)
+	exemptions?: [#Exemption, ...#Exemption] @go(Exemptions)
 
 	// Constraints
 	if guidelines != _|_ {
@@ -74,28 +74,28 @@ package gemara
 	family: string @go(Family)
 
 	// recommendations is a list of non-binding suggestions to aid in evaluation or enforcement of the guideline
-	recommendations?: [...string]
+	recommendations?: [string, ...string]
 
 	// extends is an id for a guideline which this guideline adds to, in this document or elsewhere
 	extends?: #EntryMapping @go(Extends,optional=nillable)
 
 	// applicability specifies the contexts in which this guideline applies
-	applicability?: [...string] @go(Applicability)
+	applicability?: [string, ...string] @go(Applicability)
 
 	// rationale provides the context for this guideline
 	rationale?: #Rationale @go(Rationale,optional=nillable)
 
 	// statements is a list of structural sub-requirements within a guideline
-	statements?: [...#Statement] @go(Statements)
+	statements?: [#Statement, ...#Statement] @go(Statements)
 
 	// principles documents the relationship between this guideline and one or more principles
-	"principles"?: [...#MultiEntryMapping] @go(Principles) @yaml("principles,omitempty")
+	"principles"?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Principles) @yaml("principles,omitempty")
 
 	// vector-mappings documents the relationship between this guideline and one or more vectors
-	"vectors"?: [...#MultiEntryMapping] @go(Vectors) @yaml("vectors,omitempty")
+	"vectors"?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Vectors) @yaml("vectors,omitempty")
 
 	// see-also lists related guideline IDs within the same GuidanceCatalog
-	"see-also"?: [...string] @go(SeeAlso) @yaml("see-also,omitempty")
+	"see-also"?: [string, ...string] @go(SeeAlso) @yaml("see-also,omitempty")
 
 	// state is the lifecycle state of this guideline
 	state: #Lifecycle @go(State) @yaml("state,omitempty")
@@ -122,7 +122,7 @@ package gemara
 	text: string
 
 	// recommendations is a list of non-binding suggestions to aid in evaluation or enforcement of the statement
-	recommendations?: [...string]
+	recommendations?: [string, ...string]
 }
 
 // Rationale provides a structured way to communicate a guideline author's intent
@@ -131,7 +131,7 @@ package gemara
 	importance: string
 
 	// goals is a list of outcomes this guideline seeks to achieve
-	goals: [...string]
+	goals: [string, ...string]
 }
 
 // A VectorCatalog is a structured collection of documented vectors,
@@ -145,7 +145,7 @@ package gemara
 	metadata: #Metadata @go(Metadata)
 
 	// vectors is a list of attack vectors documented in this catalog
-	vectors?: [...#Vector] @go(Vectors)
+	vectors?: [#Vector, ...#Vector] @go(Vectors)
 }
 
 // A Vector represents a method, pathway, or technique through which a threat may be realized or an attack may be carried out.
@@ -160,5 +160,5 @@ package gemara
 	description: string
 
 	// applicability specifies the contexts in which this vector can manifest
-	applicability?: [...string] @go(Applicability)
+	applicability?: [string, ...string] @go(Applicability)
 }

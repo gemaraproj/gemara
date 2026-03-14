@@ -17,7 +17,7 @@ package gemara
 	result:  #Result
 	message: string
 	control: #EntryMapping
-	"assessment-logs": [...#AssessmentLog] @go(AssessmentLogs,type=[]*AssessmentLog)
+	"assessment-logs": [#AssessmentLog, ...#AssessmentLog] @go(AssessmentLogs,type=[]*AssessmentLog)
 	// Enforce that control reference and the assessments' references match
 	// This formulation uses the control's reference if the assessment doesn't include a reference
 	"assessment-logs": [...{
@@ -38,9 +38,9 @@ package gemara
 	// Message provides additional context about the assessment result.
 	message: string
 	// Applicability is elevated from the Layer 2 Assessment Requirement to aid in execution and reporting.
-	applicability: [...string] @go(Applicability,type=[]string)
+	applicability: [string, ...string] @go(Applicability,type=[]string)
 	// Steps are sequential actions taken as part of the assessment, which may halt the assessment if a failure occurs.
-	steps: [...#AssessmentStep]
+	steps: [#AssessmentStep, ...#AssessmentStep]
 	// Steps-executed is the number of steps that were executed as part of the assessment.
 	"steps-executed"?: int @go(StepsExecuted)
 	// Start is the timestamp when the assessment began.

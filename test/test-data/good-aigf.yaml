@@ -56,18 +56,21 @@ guidelines:
     objective: Placeholder control for testing references.
     rationale:
       importance: Placeholder control for testing references.
-      goals: []
+      goals:
+        - "Placeholder goal for testing"
   - id: AIR-DET-015
     family: DET
     title: Example Detective Control 015
     objective: Placeholder control for testing references.
     rationale:
       importance: Placeholder control for testing references.
-      goals: []
+      goals:
+        - "Placeholder goal for testing"
   - id: AIR-PREV-005
     family: PREV
     title: Example Preventive Control 005
     objective: Placeholder control for testing references.
     rationale:
       importance: Placeholder control for testing references.
-      goals: []
+      goals:
+        - "Placeholder goal for testing"

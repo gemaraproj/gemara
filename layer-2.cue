@@ -13,13 +13,13 @@ package gemara
 	metadata: #Metadata @go(Metadata)
 
 	// extends references control catalogs that this catalog builds upon
-	extends?: [...#ArtifactMapping] @go(Extends)
+	extends?: [#ArtifactMapping, ...#ArtifactMapping] @go(Extends)
 
 	// families contains a list of control families that can be referenced by controls
-	families?: [...#Group] @go(Families)
+	families?: [#Group, ...#Group] @go(Families)
 
 	// controls is a list of unique controls defined by this catalog
-	controls?: [...#Control] @go(Controls)
+	controls?: [#Control, ...#Control] @go(Controls)
 
 	// imports contains controls from other sources which are included as part of this document
 	imports?: #ControlCatalogImports @go(Imports,optional=nillable)
@@ -33,7 +33,7 @@ package gemara
 // ControlCatalogImports defines imported entries for a control catalog
 #ControlCatalogImports: {
 	// controls is a list of controls from another source
-	controls?: [...#MultiEntryMapping] @go(Controls)
+	controls?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Controls)
 }
 
 // Control describes a safeguard or countermeasure with a clear objective and assessment requirements
@@ -51,13 +51,13 @@ package gemara
 	family: string @go(Family)
 
 	// assessment-requirements is a list of requirements that must be verified to confirm the control objective has been met
-	"assessment-requirements": [...#AssessmentRequirement] @go(AssessmentRequirements)
+	"assessment-requirements": [#AssessmentRequirement, ...#AssessmentRequirement] @go(AssessmentRequirements)
 
 	// guidelines documents relationships between this control and Layer 1 guideline artifacts
-	guidelines?: [...#MultiEntryMapping] @go(Guidelines)
+	guidelines?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Guidelines)
 
 	// threats documents relationships between this control and Layer 2 threat artifacts
-	threats?: [...#MultiEntryMapping] @go(Threats)
+	threats?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Threats)
 
 	// state is the lifecycle state of this control
 	state: #Lifecycle @go(State) @yaml("state,omitempty")
@@ -75,7 +75,7 @@ package gemara
 	text: string
 
 	// applicability is a list of strings describing the situations where this text functions as a requirement for its parent control
-	applicability: [...string]
+	applicability: [string, ...string]
 
 	// recommendation provides readers with non-binding suggestions to aid in evaluation or enforcement of the requirement
 	recommendation?: string
@@ -101,13 +101,13 @@ package gemara
 	metadata: #Metadata @go(Metadata)
 
 	// extends references threat catalogs that this catalog builds upon
-	extends?: [...#ArtifactMapping] @go(Extends)
+	extends?: [#ArtifactMapping, ...#ArtifactMapping] @go(Extends)
 
 	// threats is a list of threats defined by this catalog
-	threats?: [...#Threat] @go(Threats)
+	threats?: [#Threat, ...#Threat] @go(Threats)
 
 	// capabilities is a list of capabilities that make up the system being assessed
-	capabilities?: [...#Capability] @go(Capabilities)
+	capabilities?: [#Capability, ...#Capability] @go(Capabilities)
 
 	// imports contains threats and capabilities from other sources which are included as part of this document
 	imports?: #ThreatCatalogImports @go(Imports,optional=nillable)
@@ -116,10 +116,10 @@ package gemara
 // ThreatCatalogImports defines imported entries for a threat catalog
 #ThreatCatalogImports: {
 	// threats is a list of threats from another source
-	threats?: [...#MultiEntryMapping] @go(Threats)
+	threats?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Threats)
 
 	// capabilities is a list of capabilities from another source
-	capabilities?: [...#MultiEntryMapping] @go(Capabilities)
+	capabilities?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Capabilities)
 }
 
 // Threat describes a specifically-scoped opportunity for a negative impact to the organization
@@ -134,13 +134,13 @@ package gemara
 	description: string
 
 	// capabilities documents the relationship between this threat and a system capability
-	capabilities: [...#MultiEntryMapping]
+	capabilities: [#MultiEntryMapping, ...#MultiEntryMapping]
 
 	// vectors documents the relationship between this threat and one or more vectors
-	vectors?: [...#MultiEntryMapping] @go(Vectors)
+	vectors?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Vectors)
 
 	// actors describes the relevant internal or external threat actors
-	actors?: [...#Actor]
+	actors?: [#Actor, ...#Actor]
 }
 
 // Capability describes a system capability such as a feature, component or object.
