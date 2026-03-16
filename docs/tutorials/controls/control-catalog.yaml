@@ -55,11 +55,12 @@ families:
       Controls that ensure container images are authentic, unmodified,
       and from trusted sources throughout retrieval and use.
 
-imported-controls:
-  - reference-id: CCC
-    entries:
-      - reference-id: CCC.Core.CTL42
-        remarks: Image signing and verification
+imports:
+  controls:
+    - reference-id: CCC
+      entries:
+        - reference-id: CCC.Core.CTL42
+          remarks: Image signing and verification
 
 controls:
   - id: SEC.SLAM.CM.CTL01
