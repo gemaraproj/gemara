@@ -3,7 +3,7 @@ layout: page
 title: Base Log Type
 ---
 
-- **ADR:** 0015
+- **ADR:** 0016
 - **Proposal Author(s):** @eddie-knight, @jpower432
 - **Status:** Accepted
 

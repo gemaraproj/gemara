@@ -3,7 +3,7 @@ layout: page
 title: Nest Imported Fields Under imports Struct
 ---
 
-- **ADR:** 0014
+- **ADR:** 0015
 - **Proposal Author(s):** @jpower432
 - **Status:** Accepted
 
