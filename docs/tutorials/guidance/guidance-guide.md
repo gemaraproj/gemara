@@ -15,7 +15,7 @@ In technical terms:
 * **Guidelines:** state the intent and context; they have statements which act as sub-requirements of the guideline (e.g., `ORG.SSD.001` and statements.id `ORG.SSD.001.1`). The guidance includes a see-also for linking other guidelines within the same guidance catalog (e.g., `ORG.SSD.001` see-also `ORG.SSD.002`, `ORG.SSD.003`).
 * **Guidelines** have the ability to be mapped to external guidance (e.g., OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) and to controls in a *separate* **Mapping Document**. Downstream Gemara Layers can reference `guidelines`, defining support for specific controls.
 
-> **Coming Soon:** Mapping Document Tutorial.
+See the [Mapping Document Guide](../mapping/mapping-document-guide) to create a mapping between two artifacts (e.g., your guidance catalog and an external framework).
 
 **Who might write guidance:** Authors can represent **internal** teams (unique organizational circumstances), **industry groups** (e.g., OWASP Top 10, PCI standards), **government agencies** (e.g., NIST Cybersecurity Framework, HIPAA), or **international standards bodies** (e.g., GDPR, CRA, ISO). Compliance professionals can use Gemara as a logical model for categorizing and mapping compliance activities to these sources.
 
@@ -32,7 +32,7 @@ Choose the scope of your guidance (e.g., secure development, supply chain, data 
 | `Best Practice`| Non-mandatory recommendations (e.g., internal playbooks, OWASP-style)      |
 | `Framework`    | High-level structure or taxonomy (e.g., NIST CSF)                          |
 
-You can later add `mapping-references` to external documents and use an **external** [Mapping Document](https://gemara.openssf.org/schema/mapping.html) (Tutorial Coming Soon) to align those sources. 
+You can later add `mapping-references` to external documents and use an **external** [Mapping Document](../mapping/mapping-document-guide) to align those sources. 
 
 ### Step 1: Setting Up Metadata
 
@@ -81,7 +81,7 @@ metadata:
 type: Best Practice
 ```
 
-> **Minimal Mapping Document example:** A Mapping Document that maps this guidance catalog’s guidelines to OWASP Top 10 (source `ORG-SSD`, target `OWASP`) is in [mapping-document.yaml](mapping-document.yaml).
+> **Minimal Mapping Document example:** A Mapping Document that maps this guidance catalog’s guidelines to OWASP Top 10 (source `ORG-SSD`, target `OWASP`) is in [mapping-document.yaml](../mapping/mapping-document.yaml).
 
 ### Step 2: Define Groups
 
