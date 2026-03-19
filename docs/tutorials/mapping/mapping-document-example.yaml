@@ -17,7 +17,7 @@ metadata:
     id: gemara-example
     name: Gemara Example Author
     type: Human
-  applicability-categories:
+  applicability-groups:
     - id: manufacturer
       title: Manufacturer
       description: >

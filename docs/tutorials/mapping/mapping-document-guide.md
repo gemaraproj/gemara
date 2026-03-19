@@ -108,7 +108,7 @@ Define one or more **mappings**. Each mapping links a source entry to an optiona
 | `relationship`        | Yes      | One of `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match`, `relates-to` |
 | `strength`            | No       | Author's estimate of how completely source satisfies target (1–10); omit for `no-match` |
 | `confidence-level`    | No       | `Undetermined`, `Low`, `Medium`, or `High`                                |
-| `applicability`       | No       | List of category ids for when this mapping holds (define in metadata if used) |
+| `applicability`       | No       | List of group ids for when this mapping holds (define `applicability-groups` in metadata if used) |
 | `rationale`           | No       | Why this relationship exists                                              |
 | `remarks`             | No       | General prose regarding this mapping                                      |
 
@@ -188,7 +188,7 @@ cue vet -c -d '#MappingDocument' . docs/tutorials/mapping/mapping-document.yaml
 ## What's Next
 
 - Use this mapping in **Layer 2** or **Layer 3** workflows to show how your guidance or controls align to external frameworks.
-- Add **applicability-categories** in metadata and use `applicability` on mappings when the relationship holds only in certain contexts (e.g., manufacturer vs open-source steward).
-- A fuller example (OSPS Baseline to EU Cyber Resilience Act Annex I) with applicability-categories, multiple relationship types, and `no-match` is in [mapping-document-example.yaml](mapping-document-example.yaml) in this directory.
+- Add **applicability-groups** in metadata and use `applicability` on mappings when the relationship holds only in certain contexts (e.g., manufacturer vs open-source steward).
+- A fuller example (OSPS Baseline to EU Cyber Resilience Act Annex I) with applicability-groups, multiple relationship types, and `no-match` is in [mapping-document-example.yaml](mapping-document-example.yaml) in this directory.
 
 See the [Mapping schema documentation](https://gemara.openssf.org/schema/mapping.html) and [mapping.cue](https://github.com/gemaraproj/gemara/blob/main/mapping.cue) for the full specification.
