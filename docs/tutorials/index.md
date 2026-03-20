@@ -45,7 +45,9 @@ From a spreadsheet or checklist — create a guidance catalog (guidelines, group
 
 Create a policy document that translates risk appetite into mandatory rules — [Policy Guide](policy/policy-guide) — scope, imports, adherence, and risks (Layer 3).
 
----
+### Creating a risk catalog
+
+When you need a structured inventory of organizational or system risks—grouped by appetite, with severity and optional links to Layer 2 threats—so policies can reference mitigated or accepted risks → [Risk Catalog Guide](policy/risk-catalog-guide) (Layer 3).
 
 ## What You'll Build
 
@@ -54,6 +56,7 @@ Create a policy document that translates risk appetite into mandatory rules — 
 | **Layer 1** — Guidance | Guidance Catalog (guidelines, groups, mapping-references) | [Guidance Catalog Guide](guidance/guidance-guide) |
 | **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threats) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
 | **Layer 3** — Policy   | Policy Document (scope, imports, adherence, risks)                  | [Policy Guide](policy/policy-guide) |
+| **Layer 3** — Risks    | Risk Catalog (groups, appetite, risks, threat links)                   | [Risk Catalog Guide](policy/risk-catalog-guide) |
 
 ## What You'll Need
 
