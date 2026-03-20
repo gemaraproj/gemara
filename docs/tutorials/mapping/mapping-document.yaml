@@ -1,5 +1,5 @@
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
-# Conforms to Gemara #MappingDocument (mapping.cue).
+# Conforms to Gemara #MappingDocument (mappingdocument.cue).
 # Source guidance catalog: ../guidance/guidance-example.yaml
 title: Secure Software Development Guidance to OWASP Top 10
 metadata:
