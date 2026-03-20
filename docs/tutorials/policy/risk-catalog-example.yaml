@@ -1,6 +1,6 @@
 # Organization Risk Catalog for Cloud and Container Workloads (Layer 3)
 # Conforms to Gemara Layer 3 #RiskCatalog (layer-3.cue).
-# Risks drawn from Threat Assessment Guide: CCC Core TH14 and SEC.SLAM.CM (SEC.SLAM.CM.THR01).
+# Risks drawn from Threat Assessment Guide: CCC (CCC.Core.TH14) and SEC.SLAM.CM (SEC.SLAM.CM.THR01).
 title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
   id: "org-risk-catalog-001"
@@ -13,10 +13,13 @@ metadata:
     name: "Security Team"
     type: Human
   mapping-references:
-    - id: "CCC.Core"
-      title: "FINOS Common Cloud Controls Core"
-      version: "2025.10"
-      description: "CCC Core threat and capability catalog."
+    - id: CCC
+      title: Common Cloud Controls Core
+      version: v2025.10
+      url: https://github.com/finos/common-cloud-controls/releases
+      description: |
+        Foundational repository of reusable security controls, capabilities,
+        and threat models maintained by FINOS.
     - id: "SEC.SLAM.CM"
       title: "Container Management Tool Security Threat Catalog"
       version: "1.0.0"
@@ -49,9 +52,9 @@ risks:
         - name: "CISO"
           affiliation: "Security"
     threats:
-      - reference-id: "CCC.Core"
+      - reference-id: CCC
         entries:
-          - reference-id: "CCC.Core.TH14"
+          - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
   - id: "R02"
     title: "Container Image Tampering or Poisoning"
@@ -59,9 +62,9 @@ risks:
     group: "infrastructure"
     severity: "Critical"
     threats:
-      - reference-id: "CCC.Core"
+      - reference-id: CCC
         entries:
-          - reference-id: "CCC.Core.TH14"
+          - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
       - reference-id: "SEC.SLAM.CM"
         entries:

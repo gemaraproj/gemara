@@ -6,7 +6,7 @@ description: Step-by-step guide to creating Gemara-compatible risk catalogs
 
 ## What This Is
 
-This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to the **RiskCatalog** type in the [Layer 3 schema](https://gemara.openssf.org/schema/layer-3.html).
+This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to the **RiskCatalog** type in the [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html).
 
 **The basic idea:** A Risk Catalog is a structured list of **risks** that might affect an organization, system, or service. You organize them into **groups** that express how much risk you are willing to carry ([risk appetite](https://gemara.openssf.org/glossary/risk-appetite/)) and optionally cap how bad a single risk in that group can be (**max-severity**). Each risk has an assessed **severity** and can point to Layer 2 **threats** so mitigations and policies stay traceable to threat catalogs.
 
@@ -50,10 +50,13 @@ metadata:
     name: "Security Team"
     type: Human
   mapping-references:
-    - id: "CCC.Core"
-      title: "FINOS Common Cloud Controls Core"
-      version: "2025.10"
-      description: "CCC Core threat and capability catalog."
+    - id: CCC
+      title: Common Cloud Controls Core
+      version: v2025.10
+      url: https://github.com/finos/common-cloud-controls/releases
+      description: |
+        Foundational repository of reusable security controls, capabilities,
+        and threat models maintained by FINOS.
     - id: "SEC.SLAM.CM"
       title: "Container Management Tool Security Threat Catalog"
       version: "1.0.0"
@@ -125,9 +128,9 @@ risks:
         - name: "CISO"
           affiliation: "Security"
     threats:
-      - reference-id: "CCC.Core"
+      - reference-id: CCC
         entries:
-          - reference-id: "CCC.Core.TH14"
+          - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
   - id: "R02"
     title: "Container Image Tampering or Poisoning"
@@ -135,9 +138,9 @@ risks:
     group: "infrastructure"
     severity: "Critical"
     threats:
-      - reference-id: "CCC.Core"
+      - reference-id: CCC
         entries:
-          - reference-id: "CCC.Core.TH14"
+          - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
       - reference-id: "SEC.SLAM.CM"
         entries:
@@ -148,7 +151,7 @@ risks:
 
 ### Step 3: Validation
 
-The catalog must validate against the Layer 3 risk catalog schema. Validate with CUE:
+The catalog must validate against the [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html). Validate with CUE:
 
 **Validation commands:**
 
@@ -179,10 +182,13 @@ metadata:
     name: "Security Team"
     type: Human
   mapping-references:
-    - id: "CCC.Core"
-      title: "FINOS Common Cloud Controls Core"
-      version: "2025.10"
-      description: "CCC Core threat and capability catalog."
+    - id: CCC
+      title: Common Cloud Controls Core
+      version: v2025.10
+      url: https://github.com/finos/common-cloud-controls/releases
+      description: |
+        Foundational repository of reusable security controls, capabilities,
+        and threat models maintained by FINOS.
     - id: "SEC.SLAM.CM"
       title: "Container Management Tool Security Threat Catalog"
       version: "1.0.0"
@@ -215,9 +221,9 @@ risks:
         - name: "CISO"
           affiliation: "Security"
     threats:
-      - reference-id: "CCC.Core"
+      - reference-id: CCC
         entries:
-          - reference-id: "CCC.Core.TH14"
+          - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
   - id: "R02"
     title: "Container Image Tampering or Poisoning"
@@ -225,9 +231,9 @@ risks:
     group: "infrastructure"
     severity: "Critical"
     threats:
-      - reference-id: "CCC.Core"
+      - reference-id: CCC
         entries:
-          - reference-id: "CCC.Core.TH14"
+          - reference-id: CCC.Core.TH14
             remarks: "Older Resource Versions are Used"
       - reference-id: "SEC.SLAM.CM"
         entries:
@@ -238,8 +244,6 @@ risks:
 
 ## What's Next
 
-- Reference this risk catalog from a **Policy** document: in the policy's `risks` section, use `mitigated` and `accepted` entries that reference risk ids (and, for accepted risks, justification and optional scope). See the [Policy Guide](policy-guide) and the Policy / risks section of the [Layer 3 schema](https://gemara.openssf.org/schema/layer-3.html).
+- Reference this risk catalog from a **Policy** document: in the policy's `risks` section, use `mitigated` and `accepted` entries that reference risk ids (and, for accepted risks, justification and optional scope). See the [Policy Guide](policy-guide) and the `risks` section of the [Policy schema](https://gemara.openssf.org/schema/policy.html).
 - Use **Layer 5** evaluations to assess whether controls and implementations address the threats linked to these risks.
 - Use **Layer 7** audit and continuous monitoring to review risk posture and policy effectiveness.
-
-Normative definitions: [Layer 3 schema](https://gemara.openssf.org/schema/layer-3.html). CUE source: [layer-3.cue](https://github.com/gemaraproj/gemara/blob/main/layer-3.cue).
