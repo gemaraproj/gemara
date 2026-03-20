@@ -188,7 +188,6 @@ cue vet -c -d '#MappingDocument' . docs/tutorials/mapping/mapping-document.yaml
 ## What's Next
 
 - Use this mapping in **Layer 2** or **Layer 3** workflows to show how your guidance or controls align to external frameworks.
-- Add **applicability-groups** in metadata and use `applicability` on mappings when the relationship holds only in certain contexts (e.g., manufacturer vs open-source steward).
-- A fuller example (OSPS Baseline to EU Cyber Resilience Act Annex I) with applicability-groups, multiple relationship types, and `no-match` is in [mapping-document-example.yaml](mapping-document-example.yaml) in this directory.
+- Add **applicability-groups** in metadata and use `applicability` on mappings when the relationship holds only in certain contexts (e.g., manufacturer vs open-source steward). You can combine multiple relationship types and `no-match` entries in one document per [mapping.cue](https://github.com/gemaraproj/gemara/blob/main/mapping.cue).
 
 See the [Mapping schema documentation](https://gemara.openssf.org/schema/mapping.html) and [mapping.cue](https://github.com/gemaraproj/gemara/blob/main/mapping.cue) for the full specification.
