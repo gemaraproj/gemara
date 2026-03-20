@@ -14,8 +14,9 @@ In technical terms:
 * **Source reference** is the artifact you map *from* (e.g., your guidance catalog). Its `reference-id` must match an id in `metadata.mapping-references`.
 * **Target reference** is the artifact you map *to* (e.g., OWASP Top 10). Its `reference-id` must also match an id in `metadata.mapping-references`.
 * **Mappings** are one or more atomic relationships: each links a source entry to an optional target entry and a **relationship** type. For `no-match`, the source has no counterpart in the target and `target` is omitted.
-* **Relationship types** (see [mapping.cue](https://github.com/gemaraproj/gemara/blob/main/mapping.cue)): `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match`, `relates-to`.
-* **Entry reference**: `entry-id` (id within the referenced artifact) and `entry-type` (`Guideline`, `Statement`, `Control`, `AssessmentRequirement`, or `Vector`).
+* **Relationship types** (see `#RelationshipType` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue)): `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match`, `relates-to`.
+* **Entry reference**: `entry-id` (id within the referenced artifact) and `entry-type` per `#EntryType` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue) (`Guideline`, `Statement`, `Control`, `AssessmentRequirement`, `Capability`, `Threat`, `Risk`, or `Vector`).
+* **Mapping references** in metadata use `#MappingReference` from [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue) (shared with other layers); see also [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue) for `#Metadata`.
 
 This exercise produces a mapping document that downstream tools and policies can use to understand how two artifacts align.
 
@@ -35,9 +36,17 @@ Decide which two artifacts you are mapping: **source** (the one you map *from*) 
 
 We continue with the Secure Software Development Guidance as source and OWASP Top 10 as target.
 
+#### Inline Mappings vs Mapping Document
+
+Inline mappings are relationships that capture the authors intent at the time of creating that entry
+
+Mapping documents are for complex descriptions of relationships between two or more artifacts
+
+> **Note:** See the FAQ for additional context on the Mappings.
+
 ### Step 1: Setting Up Metadata
 
-Declare your mapping document and mapping references. Key fields:
+Declare your mapping document and mapping references. Key fields (artifact typing is in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue); each `mapping-references` item follows `#MappingReference` in [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue)):
 
 | Field                               | What It Is                                                   | Why                                                                                       |
 |-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
@@ -98,7 +107,7 @@ remarks: Guidance guidelines ORG.SSD.GL01–GL03 mapped to OWASP for tutorial us
 
 ### Step 3: Define Mappings
 
-Define one or more **mappings**. Each mapping links a source entry to an optional target entry and a relationship type. Required and common fields (see [mapping.cue](https://github.com/gemaraproj/gemara/blob/main/mapping.cue)):
+Define one or more **mappings**. Each mapping links a source entry to an optional target entry and a relationship type. Required and common fields (see `#Mapping` / `#_MappingStrict` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue)):
 
 | Field                 | Required | Description                                                                 |
 |-----------------------|----------|-----------------------------------------------------------------------------|
@@ -153,7 +162,7 @@ mappings:
 
 ### Step 4: Validate
 
-The document must conform to the MappingDocument definition in the CUE module. Validate with CUE:
+The document must conform to `#MappingDocument` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue). Validate with CUE:
 
 **Validation commands:**
 
@@ -188,6 +197,6 @@ cue vet -c -d '#MappingDocument' . docs/tutorials/mapping/mapping-document.yaml
 ## What's Next
 
 - Use this mapping in **Layer 2** or **Layer 3** workflows to show how your guidance or controls align to external frameworks.
-- Add **applicability-groups** in metadata and use `applicability` on mappings when the relationship holds only in certain contexts (e.g., manufacturer vs open-source steward). You can combine multiple relationship types and `no-match` entries in one document per [mapping.cue](https://github.com/gemaraproj/gemara/blob/main/mapping.cue).
+- Add **applicability-groups** in metadata and use `applicability` on mappings when the relationship holds only in certain contexts (e.g., manufacturer vs open-source steward). You can combine multiple relationship types and `no-match` entries in one document per [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue).
 
-See the [Mapping schema documentation](https://gemara.openssf.org/schema/mapping.html) and [mapping.cue](https://github.com/gemaraproj/gemara/blob/main/mapping.cue) for the full specification.
+See the [Mapping schema documentation](https://gemara.openssf.org/schema/mapping.html) and the CUE module: [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue) (`#MappingDocument`, `#Mapping`, relationships, entry types) and [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue) (`#MappingReference`, `#ArtifactMapping`, and related shared types).
