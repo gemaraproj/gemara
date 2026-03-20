@@ -10,6 +10,14 @@ This guide walks through creating a **Mapping Document** using the [Gemara](http
 
 A mapping document captures the user's intent for how entries in a **source** artifact relate to entries in a **target** artifact. It is the place to express alignment between independently authored catalogs (e.g., your guidance to OWASP, or controls to regulations) in a single, directed way.
 
+### Using a Mapping Document vs Inline Mappings
+
+* **Mapping Documents** are for complex descriptions of relationships between two or more artifacts.
+* **Inline Mappings** are relationships that capture the author's intent at the time of creating that entry.
+
+> **Note:** See the FAQ for additional context on the Mapping Documents.
+
+
 In technical terms:
 * **Source reference** is the artifact you map *from* (e.g., your guidance catalog). Its `reference-id` must match an id in `metadata.mapping-references`.
 * **Target reference** is the artifact you map *to* (e.g., OWASP Top 10). Its `reference-id` must also match an id in `metadata.mapping-references`.
@@ -36,17 +44,9 @@ Decide which two artifacts you are mapping: **source** (the one you map *from*) 
 
 We continue with the Secure Software Development Guidance as source and OWASP Top 10 as target.
 
-#### Inline Mappings vs Mapping Document
-
-Inline mappings are relationships that capture the authors intent at the time of creating that entry
-
-Mapping documents are for complex descriptions of relationships between two or more artifacts
-
-> **Note:** See the FAQ for additional context on the Mappings.
-
 ### Step 1: Setting Up Metadata
 
-Declare your mapping document and mapping references. Key fields (artifact typing is in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue); each `mapping-references` item follows `#MappingReference` in [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue)):
+Declare your mapping document and mapping references. Key fields:
 
 | Field                               | What It Is                                                   | Why                                                                                       |
 |-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
@@ -160,30 +160,96 @@ mappings:
     rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
 ```
 
-### Step 4: Validate
+### Step 4: Validate against the Mapping Document Schema
 
-The document must conform to `#MappingDocument` in [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue). Validate with CUE:
+Validate with CUE:
 
 **Validation commands:**
-
-Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
 cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@latest your-mapping-document.yaml
 ```
 
-Fix any errors (e.g. missing `mapping-references`, invalid relationship type, missing `target` when relationship is not `no-match`, or entry-type not in the allowed set) so the document is schema-valid.
-
 ### Step 5: Assemble the Full Document and Validate
 
-Combine metadata, source-reference, target-reference, remarks, and mappings into a single YAML document. A complete, schema-valid mapping for the Secure Software Development Guidance → OWASP example is in [mapping-document.yaml](mapping-document.yaml) in this directory.
+Combine metadata, source-reference, target-reference, remarks, and mappings into a single YAML document. The following is the full tutorial example (kept in sync with [mapping-document.yaml](mapping-document.yaml) in this directory):
+
+```yaml
+# Secure Software Development Guidance to OWASP Top 10 (tutorial example)
+# Conforms to Gemara #MappingDocument (mappingdocument.cue).
+# Source guidance catalog: ../guidance/guidance-example.yaml
+title: Secure Software Development Guidance to OWASP Top 10
+metadata:
+  id: SSD-OWASP-MAP-001
+  version: "1.0.0"
+  type: MappingDocument
+  gemara-version: "0.20.0"
+  description: >
+    Maps Secure Software Development Guidance guidelines to OWASP Top 10
+    categories. Minimal example for tutorials; relationship types are relates-to.
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+  mapping-references:
+    - id: ORG-SSD
+      title: Secure Software Development Guidance
+      version: "1.0.0"
+      url: "file://../guidance/guidance-example.yaml"
+    - id: OWASP
+      title: OWASP Top 10
+      version: "2021"
+      url: "https://owasp.org/Top10"
+
+source-reference:
+  reference-id: ORG-SSD
+target-reference:
+  reference-id: OWASP
+remarks: Guidance guidelines ORG.SSD.GL01–GL03 mapped to OWASP for tutorial use.
+
+mappings:
+  - id: GL01-A06
+    source:
+      entry-id: ORG.SSD.GL01
+      entry-type: Guideline
+    target:
+      entry-id: "A06"
+      entry-type: Guideline
+    relationship: relates-to
+    strength: 7
+    rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
+
+  - id: GL02-A01
+    source:
+      entry-id: ORG.SSD.GL02
+      entry-type: Guideline
+    target:
+      entry-id: "A01"
+      entry-type: Guideline
+    relationship: relates-to
+    strength: 6
+    rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
+
+  - id: GL03-A02
+    source:
+      entry-id: ORG.SSD.GL03
+      entry-type: Guideline
+    target:
+      entry-id: "A02"
+      entry-type: Guideline
+    relationship: relates-to
+    strength: 6
+    rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
+```
 
 **Validate** from the repo root:
 
 ```bash
 cue vet -c -d '#MappingDocument' . docs/tutorials/mapping/mapping-document.yaml
 ```
+
+Fix any errors (e.g. missing `mapping-references`, invalid relationship type, missing `target` when relationship is not `no-match`, or entry-type not in the allowed set) so the document is schema-valid.
 
 ## Summary: From Guidance Catalog to Mapping Document
 
