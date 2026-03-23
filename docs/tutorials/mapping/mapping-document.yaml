@@ -1,6 +1,8 @@
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
 # Source guidance catalog: ../guidance/guidance-example.yaml
+# This example uses entry-type Guideline for SSD and OWASP rows; schema also allows
+# Principle (and other #EntryType values) when the mapped artifact is a principle catalog, etc.
 title: Secure Software Development Guidance to OWASP Top 10
 metadata:
   id: SSD-OWASP-MAP-001
