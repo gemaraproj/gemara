@@ -1,5 +1,5 @@
 # Organization Risk Catalog for Cloud and Container Workloads (Layer 3)
-# Conforms to Gemara Layer 3 #RiskCatalog (layer-3.cue).
+# Conforms to Gemara #RiskCatalog (riskcatalog.cue).
 # Risks drawn from Threat Assessment Guide: CCC (CCC.Core.TH14) and SEC.SLAM.CM (SEC.SLAM.CM.THR01).
 title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
