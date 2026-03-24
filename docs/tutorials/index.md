@@ -39,11 +39,11 @@ Before writing policy → [Threat Assessment Guide](controls/threat-assessment-g
 
 ### Creating a guidance catalog from best practices
 
-From a spreadsheet or checklist — create a guidance catalog (guidelines, groups, mapping-references) that threat-informed controls can reference; express relationships to other frameworks in a [Mapping Document Guide](mapping/mapping-document-guide) (see also the [Mapping schema](https://gemara.openssf.org/schema/mapping.html)). → [Guidance Catalog Guide](guidance/guidance-guide).
+From a spreadsheet or checklist — create a guidance catalog (guidelines, groups, mapping-references) that threat-informed controls can reference; express relationships to other frameworks in a [Mapping Document Guide](mapping/mapping-document-guide) (see also the [Mapping Document schema](https://gemara.openssf.org/schema/mappingdocument.html)). → [Guidance Catalog Guide](guidance/guidance-guide).
 
 ### Creating a mapping document between artifacts
 
-Express how entries in a source artifact (e.g., guidance, principle, or control catalog) relate to a target artifact (e.g., regulation or framework) — [Mapping Document Guide](mapping/mapping-document-guide) — source/target references, relationship types, `entry-type` (including Principle where applicable), and applicability (cross-artifact).
+Express how entries in a source artifact (e.g., guidance, principle, or control catalog) relate to a target artifact (e.g., regulation or framework) — [Mapping Document Guide](mapping/mapping-document-guide) — typed source/target references (`#TypedMapping`), `source` plus `targets` (`#MappingTarget`), relationship types, and applicability (cross-artifact).
 
 ### Creating organizational policy
 
@@ -61,12 +61,12 @@ When you need a structured inventory of organizational or system risks—**risk 
 | **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threats) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
 | **Layer 3** — Policy   | Policy Document (scope, imports, adherence, risks)                  | [Policy Guide](policy/policy-guide) |
 | **Layer 3** — Risks    | Risk Catalog (risk categories, appetite, risks, optional threat mappings) | [Risk Catalog Guide](policy/risk-catalog-guide) |
-| **Cross-artifact**     | Mapping Document (source/target, mappings, relationship types; entry types include guidelines, controls, Principle, threats, risks, and others per schema) | [Mapping Document Guide](mapping/mapping-document-guide) |
+| **Cross-artifact**     | Mapping Document (typed `source`/`target` references, `targets` per mapping, relationship types; entry types per schema include guidelines, controls, Principle, threats, risks, and others) | [Mapping Document Guide](mapping/mapping-document-guide) |
 
 ## What You'll Need
 
 - `go` installed
-- `cue` installed for validation
+- `cue` installed for validation (e.g. `cue vet -c -d '#MappingDocument' . your-mapping-document-example.yaml` from a clone, or the same placeholder filename with `github.com/gemaraproj/gemara@latest` for the published module)
 
 ## Have Ideas?
 

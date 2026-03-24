@@ -32,7 +32,7 @@ Choose the scope of your guidance (e.g., secure development, supply chain, data 
 | `Best Practice`| Non-mandatory recommendations (e.g., internal playbooks, OWASP-style)      |
 | `Framework`    | High-level structure or taxonomy (e.g., NIST CSF)                          |
 
-You can later add `mapping-references` to external documents and use an **external** [Mapping Document](../mapping/mapping-document-guide) to align those sources. 
+You can later add `mapping-references` to external documents and use a [Mapping Document](https://gemara.openssf.org/schema/mappingdocument.html) to align those sources (walkthrough: [Mapping Document Guide](../mapping/mapping-document-guide)).
 
 ### Step 1: Setting Up Metadata
 
@@ -81,7 +81,7 @@ metadata:
 type: Best Practice
 ```
 
-> **Minimal Mapping Document example:** A Mapping Document that maps this guidance catalog’s guidelines to OWASP Top 10 (source `ORG-SSD`, target `OWASP`) is in [mapping-document.yaml](../mapping/mapping-document.yaml).
+> **Minimal Mapping Document example:** A Mapping Document that maps this guidance catalog’s guidelines to OWASP Top 10 (source `ORG.SSD.001`, target `OWASP`) is in [mapping-document.yaml](../mapping/mapping-document.yaml).
 
 ### Step 2: Define Groups
 
