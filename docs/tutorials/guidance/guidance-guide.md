@@ -172,10 +172,10 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@v1.0.0-rc.1 your-guidance.yaml
+cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@v1 your-guidance.yaml
 ```
 
-To validate against the newest published schema instead, use `github.com/gemaraproj/gemara@latest`.
+To validate against the rolling tip of the default branch instead, use `github.com/gemaraproj/gemara@latest`.
 
 ### Minimal Full Example
 
