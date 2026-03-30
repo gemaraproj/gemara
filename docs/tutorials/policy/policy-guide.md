@@ -119,9 +119,8 @@ Under `imports`:
 
 - **`policies`** — List of external policy imports. Each entry: reference-id (must match metadata.mapping-references) to reference other policy documents this policy inherits or extends.
 - **`guidance`** — List of guidance imports used when the policy aligns to Layer 1 Guidance Catalogs. Each entry: reference-id (match metadata.mapping-references), optional exclusions and constraints.
-- **`catalogs`** — List of catalog imports used when the policy references Layer 2 Control Catalogs. Use `assessment-requirement-modifications` to tailor assessment requirements; each modifier sets `modification-type` to one of `Add`, `Modify`, `Remove`, `Replace`, or `Override` (see [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue)).
+- **`catalogs`** — List of catalog imports used when the policy references Layer 2 Control Catalogs. Use assessment-requirement-modifications to tailor how assessment requirements are applied (Add, Modify, Remove, Replace, or Override).
  
-
 Ensure each `reference-id` appears in `metadata.mapping-references`.
 
 **Example (YAML):**

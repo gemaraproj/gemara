@@ -65,7 +65,7 @@ metadata:
       url: file://threats.yaml
       description: |
         Threat catalog for the same scope; provides threat IDs referenced from each
-        control's threats list.
+        control's threats.
     - id: CCC
       title: Common Cloud Controls Core
       version: v2025.10
@@ -261,7 +261,7 @@ metadata:
       url: https://example.org/catalogs/SEC.SLAM.CM-threats.yaml
       description: |
         Threat catalog for the same scope; provides threat IDs referenced from each
-        control's threats list.
+        control's threats.
     - id: CCC
       title: Common Cloud Controls Core
       version: v2025.10

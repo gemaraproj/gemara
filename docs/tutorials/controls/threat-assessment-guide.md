@@ -16,7 +16,7 @@ In technical terms:
 
 This exercise helps you systematically identify what could go wrong so you can build appropriate defenses.
 
-Gemara splits these into two artifact kinds: **`#CapabilityCatalog`** (see `capabilitycatalog.cue`) for capability definitions, and **`#ThreatCatalog`** (see `threatcatalog.cue`) for threats. A threat catalog references capabilities via `mapping-references` on each threat. 
+Gemara splits these into two artifact kinds: **`CapabilityCatalog`** for capability definitions, and **`ThreatCatalog`** for threats. A threat catalog references capabilities via `mapping-references` on each threat. 
 
 ## Walkthrough
 
@@ -30,7 +30,7 @@ We will explore how this is leveraged below as we dive into our container manage
 
 ### Step 1: Setting Up Metadata (Threat catalog)
 
-Declare your scope and mapping references for the **`ThreatCatalog`**. Key fields:
+Declare your scope and mapping references for the `ThreatCatalog`. Key fields:
 
 | Field | What It Is | Why |
 |-------|------------|-----|
@@ -38,7 +38,7 @@ Declare your scope and mapping references for the **`ThreatCatalog`**. Key field
 | `metadata.type` | Must be `ThreatCatalog` | Identifies the artifact for `#ThreatCatalog` validation |
 | `metadata.gemara-version` | String (e.g. `1.0.0-rc.1`) | Declares which Gemara specification version the file conforms to (required) |
 | `mapping-references` with `id: CCC` | Pointer to the CCC Core catalog release | Resolve imported CCC capability and threat IDs used in `imports` and in each threat's `capabilities` |
-| `mapping-references` for scope capabilities | Pointer to your **`CapabilityCatalog`** (see Step 2) | Resolve IDs such as `SEC.SLAM.CM.CAP01` referenced from each threat's `capabilities` |
+| `mapping-references` for scope capabilities | Pointer to your `CapabilityCatalog` (see Step 2) | Resolve IDs such as `SEC.SLAM.CM.CAP01` referenced from each threat's `capabilities` |
 | Top-level `imports` (optional) | List of `#MultiEntryMapping` rows | Pull CCC (or other) capability/threat entries into this catalog without redefining them |
 
 **Example (YAML)** — threat catalog metadata only:
@@ -73,15 +73,15 @@ metadata:
 
 ### Step 2: Identify Capabilities (Capability catalog)
 
-Capabilities are the core functions or features within the scope. In Gemara they live in a **`CapabilityCatalog`**. For SEC.SLAM.CM, scope-specific capabilities are in [capabilities.yaml](capabilities.yaml) (`metadata.id` **`SEC.SLAM.CM.CAP`**) so threats can reference them with `reference-id: SEC.SLAM.CM.CAP` and `entries` listing IDs such as `SEC.SLAM.CM.CAP01`.
+Capabilities are the core functions or features within the scope. In Gemara they live in a `CapabilityCatalog`. For SEC.SLAM.CM, scope-specific capabilities are in [capabilities.yaml](capabilities.yaml) (`metadata.id` **`SEC.SLAM.CM.CAP`**) so threats can reference them with `reference-id: SEC.SLAM.CM.CAP` and `entries` listing IDs such as `SEC.SLAM.CM.CAP01`.
 
 **Start with the imported capabilities** you can leverage from FINOS CCC. Ask: "Which common cloud capabilities does this technology have?" 
 
 A container management tool actively reaches out to registries to pull images and configuration. Since CCC Core already defines that as **CP29** (Active Ingestion), we import it rather than redefining it. Image tags also function as version identifiers - the tool resolves a tag like `latest` or `v1.0` to a specific image. CCC Core defines that behavior as **CP18** (Resource Versioning), so we import that as well. 
 
-> **Note*:* Those IDs are referenced from threats under each threat’s **`capabilities`** and may also appear under top-level **`imports`** in the **`ThreatCatalog`**.
+> **Note:** Those IDs are referenced from threats under each threat’s `capabilities` and may also appear under top-level `imports` in the `ThreatCatalog`.
 
-**Then, define capabilities unique to your scope** in the capability catalog. Required fields for each capability (`#Capability`):
+**Then, define specific capabilities** unique to your target. Required fields:
 
 | Field | Required | Description |
 |-------|----------|-------------|
@@ -129,9 +129,9 @@ capabilities:
 
 ### Step 3: Identify Threats (Threat catalog)
 
-In a **`ThreatCatalog`**, put threats under **`threats`**; each threat’s **`capabilities`** use a `reference-id` from **`mapping-references`** and an `entries` list of capability IDs.
+In a `ThreatCatalog`, put threats under `threats`; each threat’s `capabilities` use a `reference-id` from `mapping-references` and an `entries` list of capability IDs.
 
-**Importing from CCC.** List CCC rows under top-level **`imports`** as a list of mappings. You can include both capability and threat IDs from CCC in the same `entries` list when they come from that single mapping reference.
+**Importing from CCC.** List CCC rows under top-level `imports` as a list of mappings. You can include both capability and threat IDs from CCC in the same `entries` list when they come from that single mapping reference.
 
 **Example (YAML)** — `imports` on the threat catalog:
 
@@ -147,7 +147,7 @@ imports:
         remarks: Older Resource Versions are Used
 ```
 
-**Defining your own threats.** Required fields (`#Threat` in `threatcatalog.cue`):
+**Then, define specific threats** unique to your target. Required fields:
 
 | Field | Required | Description |
 |-------|----------|-------------|
@@ -189,7 +189,7 @@ threats:
 
 ### Step 4: Validate
 
-The final threat catalog YAML combines `title`, **`metadata`** (including **`mapping-references`**), optional top-level **`imports`**, **`groups`**, and **`threats`**. Scope-specific capabilities remain in [capabilities.yaml](capabilities.yaml). **The final YAML should look something like this:**
+The final threat catalog YAML combines `title`, `metadata` (including `mapping-references`), optional top-level `imports`, `groups`, and `threats`. Scope-specific capabilities remain in [capabilities.yaml](capabilities.yaml). **The final YAML should look something like this:**
 
 ```yaml
 title: Container Management Tool Security Threat Catalog
