@@ -44,9 +44,13 @@ Declare your catalog and, if you will reference external standards, add mapping 
 | `type`                        | One of Standard, Regulation, Best Practice, Framework (catalog intent)     | Required by schema; clarifies intent                                |
 | `metadata.id`                 | Unique identifier for this catalog                                        | Used when other artifacts reference this catalog                    |
 | `metadata.type`               | Artifact kind (e.g. `GuidanceCatalog`)                                    | Required by schema; identifies the Gemara artifact type              |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"0.20.0"`)                            | Required by schema; declares which spec the artifact conforms to     |
-| `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)                        | Resolve IDs used in external Mapping Document on guidelines. |
-| `metadata.applicability-groups` | List of groups (id, title, description) for when guidelines apply | Define scope so guidelines reference these ids in `applicability`; keeps applicability consistent and documented |
+| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.0.0-rc.1"`)                         | Required by schema; declares which spec the artifact conforms to     |
+| `metadata.description`        | High-level summary of purpose and scope                                   | Required by schema; human-readable catalog summary                   |
+| `metadata.author`             | Actor responsible for the artifact (`id`, `name`, `type`, …)              | Required by schema; identifies ownership or authorship                 |
+| `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)                        | Optional; resolve IDs used in external Mapping Document on guidelines |
+| `metadata.applicability-groups` | List of groups (id, title, description) for when guidelines apply | Optional; define scope so guidelines reference these ids in `applicability` |
+
+Other optional metadata fields (e.g. `version`, `date`, `draft`, `lexicon`) are documented under [#Metadata](https://gemara.openssf.org/schema/metadata.html).
 
 **Example (YAML):**
 
@@ -55,7 +59,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.0.0-rc.1"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
@@ -85,7 +89,7 @@ type: Best Practice
 
 ### Step 2: Define Groups
 
-**Groups** group guidelines by theme. The Guidance Catalog schema requires at least one group when the catalog defines `guidelines`. Each guideline’s `group` field must match the `id` of one of these groups (id, title, description).
+**Groups** group guidelines by theme. The Guidance Catalog schema requires at least one group when the catalog defines `guidelines`. Each guideline's `group` field must match the `id` of one of these groups (id, title, description).
 
 **Example (YAML):**
 
@@ -98,7 +102,7 @@ groups:
 
 ### Step 3: Define Guidelines
 
-**Guidelines** are the core content. Required fields for each guideline (see `layer-1.cue`):
+**Guidelines** are the core content. Required fields for each guideline (see `guidancecatalog.cue`):
 
 | Field       | Required | Description                                              |
 |-------------|----------|----------------------------------------------------------|
@@ -106,9 +110,9 @@ groups:
 | `title`     | Yes      | Short name for the guideline                             |
 | `objective` | Yes      | Unified statement of intent                              |
 | `group`     | Yes      | `id` of a group in this catalog                          |
-| `state`     | Yes      | Lifecycle: `Active`, `Draft`, `Deprecated`, or `Retired` |
+| `state`     | Yes      | Lifecycle: `Active`, `Draft`, `Deprecated`, or `Retired` (must match this casing) |
 
-Optional: `recommendations`, `applicability`, `rationale`, `statements`, `guidelines`, `vectors`, and others (see `layer-1.cue`).
+Optional: `recommendations`, `rationale`, `vectors`,`extends`, `applicability`, and others (see `guidancecatalog.cue`).
 
 **Applicability:** When you define `metadata.applicability-groups` in Step 1, use those group **ids** in each guideline’s `applicability` list (e.g. `["containerized_workloads", "ci_cd"]`). That keeps applicability consistent and documented.
 
@@ -122,7 +126,7 @@ guidelines:
       Use digest-based or immutable references for container images to prevent
       tampering and ensure repeatable deployments.
     group: ORG.SSD.FAM01
-    state: active
+    state: Active
     recommendations:
       - Prefer pull-by-digest over tags for production.
       - Pin base image digests in Dockerfiles or equivalent.
@@ -153,13 +157,14 @@ guidelines:
     state: Active
     recommendations:
       - Use a VPN for registry and build traffic on untrusted networks.
+    applicability: ["containerized_workloads", "ci_cd"]
     see-also:
-      - ORG.SSD.GL02 
+      - ORG.SSD.GL02
 ```
 
 ### Step 4: Validate
 
-The catalog must conform to the Guidance Catalog Definition defined in the CUE module. Validate with CUE:
+The catalog must conform to Guidance Catalog Definition defined in the CUE module. Validate with CUE:
 
 **Validation commands:**
 
@@ -167,8 +172,10 @@ Using the **published** module:
 
 ```bash
 go install cuelang.org/go/cmd/cue@latest
-cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@latest your-guidance.yaml
+cue vet -c -d '#GuidanceCatalog' github.com/gemaraproj/gemara@v1.0.0-rc.1 your-guidance.yaml
 ```
+
+To validate against the newest published schema instead, use `github.com/gemaraproj/gemara@latest`.
 
 ### Minimal Full Example
 
@@ -179,7 +186,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.0.0-rc.1"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
@@ -254,4 +261,4 @@ guidelines:
 
 ## What's Next
 
-Map guidelines to Layer 2 controls via control catalogs’ `guidelines`, or reference this guidance from a Policy. See the [schema documentation](https://gemara.openssf.org/schema/layer-1.html) for optional fields such as `exemptions`, `see-also`, `replaced-by`, `front-matter`, `rationale`, `statements`, and `principles` or `vectors`.
+Map guidelines to Layer 2 controls via control catalogs’ `guidelines`, or reference this guidance from a Policy. See the [Guidance Catalog schema](https://gemara.openssf.org/schema/guidancecatalog.html) for optional fields.
