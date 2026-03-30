@@ -1,11 +1,13 @@
 # Container Management Tool Security Control Catalog
-# Conforms to Gemara Layer 2 #ControlCatalog (layer-2.cue).
+# Conforms to Gemara #ControlCatalog (schema tag v1.0.0-rc.1; see controlcatalog.cue).
 # See control-catalog-guide.md for the full tutorial and this scenario.
 
 title: Container Management Tool Security Control Catalog
 
 metadata:
   id: SEC.SLAM.CM
+  type: ControlCatalog
+  gemara-version: "1.0.0-rc.1"
   description: |
     Control catalog for container management tool security; mitigates threats
     from the SEC.SLAM.CM threat catalog.
@@ -20,7 +22,8 @@ metadata:
       version: "1.0.0"
       url: https://example.org/catalogs/SEC.SLAM.CM-threats.yaml
       description: |
-        Threat catalog for the same scope; provides threat IDs for threat-mappings.
+        Threat catalog for the same scope; provides threat IDs referenced from each
+        control's threats list.
     - id: CCC
       title: Common Cloud Controls Core
       version: v2025.10
@@ -56,11 +59,10 @@ groups:
       and from trusted sources throughout retrieval and use.
 
 imports:
-  controls:
-    - reference-id: CCC
-      entries:
-        - reference-id: CCC.Core.CTL42
-          remarks: Image signing and verification
+  - reference-id: CCC
+    entries:
+      - reference-id: CCC.Core.CTL42
+        remarks: Image signing and verification
 
 controls:
   - id: SEC.SLAM.CM.CTL01
@@ -125,7 +127,7 @@ controls:
           artifacts are rejected.
         applicability: ["all_deployments"]
         state: Active
-    threat-mappings:
+    threats:
       - reference-id: SEC.SLAM.CM
         entries:
           - reference-id: SEC.SLAM.CM.THR02
