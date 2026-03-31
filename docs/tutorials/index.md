@@ -23,13 +23,11 @@ That mitigate those threats → [Control Catalog Guide](controls/control-catalog
 
 ### Understanding what threats and controls exist
 
-Before writing policy → [Threat Assessment Guide](controls/threat-assessment-guide)
-
-→ **COMING SOON:** Review or author threat-informed controls that your policy will reference (Layer 2).
+Before writing policy → [Threat Assessment Guide](controls/threat-assessment-guide) for threats and capabilities, and [Control Catalog Guide](controls/control-catalog-guide) for threat-informed controls and assessment requirements (Layer 2).
 
 ### Reviewing the controls to reference in a policy
 
-→ **COMING SOON:** Understand the control catalog structure and assessment requirements (Layer 2).
+→ [Control Catalog Guide](controls/control-catalog-guide) — control structure, assessment requirements, and threat links (Layer 2).
 
 ### Understanding the security posture of consumed software
 
@@ -39,7 +37,7 @@ Before writing policy → [Threat Assessment Guide](controls/threat-assessment-g
 
 ### Creating a guidance catalog from best practices
 
-From a spreadsheet or checklist — create a guidance catalog (guidelines, groups, mapping-references) that threat-informed controls can reference; express relationships to other frameworks in a [Mapping Document](https://gemara.openssf.org/schema/mapping.html). → [Guidance Catalog Guide](guidance/guidance-guide).
+From a spreadsheet or checklist — create a guidance catalog (guidelines, groups, mapping-references) that threat-informed controls can reference; express relationships to other frameworks in a [Mapping Document](https://gemara.openssf.org/schema/mappingdocument.html) (see [mapping-document.yaml](guidance/mapping-document.yaml)). → [Guidance Catalog Guide](guidance/guidance-guide).
 
 ### Creating organizational policy
 
@@ -55,7 +53,7 @@ When you need a structured inventory of organizational or system risks—**risk 
 |-------|----------|-------|
 | **Layer 1** — Guidance | Guidance Catalog (guidelines, groups, mapping-references); [Principle Catalog](https://gemara.openssf.org/schema/principlecatalog.html) (principles, groups) | [Guidance Catalog Guide](guidance/guidance-guide) |
 | **Layer 2** — Controls | Threat Catalog + Control Catalog (assessment requirements, threats) | [Threat Assessment](controls/threat-assessment-guide), [Control Catalog](controls/control-catalog-guide) |
-| **Layer 3** — Policy   | Policy Document (scope, imports, adherence, risks)                  | [Policy Guide](policy/policy-guide) |
+| **Layer 3** — Policy   | Policy Document (scope, imports, adherence)                  | [Policy Guide](policy/policy-guide) |
 | **Layer 3** — Risks    | Risk Catalog (risk categories, appetite, risks, optional threat mappings) | [Risk Catalog Guide](policy/risk-catalog-guide) |
 
 ## What You'll Need

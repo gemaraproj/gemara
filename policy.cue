@@ -96,9 +96,9 @@ package gemara
 
 // Adherence defines evaluation methods, assessment plans, enforcement methods, and non-compliance notifications.
 #Adherence: {
-	"evaluation-methods"?: [#AcceptedMethod, ...#AcceptedMethod] @go(EvaluationMethods)
+	"evaluation-methods"?: [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
 	"assessment-plans"?: [#AssessmentPlan, ...#AssessmentPlan] @go(AssessmentPlans)
-	"enforcement-methods"?: [#AcceptedMethod, ...#AcceptedMethod] @go(EnforcementMethods)
+	"enforcement-methods"?: [#AcceptedMethod & {type: #EnforcementMethodType}, ...#AcceptedMethod & {type: #EnforcementMethodType}] @go(EnforcementMethods)
 	"non-compliance"?: string @go(NonCompliance)
 }
 
@@ -107,7 +107,7 @@ package gemara
 	id:               string
 	"requirement-id": string @go(RequirementId)
 	frequency:        string
-	"evaluation-methods": [#AcceptedMethod, ...#AcceptedMethod] @go(EvaluationMethods)
+	"evaluation-methods": [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
 	"evidence-requirements"?: string @go(EvidenceRequirements)
 	parameters?: [#Parameter, ...#Parameter]
 }
@@ -122,8 +122,10 @@ package gemara
 	executor?:    #Actor
 }
 
-#ModeType:   "Manual" | "Automated"                           @go(-)
-#MethodType: "Behavioral" | "Intent" | "Remediation" | "Gate" @go(-)
+#ModeType:              "Manual" | "Automated"                           @go(-)
+#MethodType:            "Behavioral" | "Intent" | "Remediation" | "Gate" @go(-)
+#EvaluationMethodType:  "Intent" | "Behavioral"                          @go(-)
+#EnforcementMethodType: "Gate" | "Remediation"                           @go(-)
 
 // Parameter defines a configurable parameter for assessment or enforcement activities.
 #Parameter: {

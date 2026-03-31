@@ -2,6 +2,8 @@
 @status("stable")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // ControlCatalog describes a set of related controls and relevant metadata
@@ -15,6 +17,19 @@ package gemara
 	if controls != _|_ {
 		_uniqueControlIds: {for i, c in controls {(c.id): i}}
 		groups: [#Group, ...#Group]
+		metadata: "applicability-groups": [#Group, ...#Group]
+		let _validGroupIds = [for g in groups {g.id}]
+		let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
+
+		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
+		for i, c in controls {
+			_groupValidation: "\(i)": _validGroupIds & list.Contains(c.group)
+			for j, ar in c."assessment-requirements" {
+				for k, a in ar.applicability {
+					_applicabilityValidation: "\(i)-\(j)-\(k)": _validApplicabilityIds & list.Contains(a)
+				}
+			}
+		}
 	}
 }
 

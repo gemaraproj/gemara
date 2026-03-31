@@ -1,0 +1,22 @@
+title: AI Governance Framework Principles
+metadata:
+  id: AIR-PRIN
+  type: PrincipleCatalog
+  gemara-version: "0.20.0"
+  description: Core principles underpinning the FINOS AI Governance Framework.
+  version: 0.1.0
+  author:
+    id: finos
+    name: FINOS
+    type: Human
+
+groups:
+  - id: data-protection
+    title: Data Protection
+    description: Principles governing the handling of sensitive data within AI systems.
+
+principles:
+  - id: AIR-PRIN-001
+    title: Proactive Data Sanitization
+    group: nonexistent-group
+    description: Apply filtering and anonymization techniques before data enters the AI pipeline.

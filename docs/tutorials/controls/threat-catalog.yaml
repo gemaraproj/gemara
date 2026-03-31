@@ -1,0 +1,145 @@
+# Container Management Tool Security Threat Catalog (ThreatCatalog).
+# Conforms to Gemara #ThreatCatalog (threatcatalog.cue); gemara-version matches schema tag.
+# Scope-specific capabilities live in capabilities.yaml (CapabilityCatalog).
+# See threat-assessment-guide.md.
+
+title: Container Management Tool Security Threat Catalog
+
+metadata:
+  id: SEC.SLAM.CM
+  type: ThreatCatalog
+  gemara-version: "1.0.0-rc.1"
+  description: Threat catalog for container management tool security assessment
+  version: 1.0.0
+  author:
+    id: example
+    name: Example
+    type: Human
+  mapping-references:
+    - id: CCC
+      title: Common Cloud Controls Core
+      version: v2025.10
+      url: https://github.com/finos/common-cloud-controls/releases
+      description: |
+        Foundational repository of reusable security controls, capabilities,
+        and threat models maintained by FINOS.
+    - id: SEC.SLAM.CM.CAP
+      title: Container Management Tool Security Capability Catalog
+      version: "1.0.0"
+      url: https://example.org/catalogs/SEC.SLAM.CM-capabilities.yaml
+      description: |
+        Scope-specific capabilities (CAP01, CAP02) for this threat assessment.
+
+groups:
+  - id: SEC.SLAM.CM.FAM01
+    title: Image integrity and supply chain
+    description: |
+      Threats affecting container image retrieval, integrity, and trust.
+
+imports:
+  - reference-id: CCC
+    entries:
+      - reference-id: CCC.Core.CP29
+        remarks: Active Ingestion
+      - reference-id: CCC.Core.CP18
+        remarks: Resource Versioning
+      - reference-id: CCC.Core.CP01
+        remarks: Encryption in Transit Enabled by Default
+      - reference-id: CCC.Core.TH14
+        remarks: Older Resource Versions are Used
+      - reference-id: CCC.Core.TH02
+        remarks: Related transit / interception threat from CCC Core
+
+threats:
+  - id: SEC.SLAM.CM.THR01
+    title: Container Image Tampering or Poisoning
+    description: |
+      Attackers may replace a legitimately published image tag with a malicious image
+      by exploiting tag mutability in image registries, especially when the container
+      management tool retrieves images by tag name rather than digest. This enables
+      unauthorized access, data exfiltration, and system compromise.
+    group: SEC.SLAM.CM.FAM01
+    capabilities:
+      - reference-id: CCC
+        entries:
+          - reference-id: CCC.Core.CP29
+          - reference-id: CCC.Core.CP18
+      - reference-id: SEC.SLAM.CM.CAP
+        entries:
+          - reference-id: SEC.SLAM.CM.CAP01
+
+  - id: SEC.SLAM.CM.THR02
+    title: MITM Container Image Interception
+    description: |
+      Attackers redirect the client to an unauthorized or malicious mirror so that
+      image pulls (or other artifact downloads) fetch compromised artifacts instead
+      of the intended ones—via DNS spoofing, MITM, or compromise of resolution or
+      redirect. The client believes it is pulling from the trusted vendor but is
+      served malware or tampered images.
+    group: SEC.SLAM.CM.FAM01
+    capabilities:
+      - reference-id: CCC
+        entries:
+          - reference-id: CCC.Core.CP29
+          - reference-id: CCC.Core.CP01
+      - reference-id: SEC.SLAM.CM.CAP
+        entries:
+          - reference-id: SEC.SLAM.CM.CAP01
+          - reference-id: SEC.SLAM.CM.CAP02
+
+  - id: SEC.SLAM.CM.THR03
+    title: TOCTOU Attacks during time-of-check-time-of-use
+    description: |
+      Attackers exploit the gap between when the container management tool (or
+      pipeline) validates an image and when it is used: they modify the resource
+      after the check and before use (e.g. replacing the image in cache, swapping
+      the file on disk, or changing what a tag resolves to) so the tool runs or
+      distributes a malicious image that bypassed the check, leading to compromised
+      workloads, credential theft, or supply chain poisoning.
+    group: SEC.SLAM.CM.FAM01
+    capabilities:
+      - reference-id: CCC
+        entries:
+          - reference-id: CCC.Core.CP29
+          - reference-id: CCC.Core.CP18
+      - reference-id: SEC.SLAM.CM.CAP
+        entries:
+          - reference-id: SEC.SLAM.CM.CAP01
+          - reference-id: SEC.SLAM.CM.CAP02
+
+  - id: SEC.SLAM.CM.THR04
+    title: Supply chain compromise from tag substitution
+    description: |
+      Attackers substitute the content behind a mutable tag (e.g. "latest", "v1.0")
+      by retagging a malicious image or publishing under the same tag after the
+      legitimate one, so that consumers who pull by tag receive a malicious artifact.
+      CI/CD and deployments that use tags (rather than digests) pull the substituted
+      artifact, introducing malware, backdoors, or credential theft into the supply chain.
+    group: SEC.SLAM.CM.FAM01
+    capabilities:
+      - reference-id: CCC
+        entries:
+          - reference-id: CCC.Core.CP29
+          - reference-id: CCC.Core.CP18
+      - reference-id: SEC.SLAM.CM.CAP
+        entries:
+          - reference-id: SEC.SLAM.CM.CAP01
+          - reference-id: SEC.SLAM.CM.CAP02
+
+  - id: SEC.SLAM.CM.THR05
+    title: Container Registry Typosquatting
+    description: |
+      Attackers register container image or registry names that closely mimic
+      legitimate ones (typos, homoglyphs, character omission or transposition) so
+      that users or automation accidentally pull a malicious image instead of the
+      intended one, leading to malware, credential theft, or backdoors.
+    group: SEC.SLAM.CM.FAM01
+    capabilities:
+      - reference-id: CCC
+        entries:
+          - reference-id: CCC.Core.CP29
+          - reference-id: CCC.Core.CP18
+      - reference-id: SEC.SLAM.CM.CAP
+        entries:
+          - reference-id: SEC.SLAM.CM.CAP01
+          - reference-id: SEC.SLAM.CM.CAP02

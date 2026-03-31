@@ -2,6 +2,8 @@
 @status("experimental")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // A VectorCatalog is a structured collection of documented vectors,
@@ -17,6 +19,20 @@ package gemara
 	if vectors != _|_ {
 		_uniqueVectorIds: {for i, v in vectors {(v.id): i}}
 		groups: [#Group, ...#Group]
+		let _validGroupIds = [for g in groups {g.id}]
+
+		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
+		for i, v in vectors {
+			_groupValidation: "\(i)": _validGroupIds & list.Contains(v.group)
+		}
+		if metadata."applicability-groups" != _|_ {
+			let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
+			for i, v in vectors if v.applicability != _|_ {
+				for j, a in v.applicability {
+					_applicabilityValidation: "\(i)-\(j)": _validApplicabilityIds & list.Contains(a)
+				}
+			}
+		}
 	}
 }
 

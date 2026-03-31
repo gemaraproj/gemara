@@ -1,0 +1,31 @@
+metadata:
+  id: EXAMPLE-THREAT-CATALOG
+  type: ThreatCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Example Threat Catalog
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: EXAMPLE-CAPABILITY-CATALOG
+      title: Example Capability Catalog
+      version: "1.0.0"
+
+title: Example Threat Catalog
+
+groups:
+  - id: stride-s
+    title: Spoofing
+    description: Impersonating something or someone to gain unauthorized access
+
+threats:
+  - id: THREAT-001
+    title: Exploitation of Vulnerable Container Images
+    description: Attackers exploit known vulnerabilities in container images.
+    group: nonexistent-group
+    capabilities:
+      - reference-id: EXAMPLE-CAPABILITY-CATALOG
+        entries:
+          - reference-id: CAP-001

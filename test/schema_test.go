@@ -107,6 +107,18 @@ func TestSchemaValidation(t *testing.T) {
 		// AuditLog — negative
 		{"audit log missing summary criteria and results", "./test-data/bad-audit-log.yaml", "#AuditLog", true, ""},
 
+		// CapabilityCatalog — negative
+		{"capability with invalid group", "./test-data/bad-capability-invalid-group.yaml", "#CapabilityCatalog", true, ""},
+
+		// ThreatCatalog — negative
+		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, ""},
+
+		// PrincipleCatalog — negative
+		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, ""},
+
+		// ControlCatalog — negative (group validation)
+		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, ""},
+
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},
 	}

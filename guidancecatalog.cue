@@ -2,6 +2,8 @@
 @status("experimental")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // GuidanceCatalog represents a concerted documentation effort to help bring about an optimal future without foreknowledge of the implementation details
@@ -24,6 +26,20 @@ package gemara
 	if guidelines != _|_ {
 		_uniqueGuidelineIds: {for i, g in guidelines {(g.id): i}}
 		groups: [#Group, ...#Group]
+		let _validGroupIds = [for g in groups {g.id}]
+
+		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
+		for i, g in guidelines {
+			_groupValidation: "\(i)": _validGroupIds & list.Contains(g.group)
+		}
+		if metadata."applicability-groups" != _|_ {
+			let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
+			for i, g in guidelines if g.applicability != _|_ {
+				for j, a in g.applicability {
+					_applicabilityValidation: "\(i)-\(j)": _validApplicabilityIds & list.Contains(a)
+				}
+			}
+		}
 	}
 }
 

@@ -1,0 +1,39 @@
+# Scope-specific capabilities for SEC.SLAM.CM (CapabilityCatalog).
+# Referenced from threat-catalog.yaml via mapping-references id SEC.SLAM.CM.CAP.
+# See threat-assessment-guide.md.
+
+title: Container Management Tool Security Capability Catalog
+
+metadata:
+  id: SEC.SLAM.CM.CAP
+  type: CapabilityCatalog
+  gemara-version: "1.0.0-rc.1"
+  description: |
+    Capabilities unique to the container management tool scope; referenced by
+    threats in the SEC.SLAM.CM threat catalog.
+  version: 1.0.0
+  author:
+    id: example
+    name: Example
+    type: Human
+
+groups:
+  - id: SEC.SLAM.CM.CAPGRP01
+    title: Image retrieval and resolution
+    description: |
+      How the tool retrieves images and resolves references to artifacts.
+
+capabilities:
+  - id: SEC.SLAM.CM.CAP01
+    title: Image Retrieval by Tag
+    description: |
+      Ability to retrieve container images from registries using mutable tag names
+      (e.g., 'latest', 'v1.0').
+    group: SEC.SLAM.CM.CAPGRP01
+  - id: SEC.SLAM.CM.CAP02
+    title: Image Reference Lookup
+    description: |
+      The container management tool determines which artifact an image reference
+      (e.g. tag, URL) refers to via network requests; that determination may occur
+      at a different time than use, and references may be mutable.
+    group: SEC.SLAM.CM.CAPGRP01

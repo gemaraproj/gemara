@@ -1,12 +1,16 @@
+# Minimal mapping from Secure Software Development Guidance to OWASP Top 10 (#MappingDocument).
+# Validate: cue vet -c -d '#MappingDocument' github.com/gemaraproj/gemara@v1 this-file.yaml
+# See guidance-guide.md.
+
 title: Secure Software Development Guidance to OWASP Top 10
 metadata:
   id: SSD-OWASP-MAP-001
-  version: "1.0.0"
   type: MappingDocument
-  gemara-version: "0.20.0"
+  gemara-version: "1.0.0-rc.1"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
+  version: "1.0.0"
   author:
     id: gemara-example
     name: Gemara Example Author
@@ -33,20 +37,20 @@ mappings:
   - id: GL01-A06
     source: ORG.SSD.GL01
     relationship: relates-to
-    rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
     targets:
       - entry-id: "A06"
+        rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
 
   - id: GL02-A01
     source: ORG.SSD.GL02
     relationship: relates-to
-    rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
     targets:
       - entry-id: "A01"
+        rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
 
   - id: GL03-A02
     source: ORG.SSD.GL03
     relationship: relates-to
-    rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
     targets:
       - entry-id: "A02"
+        rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.

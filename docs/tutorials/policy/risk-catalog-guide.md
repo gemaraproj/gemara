@@ -8,10 +8,10 @@ description: Step-by-step guide to creating Gemara-compatible risk catalogs
 
 This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue) and the published [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html). Examples use `gemara-version: "1.0.0-rc.0"` to match the [v1.0.0-rc.0](https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.0) specification release candidate; adjust if you target a different Gemara version.
 
-**The basic idea:** A Risk Catalog is a structured list of **risks** that might affect an organization, system, or service. You organize them into **groups** (schema type `#RiskCategory`) that express how much risk you are willing to carry (risk appetite) and optionally cap how bad a single risk in that group can be (**max-severity**). Each risk has an assessed **severity** and can point to Layer 2 **threats** so mitigations and policies stay traceable to threat catalogs.
+**The basic idea:** A Risk Catalog is a structured list of **[risks](../../model/02-definitions.html#risk)** that might affect an organization, system, or service. You organize them into **groups** (schema type `#RiskCategory`) that express how much risk you are willing to carry ( risk appetite) and optionally cap how bad a single risk in that group can be (**max-severity**). Each risk has an assessed **severity** and can point to Layer 2 **[threats](../../model/02-definitions.html#threat)** so mitigations and policies stay traceable to threat catalogs.
 
 In technical terms:
-* **Risk catalogs** declare `metadata` (including `type: RiskCatalog`), **groups** as `#RiskCategory` (id, title, description, `#RiskAppetite` appetite, optional `#Severity` max-severity), and **risks** (`#Risk`) with required id, title, description, `group`, and `severity`, plus optional owner (`#RACI`), impact, and `threats` (`#MultiEntryMapping` from [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue)).
+* **[Risk catalogs](../../model/02-definitions.html#risk-catalog)** declare `metadata` (including `type: RiskCatalog`), **groups** as `#RiskCategory` (id, title, description, `#RiskAppetite` appetite, optional `#Severity` max-severity), and **[risks](../../model/02-definitions.html#risk)** (`#Risk`) with required id, title, description, `group`, and `severity`, plus optional owner (`#RACI`), impact, and `threats` (`#MultiEntryMapping` from [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue).
 * **When the catalog lists any risks**, the schema requires at least one group (`groups` becomes required in that case).
 * **Groups** use appetite values `Minimal`, `Low`, `Moderate`, or `High` and optional group-level **max-severity** (`Low`, `Medium`, `High`, `Critical`).
 * **Risks** use **severity** at the same scale (`Low` through `Critical`). Links under `threats` use the same multi-entry mapping pattern as control and threat catalogs; every outer `reference-id` must match an id in `metadata.mapping-references`.
@@ -96,7 +96,7 @@ groups:
 
 ### Step 2: Risks
 
-Define **risks** with required fields and optional links to Layer 2 threats and RACI owner. Each risk must reference a group id defined in Step 1. When a group sets **`max-severity`**, keep the risk’s **`severity`** at or below that cap so the catalog stays internally consistent (otherwise the risk sits outside the category’s stated tolerance).
+Define **[risks](../../model/02-definitions.html#risk)** with required fields and optional links to Layer 2 threats and RACI owner. Each risk must reference a group id defined in Step 1. When a group sets **`max-severity`**, keep the risk’s **`severity`** at or below that cap so the catalog stays internally consistent (otherwise the risk sits outside the category’s stated tolerance).
 
 | Field           | Required | What It Is                                                                 |
 |-----------------|----------|----------------------------------------------------------------------------|

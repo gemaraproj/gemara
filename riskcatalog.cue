@@ -2,6 +2,8 @@
 @status("experimental")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // A RiskCatalog is a structured collection of documented risks that may affect an organization,
@@ -20,6 +22,12 @@ package gemara
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
 		groups: [#RiskCategory, ...#RiskCategory]
+		let _validGroupIds = [for g in groups {g.id}]
+
+		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
+		for i, r in risks {
+			_groupValidation: "\(i)": _validGroupIds & list.Contains(r.group)
+		}
 	}
 }
 

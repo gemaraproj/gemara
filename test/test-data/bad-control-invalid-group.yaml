@@ -1,0 +1,34 @@
+metadata:
+  id: TEST-INVALID-GROUP
+  type: ControlCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Control catalog with a control referencing an invalid group.
+  author:
+    id: test
+    name: Test Author
+    type: Human
+  applicability-groups:
+    - id: production
+      title: Production
+      description: Production environments.
+
+title: Invalid Group Test
+
+groups:
+  - id: access-control
+    title: Access Control
+    description: Controls related to access.
+
+controls:
+  - id: TC-001
+    group: nonexistent-group
+    title: Test Control
+    objective: Test objective.
+    state: Active
+    assessment-requirements:
+      - id: TC-001.AR01
+        text: Test requirement.
+        state: Active
+        applicability:
+          - production
