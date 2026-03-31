@@ -8,11 +8,11 @@ description: Step-by-step guide to performing Gemara-compatible threat assessmen
 
 This guide walks through a threat assessment using the [Gemara](https://gemara.openssf.org/) project.
 
-**The basic idea:** Think of a project like a house. First, you identify what the house can do: its **[capabilities](../../glossary/capability)** (e.g., "allow entry/exit", "store belongings"). Then, you identify **[threats](../../glossary/threat)**, what could go wrong with those capabilities (e.g., "unauthorized entry through unlocked door", "theft of stored belongings").
+**The basic idea:** Think of a project like a house. First, you identify what the house can do: its **[capabilities](../../model/02-definitions.html#capability)** (e.g., "allow entry/exit", "store belongings"). Then, you identify **[threats](../../model/02-definitions.html#threat)**,, what could go wrong with those capabilities (e.g., "unauthorized entry through unlocked door", "theft of stored belongings").
 
 In technical terms:
-* **[Capabilities](../../glossary/capability)** define what the technology can do. These form a primary component of the **attack surface** because every intended function represents a potential path for unintended use.
-* **[Threats](../../glossary/threat)** define specific ways those capabilities could be misused or exploited.
+ * **[Capabilities](../../model/02-definitions.html#capability)** define what the technology can do. These form a primary component of the **attack surface** because every intended function represents a potential path for unintended use.
+ * **[Threats](../../model/02-definitions.html#threat)** define specific ways those capabilities could be misused or exploited.
 
 This exercise helps you systematically identify what could go wrong so you can build appropriate defenses.
 
@@ -37,9 +37,15 @@ Declare your scope and mapping references for the `ThreatCatalog`. Key fields:
 | `title` | Display name for the threat catalog (top-level field) | Human-readable label used in reports and tooling output |
 | `metadata.type` | Must be `ThreatCatalog` | Identifies the artifact for `#ThreatCatalog` validation |
 | `metadata.gemara-version` | String (e.g. `1.0.0-rc.1`) | Declares which Gemara specification version the file conforms to (required) |
+<<<<<<< HEAD
+| `mapping-references` with `id: CCC` | Pointer to the CCC Core catalog release | Resolve imported CCC capability and threat IDs used in `imports` and in each threat's `capabilities` |
+| `mapping-references` for scope capabilities | Pointer to your `CapabilityCatalog` (see Step 2) | Resolve IDs such as `SEC.SLAM.CM.CAP01` referenced from each threat's `capabilities` |
+| Top-level `imports` (optional) | List of `#MultiEntryMapping` rows | Pull CCC (or other) threat entries into this catalog without redefining them |
+=======
 | `mapping-references` with `id: CCC` | Pointer to the CCC Core catalog release | Resolve imported CCC capability and threat IDs used in `imports` and in each threat's `capabilities` |
 | `mapping-references` for scope capabilities | Pointer to your `CapabilityCatalog` (see Step 2) | Resolve IDs such as `SEC.SLAM.CM.CAP01` referenced from each threat's `capabilities` |
 | Top-level `imports` (optional) | List of `#MultiEntryMapping` rows | Pull CCC (or other) capability/threat entries into this catalog without redefining them |
+>>>>>>> 4180fdc (fix: updates broken links)
 
 **Example (YAML)** — threat catalog metadata only:
 
@@ -129,9 +135,9 @@ capabilities:
 
 ### Step 3: Identify Threats (Threat catalog)
 
-**[Threats](../../glossary/threat)** are specific ways **[capabilities](../../glossary/capability)** can be misused, exploited, or cause problems. For each **[capability](../../glossary/capability)**, identify potential **[threats](../../glossary/threat)**.
+ **[Threats](../../model/02-definitions.html#threat)** are specific ways **[capabilities](../../model/02-definitions.html#capability)** can be misused, exploited, or cause problems. For each **capability**, identify potential **threats**.
 
-Check for imported **[threats](../../glossary/threat)** first. As with **[capabilities](../../glossary/capability)**, review the CCC Core catalog for threats linked to the capabilities you imported. If a threat fits your scope, import it. In this example, CCC Core defines **TH14** ("Older Resource Versions are Used") which is linked to **CP18**. It applies because mutable image tags let the tool resolve to a stale or compromised version.
+Check for imported **[threats](../../model/02-definitions.html#threat)** first. As with **[capabilities](../../model/02-definitions.html#capability)**, review the CCC Core catalog for threats linked to the capabilities you imported. If a threat fits your scope, import it. In this example, CCC Core defines **TH14** ("Older Resource Versions are Used") which is linked to **CP18**. It applies because mutable image tags let the tool resolve to a stale or compromised version.
 
 **Importing from CCC.** List CCC rows under top-level `imports` as a list of mappings. You can include both capability and threat IDs from CCC in the same `entries` list when they come from that single mapping reference.
 
@@ -157,11 +163,11 @@ imports:
 | `title` | Yes | Short name for the threat |
 | `description` | Yes | What goes wrong and why it matters |
 | `group` | Yes | `id` of a **group** defined in this threat catalog |
-| `capabilities` | Yes | Links this threat to the [capabilities](../../glossary/capability) it exploits |
+| `capabilities` | Yes | Links this threat to the capabilities it exploits |
 | `vectors` | No | Optional link to vector catalog entries |
 | `actors` | No | Optional threat actors (`#Actor`) |
 
-**Example (YAML)** — a custom [threat](../../glossary/threat) (*Container Image Tampering or Poisoning*) linked to the [capabilities](../../glossary/capability) it exploits: **CCC.Core.CP29** (Active Ingestion), **CCC.Core.CP18** (Resource Versioning), and **SEC.SLAM.CM.CAP01** (Image Retrieval by Tag) via your scope capability catalog reference (`SEC.SLAM.CM.CAP`).
+**Example (YAML)** — a custom threat (*Container Image Tampering or Poisoning*) linked to the capabilities it exploits: **CCC.Core.CP29** (Active Ingestion), **CCC.Core.CP18** (Resource Versioning), and **SEC.SLAM.CM.CAP01** (Image Retrieval by Tag) via your scope capability catalog reference (`SEC.SLAM.CM.CAP`).
 
 ```yaml
 groups:

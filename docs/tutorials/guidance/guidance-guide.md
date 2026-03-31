@@ -11,9 +11,9 @@ This guide walks through creating a **Guidance Catalog** using the [Gemara](http
 **The basic idea:** A Guidance Catalog is a structured set of **guidelines**—recommendations, requirements, or best practices—that help readers achieve desired outcomes. Guidelines are grouped into **groups**.
 
 In technical terms:
-* **[Guidance catalogs](../../glossary/catalog)** have a **type** (Standard, Regulation, Best Practice, or Framework), **groups** that group guidelines by theme, and **guidelines** with an **[objective](../../glossary/objective)**, optional recommendations, and optional references to other guidelines within the *same* [guidance catalog](../../glossary/catalog).
-* **[Guidelines](../../glossary/guideline):** state the intent and context; they have statements which act as sub-requirements of the guideline (e.g., `ORG.SSD.001` and statements.id `ORG.SSD.001.1`). The guidance includes a see-also for linking other guidelines within the same [guidance catalog](../../glossary/catalog) (e.g., `ORG.SSD.001` see-also `ORG.SSD.002`, `ORG.SSD.003`).
-* **[Guidelines](../../glossary/guideline)** have the ability to be mapped to external guidance (e.g., OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) and to controls in a *separate* **Mapping Document**. Downstream Gemara Layers can reference `guidelines`, defining support for specific controls.
+* **[Guidance catalogs](../../model/02-definitions.html#guidance)** have a **type** (Standard, Regulation, Best Practice, or Framework), **groups** that group guidelines by theme, and **guidelines** with an **objective**, optional recommendations, and optional references to other guidelines within the *same* guidance catalog.
+* **Guidelines:** state the intent and context; they have statements which act as sub-requirements of the guideline (e.g., `ORG.SSD.001` and statements.id `ORG.SSD.001.1`). The guidance includes a see-also for linking other guidelines within the same guidance catalog (e.g., `ORG.SSD.001` see-also `ORG.SSD.002`, `ORG.SSD.003`).
+* **Guidelines** have the ability to be mapped to external guidance (e.g., OWASP, NIST, HIPAA, GDPR, CRA, PCI, ISO) and to controls in a *separate* **Mapping Document**. Downstream Gemara Layers can reference `guidelines`, defining support for specific controls.
 
 > **Coming Soon:** Mapping Document Tutorial.
 

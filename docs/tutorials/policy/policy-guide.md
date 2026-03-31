@@ -5,14 +5,14 @@ title: Organizational Risk & Policy Guide
 
 ## What This Is
 
-This guide walks through creating a **[Policy Document](../../glossary/policy)** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to the Policy Definition in [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue).
+This guide walks through creating a **[Policy Document](../../model/02-definitions.html#policy)** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to the Policy Definition in [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue).
 
 Terms to know:
 * **RACI**: Who is responsible, accountable, consulted, and informed.
 * **Scope**: What is in and out of scope (technologies, regions, sensitivity, users).
 * **Imports**: Which external policies, Control Catalogs, and Guidance the policy references (and any exclusions, constraints, or assessment-requirement modifications).
 * **Implementation plan**: When the policy becomes active (evaluation and enforcement timelines).
-* **[Risks](../../glossary/risk)**: Which risks are mitigated vs accepted (with justification for accepted risks).
+* **[Risks](../../model/02-definitions.html#risk)**: Which risks are mitigated vs accepted (with justification for accepted risks).
 * **Adherence**: How compliance is evaluated and enforced (evaluation methods, assessment plans, enforcement methods, non-compliance handling).
 
 This exercise produces a policy document that captures scope, imported controls and guidance, and how adherence is evaluated and enforced.
@@ -21,7 +21,7 @@ This exercise produces a policy document that captures scope, imported controls 
 
 ### Step 0: Metadata and mapping-references
 
-Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue) for the standard metadata fields). Include `mapping-references` for every external catalog, guidance document, or policy you reference in `imports` (by `reference-id`). Key fields (see [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue) and [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue)):
+Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue) for the standard metadata fields). Include `mapping-references` for every external catalog, guidance document, or policy you reference in `imports` (by `reference-id`). Key fields (see [`policy.cue`](https://github.com/gemaraproj/gemara/blob/main/policy.cue) and [metadata.cue](https://github.com/gemaraproj/gemara/blob/main/metadata.cue):
 
 | Field                         | What It Is                                                                 | Why                                                                 |
 |-------------------------------|----------------------------------------------------------------------------|---------------------------------------------------------------------|
