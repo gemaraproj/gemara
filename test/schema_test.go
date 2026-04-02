@@ -16,9 +16,11 @@ import (
 )
 
 var schemaValue cue.Value
+var schemaCtx *cue.Context
 
 func TestMain(m *testing.M) {
-	ctx := cuecontext.New()
+	schemaCtx = cuecontext.New()
+	ctx := schemaCtx
 
 	schemaDir, err := filepath.Abs("..")
 	if err != nil {

@@ -1,8 +1,11 @@
 module github.com/gemaraproj/gemara/test
 
-go 1.24.13
+go 1.25.0
 
-require cuelang.org/go v0.15.4
+require (
+	cuelang.org/go v0.15.4
+	golang.org/x/mod v0.34.0
+)
 
 require (
 	cuelabs.dev/go/oci/ociregistry v0.0.0-20250722084951-074d06050084 // indirect
