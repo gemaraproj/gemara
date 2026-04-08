@@ -23,7 +23,7 @@ end
 
 # Development and testing tools
 group :development, :test do
-  gem "html-proofer", "~> 5.0"
+  gem "html-proofer", "~> 5.2"
 end
 
 # Platform-specific gems
