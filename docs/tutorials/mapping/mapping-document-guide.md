@@ -6,14 +6,14 @@ description: Step-by-step guide to creating Gemara-compatible mapping documents
 
 ## What This Is
 
-This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.0.0-rc.0"` to match the [v1.0.0-rc.0](https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.0) specification release candidate; adjust if you target a different Gemara version.
+This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.0.0-rc.1"` to match the [v1.0.0-rc.1](https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.1) specification release candidate; adjust if you target a different Gemara version.
 
 A mapping document captures the user's intent for how entries in a **source** artifact relate to entries in a **target** artifact. It is the place to express alignment between independently authored catalogs (e.g., your guidance to OWASP, or controls to regulations) in a single, directed way.
 
 ### Using a Mapping Document vs Inline Mappings
 
-* **Mapping Documents** are for complex descriptions of relationships between two or more artifacts.
-* **Inline Mappings** are relationships that capture the author's intent at the time of creating that entry.
+* **Mapping Documents** are for rich descriptions of relationships between two or more artifacts.
+* **Inline Mappings** are relationships that capture the author's intent or structured design rationale at the time of creating that entry.
 
 > **Note:** See the FAQ for additional context on the Mapping Documents.
 
@@ -66,7 +66,7 @@ metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.0.0-rc.0"
+  gemara-version: "1.0.0-rc.1"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -180,7 +180,7 @@ Combine metadata, source-reference, target-reference, remarks, and mappings into
 ```yaml
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
-# gemara-version: v1.0.0-rc.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.0
+# gemara-version: v1.0.0-rc.1 — https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.1
 # Source guidance catalog: ../guidance/guidance-example.yaml (metadata.id ORG.SSD.001)
 # entry-type on source-reference / target-reference applies to all entries on that side (#TypedMapping).
 title: Secure Software Development Guidance to OWASP Top 10
@@ -188,7 +188,7 @@ metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.0.0-rc.0"
+  gemara-version: "1.0.0-rc.1"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -262,6 +262,6 @@ Fix any errors (e.g. missing `mapping-references`, invalid relationship type, mi
 
 - Use this mapping in **Layer 2** or **Layer 3** workflows to show how your guidance or controls align to external frameworks.
 - Use **multiple targets** in one mapping when one source row aligns to several target entries (each target is a `#MappingTarget` with its own optional metadata).
-- Add **applicability-groups** in metadata and use `applicability` on mappings or on individual `#MappingTarget` rows when the relationship holds only in certain contexts (e.g., manufacturer vs open-source steward).
+- Add **applicability-groups** in metadata and use `applicability` on mappings or on individual `#MappingTarget` rows when the relationship holds only in certain contexts
 
 See the [Mapping Document schema](https://gemara.openssf.org/schema/mappingdocument.html) and the CUE module: [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue) (`#MappingDocument`, `#TypedMapping`, `#Mapping`, `#MappingTarget`, relationships, entry types) and [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue) (`#MappingReference`, `#ArtifactMapping`, and related shared types).
