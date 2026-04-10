@@ -41,20 +41,24 @@ func runLexicon2MD(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Error reading lexicon file: %v", err)
 	}
 
-	var terms []Term
-	if err := yaml.Unmarshal(data, &terms); err != nil {
+	var lexicon Lexicon
+	if err := yaml.Unmarshal(data, &lexicon); err != nil {
 		return fmt.Errorf("Error parsing lexicon YAML: %v", err)
 	}
 
 	var tableRows strings.Builder
-	for _, term := range terms {
-		slug := termToSlug(term.Term)
+	for _, term := range lexicon.Terms {
+		slug := termToSlug(term.Title)
 
-		termName := fmt.Sprintf("<a id=\"%s\"></a>**%s**", slug, term.Term)
+		termName := fmt.Sprintf("<a id=\"%s\"></a>**%s**", slug, term.Title)
 
-		appliesTo := strings.Join(term.References, "<br>")
+		refs := make([]string, 0, len(term.References))
+		for _, r := range term.References {
+			refs = append(refs, r.Citation)
+		}
+		appliesTo := strings.Join(refs, "<br>")
 
-		definition := strings.ReplaceAll(term.Definition, "|", "\\|")
+		definition := strings.TrimSpace(strings.ReplaceAll(term.Definition, "|", "\\|"))
 
 		tableRows.WriteString(fmt.Sprintf("| %s | %s | %s |\n", termName, definition, appliesTo))
 	}

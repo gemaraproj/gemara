@@ -13,10 +13,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type Lexicon struct {
+	Terms []Term `yaml:"terms"`
+}
+
+type LexiconReference struct {
+	Citation string `yaml:"citation"`
+}
+
 type Term struct {
-	Term       string   `yaml:"term"`
-	Definition string   `yaml:"definition"`
-	References []string `yaml:"references"`
+	ID         string             `yaml:"id"`
+	Title      string             `yaml:"title"`
+	Definition string             `yaml:"definition"`
+	References []LexiconReference `yaml:"references"`
 }
 
 type TermInfo struct {
@@ -100,24 +109,24 @@ func loadTerms(lexiconFile string) ([]Term, error) {
 		return nil, fmt.Errorf("read lexicon file: %w", err)
 	}
 
-	var terms []Term
-	if err := yaml.Unmarshal(data, &terms); err != nil {
+	var lexicon Lexicon
+	if err := yaml.Unmarshal(data, &lexicon); err != nil {
 		return nil, fmt.Errorf("parse lexicon YAML: %w", err)
 	}
 
-	return terms, nil
+	return lexicon.Terms, nil
 }
 
 func buildTermInfos(terms []Term) []TermInfo {
 	termInfos := make([]TermInfo, 0, len(terms))
 
 	for _, term := range terms {
-		lowerTerm := strings.ToLower(term.Term)
-		slug := termToSlug(term.Term)
+		lowerTerm := strings.ToLower(term.Title)
+		slug := termToSlug(term.Title)
 
 		// Create regex for whole-word, case-insensitive matching
 		// Escape special regex characters in the term
-		escapedTerm := regexp.QuoteMeta(term.Term)
+		escapedTerm := regexp.QuoteMeta(term.Title)
 		// Use word boundaries for whole-word matching
 		pattern := `(?i)\b` + escapedTerm + `\b`
 		regex, err := regexp.Compile(pattern)
@@ -127,7 +136,7 @@ func buildTermInfos(terms []Term) []TermInfo {
 		}
 
 		termInfos = append(termInfos, TermInfo{
-			OriginalTerm: term.Term,
+			OriginalTerm: term.Title,
 			LowerTerm:    lowerTerm,
 			Slug:         slug,
 			Regex:        regex,
