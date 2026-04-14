@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"cuelang.org/go/cue"
-	cueerrors "cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
 	"cuelang.org/go/mod/modconfig"
 	"cuelang.org/go/mod/modregistry"
@@ -20,16 +19,6 @@ import (
 )
 
 const modulePath = "github.com/gemaraproj/gemara"
-
-var builtinValidatorNoise = []string{
-	"time.Format",
-	"time.Time",
-	"strings.MinRunes",
-}
-
-var skipDefs = map[string]bool{
-	"#Datetime": true,
-}
 
 func TestNoBreakingChanges(t *testing.T) {
 	ctx := context.Background()
@@ -68,6 +57,11 @@ func TestNoBreakingChanges(t *testing.T) {
 		t.Fatalf("failed to resolve schema directory: %v", err)
 	}
 
+	localSchema, err := loadLocalSchemaRelaxed(schemaDir)
+	if err != nil {
+		t.Fatalf("failed to load local schema: %v", err)
+	}
+
 	stableDefs, err := collectStableDefs(schemaDir)
 	if err != nil {
 		t.Fatalf("failed to collect stable definitions: %v", err)
@@ -76,12 +70,8 @@ func TestNoBreakingChanges(t *testing.T) {
 
 	for _, defPath := range stableDefs {
 		defPath := defPath
-		if skipDefs[defPath] {
-			t.Logf("skipping %s (excluded from compatibility check)", defPath)
-			continue
-		}
 		t.Run(defPath, func(t *testing.T) {
-			newDef := schemaValue.LookupPath(cue.ParsePath(defPath))
+			newDef := localSchema.LookupPath(cue.ParsePath(defPath))
 			if newDef.Err() != nil {
 				t.Fatalf("new schema: lookup %s: %v", defPath, newDef.Err())
 			}
@@ -92,25 +82,97 @@ func TestNoBreakingChanges(t *testing.T) {
 				return
 			}
 
-			t.Logf("validating %s: checking new definition subsumes old definition", defPath)
 			if err := newDef.Subsume(oldDef, cue.Raw(), cue.Schema()); err != nil {
-				var realErrors []string
-				for _, e := range cueerrors.Errors(err) {
-					msg := e.Error()
-					if !matchesAny(msg, builtinValidatorNoise) {
-						realErrors = append(realErrors, msg)
-					}
-				}
-				if len(realErrors) > 0 {
-					t.Errorf("breaking change detected in %s:\n%s", defPath, strings.Join(realErrors, "\n"))
-				} else {
-					t.Logf("%s: OK — no breaking changes (suppressed builtin validator noise)", defPath)
-				}
-			} else {
-				t.Logf("%s: OK — no breaking changes", defPath)
+				t.Errorf("breaking change detected in %s:\n%v", defPath, err)
 			}
 		})
 	}
+}
+
+// loadLocalSchemaRelaxed loads the local CUE schema with builtin validators
+// and hidden constraint fields relaxed so that CUE's Subsume does not produce
+// false positives when comparing values from different load contexts
+// (filesystem vs OCI registry).
+func loadLocalSchemaRelaxed(schemaDir string) (cue.Value, error) {
+	entries, err := os.ReadDir(schemaDir)
+	if err != nil {
+		return cue.Value{}, fmt.Errorf("read schema dir: %w", err)
+	}
+
+	overlay := make(map[string]load.Source)
+	for _, entry := range entries {
+		if !strings.HasSuffix(entry.Name(), ".cue") {
+			continue
+		}
+		absPath := filepath.Join(schemaDir, entry.Name())
+		original, err := os.ReadFile(absPath)
+		if err != nil {
+			return cue.Value{}, fmt.Errorf("read %s: %w", entry.Name(), err)
+		}
+		relaxed := relaxForSubsume(string(original))
+		if relaxed != string(original) {
+			overlay[absPath] = load.FromString(relaxed)
+		}
+	}
+
+	cfg := &load.Config{
+		Dir:     schemaDir,
+		Overlay: overlay,
+	}
+	instances := load.Instances([]string{"."}, cfg)
+	if len(instances) == 0 {
+		return cue.Value{}, fmt.Errorf("no CUE instances returned")
+	}
+	if err := instances[0].Err; err != nil {
+		return cue.Value{}, fmt.Errorf("loading local schema: %w", err)
+	}
+	val := schemaCtx.BuildInstance(instances[0])
+	if err := val.Err(); err != nil {
+		return cue.Value{}, fmt.Errorf("building local schema: %w", err)
+	}
+	return val, nil
+}
+
+// relaxForSubsume strips builtin validators and hidden constraint fields
+// that cause cross-context Subsume false positives. The time.Format validator
+// and list.Contains-based group validation both fail when compared across
+// independently loaded CUE instances.
+func relaxForSubsume(content string) string {
+	crossContextNoise := []string{
+		"_validGroupIds",
+		"_groupValidation",
+		"_validApplicabilityIds",
+		"_applicabilityValidation",
+		"// Unify the valid ID list with a list.Contains constraint",
+	}
+
+	var lines []string
+	for _, line := range strings.Split(content, "\n") {
+		skip := false
+		for _, p := range crossContextNoise {
+			if strings.Contains(line, p) {
+				skip = true
+				break
+			}
+		}
+		if !skip {
+			lines = append(lines, line)
+		}
+	}
+	result := strings.Join(lines, "\n")
+
+	result = strings.Replace(result,
+		`#Datetime: time.Format("2006-01-02T15:04:05Z07:00")`,
+		`#Datetime: string`, 1)
+
+	if !strings.Contains(result, "time.") {
+		result = strings.Replace(result, `import "time"`, "", 1)
+	}
+	if !strings.Contains(result, "list.") {
+		result = strings.Replace(result, `import "list"`, "", 1)
+	}
+
+	return result
 }
 
 func collectStableDefs(schemaDir string) ([]string, error) {
@@ -142,15 +204,6 @@ func collectStableDefs(schemaDir string) ([]string, error) {
 		}
 	}
 	return stableDefs, nil
-}
-
-func matchesAny(s string, patterns []string) bool {
-	for _, p := range patterns {
-		if strings.Contains(s, p) {
-			return true
-		}
-	}
-	return false
 }
 
 func latestVersion(ctx context.Context, client *modregistry.Client, modPath string, includePrerelease bool) (module.Version, error) {
