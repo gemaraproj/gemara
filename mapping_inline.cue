@@ -42,7 +42,7 @@ package gemara
 // EntryMapping represents how a specific entry maps to a MappingReference.
 #EntryMapping: {
 	// reference-id is the id for a MappingReference entry in the artifact's metadata
-	"reference-id"?: string @go(ReferenceId)
+	"reference-id": string @go(ReferenceId)
 
 	// entry-id is the identifier being mapped to in the referenced artifact
 	"entry-id": string @go(EntryId)

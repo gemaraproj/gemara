@@ -1,8 +1,6 @@
 ---
 name-template: "v$RESOLVED_VERSION"
 tag-template: "v$RESOLVED_VERSION"
-prerelease: true
-prerelease-identifier: "rc"
 template: |
   # Changelog
   $CHANGES
@@ -28,7 +26,8 @@ categories:
       - "maintenance"
       - "revert"
   - title: "🏎 Performance"
-    label: "performance"
+    labels:
+      - "performance"
 change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
 version-resolver:
   major:
