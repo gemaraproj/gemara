@@ -14,7 +14,7 @@ This guide describes every breaking change introduced in `v1.0.0` and provides t
 | [#299](#299-family-and-category-unified-into-group)                             | Unify `#Family` and `#Category` into `#Group`                                               | `#Family` and `#Category` types removed; replaced by `#Group`                                                                                    |
 | [#312](#312-enum-values-normalized-to-title-case)                               | Normalize enum casing to Title Case                                                         | All enum values changed from lowercase/kebab-lower to Title Case                                                                                 |
 | [#320](#320-metadata-fields-and-import-structure-updated)                       | Update metadata fields and import structure                                                 | `imported-controls`, `imported-threats`, `imported-capabilities` moved under `imports`; new required `type` and `gemara-version` metadata fields |
-| [#359](#359-families-categories-and-applicability-categories-renamed-to-groups) | Rename `families`/`categories`/`applicability-categories` → `groups`/`applicability-groups` | Top-level grouping field names and per-entry membership fields renamed across all artifact types                                                 |
+| [#359](#359-families-categories-and-applicability-categories-renamed) | Rename `families`/`categories`/`applicability-categories` → `groups`/`applicability-groups` | Top-level grouping field names and per-entry membership fields renamed across all artifact types                                                 |
 
 ---
 
