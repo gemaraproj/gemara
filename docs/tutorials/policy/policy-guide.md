@@ -28,7 +28,7 @@ Set `title` and `metadata` (see [metadata.cue](https://github.com/gemaraproj/gem
 | `title`                       | Display name for the policy (top-level)                                   | Human-readable label in reports and tooling                         |
 | `metadata.id`                 | Unique identifier for this policy                                         | Used when other documents reference this policy                     |
 | `metadata.type`               | Must be `Policy`                                                          | Required by schema; identifies the artifact kind                    |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.0.0-rc.1"`)                        | Required by schema; should match the module tag you pass to `cue vet` |
+| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.0.0"`)                        | Required by schema; should match the module tag you pass to `cue vet` |
 | `metadata.description`        | High-level summary of the policy's purpose and scope                       | Required by schema; clarifies intent                                |
 | `metadata.author`             | Actor (id, name, type) primarily responsible for this policy              | Required by schema; identifies the author                            |
 | `metadata.version`            | Version identifier (e.g. `"1.0.0"`)                                       | Optional; supports versioning and references                         |
@@ -43,7 +43,7 @@ title: "Information Security Policy for Cloud and Web Applications"
 metadata:
   id: "org-policy-001"
   type: Policy
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: "Policy for cloud and web application security; references control catalogs."
   version: "1.0.0"
   author:
@@ -229,7 +229,7 @@ title: "Information Security Policy for Cloud and Web Applications"
 metadata:
   id: "org-policy-001"
   type: Policy
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: "Policy for cloud and web application security; references control catalogs."
   version: "1.0.0"
   author:

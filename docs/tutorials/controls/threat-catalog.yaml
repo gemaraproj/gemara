@@ -8,7 +8,7 @@ title: Container Management Tool Security Threat Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ThreatCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: Threat catalog for container management tool security assessment
   version: 1.0.0
   author:

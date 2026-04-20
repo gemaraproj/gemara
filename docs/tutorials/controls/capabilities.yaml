@@ -7,7 +7,7 @@ title: Container Management Tool Security Capability Catalog
 metadata:
   id: SEC.SLAM.CM.CAP
   type: CapabilityCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: |
     Capabilities unique to the container management tool scope; referenced by
     threats in the SEC.SLAM.CM threat catalog.

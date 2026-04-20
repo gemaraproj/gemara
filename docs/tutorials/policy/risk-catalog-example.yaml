@@ -1,12 +1,12 @@
 # Organization Risk Catalog for Cloud and Container Workloads (Layer 3)
 # Conforms to Gemara #RiskCatalog (riskcatalog.cue).
-# gemara-version: v1.0.0-rc.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.0
+# gemara-version: v1.0.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.0.0
 # Risks drawn from Threat Assessment Guide: CCC (CCC.Core.TH14) and SEC.SLAM.CM (SEC.SLAM.CM.THR01).
 title: "Organization Risk Catalog for Cloud and Container Workloads"
 metadata:
   id: "org-risk-catalog-001"
   type: RiskCatalog
-  gemara-version: "1.0.0-rc.0"
+  gemara-version: "1.0.0"
   description: "Risks relevant to cloud and container management; threats linked to CCC Core and SEC.SLAM.CM threat catalog."
   version: "1.0.0"
   author:

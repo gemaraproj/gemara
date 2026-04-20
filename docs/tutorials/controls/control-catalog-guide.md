@@ -38,7 +38,7 @@ Declare your control catalog and mapping references. Key fields:
 |-------------------------------------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | `title`                             | Display name for the control catalog (top-level field)       | Human-readable label used in reports and tooling output                                   |
 | `metadata.type`                     | Must be `ControlCatalog`                                     | Identifies the artifact kind for validation             |
-| `metadata.gemara-version`           | String (e.g. `1.0.0-rc.1`)                                   | Declares which Gemara specification version the file conforms to (required in current schema) |
+| `metadata.gemara-version`           | String (e.g. `1.0.0`)                                   | Declares which Gemara specification version the file conforms to (required in current schema) |
 | `mapping-references` with `id: CCC` | Optional pointer to CCC or another control/threat catalog   | Resolve imported capability and control IDs from the referenced catalog                  |
 | `applicability-groups`          | List of groups (id, title, description) for when controls apply | Scope assessment requirements by context (e.g., production, CI/CD) so evaluators know when each requirement applies |
 
@@ -51,7 +51,7 @@ title: Container Management Tool Security Control Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: Control catalog for container management tool security; mitigates threats from the SEC.SLAM.CM threat catalog.
   version: 1.0.0
   author:
@@ -245,7 +245,7 @@ title: Container Management Tool Security Control Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ControlCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: |
     Control catalog for container management tool security; mitigates threats
     from the SEC.SLAM.CM threat catalog.

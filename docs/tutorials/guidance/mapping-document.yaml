@@ -6,7 +6,7 @@ title: Secure Software Development Guidance to OWASP Top 10
 metadata:
   id: SSD-OWASP-MAP-001
   type: MappingDocument
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.

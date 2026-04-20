@@ -44,7 +44,7 @@ Declare your catalog and, if you will reference external standards, add mapping 
 | `type`                        | One of Standard, Regulation, Best Practice, Framework (catalog intent)     | Required by schema; clarifies intent                                |
 | `metadata.id`                 | Unique identifier for this catalog                                        | Used when other artifacts reference this catalog                    |
 | `metadata.type`               | Artifact kind (e.g. `GuidanceCatalog`)                                    | Required by schema; identifies the Gemara artifact type              |
-| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.0.0-rc.1"`)                         | Required by schema; declares which spec the artifact conforms to     |
+| `metadata.gemara-version`     | Gemara specification version (e.g. `"1.0.0"`)                         | Required by schema; declares which spec the artifact conforms to     |
 | `metadata.description`        | High-level summary of purpose and scope                                   | Required by schema; human-readable catalog summary                   |
 | `metadata.author`             | Actor responsible for the artifact (`id`, `name`, `type`, …)              | Required by schema; identifies ownership or authorship                 |
 | `metadata.mapping-references` | Pointers to external standards (e.g., OWASP, NIST)                        | Optional; resolve IDs used in external Mapping Document on guidelines |
@@ -59,7 +59,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:
@@ -186,7 +186,7 @@ title: Secure Software Development Guidance
 metadata:
   id: ORG.SSD.001
   type: GuidanceCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: Internal secure development and supply chain security guidelines (dependencies, images, and development practices) aligned to industry standards
   version: 1.0.0
   author:

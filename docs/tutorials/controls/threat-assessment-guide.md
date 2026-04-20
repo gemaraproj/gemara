@@ -36,7 +36,7 @@ Declare your scope and mapping references for the `ThreatCatalog`. Key fields:
 |-------|------------|-----|
 | `title` | Display name for the threat catalog (top-level field) | Human-readable label used in reports and tooling output |
 | `metadata.type` | Must be `ThreatCatalog` | Identifies the artifact for `#ThreatCatalog` validation |
-| `metadata.gemara-version` | String (e.g. `1.0.0-rc.1`) | Declares which Gemara specification version the file conforms to (required) |
+| `metadata.gemara-version` | String (e.g. `1.0.0`) | Declares which Gemara specification version the file conforms to (required) |
 | `mapping-references` with `id: CCC` | Pointer to the CCC Core catalog release | Resolve imported CCC capability and threat IDs used in `imports` and in each threat's `capabilities` |
 | `mapping-references` for scope capabilities | Pointer to your `CapabilityCatalog` (see Step 2) | Resolve IDs such as `SEC.SLAM.CM.CAP01` referenced from each threat's `capabilities` |
 | Top-level `imports` (optional) | List of `#MultiEntryMapping` rows | Pull CCC (or other) capability/threat entries into this catalog without redefining them |
@@ -48,7 +48,7 @@ title: Container Management Tool Security Threat Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ThreatCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: Threat catalog for container management tool security assessment
   version: 1.0.0
   author:
@@ -97,7 +97,7 @@ title: Container Management Tool Security Capability Catalog
 metadata:
   id: SEC.SLAM.CM.CAP
   type: CapabilityCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: |
     Capabilities unique to the container management tool scope.
   version: 1.0.0
@@ -199,7 +199,7 @@ title: Container Management Tool Security Threat Catalog
 metadata:
   id: SEC.SLAM.CM
   type: ThreatCatalog
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.0.0"
   description: Threat catalog for container management tool security assessment
   version: 1.0.0
   author:
