@@ -1,0 +1,37 @@
+metadata:
+  id: BAD-RISK-CATALOG-DUP-RANK
+  type: RiskCatalog
+  gemara-version: "0.20.0"
+  version: "1.0.0"
+  description: Invalid — two risks use the same rank
+  author:
+    id: test
+    name: Test
+    type: Human
+  mapping-references:
+    - id: EXAMPLE-THREAT-CATALOG
+      title: Example
+      version: "1.0.0"
+      description: x
+
+title: Invalid duplicate rank
+
+groups:
+  - id: CAT-SECURITY
+    title: Security
+    description: x
+    appetite: Low
+
+risks:
+  - id: RISK-A
+    title: A
+    description: x
+    group: CAT-SECURITY
+    severity: High
+    rank: 1
+  - id: RISK-B
+    title: B
+    description: x
+    group: CAT-SECURITY
+    severity: High
+    rank: 1
