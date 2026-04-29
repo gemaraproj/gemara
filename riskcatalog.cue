@@ -21,6 +21,9 @@ import "list"
 
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
+		// Each distinct rank value may appear at most once among risks that set rank (partial ranking allowed).
+		// Keys are stringified ranks because CUE struct labels cannot be raw integers.
+		_uniqueRiskRanks: {for i, r in risks if r.rank != _|_ {"\(r.rank)": i}}
 		groups: [#RiskCategory, ...#RiskCategory]
 		let _validGroupIds = [for g in groups {g.id}]
 
@@ -81,6 +84,11 @@ import "list"
 
 	// severity describes the assessed level of this risk
 	severity: #Severity @go(Severity)
+
+	// rank optionally orders risks for the same catalog (e.g. when several share the same severity).
+	// Lower values mean higher relative importance. Omitted when the four severity levels are enough.
+	// When set, each value must be unique among all risks in the catalog that specify rank.
+	rank?: int @go(Rank) @yaml("rank,omitempty")
 
 	// owner defines the RACI roles responsible for managing this risk
 	owner?: #RACI @go(Owner)

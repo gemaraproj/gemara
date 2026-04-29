@@ -44,6 +44,7 @@ risks:
     description: "Mutable image tags or lack of verification can lead to pulling stale or compromised images, increasing supply chain and runtime risk."
     group: "infrastructure"
     severity: "High"
+    rank: 2
     impact: "Supply chain compromise, unauthorized code execution, or data exfiltration."
     owner:
       responsible:
@@ -62,6 +63,7 @@ risks:
     description: "Images may be tampered with in transit or at rest, or built from poisoned dependencies or build pipelines."
     group: "infrastructure"
     severity: "High"
+    rank: 1
     threats:
       - reference-id: CCC
         entries:

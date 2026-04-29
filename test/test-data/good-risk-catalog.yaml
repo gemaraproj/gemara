@@ -37,6 +37,7 @@ risks:
     description: Third-party or base container images may contain known vulnerabilities or malicious code, leading to exploitation at runtime.
     group: CAT-SECURITY
     severity: High
+    rank: 2
     owner:
       responsible:
         - name: Platform Engineering Lead
@@ -81,3 +82,11 @@ risks:
     group: CAT-COMPLIANCE
     severity: Medium
     impact: Regulatory fines, audit findings, and reputational damage.
+
+  - id: RISK-004
+    title: Cluster Admin Credential Exposure
+    description: Long-lived admin credentials for the cluster control plane may be exposed through logs, tickets, or shared stores.
+    group: CAT-SECURITY
+    severity: High
+    rank: 1
+    impact: Full cluster compromise; all workloads and secrets on the platform are at risk.

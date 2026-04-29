@@ -8,13 +8,13 @@ description: Step-by-step guide to creating Gemara-compatible risk catalogs
 
 This guide walks through creating a **Risk Catalog** using the [Gemara](https://gemara.openssf.org/) project. The document conforms to `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue) and the published [Risk Catalog schema](https://gemara.openssf.org/schema/riskcatalog.html). Examples use `gemara-version: "1.0.0"` to match the [v1.0.0](https://github.com/gemaraproj/gemara/releases/tag/v1.0.0) specification release; adjust if you target a different Gemara version.
 
-**The basic idea:** A Risk Catalog is a structured list of **[risks](../../model/02-definitions.html#risk)** that might affect an organization, system, or service. You organize them into **groups** (schema type `#RiskCategory`) that express how much risk you are willing to carry ( risk appetite) and optionally cap how bad a single risk in that group can be (**max-severity**). Each risk has an assessed **severity** and can point to Layer 2 **[threats](../../model/02-definitions.html#threat)** so mitigations and policies stay traceable to threat catalogs.
+**The basic idea:** A Risk Catalog is a structured list of **[risks](../../model/02-definitions.html#risk)** that might affect an organization, system, or service. You organize them into **groups** (schema type `#RiskCategory`) that express how much risk you are willing to carry ( risk appetite) and optionally cap how bad a single risk in that group can be (**max-severity**). Each risk has an assessed **severity** and can point to Layer 2 **[threats](../../model/02-definitions.html#threat)** so mitigations and policies stay traceable to threat catalogs. Optionally, **`rank`** records a total order among risks in this catalog (for example when several share the same severity); see Step 2.
 
 In technical terms:
-* **[Risk catalogs](../../model/02-definitions.html#risk-catalog)** declare `metadata` (including `type: RiskCatalog`), **groups** as `#RiskCategory` (id, title, description, `#RiskAppetite` appetite, optional `#Severity` max-severity), and **[risks](../../model/02-definitions.html#risk)** (`#Risk`) with required id, title, description, `group`, and `severity`, plus optional owner (`#RACI`), impact, and `threats` (`#MultiEntryMapping` from [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue).
+* **[Risk catalogs](../../model/02-definitions.html#risk-catalog)** declare `metadata` (including `type: RiskCatalog`), **groups** as `#RiskCategory` (id, title, description, `#RiskAppetite` appetite, optional `#Severity` max-severity), and **[risks](../../model/02-definitions.html#risk)** (`#Risk`) with required id, title, description, `group`, and `severity`, plus optional **`rank`**, owner (`#RACI`), impact, and `threats` (`#MultiEntryMapping` from [mapping_inline.cue](https://github.com/gemaraproj/gemara/blob/main/mapping_inline.cue).
 * **When the catalog lists any risks**, the schema requires at least one group (`groups` becomes required in that case).
 * **Groups** use appetite values `Minimal`, `Low`, `Moderate`, or `High` and optional group-level **max-severity** (`Low`, `Medium`, `High`, `Critical`).
-* **Risks** use **severity** at the same scale (`Low` through `Critical`). Links under `threats` use the same multi-entry mapping pattern as control and threat catalogs; every outer `reference-id` must match an id in `metadata.mapping-references`.
+* **Risks** use **severity** at the same scale (`Low` through `Critical`). Optional **`rank`** is an integer; **lower values mean higher relative importance** among risks that set `rank`. Each `rank` value must be **unique** among risks that specify it (partial ranking is allowed: risks without `rank` are unconstrained). Links under `threats` use the same multi-entry mapping pattern as control and threat catalogs; every outer `reference-id` must match an id in `metadata.mapping-references`.
 
 This exercise produces a risk catalog that you can reference from a [Policy](policy-guide) when documenting mitigated and accepted risks.
 
@@ -105,6 +105,7 @@ Define **[risks](../../model/02-definitions.html#risk)** with required fields an
 | `description`   | Yes      | Explains the risk scenario and context                                    |
 | `group`         | Yes      | Id of a group in this catalog (from Step 1)                               |
 | `severity`      | Yes      | Impact level: `Low`, `Medium`, `High`, or `Critical`                       |
+| `rank`          | No       | Optional ordering within the catalog: integer; **lower = more important**. Unique among risks that set `rank`. Omit when severity alone is enough. |
 | `owner`         | No       | RACI roles (responsible, accountable, consulted, informed) for this risk   |
 | `impact`        | No       | Business or operational impact description                                 |
 | `threats`       | No       | Links to Layer 2 threat entries via reference-id and entries (see below)   |
@@ -120,6 +121,7 @@ risks:
     description: "Mutable image tags or lack of verification can lead to pulling stale or compromised images, increasing supply chain and runtime risk."
     group: "infrastructure"
     severity: "High"
+    rank: 2
     impact: "Supply chain compromise, unauthorized code execution, or data exfiltration."
     owner:
       responsible:
@@ -138,6 +140,7 @@ risks:
     description: "Images may be tampered with in transit or at rest, or built from poisoned dependencies or build pipelines."
     group: "infrastructure"
     severity: "High"
+    rank: 1
     threats:
       - reference-id: CCC
         entries:
@@ -169,12 +172,12 @@ From a **clone of this repository** (uses the working tree’s CUE package, incl
 cue vet -c -d '#RiskCatalog' . docs/tutorials/policy/risk-catalog-example.yaml
 ```
 
-Fix any errors (e.g. missing required fields, risks present without `groups`, invalid `group` reference, severity or appetite not in allowed enums, or a `threats` outer `reference-id` not listed in `metadata.mapping-references`) so the catalog is schema-valid.
+Fix any errors (e.g. missing required fields, risks present without `groups`, invalid `group` reference, severity or appetite not in allowed enums, **duplicate `rank` values** among risks that set `rank`, or a `threats` outer `reference-id` not listed in `metadata.mapping-references`) so the catalog is schema-valid.
 
 
 ## Minimal Full Example
 
-A complete, schema-valid example is in [risk-catalog-example.yaml](risk-catalog-example.yaml) in this directory. The following matches that file (omit optional sections such as `owner`, `impact`, or `threats` in your own catalogs if you do not need them). Both align with `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue).
+A complete, schema-valid example is in [risk-catalog-example.yaml](risk-catalog-example.yaml) in this directory. The following matches that file (omit optional sections such as `rank`, `owner`, `impact`, or `threats` in your own catalogs if you do not need them). Both align with `#RiskCatalog` in [riskcatalog.cue](https://github.com/gemaraproj/gemara/blob/main/riskcatalog.cue).
 
 ```yaml
 # Organization Risk Catalog for Cloud and Container Workloads (Layer 3)
@@ -223,6 +226,7 @@ risks:
     description: "Mutable image tags or lack of verification can lead to pulling stale or compromised images, increasing supply chain and runtime risk."
     group: "infrastructure"
     severity: "High"
+    rank: 2
     impact: "Supply chain compromise, unauthorized code execution, or data exfiltration."
     owner:
       responsible:
@@ -241,6 +245,7 @@ risks:
     description: "Images may be tampered with in transit or at rest, or built from poisoned dependencies or build pipelines."
     group: "infrastructure"
     severity: "High"
+    rank: 1
     threats:
       - reference-id: CCC
         entries:
