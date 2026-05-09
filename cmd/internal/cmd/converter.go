@@ -48,6 +48,10 @@ type SchemaInfo struct {
 	Items       interface{}            `yaml:"items,omitempty" json:"items,omitempty"`
 	Ref         string                 `yaml:"$ref,omitempty" json:"$ref,omitempty"`
 	XStatus     string                 `yaml:"x-status,omitempty" json:"x-status,omitempty"`
+
+	// pendingEmbeds names #-prefixed types whose properties should be merged
+	// into this schema. Populated during AST walking, drained by resolveEmbeds.
+	pendingEmbeds []string `yaml:"-" json:"-"`
 }
 
 func readVersion(schemaDir string) string {
@@ -130,12 +134,72 @@ func convertCUEToOpenAPI(schemaDir, outputPath string, opts ConvertOpts) error {
 		}
 	}
 
+	if err := resolveEmbeds(spec); err != nil {
+		return err
+	}
+
 	if err := writeOpenAPISpec(spec, outputPath); err != nil {
 		return err
 	}
 	if opts.ManifestPath != "" {
 		if err := writeManifest(manifest, opts.ManifestPath); err != nil {
 			return err
+		}
+	}
+	return nil
+}
+
+// resolveEmbeds drains pendingEmbeds on every schema by merging the embedded
+// type's properties and required fields. Iterates to a fixed point so that
+// transitive embeds (A embeds B, B embeds C) propagate through. Self-references
+// and missing targets are silently dropped — the AST walk has no way to
+// validate them, and CUE will already have rejected them upstream.
+func resolveEmbeds(spec *OpenAPISpec) error {
+	for {
+		progressed := false
+		for _, raw := range spec.Components.Schemas {
+			target, ok := raw.(*SchemaInfo)
+			if !ok || len(target.pendingEmbeds) == 0 {
+				continue
+			}
+			remaining := target.pendingEmbeds[:0]
+			for _, embedName := range target.pendingEmbeds {
+				sourceRaw, exists := spec.Components.Schemas[embedName]
+				if !exists {
+					continue // unknown target — drop it
+				}
+				source, ok := sourceRaw.(*SchemaInfo)
+				if !ok {
+					continue
+				}
+				if len(source.pendingEmbeds) > 0 {
+					remaining = append(remaining, embedName)
+					continue
+				}
+				if target.Properties == nil {
+					target.Properties = make(map[string]interface{})
+				}
+				for k, v := range source.Properties {
+					if _, exists := target.Properties[k]; !exists {
+						target.Properties[k] = v
+					}
+				}
+				existing := make(map[string]bool, len(target.Required))
+				for _, r := range target.Required {
+					existing[r] = true
+				}
+				for _, r := range source.Required {
+					if !existing[r] {
+						target.Required = append(target.Required, r)
+						existing[r] = true
+					}
+				}
+				progressed = true
+			}
+			target.pendingEmbeds = remaining
+		}
+		if !progressed {
+			break
 		}
 	}
 	return nil
@@ -370,7 +434,30 @@ func convertStructToSchema(st *ast.StructLit, spec *OpenAPISpec, description str
 					break
 				}
 			}
+		case *ast.EmbedDecl:
+			// CUE struct embedding: #Foo: { #Bar; ... } inherits Bar's fields.
+			// Record the target name; resolveEmbeds merges properties after all
+			// files are parsed (embedded types may live in any file).
+			if ident, ok := x.Expr.(*ast.Ident); ok && strings.HasPrefix(ident.Name, "#") {
+				schema.pendingEmbeds = append(schema.pendingEmbeds, strings.TrimPrefix(ident.Name, "#"))
+			}
+			pendingComment = ""
 		}
+	}
+
+	// CUE allows redeclaring a field to add constraints (it's unified). The AST
+	// walker sees each declaration separately, so the same name can land in
+	// Required twice. OpenAPI 3.0.3 requires entries in `required` to be unique.
+	if len(schema.Required) > 1 {
+		seen := make(map[string]bool, len(schema.Required))
+		out := schema.Required[:0]
+		for _, r := range schema.Required {
+			if !seen[r] {
+				seen[r] = true
+				out = append(out, r)
+			}
+		}
+		schema.Required = out
 	}
 
 	return schema
