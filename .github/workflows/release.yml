@@ -41,3 +41,34 @@ jobs:
         run: cue login --token=${{ secrets.CUE_REG_TOKEN }}
       - name: Publish the module
         run: cue mod publish ${{ needs.release.outputs.full-tag }}
+  publish-openapi-assets:
+    needs: release
+    if: needs.release.outputs.full-tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout at tag
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ needs.release.outputs.full-tag }}
+          persist-credentials: false
+      - name: Setup Cue
+        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
+        with:
+          version: "v0.15.1"
+      - name: Setup Go
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417
+        with:
+          go-version: stable
+      - name: Generate OpenAPI artifacts
+        run: make genopenapi
+      - name: Upload artifacts to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ needs.release.outputs.full-tag }}" \
+            generated/openapi.yaml \
+            generated/schema-manifest.json \
+            --clobber \
+            --repo "${{ github.repository }}"
