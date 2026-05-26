@@ -2,20 +2,20 @@
 name: "Release"
 on:
   workflow_dispatch:
-  pull_request:
+  pull_request_target:
     types: [closed]
     branches:
       - main
 jobs:
   release:
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true &&
-      contains(github.event.pull_request.labels.*.name, 'release'))
     permissions:
-      contents: write
-      pull-requests: read
-    uses: github-community-projects/ospo-reusable-workflows/.github/workflows/release.yaml@a0cf79bd8756e0a9c1555bf4975eae7ce7a8e8dc
+      contents: write       # Create release and push tags
+      pull-requests: read   # Read PR labels for release-drafter
+      packages: write       # Push container image to ghcr.io
+      id-token: write       # Federate for artifact attestation
+      attestations: write   # Generate build provenance attestations
+      discussions: write    # Create release announcement discussion
+    uses: github-community-projects/ospo-reusable-workflows/.github/workflows/release.yaml@e92cb6053ace495fe40a5f185988557afcdcecbc # v1.0.1
     with:
       publish: true
       release-config-name: release-drafter.yml

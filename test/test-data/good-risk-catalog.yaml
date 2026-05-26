@@ -1,7 +1,7 @@
 metadata:
   id: EXAMPLE-RISK-CATALOG
   type: RiskCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: Example Risk Catalog for cloud-native container environments
   author:

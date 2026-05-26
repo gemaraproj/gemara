@@ -4,7 +4,7 @@ metadata:
   id: AIR-NIST-MAP-001
   version: "0.1.0"
   type: MappingDocument
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   description: >
     Maps FINOS AI Governance Framework mitigations (guidelines) to
     NIST SP 800-53 Revision 5 security and privacy controls.

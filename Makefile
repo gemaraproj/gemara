@@ -48,10 +48,28 @@ lintinsights:
 #
 # WEBSITE DEVELOPMENT TOOLS
 #
-check-jekyll:
+deps:
+	@echo "  >  Installing documentation dependencies..."
+	@if ! command -v ruby >/dev/null 2>&1; then \
+		echo "ERROR: Ruby not found. Install Ruby >= 3.2.0 first (e.g. via rbenv, asdf, or 'brew install ruby')."; \
+		exit 1; \
+	fi
+	@if ! command -v bundle >/dev/null 2>&1; then \
+		echo "  >  Installing bundler..."; \
+		gem install bundler; \
+	fi
 	@if ! command -v jekyll >/dev/null 2>&1; then \
-		echo "ERROR: Jekyll not found."; \
-		echo "  >  Install Jekyll: gem install jekyll bundler && cd docs && bundle install"; \
+		echo "  >  Installing jekyll..."; \
+		gem install jekyll; \
+	fi
+	@echo "  >  Running bundle install in docs/..."
+	@cd docs && bundle install
+	@echo "  >  Dependencies installed."
+
+check-jekyll:
+	@if ! (cd docs && bundle exec jekyll -v >/dev/null 2>&1); then \
+		echo "ERROR: Jekyll not available in the docs/ bundle."; \
+		echo "  >  Install dependencies: make deps"; \
 		exit 1; \
 	fi
 
@@ -190,4 +208,4 @@ cleanup: clean-jekyll cleanup-links
 	@rm -rf docs/_site docs/.jekyll-cache docs/.jekyll-metadata
 	@echo "  >  Cleanup complete!"
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights serve build test breaking-check test-links html-proofer clean cleanup cleanup-links stop restart check-jekyll genopenapi genmd gendocs
+.PHONY: deps tidy tidycheck cuefmtcheck lintcue lintinsights serve build test breaking-check test-links html-proofer clean cleanup cleanup-links stop restart check-jekyll genopenapi genmd gendocs

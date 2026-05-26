@@ -1,7 +1,7 @@
 metadata:
   id: EXAMPLE-THREAT-CATALOG
   type: ThreatCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: Example Threat Catalog
   author:

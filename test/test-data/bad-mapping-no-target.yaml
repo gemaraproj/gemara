@@ -3,7 +3,7 @@ metadata:
   id: TEST-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   description: Test
   author:
     id: test

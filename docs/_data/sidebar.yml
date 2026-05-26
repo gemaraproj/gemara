@@ -23,5 +23,9 @@
           url: /tutorials/policy/risk-catalog-guide
         - title: Policy Guide
           url: /tutorials/policy/policy-guide
+    - title: Mapping
+      children:
+        - title: Mapping Document Guide
+          url: /tutorials/mapping/mapping-document-guide
 - title: ADRs
   url: /adrs/

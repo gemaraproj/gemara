@@ -1,0 +1,16 @@
+---
+layout: null
+sitemap: false
+permalink: /search.json
+---
+[
+{%- assign indexable = site.pages | where_exp: "p", "p.title" | where_exp: "p", "p.search != false" -%}
+{%- for page in indexable -%}
+{%- unless forloop.first -%},{%- endunless %}
+  {
+    "title": {{ page.title | jsonify }},
+    "url": {{ page.url | relative_url | jsonify }},
+    "content": {{ page.content | strip_html | strip_newlines | truncate: 1000 | jsonify }}
+  }
+{%- endfor %}
+]

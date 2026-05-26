@@ -1,5 +1,19 @@
 <aside class="site-sidebar" role="complementary">
   <div class="sidebar-content">
+    <form class="sidebar-search" role="search" onsubmit="return false;">
+      <label for="search-input" class="sr-only">Search the site</label>
+      <input
+        type="search"
+        id="search-input"
+        class="sidebar-search-input"
+        placeholder="Search&hellip;"
+        autocomplete="off"
+        spellcheck="false"
+        data-index="{{ '/search.json' | relative_url }}"
+      />
+      <ul id="search-results" class="sidebar-search-results" hidden></ul>
+    </form>
+
     <h3 class="sidebar-title">Quick Links</h3>
     <nav class="sidebar-nav">
       {%- for item in site.data.sidebar -%}

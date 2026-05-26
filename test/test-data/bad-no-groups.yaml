@@ -1,7 +1,7 @@
 metadata:
   id: TEST-NO-FAMILIES
   type: ControlCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: Control catalog with controls but no groups declared.
   author:

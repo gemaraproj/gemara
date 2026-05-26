@@ -1,7 +1,7 @@
 metadata:
   id: FINOS-CCC
   type: ControlCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   description: |
     FINOS CCC is an open standard project that describes consistent controls for
     compliant public cloud deployments in the financial services sector.

@@ -13,6 +13,12 @@ They capture:
 - The consequences (positive, negative, and neutral)
 - Alternatives that were considered
 
+## Records
+
+{% assign adrs = site.pages | where_exp: "p", "p.path contains 'adrs/'" | where_exp: "p", "p.name != 'index.md'" | sort: "path" %}
+{% for adr in adrs %}- **ADR-{{ adr.name | slice: 0, 4 }}** — [{{ adr.title }}]({{ adr.url | relative_url }})
+{% endfor %}
+
 ## Format
 
 ADRs follow the format described at [adr.github.io](https://adr.github.io/), with the following structure:

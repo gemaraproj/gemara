@@ -498,6 +498,13 @@ func processLine(line string, termInfos []TermInfo, defPath string) string {
 		if start > 0 && result[start-1] == '(' {
 			continue // Skip this match, it's intentional
 		}
+		// Also preserve the trailing ) if there is an earlier unmatched (
+		// in the prose before the link — e.g., "(e.g., access [control](url))." —
+		// where the closing ) is balancing prose, not link malformation.
+		// URL parens are balanced pairs and don't shift the count.
+		if strings.Count(result[:start], "(") > strings.Count(result[:start], ")") {
+			continue
+		}
 		// Otherwise, remove the extra closing parenthesis
 		matchStr := result[start:end]
 		submatches := extraParenPattern.FindStringSubmatch(matchStr)

@@ -1,7 +1,7 @@
 metadata:
   id: TEST-BAD-LIFECYCLE
   type: GuidanceCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: Retired guideline with recommendations should fail validation.
   author:

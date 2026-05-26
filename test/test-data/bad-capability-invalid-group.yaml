@@ -1,7 +1,7 @@
 metadata:
   id: EXAMPLE-CAPABILITY-CATALOG
   type: CapabilityCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: Example Capability Catalog
   author:

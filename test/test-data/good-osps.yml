@@ -1,7 +1,7 @@
 metadata:
   id: OSPS-B
   type: ControlCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: |
     The Open Source Project Security (OSPS) Baseline is a set of security

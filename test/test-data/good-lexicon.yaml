@@ -2,7 +2,7 @@ title: Example security lexicon
 metadata:
   id: example-lexicon-001
   type: Lexicon
-  gemara-version: "1.0.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: >
     Minimal lexicon illustrating the Gemara Lexicon artifact schema.

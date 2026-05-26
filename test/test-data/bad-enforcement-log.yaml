@@ -1,7 +1,7 @@
 metadata:
   id: "enforcement-log-bad-001"
   type: EnforcementLog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: "Invalid enforcement log: action justification missing required log reference"
   author:

@@ -1,7 +1,7 @@
 metadata:
   id: PVTR-BASELINE-SCAN
   type: EvaluationLog
-  gemara-version: 0.20.0
+  gemara-version: "1.1.0"
   version: 1.0.0
   description: PVTR baseline scan evaluation results
   author:

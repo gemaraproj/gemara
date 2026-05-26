@@ -1,7 +1,7 @@
 metadata:
   id: TEST-INVALID-GROUP
   type: ControlCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: "1.0.0"
   description: Control catalog with a control referencing an invalid group.
   author:

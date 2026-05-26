@@ -3,7 +3,7 @@ title: AI Governance Framework Risk Vectors
 metadata:
   id: AIR-VEC
   type: VectorCatalog
-  gemara-version: "0.20.0"
+  gemara-version: "1.1.0"
   version: 0.1.0
   description: >
     AIGF risks expressed as Gemara vectors. Each vector describes a
