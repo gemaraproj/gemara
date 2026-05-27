@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
 # Outputs a display title for a schema file base name (e.g. controlcatalog -> "Control Catalog").
 case "$1" in
 base) echo "Base" ;;

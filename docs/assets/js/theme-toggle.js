@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 /**
  * Theme Toggle Functionality
  * Handles dark/light mode switching with system preference detection and localStorage persistence

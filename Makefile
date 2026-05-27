@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: Apache-2.0
+
 all: tidy cuefmtcheck lintcue lintinsights gendocs test-links cleanup
 
 #

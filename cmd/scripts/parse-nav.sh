@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: Apache-2.0
 # Parses docs/schema-nav.yml and outputs page information
 # Usage: parse-nav.sh <nav-file> <command>
 # Commands: list-pages, get-title <filename>, get-filename <title>

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 (function () {
   const input = document.getElementById('search-input');
   const results = document.getElementById('search-results');
