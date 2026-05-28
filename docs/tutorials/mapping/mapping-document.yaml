@@ -1,13 +1,13 @@
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
-# gemara-version: v1.0.0-rc.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.0
+# gemara-version: v1.2.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
 # Source guidance catalog: ../guidance/guidance-example.yaml (metadata.id ORG.SSD.001)
 # entry-type on source-reference / target-reference applies to all entries on that side (#TypedMapping).
 title: Secure Software Development Guidance to OWASP Top 10
 metadata:
   id: SSD-OWASP-MAP-001
   type: MappingDocument
-  gemara-version: "1.0.0"
+  gemara-version: "1.2.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -38,26 +38,23 @@ mappings:
   - id: GL01-A06
     source: ORG.SSD.GL01
     relationship: relates-to
-    strength: 7
-    rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
     targets:
       - entry-id: "A06"
+        strength: 7
         rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
 
   - id: GL02-A01
     source: ORG.SSD.GL02
     relationship: relates-to
-    strength: 6
-    rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
     targets:
       - entry-id: "A01"
+        strength: 6
         rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
 
   - id: GL03-A02
     source: ORG.SSD.GL03
     relationship: relates-to
-    strength: 6
-    rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
     targets:
       - entry-id: "A02"
+        strength: 6
         rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.

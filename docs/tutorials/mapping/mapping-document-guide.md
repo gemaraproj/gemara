@@ -6,7 +6,7 @@ description: Step-by-step guide to creating Gemara-compatible mapping documents
 
 ## What This Is
 
-This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.0.0-rc.1"` to match the [v1.0.0-rc.1](https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.1) specification release candidate; adjust if you target a different Gemara version.
+This guide walks through creating a **Mapping Document** using the [Gemara](https://gemara.openssf.org/) project, building on the guidance catalog you created in the [Guidance Catalog Guide](../guidance/guidance-guide). Examples use `gemara-version: "1.2.0"` to match the [v1.2.0](https://github.com/gemaraproj/gemara/releases/tag/v1.2.0) specification release candidate; adjust if you target a different Gemara version.
 
 A mapping document captures the user's intent for how entries in a **source** artifact relate to entries in a **target** artifact. It is the place to express alignment between independently authored catalogs (e.g., your guidance to OWASP, or controls to regulations) in a single, directed way.
 
@@ -66,7 +66,7 @@ metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.2.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -109,7 +109,7 @@ remarks: Guidance guidelines ORG.SSD.GL01–GL03 mapped to OWASP for tutorial us
 
 ### Step 3: Define Mappings
 
-Define one or more **mappings**. Each mapping has a **source** string (the source entry’s id) and, unless `relationship` is `no-match`, a non-empty **`targets`** list. Each list element is a **`#MappingTarget`**: at minimum `entry-id`, plus optional `strength`, `confidence-level`, `applicability`, `rationale`, and `remarks` for that target. You may also set `strength`, `confidence-level`, `applicability`, `rationale`, and `remarks` on the mapping itself when they apply to the whole row (see [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue)).
+Define one or more **mappings**. Each mapping has a **source** string (the source entry’s id) and, unless `relationship` is `no-match`, a non-empty **`targets`** list. Each list element is a **`#MappingTarget`**: at minimum `entry-id`, plus optional `strength`, `confidence-level`, `applicability`, `rationale`, and `remarks` for that target (see [mappingdocument.cue](https://github.com/gemaraproj/gemara/blob/main/mappingdocument.cue)).
 
 | Field                 | Required | Description                                                                 |
 |-----------------------|----------|-----------------------------------------------------------------------------|
@@ -117,10 +117,6 @@ Define one or more **mappings**. Each mapping has a **source** string (the sourc
 | `source`              | Yes      | Source entry id (string), matching an entry in the source artifact        |
 | `targets`             | Yes*     | Non-empty list of `{ entry-id: ... }` (and optional per-target fields). Omit only when `relationship` is `no-match` |
 | `relationship`        | Yes      | One of `implements`, `implemented-by`, `supports`, `supported-by`, `equivalent`, `subsumes`, `no-match`, `relates-to` |
-| `strength`            | No       | Mapping-level estimate (1–10); per-target `strength` on a `#MappingTarget` overrides where used |
-| `confidence-level`    | No       | `Undetermined`, `Low`, `Medium`, or `High`                                |
-| `applicability`       | No       | List of group ids (define `applicability-groups` in metadata if used)     |
-| `rationale`           | No       | Why this relationship exists                                              |
 | `remarks`             | No       | General prose regarding this mapping                                      |
 
 **Example (YAML):** Map the three guidelines from the Secure Software Development Guidance (`ORG.SSD.GL01`, `GL02`, `GL03`) to OWASP Top 10 categories (`A06`, `A01`, `A02`):
@@ -130,26 +126,26 @@ mappings:
   - id: GL01-A06
     source: ORG.SSD.GL01
     relationship: relates-to
-    strength: 7
-    rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
     targets:
       - entry-id: "A06"
+        strength: 7
+        rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
 
   - id: GL02-A01
     source: ORG.SSD.GL02
     relationship: relates-to
-    strength: 6
-    rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
     targets:
       - entry-id: "A01"
+        strength: 6
+        rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
 
   - id: GL03-A02
     source: ORG.SSD.GL03
     relationship: relates-to
-    strength: 6
-    rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
     targets:
       - entry-id: "A02"
+        strength: 6
+        rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
 ```
 
 For **`no-match`**, omit **`targets`** entirely (the source entry has no counterpart in the target artifact).
@@ -180,7 +176,7 @@ Combine metadata, source-reference, target-reference, remarks, and mappings into
 ```yaml
 # Secure Software Development Guidance to OWASP Top 10 (tutorial example)
 # Conforms to Gemara #MappingDocument (mappingdocument.cue).
-# gemara-version: v1.0.0-rc.1 — https://github.com/gemaraproj/gemara/releases/tag/v1.0.0-rc.1
+# gemara-version: v1.2.0 — https://github.com/gemaraproj/gemara/releases/tag/v1.2.0
 # Source guidance catalog: ../guidance/guidance-example.yaml (metadata.id ORG.SSD.001)
 # entry-type on source-reference / target-reference applies to all entries on that side (#TypedMapping).
 title: Secure Software Development Guidance to OWASP Top 10
@@ -188,7 +184,7 @@ metadata:
   id: SSD-OWASP-MAP-001
   version: "1.0.0"
   type: MappingDocument
-  gemara-version: "1.0.0-rc.1"
+  gemara-version: "1.2.0"
   description: >
     Maps Secure Software Development Guidance guidelines to OWASP Top 10
     categories. Minimal example for tutorials; relationship types are relates-to.
@@ -218,26 +214,26 @@ mappings:
   - id: GL01-A06
     source: ORG.SSD.GL01
     relationship: relates-to
-    strength: 7
-    rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
     targets:
       - entry-id: "A06"
+        strength: 7
+        rationale: Immutable image references support supply chain integrity; OWASP A06 covers vulnerable and outdated components.
 
   - id: GL02-A01
     source: ORG.SSD.GL02
     relationship: relates-to
-    strength: 6
-    rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
     targets:
       - entry-id: "A01"
+        strength: 6
+        rationale: Branch protection reduces unauthorized code changes; OWASP A01 covers broken access control.
 
   - id: GL03-A02
     source: ORG.SSD.GL03
     relationship: relates-to
-    strength: 6
-    rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
     targets:
       - entry-id: "A02"
+        strength: 6
+        rationale: VPN on untrusted networks protects data in transit; OWASP A02 covers cryptographic failures.
 ```
 
 **Validate** from the repo root against the checked-in example:
