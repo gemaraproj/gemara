@@ -71,7 +71,7 @@ package gemara
 // raw data for the evaluation layer, evaluation and enforcement artifacts for the audit layer.
 #Evidence: {
 	// id uniquely identifies this evidence
-	id?: string
+	id: string
 
 	// type categorizes the kind of evidence
 	type: #EvidenceType
@@ -86,7 +86,6 @@ package gemara
 	// Enables verification that mutable evidence (S3 objects, HTTP URLs, API responses)
 	// has not changed since the tool observed it. Not needed for content-addressable systems
 	// (OCI, git) or inline payloads.
-	digest?: string
 
 	// description explains what this evidence represents
 	description?: string
