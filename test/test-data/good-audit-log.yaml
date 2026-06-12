@@ -73,10 +73,8 @@ results:
     evidence:
       - id: EV-DO-01
         type: EvaluationLog
-        location:
-          reference-id: eval-log
         description: "PVTR evaluation results for documentation controls"
-        collected: "2025-08-22T16:02:00Z"
+        collected-at: "2025-08-22T16:02:00Z"
     recommendations:
       - id: REC-01
         text: "Add user guide references to the Security Insights file and publish basic user documentation."
@@ -93,10 +91,8 @@ results:
     evidence:
       - id: EV-DO-02
         type: EnforcementLog
-        location:
-          reference-id: enforcement-log
         description: "Enforcement actions taken for documentation failures"
-        collected: "2025-08-22T16:05:00Z"
+        collected-at: "2025-08-22T16:05:00Z"
     recommendations:
       - id: REC-02
         text: "Formalize the private vulnerability reporting process and document it in SECURITY.md."
@@ -112,8 +108,6 @@ results:
     evidence:
       - id: EV-QA-01
         type: api-response
-        location:
-          reference-id: github-api
-          remarks: "GitHub dependency graph SBOM endpoint"
-        description: "Dependency manifests from GitHub dependency graph"
-        collected: "2026-02-10T15:05:00Z"
+        digest: "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+        description: "Dependency manifests from the GitHub dependency graph SBOM endpoint"
+        collected-at: "2026-02-10T15:05:00Z"

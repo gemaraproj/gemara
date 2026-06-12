@@ -32,6 +32,14 @@ evaluations:
     steps-executed: 1
     start: 2025-08-22T16:02:00.000000000Z
     end: 2025-08-22T16:02:00.000003708Z
+    evidence:
+    - id: EV-AC-01-01
+      type: api-response
+      collected-at: 2025-08-22T16:02:00.000003000Z
+      payload:
+        login: revanite-io
+        two_factor_requirement_enabled: true
+      description: Organization settings showing org-wide MFA enforcement
   control:
     reference-id: OSPS-B
     entry-id: OSPS-AC-01

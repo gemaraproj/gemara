@@ -67,7 +67,8 @@ package gemara
 	required: *false | bool
 }
 
-// Evidence records a specific data source consulted during an audit
+// Evidence records what was cited to support an opinion for a specific activity:
+// raw data for the evaluation layer, evaluation and enforcement artifacts for the audit layer.
 #Evidence: {
 	// id uniquely identifies this evidence
 	id?: string
@@ -75,15 +76,23 @@ package gemara
 	// type categorizes the kind of evidence
 	type: #EvidenceType
 
-	// collected is the timestamp when the evidence was gathered
-	collected: #Datetime @go(Collected)
+	// collected-at is the timestamp when the evidence was gathered
+	"collected-at": #Datetime @go(CollectedAt)
 
-	// location references the artifact containing this evidence
-	location: #ArtifactMapping
+	// payload is the raw evidence data collected
+	payload?: _ @go(Payload,type=any)
+
+	// digest is a hash of the evidence content at collection time for integrity verification.
+	// Enables verification that mutable evidence (S3 objects, HTTP URLs, API responses)
+	// has not changed since the tool observed it. Not needed for content-addressable systems
+	// (OCI, git) or inline payloads.
+	digest?: string
 
 	// description explains what this evidence represents
 	description?: string
 }
 
-// EvidenceType categorizes the kind of evidence collected during an audit
+// EvidenceType categorizes the kind of evidence. It remains an open enum:
+// recommended values include artifact types already known to Gemara (e.g.
+// EvaluationLog, EnforcementLog) plus categories for common evidence forms.
 #EvidenceType: #ArtifactType | string @go(-)
