@@ -108,6 +108,5 @@ results:
     evidence:
       - id: EV-QA-01
         type: api-response
-        digest: "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
         description: "Dependency manifests from the GitHub dependency graph SBOM endpoint"
         collected-at: "2026-02-10T15:05:00Z"

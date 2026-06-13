@@ -82,11 +82,6 @@ package gemara
 	// payload is the raw evidence data collected
 	payload?: _ @go(Payload,type=any)
 
-	// digest is a hash of the evidence content at collection time for integrity verification.
-	// Enables verification that mutable evidence (S3 objects, HTTP URLs, API responses)
-	// has not changed since the tool observed it. Not needed for content-addressable systems
-	// (OCI, git) or inline payloads.
-
 	// description explains what this evidence represents
 	description?: string
 }
