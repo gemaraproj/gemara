@@ -96,14 +96,14 @@ Most users enter this story at Layer 2 (consuming controls) or Layer 3 (writing 
 
 ### What's the difference between a Guidance Catalog and a Control Catalog?
 
-**Guidance** is generic — it applies across technologies.
-**Controls** are specific, actionable, and assessable for a particular technology.
+**Guidance** is broad — it applies across technologies.
+**Controls** are specific, actionable, and assessable for a particular technology or scope.
 
 The test: if you can't write testable conditions for it, it's not a control.
 
 | | **Guidance (Layer 1)** | **Control (Layer 2)** |
 |:--|:--|:--|
-| Example source | CIS Controls | CIS Benchmark for Linux |
+| Example source | OWASP Top 10 | Open Source Project Security Baseline |
 | Scope | Any technology | Specific technology |
 | Testable | No | Yes — has Assessment Requirements |
 | Says | "Do access management" | "Reduce risk of privilege escalation by disabling direct admin login to remote systems" |
@@ -130,11 +130,11 @@ Some controls are procedural, so those logs can be human-authored. Audit Logs ar
 
 ### How does Gemara relate to OSCAL?
 
-Gemara is your **internal working format** — lean and intent-focused. It structures your GRC program (the engine). OSCAL is the **external reporting format** — comprehensive and formal. It's used between organizations that engage in formal compliance activities.
+ OSCAL is a mature standard for machine-readable compliance documents with broad adoption in regulated environments. Gemara builds on lessons from the OSCAL community and optimizes for a specific workflow: lean YAML authoring, machine-generated artifacts at scale, and first-class threat-to-control traceability. The Gemara SDK exports to OSCA formats, so organizations can use Gemara for authoring and automation while producing OSCAL artifacts for exchange and regulatory submission.
 
 ### When should I use OSCAL vs Gemara?
 
-Use the deciding question: **is this part of the engine, or an output of the engine?**
+There is some overlap. Both handle catalogs, assessment data, and policy. The difference is what each optimizes for:
 
 | **Task** | **Use** | **Why** |
 |:--|:--|:--|
@@ -149,13 +149,13 @@ Use the deciding question: **is this part of the engine, or an output of the eng
 
 ### How do I get from Gemara to OSCAL?
 
-Export via the SDK. The SDK maps Gemara fields to OSCAL fields and handles OSCAL-specific requirements (like UUID generation) so your source YAML stays lean. You define intent in Gemara; the SDK produces the comprehensive OSCAL output.
-The flow is one direction: **Gemara → OSCAL**. If someone wants to bring OSCAL data into the Gemara ecosystem, that conversion is on the consumer.
+The SDK maps Gemara artifacts to their OSCAL equivalents and handles OSCAL-specific requirements like UUID generation. Your source YAML stays lean; the SDK produces the OSCAL output.
+`oscalCatalog, _ := gemaraconv.ControlCatalog(catalog).ToOSCAL()`
 
 ### Does Gemara replace OSCAL?
 
-No. OSCAL is mature with broad adoption in regulated environments. Organizations producing or consuming OSCAL artifacts should continue doing so. 
-Gemara addresses a different need, supports the engine that *produces* compliance outcomes, not the format that *reports* them. Organizations benefit from using both.
+No. OSCAL is mature, widely adopted, and purpose-built for formal compliance exchange. Organizations producing or consuming OSCAL artifacts should continue doing so. 
+Gemara optimizes for a different part of the workflow — authoring, automation, and threat traceability — and maintains compatibility through SDK export. Organizations benefit from using both.
 
 ## Adopting Gemara
 
