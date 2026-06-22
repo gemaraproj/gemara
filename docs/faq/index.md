@@ -193,7 +193,7 @@ A common ownership pattern:
 | Platform / DevOps | The systems under assessment (existing tooling) | 4 |
 | Auditor | Interpretation of evidence against criteria | 7 |
 
-Your organization may divide this differently. The key principle: the GRC team owns the "why" and "what maps where," engineering owns the "how to prove it." Neither needs to be expert in the other's domain.
+Your organization may divide this differently. The key principle: the GRC team owns the "why" and "what maps where," engineering owns the "how to prove it." Neither needs to be an expert in the other's domain.
 
 ### What does the auditor actually see?
 
