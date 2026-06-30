@@ -5,7 +5,7 @@ title: Evidence Mapping
 
 - **ADR:** 0023
 - **Proposal Author(s):** @jpower432
-- **Status:** Draft
+- **Status:** Proposed
 - **Supersedes:** ADR-0022
 
 ## Context
@@ -83,7 +83,9 @@ The `evidence` field on `#AssessmentLog` in stable `evaluationlog.cue` remains `
 
 ## Examples
 
-### Evaluation layer — opaque source, two observations of the same file
+### Multiple observations of the same source
+
+Two assessment steps consult the same file. The artifact appears once in `mapping-references`; each observation gets its own evidence entry with a specific `coordinate` and `payload`:
 
 ```yaml
 metadata:
@@ -115,34 +117,9 @@ evidence:
     description: "Cosign dependency version"
 ```
 
-### Evaluation layer — inline only, simple tool
-
-```yaml
-evidence:
-  - id: "e-003"
-    type: "api-response"
-    collected-at: "2026-06-13T14:30:00Z"
-    payload:
-      mfa_enforced: true
-      admin_accounts: 5
-    description: "IAM MFA policy summary"
-```
-
-### Evaluation layer — external reference with integrity
-
-```yaml
-evidence:
-  - id: "e-004"
-    type: "config-file"
-    collected-at: "2026-06-13T14:30:00Z"
-    origin:
-      reference-id: "k8s-manifest"
-      coordinate: "/etc/kubernetes/manifests/kube-apiserver.yaml:42"
-      digest: "sha256:d4e5f6..."
-    description: "API server audit policy configuration"
-```
-
 ### Audit layer — structured Gemara artifact reference
+
+An audit-layer entry references a specific assessment log within an evaluation log using `entry-id`:
 
 ```yaml
 metadata:
@@ -162,7 +139,9 @@ evidence:
     description: "MFA enforcement assessment result from Q2 evaluation"
 ```
 
-### Evaluation layer — multiple sources with different trust levels
+### Conflicting sources
+
+Two sources disagree about the same control. Each evidence entry traces to its origin, enabling consumers to weigh by source trust:
 
 ```yaml
 metadata:
@@ -197,24 +176,7 @@ evidence:
     payload:
       vulnerability-reporting:
         accepts-vulnerability-reports: false
-    description: "Security Insights data contradicts GitHub API — conflicting evidence for vulnerability reporting status"
-```
-
-### Evaluation layer — coordinate with cached snippet
-
-```yaml
-evidence:
-  - id: "e-006"
-    type: "config-file"
-    collected-at: "2026-06-13T14:30:00Z"
-    origin:
-      reference-id: "tls-config"
-      coordinate: "/etc/nginx/nginx.conf:28-35"
-      digest: "sha256:f7a8b9..."
-    payload:
-      ssl_protocols: "TLSv1.2 TLSv1.3"
-      ssl_ciphers: "HIGH:!aNULL:!MD5"
-    description: "TLS configuration snippet — full file at coordinate"
+    description: "Security Insights contradicts GitHub API"
 ```
 
 ## Consequences
@@ -243,14 +205,10 @@ Add `address` and `digest` directly to `#Evidence` without introducing `#Evidenc
 
 Use an existing mapping type on `#Evidence` instead of creating a new one.
 
-**Rejected because:** Existing Gemara mapping types (`#ArtifactMapping`, `#EntryMapping`, `#MultiEntryMapping`) do not fit evidence references for several reasons:
+**Rejected because:** Existing Gemara mapping types (`#ArtifactMapping`, `#EntryMapping`, `#MultiEntryMapping`) do not fit evidence references:
 
-1. **Evidence references have unique concerns.** Integrity verification (`digest`), sub-origin within opaque sources (`coordinate`), and temporal coupling (`collected-at`) are specific to evidence collection. These concerns do not exist on other Gemara mappings.
+1. **Evidence-specific concerns.** Integrity verification (`digest`), sub-origin within opaque sources (`coordinate`), and temporal coupling (`collected-at`) are specific to evidence collection and do not exist on other mappings.
 
-2. **Opaque and structured sources require different fields.** Evaluation-layer evidence points to opaque sources (files, API responses, configs) where `coordinate` provides a sub-origin. Audit-layer evidence points to structured Gemara artifacts (EvaluationLogs, EnforcementLogs) where `entry-id` identifies a specific entry. No existing mapping type supports both patterns — `#ArtifactMapping` has no `entry-id`, and `#EntryMapping` requires it.
+2. **Opaque and structured sources need different fields.** Evaluation-layer evidence uses `coordinate` for opaque sources (files, APIs). Audit-layer evidence uses `entry-id` for structured Gemara artifacts. No existing mapping supports both — `#ArtifactMapping` has no `entry-id`, and `#EntryMapping` requires it.
 
-3. **Multiple observations of the same source.** Two assessment steps may consult the same artifact but observe different parts of it. The artifact is one entry in `mapping-references`; the observations are many. Properties like `coordinate`, `digest`, and the evidence payload describe the specific observation, not the artifact. These are mapping-level concerns, not artifact-level concerns.
-
-4. **Evidence collection patterns vary.** Evidence may be collected "up from" steps (a step observes a specific slice of the payload and reports what it saw) or "just-in-time" at the assessment level (the assessment gathers evidence independently of step execution). In both cases, the evidence's relationship to its source — which part was observed, when, and with what result — is contextual to the collection event.
-
-5. **Evidence from multiple sources with varying trust.** A single control may be assessed against evidence from different sources — API responses, configuration files, tool output, user-provided data — each with different levels of trust, quality, and specificity. Evidence from a synthetic push test (high confidence) is qualitatively different from evidence derived from API configuration data (medium confidence). The evidence type and its origin are essential for downstream consumers to weigh findings appropriately.
+3. **Observations are contextual.** Multiple steps may consult the same artifact but observe different parts. The observation's properties (`coordinate`, `digest`, `payload`) describe the specific collection event, not the artifact. Multiple evidence entries reference one `mapping-reference`, each with its own context.
