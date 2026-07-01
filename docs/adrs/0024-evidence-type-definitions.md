@@ -202,7 +202,6 @@ Requirement: OSPS-AC-01.01 (MFA Enforcement)
 
 - **No changes to `#Evidence`.** ADR-0023's schema is unchanged. The `type` field already exists.
 - **Two dimensions, typed separately.** `frequency` (plan-level) drives the audit schedule; `valid-for` (evidence-type-level) drives staleness alerts. Both are integers in days — computable, not prose.
-- **Org override through policy composition.** Content authors supply defaults for both `frequency` and `valid-for`. Organizations override in their profile. Same composition model Gemara uses for requirements.
 
 ### Negative
 
@@ -210,12 +209,6 @@ Requirement: OSPS-AC-01.01 (MFA Enforcement)
 - Retypes `frequency` from `string` to `int` and replaces `evidence-requirements` on `#AssessmentPlan`, which is a breaking change to the experimental schema.
 
 ## Alternatives Considered
-
-### Add `valid-from` / `valid-until` on `#Evidence`
-
-Put temporal validity on each evidence instance rather than the evidence type definition.
-
-**Rejected because:** Evidence validity is a property of the evidence type and the organization's policy, not of each collected artifact. `collected-at` is sufficient on the instance — the consumer resolves freshness from the evidence type's `valid-for`. Adding validity fields to `#Evidence` would put policy on data.
 
 ### Keep `frequency` and `evidence-requirements` as bare strings
 
