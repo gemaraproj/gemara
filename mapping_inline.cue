@@ -7,7 +7,8 @@ package gemara
 
 // MappingReference represents a reference to an external document with full metadata.
 #MappingReference: {
-	// id allows this entry to be referenced by other elements
+	// id identifies this mapping reference within the artifact and, when url
+	// is absent, the referenced artifact's metadata.id.
 	id: string
 
 	// title describes the purpose of this mapping reference at a glance
