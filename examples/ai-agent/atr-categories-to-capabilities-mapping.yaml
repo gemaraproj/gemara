@@ -1,0 +1,207 @@
+title: ATR Rule Categories to AI Agent Capabilities
+metadata:
+  id: ATR-CAP-MAP-001
+  version: "0.1.0"
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  description: >
+    Maps Agent Threat Rules (ATR) detection rule categories to the AI agent
+    capabilities that create the opportunity for each category of threat.
+    The source artifact is the ATR rule corpus, grouped by its nine detection
+    categories; the target artifact is the AI Agent Capability Catalog.
+    Relationships are expressed as relates-to following the convention that
+    external cross-references are refined by downstream consumers in their
+    applicability context.
+  author:
+    id: atr
+    name: Adam Lin
+    type: Human
+    contact:
+      name: Adam Lin
+      affiliation: Agent Threat Rules
+      email: adam@agentthreatrule.org
+      social: eeee2345
+  mapping-references:
+    - id: ATR
+      title: Agent Threat Rules
+      version: "0.1.0"
+      url: "https://github.com/Agent-Threat-Rule/agent-threat-rules"
+      description: >
+        Open MIT detection standard for AI agent threats. Rules are grouped
+        into detection categories under rules/; the reference-ids below are
+        those category identifiers.
+    - id: ATR-AI-AGENT-CAP
+      title: AI Agent Capability Catalog
+      version: "0.1.0"
+      description: >
+        Capabilities of AI agent systems that create the opportunity for the
+        threats ATR detects.
+
+source-reference:
+  reference-id: ATR
+  entry-type: Control
+target-reference:
+  reference-id: ATR-AI-AGENT-CAP
+  entry-type: Capability
+remarks: >
+  Each source entry-id is an ATR rule category. Targets are capability ids in
+  the AI Agent Capability Catalog. A category may relate to more than one
+  capability when its rules cover threats arising from several agent features.
+
+mappings:
+  - id: MAP-prompt-injection
+    source: prompt-injection
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-MODEL-INFERENCE
+        strength: 9
+        confidence-level: High
+        rationale: >
+          Prompt injection and jailbreak rules detect attacker instructions
+          smuggled into the model context. They exist because the agent runs
+          inference over a context that mixes trusted instructions with
+          untrusted content.
+      - entry-id: CAP-MEMORY-READ
+        strength: 6
+        confidence-level: Medium
+        rationale: >
+          Indirect injection rules detect malicious instructions delivered
+          through retrieved content read back into context, which depends on
+          the agent reading external or remembered state.
+
+  - id: MAP-tool-poisoning
+    source: tool-poisoning
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-TOOL-INVOCATION
+        strength: 8
+        confidence-level: High
+        rationale: >
+          Tool-poisoning rules detect injection and unsafe behaviour through
+          tool arguments and tool results, which is only reachable because the
+          agent invokes tools and feeds their output back into the model.
+      - entry-id: CAP-MCP-CONNECTION
+        strength: 9
+        confidence-level: High
+        rationale: >
+          A large share of tool-poisoning rules target MCP tool manifests,
+          schemas, and server name fields, and tool redefinition after
+          approval (rug-pull), which depend on the agent trusting
+          server-provided metadata at connection time.
+
+  - id: MAP-context-exfiltration
+    source: context-exfiltration
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-OUTPUT-ACTION
+        strength: 8
+        confidence-level: High
+        rationale: >
+          Exfiltration rules detect secrets and sensitive context leaving
+          through model output and downstream actions, which requires the
+          agent to act on and emit model output.
+      - entry-id: CAP-TOOL-INVOCATION
+        strength: 7
+        confidence-level: Medium
+        rationale: >
+          Many exfiltration rules detect data carried out through tool calls
+          and tool responses, depending on the agent's tool invocation
+          capability.
+      - entry-id: CAP-MEMORY-READ
+        strength: 5
+        confidence-level: Medium
+        rationale: >
+          Staged exfiltration rules detect sensitive data pulled from context
+          and memory before being leaked, depending on the agent reading
+          stored state.
+
+  - id: MAP-agent-manipulation
+    source: agent-manipulation
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-MODEL-INFERENCE
+        strength: 8
+        confidence-level: High
+        rationale: >
+          Manipulation rules detect authority claims, persona injection, and
+          goal drift that steer the agent's decisions through its inference
+          over untrusted content.
+      - entry-id: CAP-CROSS-AGENT-MESSAGING
+        strength: 6
+        confidence-level: Medium
+        rationale: >
+          Some manipulation rules detect influence delivered between agents,
+          which depends on the agent trusting peer-agent messages.
+
+  - id: MAP-privilege-escalation
+    source: privilege-escalation
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-PRIVILEGED-EXECUTION
+        strength: 9
+        confidence-level: High
+        rationale: >
+          Privilege-escalation rules detect sandbox escape, stacked SQL DML
+          abuse, and delayed-execution bypass, which are reachable only
+          because the agent runs with standing, delegated privilege.
+
+  - id: MAP-excessive-autonomy
+    source: excessive-autonomy
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-AUTONOMOUS-ACTION
+        strength: 9
+        confidence-level: High
+        rationale: >
+          Excessive-autonomy rules detect runaway tool-call loops, SSRF via
+          autonomous fetches, and unauthorized orchestration, which depend on
+          the agent acting across steps without per-step approval.
+
+  - id: MAP-data-poisoning
+    source: data-poisoning
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-MEMORY-WRITE
+        strength: 9
+        confidence-level: High
+        rationale: >
+          Data-poisoning rules detect persistent memory plants and poisoned
+          stored facts, which depend on the agent writing attacker-influenced
+          content into durable memory or state.
+      - entry-id: CAP-MEMORY-READ
+        strength: 6
+        confidence-level: Medium
+        rationale: >
+          Poisoned data causes harm when it is read back into a later turn,
+          depending on the agent's context and memory read capability.
+
+  - id: MAP-model-abuse
+    source: model-abuse
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-MODEL-INFERENCE
+        strength: 7
+        confidence-level: Medium
+        rationale: >
+          Model-abuse rules detect attempts to misuse the model to produce
+          harmful or fraudulent output, which arises from the agent running
+          inference and treating the result as a deliverable.
+      - entry-id: CAP-OUTPUT-ACTION
+        strength: 6
+        confidence-level: Medium
+        rationale: >
+          Harm in this category lands through the produced and delivered
+          output, depending on the agent acting on model output.
+
+  - id: MAP-skill-compromise
+    source: skill-compromise
+    relationship: relates-to
+    targets:
+      - entry-id: CAP-SKILL-LOADING
+        strength: 9
+        confidence-level: High
+        rationale: >
+          Skill-compromise rules detect backdoored, impersonated, and
+          over-privileged skills, which can only execute because the agent
+          loads and runs third-party skills and plugins with its own
+          privileges.
