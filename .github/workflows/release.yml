@@ -41,13 +41,41 @@ jobs:
         run: cue login --token=${{ secrets.CUE_REG_TOKEN }}
       - name: Publish the module
         run: cue mod publish ${{ needs.release.outputs.full-tag }}
+  publish-openapi:
+    # The website (and other downstream type generators) consume the spec's
+    # OpenAPI projection, so attach it to the release as an asset.
+    needs: release
+    if: needs.release.outputs.full-tag != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # Upload the release asset
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.full-tag }}
+          persist-credentials: false
+      - name: Setup Go
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
+        with:
+          go-version: '1.25'
+      - name: Generate openapi.yaml
+        run: make genopenapi
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.release.outputs.full-tag }}
+        run: gh release upload "$TAG" generated/openapi.yaml --clobber
   notify-website:
     # The website repo regenerates its schema reference pages from the
     # released spec, so tell it a new release exists. This must happen here
     # rather than in an `on: release` workflow in the website repo: the
     # release is created with GITHUB_TOKEN, whose events do not trigger
     # other workflows.
-    needs: release
+    #
+    # Runs after publish-openapi so the rebuild finds the openapi.yaml
+    # asset already attached instead of racing the upload.
+    needs: [release, publish-openapi]
     if: needs.release.outputs.full-tag != ''
     runs-on: ubuntu-latest
     permissions: {}
