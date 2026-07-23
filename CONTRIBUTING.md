@@ -19,9 +19,9 @@ PRs MUST meet the following criteria:
 
 ### Useful make tasks when making schema changes
 
-Make sure to update the `docs/schema-nav.yml`, after making any changes to the schemas in the layer.cue files
+Make sure to update `schema-nav.yml` in the [website repository](https://github.com/gemaraproj/website), after making any changes to the schemas in the layer.cue files
 For instance:
-You have added a new schema 'newschema' in layerN.cue( where N is a number from 1 - 7), the `docs/schema-nav.yml` should look like:
+You have added a new schema 'newschema' in layerN.cue( where N is a number from 1 - 7), the website's `schema-nav.yml` should look like:
 ```
 - title: "Layer N"
     filename: "layer-N"
@@ -42,7 +42,7 @@ Adding a new artifact type requires schema changes, test data, and documentation
 |:---------|:----------------------------------------------------------------------------------------------|
 | 1        | Define the new `#YourArtifact` definition in the appropriate `layer-N.cue` file               |
 | 2        | Add `"YourArtifact"` to the `#ArtifactType` enum in `base.cue`                                |
-| 3        | Add new enum or alias types to `docs/schema-nav.yml` under the correct layer                  |
+| 3        | Add new enum or alias types to `schema-nav.yml` in the [website repo](https://github.com/gemaraproj/website) under the correct layer |
 | 4        | Create a valid test data file in `test/test-data/` (prefix with `good-`)                      |
 | 5        | Add positive and/or negative test cases to `test/schema_test.go`                              |
 | 6        | Run `cue vet -d '#YourArtifact' . test/test-data/good-your-artifact.yaml` to validate locally |
