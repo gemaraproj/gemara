@@ -41,3 +41,36 @@ jobs:
         run: cue login --token=${{ secrets.CUE_REG_TOKEN }}
       - name: Publish the module
         run: cue mod publish ${{ needs.release.outputs.full-tag }}
+  notify-website:
+    # The website repo regenerates its schema reference pages from the
+    # released spec, so tell it a new release exists. This must happen here
+    # rather than in an `on: release` workflow in the website repo: the
+    # release is created with GITHUB_TOKEN, whose events do not trigger
+    # other workflows.
+    needs: release
+    if: needs.release.outputs.full-tag != ''
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Generate GitHub App token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ secrets.GEMARA_AUTOMATION_CLIENT_ID }}
+          private-key: ${{ secrets.GEMARA_AUTOMATION_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: website
+          permission-contents: write
+      - name: Trigger website rebuild
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        env:
+          TAG: ${{ needs.release.outputs.full-tag }}
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: context.repo.owner,
+              repo: 'website',
+              event_type: 'gemara-release',
+              client_payload: { ref: process.env.TAG },
+            });
