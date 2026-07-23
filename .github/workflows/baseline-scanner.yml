@@ -23,7 +23,7 @@ jobs:
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
         with:
-          app-id: ${{ secrets.GEMARA_AUTOMATION_CLIENT_ID }}
+          client-id: ${{ secrets.GEMARA_AUTOMATION_CLIENT_ID }}
           private-key: ${{ secrets.GEMARA_AUTOMATION_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: ${{ github.repository }}
@@ -36,7 +36,7 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           token: ${{ steps.app-token.outputs.token }}
-          catalog: "osps-baseline"
+          catalog: "osps-baseline-2026-02"
           upload-sarif: "true"
 
       - name: Upload Assessment Results
