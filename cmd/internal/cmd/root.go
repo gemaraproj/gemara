@@ -11,7 +11,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "gemara-docs",
-	Short: "Gemara CLI tool for schema conversion and documentation generation",
+	Short: "Gemara CLI tool for schema conversion",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -24,7 +24,4 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(newCue2OpenAPICmd())
-	rootCmd.AddCommand(newOpenAPI2MDCmd())
-	rootCmd.AddCommand(newLexicon2MDCmd())
-	rootCmd.AddCommand(newTermLinkerCmd())
 }
