@@ -108,10 +108,23 @@ package gemara
 #AssessmentPlan: {
 	id:               string
 	"requirement-id": string @go(RequirementId)
-	frequency:        string
+	// frequency is the control review frequency in days
+	frequency: int
+	"evidence-types"?: [#EvidenceTypeDefinition, ...#EvidenceTypeDefinition] @go(EvidenceTypes)
 	"evaluation-methods": [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
-	"evidence-requirements"?: string @go(EvidenceRequirements)
 	parameters?: [#Parameter, ...#Parameter]
+}
+
+// EvidenceTypeDefinition defines expected evidence for an assessment plan.
+#EvidenceTypeDefinition: {
+	// id matches the type field on #Evidence instances
+	id: string
+
+	// description explains what this evidence type represents
+	description?: string
+
+	// valid-for is the evidence validity period in days
+	"valid-for": int @go(ValidFor)
 }
 
 // AcceptedMethod defines a method for evaluation or enforcement.

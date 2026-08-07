@@ -88,6 +88,25 @@ adherence:
       type: "Behavioral"
       mode: "Manual"
       description: "Annual security audit by external assessors"
+  assessment-plans:
+    - id: "plan-ac01"
+      requirement-id: "AC-1.1"
+      frequency: 90
+      evidence-types:
+        - id: "api-response"
+          description: "Live API query of platform settings"
+          valid-for: 1
+        - id: "config-file"
+          description: "Security configuration file check"
+          valid-for: 1
+        - id: "quarterly-access-review"
+          description: "Human review of access control enforcement status"
+          valid-for: 90
+      evaluation-methods:
+        - id: "EV-AUTO-01"
+          type: "Behavioral"
+          mode: "Automated"
+          required: true
   enforcement-methods:
     - id: "EM-GATE-01"
       type: "Gate"
