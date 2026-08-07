@@ -1,0 +1,48 @@
+metadata:
+  id: audit-log-undeclared-criteria
+  type: AuditLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Invalid audit log: result scored against criteria the audit never declared"
+  author:
+    id: lead-auditor
+    name: "Auditor"
+    type: Human
+  mapping-references:
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+    - id: OSPS
+      title: "Open Source Project Security Baseline"
+      version: "2025.1"
+      url: "https://baseline.openssf.org"
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+  uri: "https://github.com/gemaraproj/gemara"
+  environment: production
+
+owner:
+  responsible:
+    - name: "Auditor"
+      affiliation: "External Audit Firm"
+  accountable:
+    - name: "Project Lead"
+      affiliation: "OpenSSF"
+
+summary: "Criteria declaration test."
+
+criteria:
+  - reference-id: security-policy
+
+results:
+  - id: AR-AC-01
+    title: "MFA enforcement verified"
+    type: Strength
+    description: "Scored against OSPS, which is not declared in criteria."
+    criteria-reference:
+      reference-id: OSPS
+      entries:
+        - reference-id: OSPS-AC-01

@@ -51,6 +51,9 @@ summary: "Access control and quality controls are strong. Documentation controls
 
 criteria:
   - reference-id: security-policy
+    remarks: "Organizational policy establishing the audit's scope."
+  - reference-id: OSPS
+    remarks: "Baseline whose controls each result is scored against."
 
 results:
   - id: AR-AC-01

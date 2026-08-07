@@ -4,6 +4,8 @@
 @status("experimental")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // AuditLog records results from an audit performed against a target resource
@@ -25,6 +27,12 @@ package gemara
 
 	if results != _|_ {
 		_uniqueResultIds: {for i, r in results {(r.id): i}}
+		let _validCriteriaIds = [for c in criteria {c."reference-id"}]
+
+		// Unify the valid ID list with a list.Contains constraint to require each result scores against declared criteria
+		for i, r in results {
+			_criteriaValidation: "\(i)": _validCriteriaIds & list.Contains(r."criteria-reference"."reference-id")
+		}
 	}
 }
 
