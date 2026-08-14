@@ -27,6 +27,18 @@ package gemara
 	"assessment-logs": [...{
 		requirement: "reference-id": (control."reference-id")
 	}]
+	// Require start timestamp on assessments that actually executed
+	"assessment-logs": [#_AssessmentLogStrict, ...#_AssessmentLogStrict]
+}
+
+// _AssessmentLogStrict layers the "start required unless unexecuted" rule on top of #AssessmentLog
+#_AssessmentLogStrict: {
+	@go(-)
+} & #AssessmentLog & {
+	result: #Result
+	if result != "Not Run" && result != "Unknown" && result != "Not Applicable" {
+		start: #Datetime
+	}
 }
 
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
@@ -50,9 +62,6 @@ package gemara
 	// Start is the timestamp when the assessment began.
 	// Assessments that never executed have no start time to record.
 	start?: #Datetime
-	if result != "Not Run" && result != "Unknown" && result != "Not Applicable" {
-		start: #Datetime
-	}
 
 	// End is the timestamp when the assessment concluded.
 	end?: #Datetime

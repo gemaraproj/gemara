@@ -161,6 +161,8 @@ func relaxForSubsume(content string) string {
 	}
 	result := strings.Join(lines, "\n")
 
+	result = stripHiddenDefBlocks(result)
+
 	result = strings.Replace(result,
 		`#Datetime: time.Format("2006-01-02T15:04:05Z07:00")`,
 		`#Datetime: string`, 1)
@@ -173,6 +175,95 @@ func relaxForSubsume(content string) string {
 	}
 
 	return result
+}
+
+// stripHiddenDefBlocks removes hidden definition blocks (#_Foo: { ... }) and
+// collapses references to them back to their underlying public type. Hidden
+// definitions are validation-only wrappers (marked @go(-)) whose structural
+// shape causes cross-context subsumption false positives — the same class of
+// noise as time.Format and list.Contains.
+func stripHiddenDefBlocks(content string) string {
+	hiddenDefs := findHiddenDefs(content)
+
+	var out []string
+	lines := strings.Split(content, "\n")
+	i := 0
+	for i < len(lines) {
+		trimmed := strings.TrimSpace(lines[i])
+
+		if strings.HasPrefix(trimmed, "#_") && strings.Contains(trimmed, ":") {
+			defName := strings.TrimSpace(strings.SplitN(trimmed, ":", 2)[0])
+			if _, ok := hiddenDefs[defName]; ok {
+				for len(out) > 0 && strings.HasPrefix(strings.TrimSpace(out[len(out)-1]), "//") {
+					out = out[:len(out)-1]
+				}
+				depth := 0
+				for i < len(lines) {
+					code := strings.TrimSpace(lines[i])
+					if !strings.HasPrefix(code, "//") {
+						for _, ch := range code {
+							if ch == '{' {
+								depth++
+							} else if ch == '}' {
+								depth--
+							}
+						}
+					}
+					i++
+					if depth <= 0 {
+						break
+					}
+				}
+				continue
+			}
+		}
+
+		out = append(out, lines[i])
+		i++
+	}
+	result := strings.Join(out, "\n")
+
+	for name, base := range hiddenDefs {
+		result = strings.ReplaceAll(result, name, base)
+	}
+	return result
+}
+
+// findHiddenDefs scans for #_Foo: { @go(-) } & #Bar patterns and returns
+// a map from hidden name to underlying public type.
+func findHiddenDefs(content string) map[string]string {
+	defs := make(map[string]string)
+	lines := strings.Split(content, "\n")
+	for i, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "#_") || !strings.Contains(trimmed, ":") {
+			continue
+		}
+		name := strings.TrimSpace(strings.SplitN(trimmed, ":", 2)[0])
+		depth := 0
+		for j := i; j < len(lines); j++ {
+			for _, ch := range lines[j] {
+				if ch == '{' {
+					depth++
+				} else if ch == '}' {
+					depth--
+				}
+			}
+			if idx := strings.Index(lines[j], "& #"); idx >= 0 {
+				rest := lines[j][idx+2:]
+				parts := strings.Fields(rest)
+				if len(parts) > 0 {
+					base := strings.TrimRight(parts[0], " &{")
+					defs[name] = base
+					break
+				}
+			}
+			if depth <= 0 && j > i {
+				break
+			}
+		}
+	}
+	return defs
 }
 
 func collectStableDefs(schemaDir string) ([]string, error) {
@@ -197,7 +288,7 @@ func collectStableDefs(schemaDir string) ([]string, error) {
 		}
 		for _, line := range strings.Split(content, "\n") {
 			line = strings.TrimSpace(line)
-			if strings.HasPrefix(line, "#") && strings.Contains(line, ":") {
+			if strings.HasPrefix(line, "#") && !strings.HasPrefix(line, "#_") && strings.Contains(line, ":") {
 				def := strings.TrimSpace(strings.SplitN(line, ":", 2)[0])
 				stableDefs = append(stableDefs, def)
 			}
