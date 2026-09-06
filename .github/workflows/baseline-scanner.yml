@@ -31,7 +31,7 @@ jobs:
           permission-administration: read
 
       - name: Run Baseline Action
-        uses: revanite-io/osps-baseline-action@b7d860b68755627c30ab692473511c90daee3ae8 # v1.3.4
+        uses: revanite-io/osps-baseline-action@6ba0e05ce6566af82fd77bb9356ae8387027f32e # v1.5.0
         with:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
