@@ -112,6 +112,15 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 
+		// EvaluationPlan — positive
+		{"valid evaluation plan", "./test-data/good-evaluation-plan.yaml", "#EvaluationPlan", false, ""},
+		{"single-executor plan needs no conflict-resolution rule", "./test-data/good-evaluation-plan-single-executor.yaml", "#EvaluationPlan", false, ""},
+
+		// EvaluationPlan — negative
+		{"multi-executor plan with no conflict-resolution rule", "./test-data/bad-evaluation-plan-no-conflict-resolution.yaml", "#EvaluationPlan", true, "does not satisfy matchN"},
+		{"two executors on one procedure sharing a rank", "./test-data/bad-evaluation-plan-duplicate-rank.yaml", "#EvaluationPlan", true, "_uniqueRanks"},
+		{"environment digest with an uppercase algorithm prefix", "./test-data/bad-evaluation-plan-invalid-digest.yaml", "#EvaluationPlan", true, "out of bound"},
+
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
 

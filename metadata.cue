@@ -68,4 +68,4 @@ import "time"
 }
 
 // ArtifactType identifies the kind of Gemara artifact for unambiguous parsing
-#ArtifactType: "CapabilityCatalog" | "ControlCatalog" | "GuidanceCatalog" | "ThreatCatalog" | "RiskCatalog" | "Policy" | "MappingDocument" | "Lexicon" | "EvaluationLog" | "EnforcementLog" | "VectorCatalog" | "PrincipleCatalog" | "AuditLog" @go(-)
+#ArtifactType: "CapabilityCatalog" | "ControlCatalog" | "GuidanceCatalog" | "ThreatCatalog" | "RiskCatalog" | "Policy" | "MappingDocument" | "Lexicon" | "EvaluationLog" | "EnforcementLog" | "VectorCatalog" | "PrincipleCatalog" | "AuditLog" | "EvaluationPlan" @go(-)
