@@ -40,3 +40,69 @@ request-property-type-changed ControlEvaluation
 request-property-type-changed EvaluationLog
 response-property-type-changed ControlEvaluation
 response-property-type-changed EvaluationLog
+
+### Task 12: cue2openapi upstream-migration fidelity changes
+#
+# cue2openapi now generates from cuelang.org/go/encoding/openapi rather than a
+# hand-rolled AST walk. Embedded CUE definitions are emitted as
+# `allOf` against the embedded schema instead of being dropped, and 51
+# properties plus 21 required constraints that the previous generator
+# silently omitted are now present. No property or constraint that CUE actually
+# enforces was removed; the change is structural, so oasdiff reports it against
+# the v1 baseline. Two removals are deliberate fixes oasdiff did not flag: the
+# old walker leaked the hidden CUE uniqueness-check fields `_uniqueTermIds`
+# (Lexicon) and `_uniqueMappingIds` (MappingDocument) into the published schema
+# as REQUIRED properties, so documents had to carry internal bookkeeping to
+# validate.
+#
+# Non-empty-tuple fields (CUE `[T, ...T]`) now surface their CUE-enforced
+# minimum length as `minItems: 1`, which the old walker did not emit.
+request-property-min-items-increased AssessmentLog
+request-property-min-items-increased AssessmentRequirement
+request-property-min-items-increased Catalog
+request-property-min-items-increased Control
+request-property-min-items-increased ControlEvaluation
+request-property-min-items-increased RACI
+request-property-min-items-increased Threat
+
+# CUE regex constraints (`=~"..."`) on these fields now surface as an
+# OpenAPI `pattern`, which the old walker did not emit.
+request-property-pattern-added Entity
+request-property-pattern-added EvidenceMapping
+request-property-pattern-added MappingReference
+
+# Two distinct fidelity fixes fold into this (id, schema) pair:
+#   - AssessmentLog.steps-executed is `int` in CUE (evaluationlog.cue); the old
+#     walker mistranslated it as `string`.
+#   - Evidence.payload is CUE's top type `_` (auditlog.cue:92), so it accepts
+#     any value; the old walker emitted `string`, forcing structured inline
+#     evidence to be serialised.
+request-property-type-changed AssessmentLog
+response-property-type-changed AssessmentLog
+
+# Datetime is `time.Format("2006-01-02T15:04:05Z07:00")` (a full RFC 3339
+# datetime) in CUE; the old walker mistranslated it as OpenAPI format `date`.
+response-body-type-changed Datetime
+
+# The referenced schema's own `required` list is unchanged; oasdiff reports
+# these nested paths as removed only because the field's `$ref` is now
+# wrapped in `allOf` (to carry the field's own description) instead of being
+# a bare `$ref` sibling.
+response-required-property-removed AssessmentLog
+response-required-property-removed AssessmentRequirement
+response-required-property-removed Catalog
+response-required-property-removed Control
+response-required-property-removed Log
+response-required-property-removed Metadata
+response-required-property-removed Threat
+
+# `state` is `#Lifecycle: *"Active" | …` — it has a CUE default, so a producer
+# may omit it and the consumer applies "Active". The old asset emitted it as
+# required, which rejected documents the CUE accepts (the repo's own
+# good-ccc.yaml, good-osps.yml and good-lifecycle.yaml among them). The
+# projection now drops a defaulted field from `required` and publishes its
+# `default` instead; oasdiff sees only the first half and calls it breaking.
+# The same change on Recommendation and AcceptedMethod (`required: *false |
+# bool`) is not listed because both schemas are experimental and already exempt.
+response-property-became-optional AssessmentRequirement
+response-property-became-optional Control

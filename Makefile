@@ -57,6 +57,11 @@ lintinsights:
 # by running the cmd/ CLI against a checkout of this repo; downstream type
 # generation (e.g. gemara-react) consumes generated/openapi.yaml.
 #
+# Embedded CUE definitions are emitted as `allOf` against the embedded
+# schema, so a consumer enumerating a schema's fields must resolve `allOf`.
+# Field descriptions on `$ref` properties use the `{description, allOf:
+# [{$ref}]}` form, which is how OpenAPI 3.0 permits both.
+#
 
 GENERATED_DIR := generated
 OPENAPI_YAML := $(GENERATED_DIR)/openapi.yaml
