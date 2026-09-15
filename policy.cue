@@ -109,9 +109,26 @@ package gemara
 	id:               string
 	"requirement-id": string @go(RequirementId)
 	frequency:        string
-	"evaluation-methods": [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
+	EM="evaluation-methods": [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
 	"evidence-requirements"?: string @go(EvidenceRequirements)
 	parameters?: [#Parameter, ...#Parameter]
+
+	// conflict-resolution states how disagreeing results are resolved for this requirement.
+	// A plan naming more than one evaluation method MUST state one, because a multi-source
+	// evaluation with no stated resolution rule produces a result whose value depends on
+	// which log a consumer happened to read first. Stating it here rather than leaving it
+	// to each implementation is the point: a default that lives in an implementation is one
+	// every implementer picks differently.
+	"conflict-resolution"?: #ConflictPolicy @go(ConflictResolution)
+
+	matchN(>=1, [
+		{"conflict-resolution"!: #ConflictPolicy},
+		{"evaluation-methods": [_]},
+	])
+
+	// Method ranks within one assessment plan must be unique, so that a rank-based
+	// conflict resolution has a total order to work with.
+	_uniqueRanks: {for i, m in EM if m.rank != _|_ {"\(m.rank)": i}}
 }
 
 // AcceptedMethod defines a method for evaluation or enforcement.
@@ -122,7 +139,50 @@ package gemara
 	required:     *false | bool
 	description?: string
 	executor?:    #Actor
+
+	// rank orders this method against the others on the same assessment plan; lower is
+	// higher precedence. It exists so that a rank-based conflict resolution has a total
+	// order to work with, and it is optional because a plan with one method needs none.
+	rank?: int & >=1
+
+	// environment-requirements states the environment this method is expected to run in.
+	// Its observed counterpart belongs on the EvaluationLog: a plan that states a required
+	// environment and a log that records none are not reconcilable, and the pair is the
+	// point of stating either.
+	"environment-requirements"?: #EnvironmentSpec @go(EnvironmentRequirements)
 }
+
+// EnvironmentSpec states the properties of an execution environment that a policy requires
+// and that an EvaluationLog can be checked against. Every field is optional because a
+// policy author may constrain as little or as much as they need, and a field that is
+// absent is unconstrained rather than unimportant.
+#EnvironmentSpec: {
+	// label is a human-readable name for the environment, such as production or staging
+	label?: string
+
+	// image-id identifies the container or machine image the executor is expected to run from
+	"image-id"?: string @go(ImageId)
+
+	// digests pins the exact content the executor is expected to run.
+	// Naming a digest here is what makes an environment claim in a log checkable rather
+	// than comparable only as a string.
+	digests?: [...#Digest]
+
+	// config-digest pins the runtime configuration the executor is expected to run under
+	"config-digest"?: #Digest @go(ConfigDigest)
+
+	// observation-source names how the environment is to be observed. A policy that requires
+	// an observation source the executor itself controls has required a self-report.
+	"observation-source"?: string @go(ObservationSource)
+}
+
+// Digest is a cryptographic hash in algorithm:encoded form (e.g. sha256:abc123...).
+// The grammar is the one #EvidenceMapping.digest already uses inline, named here so the
+// two are the same shape by construction rather than by coincidence.
+#Digest: =~"^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$"
+
+// ConflictPolicy states how disagreeing evaluation results are resolved.
+#ConflictPolicy: "highest-rank" | "unanimous" | "most-recent" | "escalate" @go(-)
 
 #ModeType:              "Manual" | "Automated"                           @go(-)
 #MethodType:            "Behavioral" | "Intent" | "Remediation" | "Gate" @go(-)
