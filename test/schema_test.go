@@ -112,14 +112,14 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 
-		// EvaluationPlan — positive
-		{"valid evaluation plan", "./test-data/good-evaluation-plan.yaml", "#EvaluationPlan", false, ""},
-		{"single-executor plan needs no conflict-resolution rule", "./test-data/good-evaluation-plan-single-executor.yaml", "#EvaluationPlan", false, ""},
+		// AssessmentPlan multi-source evaluation — positive
+		{"policy planning one requirement across two methods", "./test-data/good-policy-multi-source.yaml", "#Policy", false, ""},
+		{"single-method plan needs no conflict-resolution rule", "./test-data/good-policy-single-method.yaml", "#Policy", false, ""},
 
-		// EvaluationPlan — negative
-		{"multi-executor plan with no conflict-resolution rule", "./test-data/bad-evaluation-plan-no-conflict-resolution.yaml", "#EvaluationPlan", true, "does not satisfy matchN"},
-		{"two executors on one procedure sharing a rank", "./test-data/bad-evaluation-plan-duplicate-rank.yaml", "#EvaluationPlan", true, "_uniqueRanks"},
-		{"environment digest with an uppercase algorithm prefix", "./test-data/bad-evaluation-plan-invalid-digest.yaml", "#EvaluationPlan", true, "out of bound"},
+		// AssessmentPlan multi-source evaluation — negative
+		{"two methods on one requirement with no conflict-resolution rule", "./test-data/bad-policy-no-conflict-resolution.yaml", "#Policy", true, "does not satisfy matchN"},
+		{"two methods on one requirement sharing a rank", "./test-data/bad-policy-duplicate-rank.yaml", "#Policy", true, "_uniqueRanks"},
+		{"environment digest with an uppercase algorithm prefix", "./test-data/bad-policy-invalid-digest.yaml", "#Policy", true, "out of bound"},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
