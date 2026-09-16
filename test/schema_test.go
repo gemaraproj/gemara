@@ -57,6 +57,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid OSPS baseline", "./test-data/good-osps.yml", "#ControlCatalog", false, ""},
 		{"valid lifecycle catalog", "./test-data/good-lifecycle.yaml", "#ControlCatalog", false, ""},
 		{"valid nested control catalog", "./test-data/nested-good-ccc.yaml", "#ControlCatalog", false, ""},
+		{"assessment requirement sourced from external catalog", "./test-data/good-ar-source.yaml", "#ControlCatalog", false, ""},
 
 		// GuidanceCatalog — positive
 		{"valid AI governance framework", "./test-data/good-aigf.yaml", "#GuidanceCatalog", false, ""},
@@ -87,6 +88,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"invalid YAML", "./test-data/bad.yaml", "#ControlCatalog", true, ""},
 		{"invalid JSON", "./test-data/bad.json", "#ControlCatalog", true, ""},
 		{"controls without groups", "./test-data/bad-no-groups.yaml", "#ControlCatalog", true, ""},
+		{"assessment requirement with neither text nor source", "./test-data/bad-ar-neither.yaml", "#ControlCatalog", true, ""},
+		{"assessment requirement with both text and source", "./test-data/bad-ar-both.yaml", "#ControlCatalog", true, ""},
 
 		// MappingDocument — positive
 		{"valid mapping document", "./test-data/good-mapping-document.yaml", "#MappingDocument", false, ""},

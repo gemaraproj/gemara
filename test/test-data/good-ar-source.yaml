@@ -1,0 +1,41 @@
+metadata:
+  id: TEST-AR-SOURCE
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Control catalog with an assessment requirement sourced from an external catalog.
+  author:
+    id: test
+    name: Test Author
+    type: Human
+  mapping-references:
+    - id: OSPS
+      title: Open Source Project Security Baseline
+      version: "2025.1"
+      url: https://baseline.openssf.org
+  applicability-groups:
+    - id: production
+      title: Production
+      description: Production environments.
+
+title: Sourced Requirement Test
+
+groups:
+  - id: access-control
+    title: Access Control
+    description: Controls related to access.
+
+controls:
+  - id: TC-001
+    group: access-control
+    title: Test Control
+    objective: Test objective.
+    state: Active
+    assessment-requirements:
+      - id: TC-001.AR01
+        source:
+          reference-id: OSPS
+          entry-id: OSPS-AC-01.01
+        state: Active
+        applicability:
+          - production

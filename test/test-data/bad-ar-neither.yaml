@@ -1,0 +1,33 @@
+metadata:
+  id: TEST-AR-NEITHER
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Control catalog with an assessment requirement that has neither text nor source.
+  author:
+    id: test
+    name: Test Author
+    type: Human
+  applicability-groups:
+    - id: production
+      title: Production
+      description: Production environments.
+
+title: Requirement Without Body Test
+
+groups:
+  - id: access-control
+    title: Access Control
+    description: Controls related to access.
+
+controls:
+  - id: TC-001
+    group: access-control
+    title: Test Control
+    objective: Test objective.
+    state: Active
+    assessment-requirements:
+      - id: TC-001.AR01
+        state: Active
+        applicability:
+          - production

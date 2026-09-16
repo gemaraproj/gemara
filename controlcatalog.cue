@@ -51,6 +51,8 @@ import "list"
 
 	// assessment-requirements is a list of requirements that must be verified to confirm the control objective has been met
 	"assessment-requirements": [#AssessmentRequirement, ...#AssessmentRequirement] @go(AssessmentRequirements)
+	// Enforce that each requirement carries exactly one of text or source
+	"assessment-requirements": [#_AssessmentRequirementStrict, ...#_AssessmentRequirementStrict]
 
 	// guidelines documents relationships between this control and Layer 1 guideline artifacts
 	guidelines?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Guidelines)
@@ -65,13 +67,17 @@ import "list"
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
 }
 
-// AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
+// AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator.
+// Exactly one of text or source MUST be present: text defines the requirement inline, source imports it from another catalog.
 #AssessmentRequirement: {
 	// id allows this entry to be referenced by other elements
 	id: string
 
 	// text is the body of the requirement, typically written as a MUST condition
-	text: string
+	text?: string
+
+	// source references an assessment requirement in an external catalog whose text is adopted in place of an inline text
+	source?: #EntryMapping @go(Source,optional=nillable)
 
 	// applicability is a list of strings describing the situations where this text functions as a requirement for its parent control
 	applicability: [string, ...string]
@@ -90,3 +96,8 @@ import "list"
 		recommendation?: _|_
 	}
 }
+
+// _AssessmentRequirementStrict layers the "exactly one of text or source" rule on top of #AssessmentRequirement
+#_AssessmentRequirementStrict: {
+	@go(-)
+} & #AssessmentRequirement & ({text: string, source?: _|_} | {source: #EntryMapping, text?: _|_})
