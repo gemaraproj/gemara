@@ -40,3 +40,13 @@ request-property-type-changed ControlEvaluation
 request-property-type-changed EvaluationLog
 response-property-type-changed ControlEvaluation
 response-property-type-changed EvaluationLog
+
+# AssessmentRequirement gained `source` (an EntryMapping to an external
+# requirement) as an alternative to inline `text`; exactly one of the two is
+# now required, enforced by #_AssessmentRequirementStrict. `text` therefore
+# became optional in the projection. Every existing v1 document still validates
+# (all carry `text`), but consumers that assumed `text` is always present must
+# also handle `source`.
+response-property-became-optional AssessmentRequirement
+response-property-became-optional Control
+response-property-became-optional ControlCatalog
