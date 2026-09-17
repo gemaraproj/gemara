@@ -24,12 +24,14 @@ controls:
     group: dp
     title: Encrypt Data at Rest
     objective: Ensure all stored data is encrypted.
+    remarks: Internal author notes on encryption requirements.
     assessment-requirements:
       - id: TC-001.AR01
         text: The system MUST encrypt all data at rest.
         applicability:
           - production
         recommendation: Use AES-256 or equivalent.
+        remarks: Author context on algorithm strength.
 
   - id: TC-002
     group: dp
