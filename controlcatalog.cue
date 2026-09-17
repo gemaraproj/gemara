@@ -61,6 +61,9 @@ import "list"
 	// state is the lifecycle state of this control
 	state: #Lifecycle @go(State) @yaml("state,omitempty")
 
+	// remarks is general prose regarding this control
+	remarks?: string
+
 	// replaced-by references the control that supersedes this one when deprecated or retired
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
 }
@@ -78,6 +81,9 @@ import "list"
 
 	// recommendation provides readers with non-binding suggestions to aid in evaluation or enforcement of the requirement
 	recommendation?: string
+
+	// remarks is general prose regarding this assessment requirement
+	remarks?: string
 
 	// state is the lifecycle state of this assessment requirement
 	state: #Lifecycle @go(State) @yaml("state,omitempty")
