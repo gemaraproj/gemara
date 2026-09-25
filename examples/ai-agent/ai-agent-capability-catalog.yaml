@@ -2,7 +2,7 @@ metadata:
   id: ATR-AI-AGENT-CAPABILITY-CATALOG
   type: CapabilityCatalog
   gemara-version: "1.1.0"
-  version: "0.1.0"
+  version: "0.2.0"
   description: >
     Capabilities of AI agent systems that create the opportunity for the
     threats catalogued by Agent Threat Rules (ATR). Each capability describes
@@ -48,6 +48,12 @@ groups:
     description: >
       Capabilities by which an agent acts without per-step human approval and
       coordinates with other agents.
+  - id: model-supply-chain
+    title: Model supply chain
+    description: >
+      Capabilities by which the model an agent depends on is built, packaged
+      and loaded. These sit outside agent runtime: they shape behaviour before
+      any request is served.
 
 capabilities:
   - id: CAP-MODEL-INFERENCE
@@ -141,3 +147,21 @@ capabilities:
       opportunity for privilege escalation, sandbox escape, and use of the
       agent's access beyond its intended scope.
     group: autonomy-and-coordination
+
+  - id: CAP-MODEL-ARTIFACT-LOADING
+    title: Model Artifact Loading
+    description: >
+      The agent depends on a serialized model artifact that is fetched from a
+      registry or filesystem and deserialized into an executable object before
+      any behavioural check runs. The artifact is trusted at the moment it is
+      least verified.
+    group: model-supply-chain
+
+  - id: CAP-TRAINING-DATA-INGESTION
+    title: Training and Fine-Tuning Data Ingestion
+    description: >
+      The model the agent depends on is adapted using data drawn from sources
+      the operator does not fully control. Ingested data shapes behaviour after
+      the originating input is gone, and every deployment of the resulting model
+      carries that shaping.
+    group: model-supply-chain
