@@ -1,0 +1,71 @@
+metadata:
+  id: "multi-source-policy-unanimous-no-required"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy exercising multi-source evaluation of one assessment requirement"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "OSPS"
+      title: "Open Source Project Security Baseline"
+      version: "2025-02-25"
+      description: "Baseline used by the assessment requirements below"
+      url: "https://baseline.openssf.org/"
+
+title: "Multi-source evaluation policy"
+contacts:
+  responsible:
+    - name: "Platform Lead"
+      affiliation: "Platform"
+      email: "platform-lead@example.com"
+  accountable:
+    - name: "Security Director"
+      affiliation: "Security"
+      email: "security-director@example.com"
+
+scope:
+  in:
+    technologies:
+      - "Container Images"
+
+imports:
+  catalogs:
+    - reference-id: "OSPS"
+
+adherence:
+  evaluation-methods:
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
+      description: "Automated scanning"
+  enforcement-methods:
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
+      required: true
+      description: "Pre-deployment gate"
+  non-compliance: "Non-compliant builds are blocked at the gate"
+  assessment-plans:
+    - id: "AP-BUILD-PROV-01"
+      requirement-id: "OSPS-BR-01"
+      frequency: "per-release"
+      conflict-resolution: "unanimous"
+      evaluation-methods:
+        - id: "EV-SCANNER-A"
+          type: "Behavioral"
+          mode: "Automated"
+          executor:
+            id: "scanner-a"
+            name: "Scanner A"
+            type: "Software"
+        - id: "EV-SCANNER-B"
+          type: "Behavioral"
+          mode: "Automated"
+          executor:
+            id: "scanner-b"
+            name: "Scanner B"
+            type: "Software"

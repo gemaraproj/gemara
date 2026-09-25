@@ -64,12 +64,6 @@ adherence:
             id: "scanner-a"
             name: "Scanner A"
             type: "Software"
-          environment-requirements:
-            label: "production"
-            image-id: "ghcr.io/example/scanner-a"
-            digests:
-              - "sha256:6b5f0c1e2a4d8f3b9c7e0a1d2f4b6c8e0a1d3f5b7c9e1a3d5f7b9c1e3a5d7f90"
-            observation-source: "host-collector"
         - id: "EV-SCANNER-B"
           type: "Behavioral"
           mode: "Automated"

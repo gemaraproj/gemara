@@ -153,12 +153,24 @@ import "list"
 	// which log a consumer happened to read first. Stating it here rather than leaving it
 	// to each implementation is the point: a default that lives in an implementation is one
 	// every implementer picks differently.
-	"conflict-resolution"?: #ConflictPolicy @go(ConflictResolution)
+	CR="conflict-resolution"?: #ConflictResolution @go(ConflictResolution)
 
 	matchN(>=1, [
-		{"conflict-resolution"!: #ConflictPolicy},
+		{"conflict-resolution"!: #ConflictResolution},
 		{"evaluation-methods": [_]},
 	])
+
+	// highest-rank needs a total order, so every method on the plan must carry a rank.
+	// The list names any method that does not.
+	if CR != _|_ if CR == "highest-rank" {
+		_methodsWithoutRank: [for m in EM if m.rank == _|_ {m.id}] & []
+	}
+
+	// unanimous is decided by the required methods, so the plan must mark at least one.
+	// Unanimity over no methods would pass every requirement without evidence.
+	if CR != _|_ if CR == "unanimous" {
+		_requiredMethods: [for m in EM if m.required {m.id}] & [_, ...]
+	}
 
 	// Method ranks within one assessment plan must be unique, so that a rank-based
 	// conflict resolution has a total order to work with.
@@ -175,48 +187,32 @@ import "list"
 	executor?:    #Actor
 
 	// rank orders this method against the others on the same assessment plan; lower is
-	// higher precedence. It exists so that a rank-based conflict resolution has a total
-	// order to work with, and it is optional because a plan with one method needs none.
+	// higher precedence. It is required on every method when the plan's conflict-resolution
+	// is highest-rank, and optional otherwise, because a plan with one method needs none.
 	rank?: int & >=1
-
-	// environment-requirements states the environment this method is expected to run in.
-	// Its observed counterpart belongs on the EvaluationLog: a plan that states a required
-	// environment and a log that records none are not reconcilable, and the pair is the
-	// point of stating either.
-	"environment-requirements"?: #EnvironmentSpec @go(EnvironmentRequirements)
 }
 
-// EnvironmentSpec states the properties of an execution environment that a policy requires
-// and that an EvaluationLog can be checked against. Every field is optional because a
-// policy author may constrain as little or as much as they need, and a field that is
-// absent is unconstrained rather than unimportant.
-#EnvironmentSpec: {
-	// label is a human-readable name for the environment, such as production or staging
-	label?: string
-
-	// image-id identifies the container or machine image the executor is expected to run from
-	"image-id"?: string @go(ImageId)
-
-	// digests pins the exact content the executor is expected to run.
-	// Naming a digest here is what makes an environment claim in a log checkable rather
-	// than comparable only as a string.
-	digests?: [...#Digest]
-
-	// config-digest pins the runtime configuration the executor is expected to run under
-	"config-digest"?: #Digest @go(ConfigDigest)
-
-	// observation-source names how the environment is to be observed. A policy that requires
-	// an observation source the executor itself controls has required a self-report.
-	"observation-source"?: string @go(ObservationSource)
-}
-
-// Digest is a cryptographic hash in algorithm:encoded form (e.g. sha256:abc123...).
-// The grammar is the one #EvidenceMapping.digest already uses inline, named here so the
-// two are the same shape by construction rather than by coincidence.
-#Digest: =~"^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$"
-
-// ConflictPolicy states how disagreeing evaluation results are resolved.
-#ConflictPolicy: "highest-rank" | "unanimous" | "most-recent" | "escalate" @go(-)
+// ConflictResolution states how disagreeing evaluation results for one requirement are
+// resolved. Methods conflict when their assessment logs for the requirement carry different
+// results. Only executed results take part: a log whose result is "Not Run", "Unknown" or
+// "Not Applicable" (the results that need no start time) is recorded but does not decide.
+// Under every option, methods that agree resolve to the result they agree on.
+//
+//   - highest-rank: the result from the method with the lowest rank wins. Every method on
+//     the plan must carry a rank, and ranks are unique.
+//   - unanimous: only required methods decide. If they all returned the same result, that
+//     is the resolved result; if any two disagree, the resolved result is "Needs Review".
+//     Optional methods are recorded but cannot block. The plan must mark at least one
+//     method as required.
+//   - most-recent: the result from the assessment log with the latest start wins. The order
+//     is by the assessment's start rather than the log's metadata.date, because start is
+//     when the evidence was observed, while metadata.date moves whenever a log is
+//     republished without being re-run. start is required on every executed assessment log,
+//     so the order is always defined. Two latest logs with the same start that disagree
+//     resolve to "Needs Review".
+//   - escalate: no automatic resolution. Any conflict resolves to "Needs Review" for a
+//     person to settle.
+#ConflictResolution: "highest-rank" | "unanimous" | "most-recent" | "escalate" @go(-)
 
 #ModeType:              "Manual" | "Automated"                           @go(-)
 #MethodType:            "Behavioral" | "Intent" | "Remediation" | "Gate" @go(-)

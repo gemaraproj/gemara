@@ -1,5 +1,5 @@
 metadata:
-  id: "multi-source-policy-001"
+  id: "multi-source-policy-missing-rank"
   type: Policy
   gemara-version: "1.1.0"
   description: "Policy exercising multi-source evaluation of one assessment requirement"
@@ -50,14 +50,24 @@ adherence:
       description: "Pre-deployment gate"
   non-compliance: "Non-compliant builds are blocked at the gate"
   assessment-plans:
-    - id: "AP-BUILD-PROV-05"
-      requirement-id: "OSPS-BR-05"
+    - id: "AP-BUILD-PROV-01"
+      requirement-id: "OSPS-BR-01"
       frequency: "per-release"
+      conflict-resolution: "highest-rank"
       evaluation-methods:
         - id: "EV-SCANNER-A"
           type: "Behavioral"
           mode: "Automated"
-          environment-requirements:
-            label: "production"
-            digests:
-              - "SHA256:6b5f0c1e2a4d8f3b9c7e0a1d2f4b6c8e0a1d3f5b7c9e1a3d5f7b9c1e3a5d7f90"
+          required: true
+          rank: 1
+          executor:
+            id: "scanner-a"
+            name: "Scanner A"
+            type: "Software"
+        - id: "EV-SCANNER-B"
+          type: "Behavioral"
+          mode: "Automated"
+          executor:
+            id: "scanner-b"
+            name: "Scanner B"
+            type: "Software"
