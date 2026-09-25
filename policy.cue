@@ -109,9 +109,38 @@ package gemara
 	id:               string
 	"requirement-id": string @go(RequirementId)
 	frequency:        string
-	"evaluation-methods": [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
+	EM="evaluation-methods": [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
 	"evidence-requirements"?: string @go(EvidenceRequirements)
 	parameters?: [#Parameter, ...#Parameter]
+
+	// conflict-resolution states how disagreeing results are resolved for this requirement.
+	// A plan naming more than one evaluation method MUST state one, because a multi-source
+	// evaluation with no stated resolution rule produces a result whose value depends on
+	// which log a consumer happened to read first. Stating it here rather than leaving it
+	// to each implementation is the point: a default that lives in an implementation is one
+	// every implementer picks differently.
+	CR="conflict-resolution"?: #ConflictResolution @go(ConflictResolution)
+
+	matchN(>=1, [
+		{"conflict-resolution"!: #ConflictResolution},
+		{"evaluation-methods": [_]},
+	])
+
+	// highest-rank needs a total order, so every method on the plan must carry a rank.
+	// The list names any method that does not.
+	if CR != _|_ if CR == "highest-rank" {
+		_methodsWithoutRank: [for m in EM if m.rank == _|_ {m.id}] & []
+	}
+
+	// unanimous is decided by the required methods, so the plan must mark at least one.
+	// Unanimity over no methods would pass every requirement without evidence.
+	if CR != _|_ if CR == "unanimous" {
+		_requiredMethods: [for m in EM if m.required {m.id}] & [_, ...]
+	}
+
+	// Method ranks within one assessment plan must be unique, so that a rank-based
+	// conflict resolution has a total order to work with.
+	_uniqueRanks: {for i, m in EM if m.rank != _|_ {"\(m.rank)": i}}
 }
 
 // AcceptedMethod defines a method for evaluation or enforcement.
@@ -122,7 +151,34 @@ package gemara
 	required:     *false | bool @gemara(default=false)
 	description?: string
 	executor?:    #Actor
+
+	// rank orders this method against the others on the same assessment plan; lower is
+	// higher precedence. It is required on every method when the plan's conflict-resolution
+	// is highest-rank, and optional otherwise, because a plan with one method needs none.
+	rank?: int & >=1
 }
+
+// ConflictResolution states how disagreeing evaluation results for one requirement are
+// resolved. Methods conflict when their assessment logs for the requirement carry different
+// results. Only executed results take part: a log whose result is "Not Run", "Unknown" or
+// "Not Applicable" (the results that need no start time) is recorded but does not decide.
+// Under every option, methods that agree resolve to the result they agree on.
+//
+//   - highest-rank: the result from the method with the lowest rank wins. Every method on
+//     the plan must carry a rank, and ranks are unique.
+//   - unanimous: only required methods decide. If they all returned the same result, that
+//     is the resolved result; if any two disagree, the resolved result is "Needs Review".
+//     Optional methods are recorded but cannot block. The plan must mark at least one
+//     method as required.
+//   - most-recent: the result from the assessment log with the latest start wins. The order
+//     is by the assessment's start rather than the log's metadata.date, because start is
+//     when the evidence was observed, while metadata.date moves whenever a log is
+//     republished without being re-run. start is required on every executed assessment log,
+//     so the order is always defined. Two latest logs with the same start that disagree
+//     resolve to "Needs Review".
+//   - escalate: no automatic resolution. Any conflict resolves to "Needs Review" for a
+//     person to settle.
+#ConflictResolution: "highest-rank" | "unanimous" | "most-recent" | "escalate" @go(-)
 
 #ModeType:              "Manual" | "Automated"                           @go(-)
 #MethodType:            "Behavioral" | "Intent" | "Remediation" | "Gate" @go(-)

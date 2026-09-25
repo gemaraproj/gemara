@@ -11,6 +11,13 @@ components:
           type: string
         mode:
           $ref: "#/components/schemas/ModeType"
+        rank:
+          description: |-
+            rank orders this method against the others on the same assessment plan; lower is
+            higher precedence. It is required on every method when the plan's conflict-resolution
+            is highest-rank, and optional otherwise, because a plan with one method needs none.
+          minimum: 1.0
+          type: integer
         required:
           default: false
           type: boolean
@@ -265,6 +272,10 @@ components:
     AssessmentPlan:
       description: AssessmentPlan defines how a specific assessment requirement is evaluated.
       properties:
+        conflict-resolution:
+          allOf:
+          - $ref: "#/components/schemas/ConflictResolution"
+          description: "conflict-resolution states how disagreeing results are resolved for this requirement.\nA plan naming more than one evaluation method MUST state one, because a multi-source\nevaluation with no stated resolution rule produces a result whose value depends on\nwhich log a consumer happened to read first. Stating it here rather than leaving it\nto each implementation is the point: a default that lives in an implementation is one\nevery implementer picks differently."
         evaluation-methods:
           items:
             allOf:
@@ -557,6 +568,15 @@ components:
       - High
       type: string
       x-status: stable
+    ConflictResolution:
+      description: "ConflictResolution states how disagreeing evaluation results for one requirement are\nresolved. Methods conflict when their assessment logs for the requirement carry different\nresults. Only executed results take part: a log whose result is \"Not Run\", \"Unknown\" or\n\"Not Applicable\" (the results that need no start time) is recorded but does not decide.\nUnder every option, methods that agree resolve to the result they agree on.\n\n  - highest-rank: the result from the method with the lowest rank wins. Every method on\n    the plan must carry a rank, and ranks are unique.\n  - unanimous: only required methods decide. If they all returned the same result, that\n    is the resolved result; if any two disagree, the resolved result is \"Needs Review\".\n    Optional methods are recorded but cannot block. The plan must mark at least one\n    method as required.\n  - most-recent: the result from the assessment log with the latest start wins. The order\n    is by the assessment's start rather than the log's metadata.date, because start is\n    when the evidence was observed, while metadata.date moves whenever a log is\n    republished without being re-run. start is required on every executed assessment log,\n    so the order is always defined. Two latest logs with the same start that disagree\n    resolve to \"Needs Review\".\n  - escalate: no automatic resolution. Any conflict resolves to \"Needs Review\" for a\n    person to settle."
+      enum:
+      - highest-rank
+      - unanimous
+      - most-recent
+      - escalate
+      type: string
+      x-status: experimental
     Constraint:
       description: Constraint defines a prescriptive requirement that applies to a specific guidance or control.
       properties:
