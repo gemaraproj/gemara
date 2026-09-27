@@ -1,0 +1,98 @@
+metadata:
+  id: EVAL-DUPLICATE-ASSESSMENT
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: >
+    Two assessments of one requirement under the same plan and method.
+  author:
+    id: compliance-orchestrator
+    name: Compliance Orchestrator
+    type: Software
+  mapping-references:
+  - id: OSPS-B
+    title: Open Source Project Security Baseline
+    version: "2025.1"
+  - id: security-policy
+    title: Information Security Policy
+    version: "2.1.0"
+result: Failed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Failed
+  message: The automated probe passed and the manual review did not
+  assessment-logs:
+  # Two results for one requirement, told apart by the plan's methods rather than by
+  # who produced them: this is what the identity rule makes representable.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.01
+    plan:
+      reference-id: security-policy
+      entry-id: AP-AC-01
+    execution-context:
+      method-id: EM-AC-01-probe
+    executor:
+      id: pvtr-github-repo
+      name: PVTR GitHub Repository Probe
+      type: Software
+      uri: "https://github.com/revanite-io/pvtr-github-repo"
+    description: Verify that multi-factor authentication is required.
+    result: Passed
+    message: Two-factor authentication is enforced organization-wide
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
+    steps-executed: 1
+    start: 2026-03-28T04:10:00Z
+    end: 2026-03-28T04:10:02Z
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.01
+    plan:
+      reference-id: security-policy
+      entry-id: AP-AC-01
+    execution-context:
+      method-id: EM-AC-01-probe
+    executor:
+      id: platform-security
+      name: Platform Security Review
+      type: Human
+      contact:
+        name: Platform Security
+        affiliation: Example Org
+    description: Review the documented exceptions to the MFA requirement.
+    result: Failed
+    message: Two service accounts are exempt without a recorded expiry
+    applicability:
+    - Maturity Level 1
+    steps:
+    - example.com/internal/review.mfaExceptions
+    steps-executed: 1
+    start: 2026-03-28T09:00:00Z
+    end: 2026-03-28T09:25:00Z
+    recommendation: Record an expiry for each MFA exemption or remove it.
+  # No plan, so nothing was selected from one and there is no execution context to record.
+  # No executor either: the log's own author ran this, and naming it again would
+  # repeat metadata.author.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.04
+    description: Verify that the default branch requires review.
+    result: Passed
+    message: Reviews are required on the default branch
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.reviewRequired
+    steps-executed: 1
+    start: 2026-03-28T04:11:00Z
+    end: 2026-03-28T04:11:01Z
