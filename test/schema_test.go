@@ -112,6 +112,17 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 
+		// AssessmentPlan multi-source evaluation — positive
+		{"policy planning one requirement across two methods", "./test-data/good-policy-multi-source.yaml", "#Policy", false, ""},
+		{"single-method plan needs no conflict-resolution rule", "./test-data/good-policy-single-method.yaml", "#Policy", false, ""},
+		{"unanimous plan decided by its one required method", "./test-data/good-policy-unanimous.yaml", "#Policy", false, ""},
+
+		// AssessmentPlan multi-source evaluation — negative
+		{"two methods on one requirement with no conflict-resolution rule", "./test-data/bad-policy-no-conflict-resolution.yaml", "#Policy", true, "does not satisfy matchN"},
+		{"two methods on one requirement sharing a rank", "./test-data/bad-policy-duplicate-rank.yaml", "#Policy", true, "_uniqueRanks"},
+		{"highest-rank plan with a method that has no rank", "./test-data/bad-policy-highest-rank-missing-rank.yaml", "#Policy", true, "_methodsWithoutRank"},
+		{"unanimous plan with no required method", "./test-data/bad-policy-unanimous-no-required.yaml", "#Policy", true, "_requiredMethods"},
+
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
 
