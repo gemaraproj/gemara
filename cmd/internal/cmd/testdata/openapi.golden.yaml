@@ -220,6 +220,14 @@ components:
             type: object
           minItems: 1
           type: array
+        execution-context:
+          allOf:
+          - $ref: "#/components/schemas/ExecutionContext"
+          description: "execution-context records how this assessment was configured. A cited plan obliges a\nmethod: the plan lists the methods it accepts, so a record of running under it\nhas to say which one ran."
+        executor:
+          allOf:
+          - $ref: "#/components/schemas/Actor"
+          description: "executor is the actor that performed this assessment: the tool instance,\nservice or person that produced this result when it is not the author of the log."
         message:
           description: Message provides additional context about the assessment result.
           type: string
@@ -1010,6 +1018,14 @@ components:
         EvaluationLog, EnforcementLog) plus categories for common evidence forms.
       type: string
       x-status: experimental
+    ExecutionContext:
+      description: "ExecutionContext records how an assessment was configured: which method it\nran, and the values it ran with. What the assessment is, its result, timing, steps,\nand the executor that produced it, stays at the top level of #AssessmentLog.\nWho performed the execution is executor, not part of its configuration. It is one\nfield rather than several so that a stable type does not gain a permanent\ntop-level field per configuration input; further inputs land here additively, where\na top-level field could never be moved."
+      properties:
+        method-id:
+          description: "method-id names the accepted method this assessment executed, where the policy\nprescribed one: a method of the cited plan, or one of the policy's own\nevaluation-methods, which are the fallback where no plan is bound."
+          type: string
+      type: object
+      x-status: stable
     Exemption:
       description: Exemption describes a single scenario where the catalog is not applicable
       properties:
