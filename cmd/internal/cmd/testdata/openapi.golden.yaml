@@ -722,6 +722,18 @@ components:
       format: date-time
       type: string
       x-status: stable
+    Digest:
+      description: "Digest is a cryptographic hash of a full octet stream; format: algorithm:encoded\n(e.g. sha256:<64 lowercase hex>). sha256 is the MUST-support floor for every\nconforming verifier; sha512 and blake3 are MAY. Registered algorithms are\nadditionally checked for that algorithm's encoding and length; any other algorithm\nis checked for grammar only, per the OCI rule that unrecognized algorithms\ncomplying with the grammar pass. That is how the algorithm set extends without\nthis field becoming a closed enum.\n\nThe hash covers the full octet stream as delivered — never a canonical\nre-serialization, and never a sub-resource selected by coordinate or entry-id,\nwhich are reader hints rather than inputs to the hash. A verifier reports exactly\none of three outcomes per citation: verified, integrity-failure, or unverifiable\n(retrieval failed, or the algorithm is unregistered or unimplemented). None of\nthem may be reported as valid. Absence of digest means no integrity claim was\nmade, not that the content is known unchanged."
+      oneOf:
+      - allOf:
+        - pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
+        - pattern: ^(?:sha256:[a-f0-9]{64}|sha512:[a-f0-9]{128}|blake3:[a-f0-9]{64})$
+      - allOf:
+        - pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
+        - not:
+            pattern: "^(?:sha256|sha512|blake3):"
+      type: string
+      x-status: stable
     Dimensions:
       description: Dimensions specify the applicability criteria for a policy
       properties:
@@ -834,12 +846,9 @@ components:
           - $ref: "#/components/schemas/EntityType"
           description: type specifies the type of entity interacting in the workflow
         uri:
-          description: |-
-            uri is a general URI for the entity information.
-            Any URI scheme is accepted (e.g. https, file, oci, s3, arn) so entities
-            hosted outside http(s) can be referenced.
-          pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
-          type: string
+          allOf:
+          - $ref: "#/components/schemas/URL"
+          description: "uri is a general URI for the entity information. Any URI scheme is accepted\n(e.g. https, file, oci, s3, arn) so entities hosted outside http(s) can be\nreferenced. It is the named #URL type rather than a second copy of the same\npattern, so the two cannot drift apart."
         version:
           description: version is the version of the entity (for tools; if applicable)
           type: string
@@ -928,24 +937,38 @@ components:
       description: |-
         Evidence records what was cited to support an opinion for a specific activity:
         raw data for the evaluation layer, evaluation and enforcement artifacts for the audit layer.
-        At least one of payload or source MUST be present; an entry with neither is semantically incomplete.
       properties:
         collected-at:
           allOf:
           - $ref: "#/components/schemas/Datetime"
           description: collected-at is the timestamp when the evidence was gathered
+        collector:
+          allOf:
+          - $ref: "#/components/schemas/Actor"
+          description: |-
+            collector is the party that gathered this evidence into the log, recorded
+            only when it differs from the log's metadata.author. Third-party evidence
+            has a real distinction to draw — a scanner produced it, an auditor pulled it
+            in — but where the log's author gathered it, saying so again would be a
+            second copy of the same fact.
         description:
           description: description explains what this evidence represents
           type: string
         id:
           description: id uniquely identifies this evidence
           type: string
+        originator:
+          allOf:
+          - $ref: "#/components/schemas/Actor"
+          description: originator is the party that produced the evidence content.
         payload:
           description: payload is the raw evidence data collected inline
         source:
           allOf:
           - $ref: "#/components/schemas/EvidenceMapping"
-          description: source identifies the artifact or system from which this evidence was collected
+          description: |-
+            source identifies the artifact or system from which this evidence was collected and
+            retrieval information.
         type:
           allOf:
           - $ref: "#/components/schemas/EvidenceType"
@@ -955,34 +978,56 @@ components:
       - type
       - collected-at
       type: object
-      x-status: experimental
+      x-status: stable
     EvidenceMapping:
       description: |-
-        EvidenceMapping identifies the source from which evidence was collected.
-        reference-id names the MappingReference; coordinate or entry-id gives
-        specificity within it; digest pins the observed content at collection time.
+        EvidenceMapping identifies source identity and describes the inline or retrieved
+        representation used as evidence. reference-id identifies that source. When the
+        artifact declares a matching MappingReference, it names the reusable back-matter
+        entry that describes the source and may provide a location; coordinate and entry-id
+        are reader hints for locating content within the referenced source. A source can
+        yield multiple representations across locations and collection times, so their
+        digest, size, and media type belong here rather than on the reusable MappingReference.
       properties:
         coordinate:
           description: |-
             coordinate is the precise location within the stream identified by reference-id
             (e.g. an API path, file path, or JSON path expression). May be combined with
-            entry-id to identify a sub-location within that entry's output.
+            entry-id. It is a reader hint, not an address a verifier resolves, and not an
+            input to digest.
           type: string
         digest:
-          description: "digest is a cryptographic hash of the observed content at collection time; format: algorithm:encoded (e.g. sha256:abc123...)"
-          pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
-          type: string
+          allOf:
+          - $ref: "#/components/schemas/Digest"
+          description: "digest is a cryptographic hash of the full octet stream this citation represents.\nIt is a representation-scoped integrity claim, not a guarantee about the source\nor future representations. See #Digest for what a verifier must do with it, and\nfor why absence is not assurance. It describes the cited representation rather\nthan the reusable MappingReference, which can have multiple representations."
+        download-url:
+          allOf:
+          - $ref: "#/components/schemas/URL"
+          description: |-
+            download-url is a retrieval-specific location for this content when it is not
+            available from the MappingReference.url.
         entry-id:
           description: |-
             entry-id identifies a specific entry within a referenced Gemara artifact.
-            May be combined with coordinate to identify a sub-location within that entry's output.
+            May be combined with coordinate. It is a reader hint, not an address a
+            verifier resolves, and not an input to digest.
+          type: string
+        media-type:
+          description: |-
+            media-type is the IANA media type of that content, e.g. application/json,
+            text/yaml.
+          pattern: "^[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*$"
           type: string
         reference-id:
-          description: reference-id ties this evidence to a mapping-reference in the artifact's metadata
+          description: reference-id defines the evidence artifact source's identifying information.
           type: string
         remarks:
           description: remarks is prose regarding this evidence reference
           type: string
+        size:
+          description: size is the length, in bytes, of that octet stream.
+          minimum: 0.0
+          type: integer
       required:
       - reference-id
       type: object
@@ -1009,7 +1054,7 @@ components:
         recommended values include artifact types already known to Gemara (e.g.
         EvaluationLog, EnforcementLog) plus categories for common evidence forms.
       type: string
-      x-status: experimental
+      x-status: stable
     Exemption:
       description: Exemption describes a single scenario where the catalog is not applicable
       properties:
@@ -1437,7 +1482,10 @@ components:
       type: object
       x-status: experimental
     MappingReference:
-      description: MappingReference represents a reference to an external document with full metadata.
+      description: |-
+        MappingReference is a reusable back-matter entry describing an external source or
+        authority. It provides source identity and may provide a location, but does not
+        itself represent a retrieved representation.
       properties:
         description:
           description: description is prose regarding the artifact's purpose or content
@@ -1452,7 +1500,8 @@ components:
           type: string
         url:
           description: |-
-            url is the path where the artifact may be retrieved; preferably responds with Gemara-compatible YAML/JSON.
+            url is an optional location from which a representation of the referenced source
+            may be retrieved; preferably responds with Gemara-compatible YAML/JSON.
             Any URI scheme is accepted (e.g. https, file, oci, s3, arn) so evidence can be
             addressed wherever it actually lives.
           pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
@@ -2075,6 +2124,13 @@ components:
           description: entry-type identifies the type of atomic unit entries in this direction
       type: object
       x-status: experimental
+    URL:
+      description: |-
+        URL is a URI with a scheme. Any scheme is accepted (e.g. https, file, oci, s3,
+        arn), so content hosted outside http(s) can be addressed.
+      pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
+      type: string
+      x-status: stable
     Vector:
       description: A Vector represents a method, pathway, or technique through which a threat may be realized or an attack may be carried out.
       properties:

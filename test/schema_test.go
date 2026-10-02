@@ -109,6 +109,18 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
 
+		// Digest semantics ride on #EvidenceMapping, which both logs use. They are
+		// exercised through an evaluation log so that reshaping the audit — which is
+		// happening under #496 — cannot quietly stop them testing digests.
+		{"digests across the registered and open algorithm profile", "./test-data/good-evaluation-log-digest-profile.yaml", "#EvaluationLog", false, ""},
+		{"a retrievable address making no integrity claim", "./test-data/good-evaluation-log-download-url-without-digest.yaml", "#EvaluationLog", false, ""},
+		{"digest with no algorithm separator", "./test-data/bad-evaluation-log-digest-malformed.yaml", "#EvaluationLog", true, "source.digest"},
+		{"sha256 digest of the wrong length", "./test-data/bad-evaluation-log-digest-sha256-length.yaml", "#EvaluationLog", true, "source.digest"},
+		{"sha256 digest encoded in uppercase hex", "./test-data/bad-evaluation-log-digest-sha256-uppercase-hex.yaml", "#EvaluationLog", true, "source.digest"},
+		{"sha512 digest with a sha256 length", "./test-data/bad-evaluation-log-digest-sha512-length.yaml", "#EvaluationLog", true, "source.digest"},
+		{"download-url with no URI scheme", "./test-data/bad-evaluation-log-download-url-no-scheme.yaml", "#EvaluationLog", true, "\"download-url\""},
+		{"media-type with no subtype separator", "./test-data/bad-evaluation-log-media-type-malformed.yaml", "#EvaluationLog", true, "\"media-type\""},
+
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 
@@ -181,6 +193,65 @@ func TestSchemaValidation(t *testing.T) {
 				if !strings.Contains(validationErr.Error(), tt.errContains) {
 					t.Errorf("error %q does not contain %q", validationErr.Error(), tt.errContains)
 				}
+			}
+		})
+	}
+}
+
+func TestEvidenceValidation(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		wantErr bool
+	}{
+		{
+			name: "allows inline payload with source provenance and actors",
+			input: `id: dependency-graph-snapshot
+type: api-response
+collected-at: "2026-02-10T15:05:00Z"
+originator:
+  id: github
+  name: GitHub
+  type: Software
+collector:
+  id: jane-auditor
+  name: Jane Auditor
+  type: Human
+payload:
+  dependencies: []
+source:
+  reference-id: github-api
+  coordinate: /repos/acme/widget/dependency-graph/sbom
+`,
+		},
+		{
+			name: "rejects inline payload with retrievable source",
+			input: `id: dependency-graph-snapshot
+type: api-response
+collected-at: "2026-02-10T15:05:00Z"
+payload:
+  dependencies: []
+source:
+  reference-id: github-api
+  download-url: https://api.github.com/repos/acme/widget/dependency-graph/sbom
+`,
+			wantErr: true,
+		},
+	}
+
+	def := schemaValue.LookupPath(cue.ParsePath("#_EvidenceStrict"))
+	if def.Err() != nil {
+		t.Fatalf("lookup #_EvidenceStrict: %v", def.Err())
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := cueyaml.Validate([]byte(tt.input), def)
+			if tt.wantErr && err == nil {
+				t.Error("expected validation error, got nil")
+			}
+			if !tt.wantErr && err != nil {
+				t.Errorf("unexpected validation error: %v", err)
 			}
 		})
 	}

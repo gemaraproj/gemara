@@ -1,0 +1,108 @@
+metadata:
+  id: EVAL-DOWNLOAD-URL-NO-SCHEME
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: A download-url with no URI scheme
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+  mapping-references:
+  - id: OSPS-B
+    title: Open Source Project Security Baseline
+    version: "2025.1"
+    url: "https://baseline.openssf.org"
+  - id: github-api
+    title: GitHub REST API
+    version: "2026"
+    url: "https://docs.github.com/en/rest"
+result: Passed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Passed
+  message: Access control assessments passed
+  assessment-logs:
+  # sha256: the MUST-support floor, checked for its own encoding and length, on a
+  # citation that also carries the address, size and media type of what was fetched.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.01
+    description: Verify that multi-factor authentication is required.
+    result: Passed
+    message: Two-factor authentication is enforced organization-wide
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
+    steps-executed: 1
+    start: 2026-03-28T04:10:00Z
+    end: 2026-03-28T04:10:02Z
+    evidence:
+    - id: EV-AC-01-01
+      type: api-response
+      collected-at: 2026-03-28T04:10:01Z
+      description: Organization settings showing org-wide MFA enforcement
+      source:
+        reference-id: github-api
+        coordinate: "/orgs/gemaraproj/settings"
+        download-url: "api.github.com/orgs/gemaraproj/settings"
+        digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        size: 4096
+        media-type: application/json
+  # sha512: registered too, so also checked for length. No download-url, which is
+  # legal: reference-id resolves to a mapping-reference that carries the address.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.02
+    description: Verify that administrative access is restricted.
+    result: Passed
+    message: Administrative access is limited to two named owners
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.adminAccess
+    steps-executed: 1
+    start: 2026-03-28T04:11:00Z
+    end: 2026-03-28T04:11:03Z
+    evidence:
+    - id: EV-AC-01-02
+      type: api-response
+      collected-at: 2026-03-28T04:11:02Z
+      description: Organization member roles
+      source:
+        reference-id: github-api
+        coordinate: "/orgs/gemaraproj/members?role=admin"
+        digest: "sha512:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  # An algorithm this profile does not register: checked for grammar only, so the
+  # algorithm set extends without the field becoming a closed enum. A verifier that
+  # cannot compute it reports unverifiable, never valid.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.03
+    description: Verify that branch protection is enabled on release branches.
+    result: Passed
+    message: Branch protection is enabled
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.branchProtection
+    steps-executed: 1
+    start: 2026-03-28T04:12:00Z
+    end: 2026-03-28T04:12:01Z
+    evidence:
+    - id: EV-AC-01-03
+      type: api-response
+      collected-at: 2026-03-28T04:12:01Z
+      description: Branch protection settings
+      source:
+        reference-id: github-api
+        coordinate: "/repos/gemaraproj/gemara/branches/main/protection"
+        digest: "sha3-512:d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0"

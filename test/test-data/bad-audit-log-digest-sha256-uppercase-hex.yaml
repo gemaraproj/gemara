@@ -1,9 +1,9 @@
 metadata:
-  id: audit-log-001
+  id: audit-log-digest-sha256-uppercase
   type: AuditLog
   gemara-version: "1.1.0"
   version: "1.0.0"
-  description: "Q1 2026 Gemara Audit"
+  description: "Invalid audit log: a sha256 digest encoded in uppercase hex"
   author:
     id: lead-auditor
     name: "Jane Auditor"
@@ -81,7 +81,7 @@ results:
         source:
           reference-id: eval-log
           entry-id: "assessment-do-01"
-          digest: "sha256:c4d5e6f7a8b9012cdef34567890abcdef1234567890abcdef1234567890abc12"
+          digest: "sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
     recommendations:
       - id: REC-01
         text: "Add user guide references to the Security Insights file and publish basic user documentation."
@@ -100,6 +100,8 @@ results:
         type: EnforcementLog
         description: "Enforcement actions taken for documentation failures"
         collected-at: "2025-08-22T16:05:00Z"
+        source:
+          reference-id: enforcement-log
     recommendations:
       - id: REC-02
         text: "Formalize the private vulnerability reporting process and document it in SECURITY.md."

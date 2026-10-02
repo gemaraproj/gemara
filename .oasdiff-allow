@@ -138,3 +138,25 @@ response-optional-property-removed Metadata
 response-optional-property-removed Resource
 response-optional-property-removed Threat
 response-optional-property-removed ThreatCatalog
+
+### Evidence consolidation: the Evidence family moves to evidence.cue
+#
+# In the v1.5.0 baseline #Evidence lived in experimental auditlog.cue (x-status:
+# experimental) while stable evaluationlog.cue consumed it. This change gives it a
+# home whose stability tag matches its consumers. Relative to the published
+# baseline each entry below is a change to an experimental type, and none removes a
+# field or relaxes a constraint a producer relied on.
+#
+# payload: string -> any. The baseline projected payload as `string`; its CUE type
+# has always been `_` (any), so the projection is now faithful (gemara#468).
+response-property-type-changed Evidence
+# source/* "removed": a false positive. Evidence.source became an allOf-wrapped
+# $ref to EvidenceMapping — the encoder wraps a $ref that carries a sibling
+# description, since OpenAPI 3.0 ignores $ref siblings — and oasdiff does not
+# resolve through the wrapper. EvidenceMapping still declares reference-id as
+# required and coordinate, digest, download-url, entry-id, media-type, remarks and
+# size as optional; verified against the generated document.
+response-required-property-removed Evidence
+response-optional-property-removed Evidence
+request-property-removed Evidence
+
