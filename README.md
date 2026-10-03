@@ -12,6 +12,9 @@
 3. Use the Go SDK to integrate Gemara schemas into your automated tools
   - `github.com/gemaraproj/go-gemara` and consult our [go docs](https://pkg.go.dev/github.com/gemaraproj/go-gemara)
 
+## Ecosystem Map
+
+Gemara is supported by a wide range of official SDKs (Go, Python), CLI tools, AI integrations, and GitHub Actions. To discover how the different repositories in our ecosystem connect and find the right tool for your implementation, view the definitive map in our **[Awesome Gemara](https://github.com/gemaraproj/awesome-gemara)** list.
 
 ## Projects and tooling using Gemara
 
