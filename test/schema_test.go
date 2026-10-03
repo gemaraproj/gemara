@@ -72,6 +72,9 @@ func TestSchemaValidation(t *testing.T) {
 		// AI agent capability catalog and ATR mappings (authored by ATR, validated against Gemara)
 		{"valid AI agent capability catalog", "../examples/ai-agent/ai-agent-capability-catalog.yaml", "#CapabilityCatalog", false, ""},
 		{"valid ATR categories to capabilities mapping", "../examples/ai-agent/atr-categories-to-capabilities-mapping.yaml", "#MappingDocument", false, ""},
+		{"valid ATR attack vector catalog", "../examples/ai-agent/atr-attack-vector-catalog.yaml", "#VectorCatalog", false, ""},
+		{"valid ATR threat catalog", "../examples/ai-agent/atr-threat-catalog.yaml", "#ThreatCatalog", false, ""},
+		{"valid ATR detection control catalog", "../examples/ai-agent/atr-detection-control-catalog.yaml", "#ControlCatalog", false, ""},
 
 		// RiskCatalog — positive
 		{"valid risk catalog", "./test-data/good-risk-catalog.yaml", "#RiskCatalog", false, ""},

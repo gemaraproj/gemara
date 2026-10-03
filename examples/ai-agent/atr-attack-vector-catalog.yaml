@@ -1,0 +1,122 @@
+metadata:
+  id: ATR-AI-AGENT-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: "1.1.0"
+  version: "0.1.0"
+  description: >
+    Attack vectors against AI agent systems, one per detection category of
+    Agent Threat Rules (ATR). A category is a method by which a threat is
+    realized rather than the threat itself, which is why it lives here and is
+    referenced from the threat catalog rather than restated in it.
+
+    Validated against Gemara's #VectorCatalog, which is marked experimental in
+    vectorcatalog.cue; this artifact may need to change with the schema.
+  author:
+    id: atr
+    name: Adam Lin
+    type: Human
+    contact:
+      name: Adam Lin
+      affiliation: Agent Threat Rules
+      email: adam@agentthreatrule.org
+      social: eeee2345
+  mapping-references:
+    - id: ATR
+      title: Agent Threat Rules
+      version: "0.1.0"
+      url: "https://github.com/Agent-Threat-Rule/agent-threat-rules"
+      description: >
+        Open MIT detection standard for AI agent threats. Each vector id below
+        corresponds to a directory under rules/ in that repository.
+
+title: AI Agent Attack Vector Catalog (ATR)
+
+groups:
+  - id: via-content
+    title: Through content the agent reads
+    description: >
+      Vectors that arrive inside data the agent ingests and are acted on as
+      though they were operator instructions.
+  - id: via-extension
+    title: Through an artifact the agent loads
+    description: >
+      Vectors carried by tools, skills, plugins or model artifacts, which
+      arrive through the supply chain rather than the conversation.
+  - id: via-authority
+    title: Through the authority the agent holds
+    description: >
+      Vectors that exploit what the agent is permitted to do rather than what
+      it is told.
+
+vectors:
+  - id: ATR-VEC-PROMPT-INJECTION
+    title: Instruction injection into model context
+    description: >
+      Instructions are embedded in content the agent reads as data — a
+      document, a web page, a retrieved record — and the model acts on them as
+      though an operator had issued them.
+    group: via-content
+
+  - id: ATR-VEC-MODEL-ABUSE
+    title: Guardrail evasion and behavioural framing
+    description: >
+      Role-play framing, encoding tricks or constraint-removal phrasing drive
+      the model outside the behaviour its operator configured.
+    group: via-content
+
+  - id: ATR-VEC-DATA-POISONING
+    title: Poisoning of state the agent will read later
+    description: >
+      Attacker-controlled content is written into memory, cache or a retrieved
+      corpus, so it shapes a decision after the originating input is gone.
+    group: via-content
+
+  - id: ATR-VEC-AGENT-MANIPULATION
+    title: Forged peer-agent identity and message framing
+    description: >
+      One agent impersonates another or forges system-level message markers,
+      exploiting the trust relationship between agents in a multi-agent system.
+    group: via-content
+
+  - id: ATR-VEC-TOOL-POISONING
+    title: Tool and server definition poisoning
+    description: >
+      A tool or MCP server describes itself in a way that steers the model,
+      turning a capability description into an instruction channel.
+    group: via-extension
+
+  - id: ATR-VEC-SKILL-COMPROMISE
+    title: Hostile skill, plugin or extension
+    description: >
+      A loadable extension carries backdoored, impersonated or over-privileged
+      content and executes with the agent's own privilege.
+    group: via-extension
+
+  - id: ATR-VEC-MODEL-SECURITY
+    title: Model artifact and training-path attack
+    description: >
+      The model itself is the target: systematic probing to extract behaviour,
+      poisoned fine-tuning data, or code execution during deserialization when
+      a serialized model artifact is loaded.
+    group: via-extension
+
+  - id: ATR-VEC-CONTEXT-EXFILTRATION
+    title: Context and credential exfiltration
+    description: >
+      The agent is induced to place conversation context, credentials or
+      retrieved documents into an outbound call it is permitted to make.
+    group: via-authority
+
+  - id: ATR-VEC-PRIVILEGE-ESCALATION
+    title: Privilege escalation and delegated authority abuse
+    description: >
+      An agent obtains or exercises authority beyond its task, through
+      delegation chains, credential reuse or a privileged execution path.
+    group: via-authority
+
+  - id: ATR-VEC-EXCESSIVE-AUTONOMY
+    title: Action without an intended decision point
+    description: >
+      The agent acts where a human approval was intended, or continues past
+      its objective, so the consequence arrives without anyone choosing it.
+    group: via-authority

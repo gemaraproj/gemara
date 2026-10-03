@@ -1,0 +1,220 @@
+metadata:
+  id: ATR-AI-AGENT-THREAT-CATALOG
+  type: ThreatCatalog
+  gemara-version: "1.1.0"
+  version: "0.1.0"
+  description: >
+    Threats to an organization operating AI agents, written at the level of
+    what goes wrong and why it matters. Each threat names the capabilities that
+    create the opportunity for it and the attack vectors through which it is
+    realized. The counts deliberately do not line up: several vectors reach the
+    same impact, and one vector reaches more than one.
+  author:
+    id: atr
+    name: Adam Lin
+    type: Human
+    contact:
+      name: Adam Lin
+      affiliation: Agent Threat Rules
+      email: adam@agentthreatrule.org
+      social: eeee2345
+  mapping-references:
+    - id: ATR-AI-AGENT-CAPABILITY-CATALOG
+      title: AI Agent Capability Catalog
+      version: "0.2.0"
+      description: >
+        Capabilities of AI agent systems that create the opportunity for these
+        threats.
+    - id: ATR-AI-AGENT-VECTOR-CATALOG
+      title: AI Agent Attack Vector Catalog (ATR)
+      version: "0.1.0"
+      description: >
+        Methods by which these threats are realized, corresponding to ATR's
+        detection categories.
+
+title: AI Agent Threat Catalog
+
+groups:
+  - id: unauthorized-action
+    title: Action the operator did not authorize
+    description: Impacts arising from the agent doing something on the operator's behalf.
+  - id: loss-of-confidentiality
+    title: Loss of confidentiality
+    description: Impacts arising from data leaving the boundary the operator set.
+  - id: loss-of-containment
+    title: Loss of containment
+    description: Impacts arising from execution or authority escaping its intended bound.
+
+threats:
+  - id: ATR-THREAT-UNAUTHORIZED-ACTION
+    title: Unauthorized action executed with the operator's standing authority
+    description: >
+      The agent takes a consequential action the operator never requested — a
+      tool call, a write, a message to a third party — because instructions
+      reached the model from a source the operator does not control. The action
+      carries the operator's own credentials and audit identity, so it is
+      indistinguishable from legitimate use after the fact, and remediation
+      means unwinding real effects rather than revoking a session.
+    group: unauthorized-action
+    capabilities:
+      - reference-id: ATR-AI-AGENT-CAPABILITY-CATALOG
+        entries:
+          - reference-id: CAP-OUTPUT-ACTION
+          - reference-id: CAP-TOOL-INVOCATION
+          - reference-id: CAP-MODEL-INFERENCE
+          - reference-id: CAP-MCP-CONNECTION
+          - reference-id: CAP-CROSS-AGENT-MESSAGING
+    vectors:
+      - reference-id: ATR-AI-AGENT-VECTOR-CATALOG
+        entries:
+          - reference-id: ATR-VEC-PROMPT-INJECTION
+          - reference-id: ATR-VEC-TOOL-POISONING
+          - reference-id: ATR-VEC-AGENT-MANIPULATION
+          - reference-id: ATR-VEC-MODEL-ABUSE
+        remarks: >
+          Four vectors reach this one impact. Which of them a deployment is
+          exposed to depends on whether it ingests untrusted content, connects
+          to third-party tool servers, or runs more than one agent.
+    actors:
+      - id: external-content-author
+        name: Author of content the agent ingests
+        type: Human
+
+  - id: ATR-THREAT-DELAYED-UNAUTHORIZED-ACTION
+    title: Unauthorized action triggered long after the input that caused it
+    description: >
+      Attacker-controlled content is written into memory, cache or a retrieved
+      corpus and shapes a decision in a later session. The organization loses
+      the ability to reason about an incident from its inputs, because the
+      request that produced the harmful action is clean and the poisoned state
+      is not attributable to it without retained provenance.
+    group: unauthorized-action
+    capabilities:
+      - reference-id: ATR-AI-AGENT-CAPABILITY-CATALOG
+        entries:
+          - reference-id: CAP-MEMORY-WRITE
+          - reference-id: CAP-MEMORY-READ
+    vectors:
+      - reference-id: ATR-AI-AGENT-VECTOR-CATALOG
+        entries:
+          - reference-id: ATR-VEC-DATA-POISONING
+          - reference-id: ATR-VEC-PROMPT-INJECTION
+        remarks: >
+          Separated from the immediate case because the detection opportunity is
+          at write time, not at the time of the harmful action.
+    actors:
+      - id: external-content-author
+        name: Author of content the agent ingests
+        type: Human
+
+  - id: ATR-THREAT-CONTEXT-DISCLOSURE
+    title: Disclosure of conversation context, credentials and retrieved data
+    description: >
+      Credentials, prior conversation content or documents the agent was able
+      to retrieve leave the trust boundary through an outbound call the agent
+      is permitted to make. The organization loses control of secrets and of
+      whatever customer data the agent could read, and because the call is
+      permitted, network controls do not register it as an incident.
+    group: loss-of-confidentiality
+    capabilities:
+      - reference-id: ATR-AI-AGENT-CAPABILITY-CATALOG
+        entries:
+          - reference-id: CAP-OUTPUT-ACTION
+          - reference-id: CAP-TOOL-INVOCATION
+          - reference-id: CAP-MEMORY-READ
+    vectors:
+      - reference-id: ATR-AI-AGENT-VECTOR-CATALOG
+        entries:
+          - reference-id: ATR-VEC-CONTEXT-EXFILTRATION
+          - reference-id: ATR-VEC-PROMPT-INJECTION
+          - reference-id: ATR-VEC-MODEL-SECURITY
+        remarks: >
+          Model-security appears here for behaviour extraction: systematic
+          probing recovers the system prompt, which is context disclosure by a
+          different route than an outbound call.
+    actors:
+      - id: external-content-author
+        name: Author of content the agent ingests
+        type: Human
+
+  - id: ATR-THREAT-EXECUTION-ESCAPE
+    title: Code execution or privilege beyond the agent's intended bound
+    description: >
+      Execution or authority escapes the scope the deployment intended, whether
+      through a delegation chain, a reused credential, a hostile extension, or
+      deserialization of an untrusted artifact at load time. This is the impact
+      where the blast radius is not bounded by the agent: the host, adjacent
+      workloads and any credential reachable from them are in scope.
+    group: loss-of-containment
+    capabilities:
+      - reference-id: ATR-AI-AGENT-CAPABILITY-CATALOG
+        entries:
+          - reference-id: CAP-PRIVILEGED-EXECUTION
+          - reference-id: CAP-SKILL-LOADING
+          - reference-id: CAP-MODEL-ARTIFACT-LOADING
+    vectors:
+      - reference-id: ATR-AI-AGENT-VECTOR-CATALOG
+        entries:
+          - reference-id: ATR-VEC-PRIVILEGE-ESCALATION
+          - reference-id: ATR-VEC-SKILL-COMPROMISE
+          - reference-id: ATR-VEC-MODEL-SECURITY
+        remarks: >
+          Three vectors, one blast radius. What these share is that execution or
+          authority leaves the agent's bound, not how it got there, so the
+          containment question is the same in all three cases. Which one a
+          deployment is exposed to follows from whether it loads third-party
+          extensions, deserializes model artifacts, or delegates credentials.
+    actors:
+      - id: extension-publisher
+        name: Publisher of a third-party skill, plugin or tool server
+        type: Human
+      - id: tenant-user
+        name: A user with legitimate access to the agent
+        type: Human
+
+  - id: ATR-THREAT-UNBOUNDED-COMMITMENT
+    title: Commitment of resources without a human decision
+    description: >
+      The agent commits money, capacity or an external obligation where a human
+      approval was intended, or continues acting past its objective. The cost is
+      incurred rather than risked, and the organization discovers it from the
+      effect rather than from a security signal.
+    group: unauthorized-action
+    capabilities:
+      - reference-id: ATR-AI-AGENT-CAPABILITY-CATALOG
+        entries:
+          - reference-id: CAP-AUTONOMOUS-ACTION
+          - reference-id: CAP-OUTPUT-ACTION
+    vectors:
+      - reference-id: ATR-AI-AGENT-VECTOR-CATALOG
+        entries:
+          - reference-id: ATR-VEC-EXCESSIVE-AUTONOMY
+    actors:
+      - id: tenant-user
+        name: A user with legitimate access to the agent
+        type: Human
+
+  - id: ATR-THREAT-MODEL-BEHAVIOUR-COMPROMISE
+    title: Compromise of the model's behaviour through its supply chain
+    description: >
+      The behaviour of the deployed model is shaped by an attacker before the
+      agent ever runs, through poisoned adaptation data. Nothing in the request
+      path is anomalous, so runtime inspection cannot see it, and the defect is
+      carried by every deployment of that model until it is retrained.
+    group: loss-of-containment
+    capabilities:
+      - reference-id: ATR-AI-AGENT-CAPABILITY-CATALOG
+        entries:
+          - reference-id: CAP-TRAINING-DATA-INGESTION
+    vectors:
+      - reference-id: ATR-AI-AGENT-VECTOR-CATALOG
+        entries:
+          - reference-id: ATR-VEC-MODEL-SECURITY
+        remarks: >
+          The detection opportunity here is in the data pipeline, not on the
+          request path, which is why it is a distinct threat from the execution
+          escape that shares the same vector.
+    actors:
+      - id: upstream-model-supplier
+        name: Producer of the model or of its adaptation data
+        type: Human
