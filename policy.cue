@@ -101,7 +101,7 @@ import "list"
 // Adherence defines evaluation methods, assessment plans, enforcement methods, retention obligations, and non-compliance notifications.
 #Adherence: {
 	"evaluation-methods"?: [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
-	"assessment-plans"?: [#AssessmentPlan, ...#AssessmentPlan] @go(AssessmentPlans)
+	AP="assessment-plans"?: [#AssessmentPlan, ...#AssessmentPlan] @go(AssessmentPlans)
 	"enforcement-methods"?: [#AcceptedMethod & {type: #EnforcementMethodType}, ...#AcceptedMethod & {type: #EnforcementMethodType}] @go(EnforcementMethods)
 
 	// retention-anchors declares the events, other than collected-at, from which retention obligations measure their duration
@@ -135,6 +135,12 @@ import "list"
 				_collectedAtWithoutDuration: "\(o.id)": error("retention obligation \(o.id) is measured from collected-at and must state a duration")
 			}
 		}
+	}
+
+	// An assessment log names the plan it ran under by id, so a plan id must name one
+	// plan within a policy.
+	if AP != _|_ {
+		_uniquePlanIds: {for i, p in AP {"\(p.id)": i}}
 	}
 }
 
@@ -175,6 +181,10 @@ import "list"
 	// Method ranks within one assessment plan must be unique, so that a rank-based
 	// conflict resolution has a total order to work with.
 	_uniqueRanks: {for i, m in EM if m.rank != _|_ {"\(m.rank)": i}}
+
+	// An assessment log names the method that produced it by id, so a method id must
+	// name one method within its plan.
+	_uniqueMethodIds: {for i, m in EM {"\(m.id)": i}}
 }
 
 // AcceptedMethod defines a method for evaluation or enforcement.

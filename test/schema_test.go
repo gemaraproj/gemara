@@ -155,6 +155,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"two methods on one requirement sharing a rank", "./test-data/bad-policy-duplicate-rank.yaml", "#Policy", true, "_uniqueRanks"},
 		{"highest-rank plan with a method that has no rank", "./test-data/bad-policy-highest-rank-missing-rank.yaml", "#Policy", true, "_methodsWithoutRank"},
 		{"unanimous plan with no required method", "./test-data/bad-policy-unanimous-no-required.yaml", "#Policy", true, "_requiredMethods"},
+		{"two methods in one plan sharing an id", "./test-data/bad-policy-duplicate-method-id.yaml", "#Policy", true, "_uniqueMethodIds"},
+		{"two assessment plans sharing an id", "./test-data/bad-policy-duplicate-plan-id.yaml", "#Policy", true, "_uniquePlanIds"},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
