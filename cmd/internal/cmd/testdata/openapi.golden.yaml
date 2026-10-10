@@ -1005,10 +1005,7 @@ components:
             when the reference is an API or a store and the evidence is one response or
             file from it.
         entry-id:
-          description: |-
-            entry-id identifies a specific entry within a referenced Gemara artifact.
-            May be combined with coordinate. It is a reader hint, not an address a
-            verifier resolves, and not an input to digest.
+          description: "entry-id is the id of a catalog entry: a control or an assessment requirement.\nIt is used only when the evidence is a Gemara artifact, and selects what that\nartifact recorded for the entry. In an audit that is the findings an\nevaluation or enforcement log holds for that control or requirement. It\nnarrows where to look and never what to fetch: the whole artifact is\nretrieved, and entry-id is not an input to digest. May be combined with\ncoordinate."
           type: string
         media-type:
           description: |-

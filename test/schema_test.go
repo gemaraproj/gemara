@@ -124,6 +124,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"inline payload with a source digest", "./test-data/bad-evaluation-log-evidence-payload-with-digest.yaml", "#EvaluationLog", true, "inline payload cannot also have a source digest"},
 		{"one evidence id naming two different items", "./test-data/bad-evaluation-log-evidence-id-reused.yaml", "#EvaluationLog", true, "names two different evidence items"},
 		{"evidence source that is not declared", "./test-data/bad-evaluation-log-evidence-source-undeclared.yaml", "#EvaluationLog", true, "not declared in metadata.mapping-references"},
+		{"entry-id on evidence that is not a Gemara artifact", "./test-data/bad-evaluation-log-evidence-entry-id-not-artifact.yaml", "#EvaluationLog", true, "entry-id is only for evidence that is a Gemara artifact"},
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
@@ -269,6 +270,27 @@ source:
   reference-id: github-api
   media-type: application/vnd.cyclonedx+json
 `,
+		},
+		{
+			name: "allows entry-id on evidence that is a Gemara artifact",
+			input: `id: documentation-evaluation
+type: EvaluationLog
+collected-at: "2026-02-10T15:05:00Z"
+source:
+  reference-id: evaluation-log
+  entry-id: OSPS-DO-01
+`,
+		},
+		{
+			name: "rejects entry-id on evidence that is not a Gemara artifact",
+			input: `id: dependency-graph-snapshot
+type: api-response
+collected-at: "2026-02-10T15:05:00Z"
+source:
+  reference-id: github-api
+  entry-id: OSPS-DO-01
+`,
+			wantErr: true,
 		},
 		{
 			name: "allows cited evidence with a digest and no address",
