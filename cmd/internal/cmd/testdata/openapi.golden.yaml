@@ -955,7 +955,7 @@ components:
       - type
       - collected-at
       type: object
-      x-status: experimental
+      x-status: stable
     EvidenceMapping:
       description: |-
         EvidenceMapping identifies the source from which evidence was collected.
@@ -1009,7 +1009,7 @@ components:
         recommended values include artifact types already known to Gemara (e.g.
         EvaluationLog, EnforcementLog) plus categories for common evidence forms.
       type: string
-      x-status: experimental
+      x-status: stable
     Exemption:
       description: Exemption describes a single scenario where the catalog is not applicable
       properties:
