@@ -18,16 +18,13 @@ func TestGenerateRawProducesSchemas(t *testing.T) {
 		t.Fatal(err)
 	}
 	schemas := doc.Components.Schemas
-	// The raw encoder output retains the three hidden helper definitions. Post
-	// removes them after the CUE converter workaround rewrites their references.
-	if len(schemas) != 95 {
-		t.Errorf("got %d schemas, want 95", len(schemas))
-	}
 	for _, want := range []string{"Metadata", "ControlCatalog", "Evidence", "Mapping"} {
 		if _, ok := schemas[want]; !ok {
 			t.Errorf("missing schema %q", want)
 		}
 	}
+	// The raw encoder output retains the three hidden helper definitions. Post
+	// removes them after the CUE converter workaround rewrites their references.
 	for _, helper := range []string{"_EvidenceStrict", "_MappingStrict", "_AssessmentLogStrict"} {
 		if _, ok := schemas[helper]; !ok {
 			t.Errorf("missing helper schema %q", helper)

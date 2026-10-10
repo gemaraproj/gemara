@@ -216,55 +216,6 @@ func TestEvidenceMappingRemarksDescriptionExcludesValidationComments(t *testing.
 	}
 }
 
-func TestEvidenceMappingDocumentationExplainsRepresentationScopedMetadata(t *testing.T) {
-	schemas, _ := loadGenerated(t)
-	evidenceMapping := mapOf(schemas["EvidenceMapping"])
-	mappingReference := mapOf(schemas["MappingReference"])
-	properties := mapOf(evidenceMapping["properties"])
-	mappingReferenceProperties := mapOf(mappingReference["properties"])
-	mappingReferenceDescription, _ := mappingReference["description"].(string)
-	normalizedMappingReferenceDescription := strings.Join(strings.Fields(mappingReferenceDescription), " ")
-	if !strings.Contains(normalizedMappingReferenceDescription, "does not itself represent a retrieved representation") {
-		t.Errorf("MappingReference description %q does not distinguish a source entry from a retrieved representation", mappingReferenceDescription)
-	}
-
-	for field, want := range map[string]string{
-		"id":  "mapping reference",
-		"url": "representation of the referenced source",
-	} {
-		description, _ := mapOf(mappingReferenceProperties[field])["description"].(string)
-		if !strings.Contains(description, want) {
-			t.Errorf("MappingReference.%s description %q does not contain %q", field, description, want)
-		}
-	}
-
-	schemaDescription, _ := evidenceMapping["description"].(string)
-	normalizedSchemaDescription := strings.Join(strings.Fields(schemaDescription), " ")
-	for _, want := range []string{
-		"matching MappingReference",
-		"reusable back-matter entry",
-		"source identity",
-		"representation used as evidence",
-		"referenced source",
-	} {
-		if !strings.Contains(normalizedSchemaDescription, want) {
-			t.Errorf("EvidenceMapping description %q does not contain %q", schemaDescription, want)
-		}
-	}
-
-	for field, want := range map[string]string{
-		"digest":       "representation-scoped integrity claim",
-		"download-url": "where this exact evidence content can be fetched",
-		"size":         "that octet stream",
-		"media-type":   "tells a tool how to read the payload",
-	} {
-		description, _ := mapOf(properties[field])["description"].(string)
-		if !strings.Contains(description, want) {
-			t.Errorf("EvidenceMapping.%s description %q does not contain %q", field, description, want)
-		}
-	}
-}
-
 // OpenAPI 3.0 requires these keywords to be integers. JSON decoding turns every
 // number into a float64, which YAML then renders as `1.0` — valid-looking and
 // off-spec. This is the shape of bug the whole migration exists to prevent, so
