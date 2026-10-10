@@ -939,6 +939,16 @@ components:
         raw data at the evaluation layer, and at the audit layer raw data as well as
         evaluation and enforcement artifacts. Gemara treats the evidence itself as
         opaque. These fields exist so that a reader can follow the chain to it.
+        
+        A tool attaching evidence gives it an id, says when it was collected and what
+        it is, and either carries small content inline in payload or leaves the content
+        where it lives and describes it in source. Evidence that came from somewhere
+        names that source.
+        
+        A reviewer reading evidence can rely on the following. source.reference-id
+        resolves to a source declared in the log. Within a log, one id names one item.
+        A digest is well-formed for its algorithm. Inline content carries no digest of
+        its own, because it is as trustworthy as the log around it.
       properties:
         collected-at:
           allOf:
@@ -950,7 +960,7 @@ components:
             source.remarks.
           type: string
         id:
-          description: id uniquely identifies this evidence
+          description: "id identifies this evidence item within its log, so that a citation can\npoint at it. Within one log an id names exactly one item: the same item may\nbe repeated under its id, but two different items may not share one. It\nidentifies the record in the log; source.reference-id identifies where the\nevidence came from."
           type: string
         payload:
           description: |-
@@ -1003,8 +1013,8 @@ components:
         media-type:
           description: |-
             media-type is the IANA media type of the evidence content, e.g.
-            application/json, text/yaml. With an inline payload it
-            tells a tool how to read the payload.
+            application/json, text/yaml. Unlike digest and size it may accompany an
+            inline payload, where it tells a tool how to read the payload.
           pattern: "^[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*$"
           type: string
         reference-id:

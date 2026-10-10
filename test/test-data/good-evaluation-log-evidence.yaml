@@ -85,7 +85,7 @@ evaluations:
         coordinate: "/orgs/gemaraproj/members?role=admin"
         digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
   # A download-url with no digest makes no integrity claim. The second item is
-  # carried inline, with a media-type saying how to read it.
+  # carried inline: it may state a media-type, but not a digest, size or download-url.
   - requirement:
       reference-id: OSPS-B
       entry-id: OSPS-AC-01.03

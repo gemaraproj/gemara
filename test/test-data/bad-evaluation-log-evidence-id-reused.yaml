@@ -1,0 +1,64 @@
+metadata:
+  id: EVAL-EVIDENCE-ID-REUSED
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: One evidence id naming two different evidence items
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+  mapping-references:
+  - id: OSPS-B
+    title: Open Source Project Security Baseline
+    version: "2025.1"
+    url: "https://baseline.openssf.org"
+  - id: github-api
+    title: GitHub REST API
+    version: "2026"
+    url: "https://docs.github.com/en/rest"
+result: Passed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Passed
+  message: Access control assessments passed
+  assessment-logs:
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.01
+    description: Verify that multi-factor authentication is required.
+    result: Passed
+    message: Verify that multi-factor authentication is required.
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
+    steps-executed: 1
+    start: 2026-03-28T04:10:00Z
+    end: 2026-03-28T04:10:02Z
+    evidence:
+    - id: EV-AC-01-01
+      type: api-response
+      collected-at: 2026-03-28T04:10:01Z
+      description: Organization settings
+      source:
+        reference-id: github-api
+        coordinate: "/orgs/gemaraproj/settings"
+      payload:
+        two_factor_requirement_enabled: true
+    - id: EV-AC-01-01
+      type: api-response
+      collected-at: 2026-03-28T04:10:01Z
+      description: Organization member roles
+      source:
+        reference-id: github-api
+        coordinate: "/orgs/gemaraproj/members?role=admin"
+      payload:
+        admins: 2

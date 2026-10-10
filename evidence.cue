@@ -10,8 +10,22 @@ package gemara
 // raw data at the evaluation layer, and at the audit layer raw data as well as
 // evaluation and enforcement artifacts. Gemara treats the evidence itself as
 // opaque. These fields exist so that a reader can follow the chain to it.
+//
+// A tool attaching evidence gives it an id, says when it was collected and what
+// it is, and either carries small content inline in payload or leaves the content
+// where it lives and describes it in source. Evidence that came from somewhere
+// names that source.
+//
+// A reviewer reading evidence can rely on the following. source.reference-id
+// resolves to a source declared in the log. Within a log, one id names one item.
+// A digest is well-formed for its algorithm. Inline content carries no digest of
+// its own, because it is as trustworthy as the log around it.
 #Evidence: {
-	// id uniquely identifies this evidence
+	// id identifies this evidence item within its log, so that a citation can
+	// point at it. Within one log an id names exactly one item: the same item may
+	// be repeated under its id, but two different items may not share one. It
+	// identifies the record in the log; source.reference-id identifies where the
+	// evidence came from.
 	id: string
 
 	// type says what kind of thing this evidence is, where media-type says how to
@@ -96,8 +110,8 @@ package gemara
 	size?: int & >=0
 
 	// media-type is the IANA media type of the evidence content, e.g.
-	// application/json, text/yaml. With an inline payload it
-	// tells a tool how to read the payload.
+	// application/json, text/yaml. Unlike digest and size it may accompany an
+	// inline payload, where it tells a tool how to read the payload.
 	"media-type"?: =~"^[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*$" @go(MediaType)
 
 	// remarks holds the author's notes about this evidence reference. What the
@@ -106,8 +120,10 @@ package gemara
 }
 
 // ---- Validation ------------------------------------------------------------
-// #_EvidenceStrict carries every rule on #Evidence. It is hidden (@go(-), and
-// never projected), so the structures above stay shape and documentation only.
+// #_EvidenceStrict carries the rules one evidence item can check about itself. It
+// is hidden (@go(-), and never projected), so the structures above stay shape and
+// documentation only. Rules across a log's evidence (one id per item, declared
+// sources) live on #EvaluationLog and #AuditLog.
 
 // _EvidenceStrict layers the "at least one of payload or source" rule on top of #Evidence
 #_EvidenceStrict: {
@@ -118,6 +134,17 @@ package gemara
 
 	if payload == _|_ {
 		source: #EvidenceMapping
+	}
+
+	// Evidence with an inline payload is carried by this log, and is as
+	// trustworthy as the log itself. source may still name where it came from, by
+	// reference-id, and its media-type, which a tool may need to read the
+	// payload. download-url, digest and size are for evidence that lives
+	// elsewhere, so they cannot accompany a payload.
+	if payload != _|_ {
+		source?: "download-url"?: error("an inline payload cannot also have a source download-url: inline content is carried, referenced content is addressed")
+		source?: digest?:         error("an inline payload cannot also have a source digest: an inline payload is as trustworthy as the log that carries it, and a digest is for evidence that lives elsewhere")
+		source?: size?:           error("an inline payload cannot also have a source size: size describes evidence that lives elsewhere")
 	}
 }
 
