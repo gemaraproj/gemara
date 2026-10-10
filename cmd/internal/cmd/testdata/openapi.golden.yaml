@@ -722,6 +722,18 @@ components:
       format: date-time
       type: string
       x-status: stable
+    Digest:
+      description: "Digest is the format of a cryptographic hash: algorithm:encoded, e.g.\nsha256:<64 lowercase hex>. sha256 is recommended. sha256, sha512 and blake3 are\nchecked for that algorithm's encoding and length; any other algorithm is checked\nfor grammar only, so a misspelt algorithm name passes as an unknown one. It is one\ndigest rather than a set, because a set holding one matching and one mismatching\ndigest has two defensible readings and this schema could not pick one."
+      oneOf:
+      - allOf:
+        - pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
+        - pattern: ^(?:sha256:[a-f0-9]{64}|sha512:[a-f0-9]{128}|blake3:[a-f0-9]{64})$
+      - allOf:
+        - pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
+        - not:
+            pattern: "^(?:sha256|sha512|blake3):"
+      type: string
+      x-status: stable
     Dimensions:
       description: Dimensions specify the applicability criteria for a policy
       properties:
@@ -834,12 +846,9 @@ components:
           - $ref: "#/components/schemas/EntityType"
           description: type specifies the type of entity interacting in the workflow
         uri:
-          description: |-
-            uri is a general URI for the entity information.
-            Any URI scheme is accepted (e.g. https, file, oci, s3, arn) so entities
-            hosted outside http(s) can be referenced.
-          pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
-          type: string
+          allOf:
+          - $ref: "#/components/schemas/URL"
+          description: "uri is a general URI for the entity information. Any URI scheme is accepted\n(e.g. https, file, oci, s3, arn) so entities hosted outside http(s) can be\nreferenced. It is the named #URL type rather than a second copy of the same\npattern, so the two cannot drift apart."
         version:
           description: version is the version of the entity (for tools; if applicable)
           type: string
@@ -927,29 +936,36 @@ components:
     Evidence:
       description: |-
         Evidence records what was cited to support an opinion for a specific activity:
-        raw data for the evaluation layer, evaluation and enforcement artifacts for the audit layer.
-        At least one of payload or source MUST be present; an entry with neither is semantically incomplete.
+        raw data at the evaluation layer, and at the audit layer raw data as well as
+        evaluation and enforcement artifacts. Gemara treats the evidence itself as
+        opaque. These fields exist so that a reader can follow the chain to it.
       properties:
         collected-at:
           allOf:
           - $ref: "#/components/schemas/Datetime"
           description: collected-at is the timestamp when the evidence was gathered
         description:
-          description: description explains what this evidence represents
+          description: |-
+            description says what this evidence is. Notes from the author belong in
+            source.remarks.
           type: string
         id:
           description: id uniquely identifies this evidence
           type: string
         payload:
-          description: payload is the raw evidence data collected inline
+          description: |-
+            payload is the raw evidence data collected inline. Gemara does not interpret
+            it; source.media-type tells a tool how to read it.
         source:
           allOf:
           - $ref: "#/components/schemas/EvidenceMapping"
-          description: source identifies the artifact or system from which this evidence was collected
+          description: |-
+            source identifies the artifact or system from which this evidence was collected and
+            retrieval information.
         type:
           allOf:
           - $ref: "#/components/schemas/EvidenceType"
-          description: type categorizes the kind of evidence
+          description: "type says what kind of thing this evidence is, where media-type says how to\nread it and description says what this item shows. See #EvidenceType for\nwhat to put here."
       required:
       - id
       - type
@@ -957,32 +973,54 @@ components:
       type: object
       x-status: stable
     EvidenceMapping:
-      description: |-
-        EvidenceMapping identifies the source from which evidence was collected.
-        reference-id names the MappingReference; coordinate or entry-id gives
-        specificity within it; digest pins the observed content at collection time.
+      description: "EvidenceMapping identifies source identity and describes the representation used\nas evidence. reference-id identifies that source: it names the matching\nMappingReference declared in the artifact's metadata, the reusable back-matter entry\nthat describes the source and may provide a location. coordinate and entry-id are\nreader hints for locating content within the referenced source. A source can yield\nmultiple representations across locations and collection times, so their digest,\nsize, and media type belong here rather than on the reusable MappingReference.\n\ndigest, size and media-type describe the evidence content that was collected.\ndownload-url says where that exact content can be fetched again. Without it, the\ncontent is what the MappingReference's url returns when that url is the evidence\nitself, such as a log or a report. When the reference is a system such as an API,\na reader has only the coordinate and entry-id hints to find the content, and may\nnot be able to check a digest."
       properties:
         coordinate:
           description: |-
             coordinate is the precise location within the stream identified by reference-id
             (e.g. an API path, file path, or JSON path expression). May be combined with
-            entry-id to identify a sub-location within that entry's output.
+            entry-id. It is a reader hint, not an address a verifier resolves, and not an
+            input to digest.
           type: string
         digest:
-          description: "digest is a cryptographic hash of the observed content at collection time; format: algorithm:encoded (e.g. sha256:abc123...)"
-          pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
-          type: string
+          allOf:
+          - $ref: "#/components/schemas/Digest"
+          description: "digest is a cryptographic hash of the evidence content, as a\nrepresentation-scoped integrity claim: it says what the content was when\ncited, not what the source holds now. It covers the full octet stream as\ndelivered — never a canonical re-serialization, and never a sub-resource\nselected by coordinate or entry-id. Absence means no integrity claim was made,\nnot that the content is known unchanged, and a digest that could not be\nchecked says no more than an absent one."
+        download-url:
+          allOf:
+          - $ref: "#/components/schemas/URL"
+          description: |-
+            download-url is where this exact evidence content can be fetched. Give it
+            whenever the MappingReference's url is not itself that content, for example
+            when the reference is an API or a store and the evidence is one response or
+            file from it.
         entry-id:
           description: |-
             entry-id identifies a specific entry within a referenced Gemara artifact.
-            May be combined with coordinate to identify a sub-location within that entry's output.
+            May be combined with coordinate. It is a reader hint, not an address a
+            verifier resolves, and not an input to digest.
+          type: string
+        media-type:
+          description: |-
+            media-type is the IANA media type of the evidence content, e.g.
+            application/json, text/yaml. With an inline payload it
+            tells a tool how to read the payload.
+          pattern: "^[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*/[a-zA-Z0-9][a-zA-Z0-9!#$&.+^_-]*$"
           type: string
         reference-id:
-          description: reference-id ties this evidence to a mapping-reference in the artifact's metadata
+          description: |-
+            reference-id identifies where this evidence came from. It is the id of a
+            MappingReference declared in the artifact's metadata.
           type: string
         remarks:
-          description: remarks is prose regarding this evidence reference
+          description: |-
+            remarks holds the author's notes about this evidence reference. What the
+            evidence is belongs in the evidence's description.
           type: string
+        size:
+          description: size is the length, in bytes, of that octet stream.
+          minimum: 0.0
+          type: integer
       required:
       - reference-id
       type: object
@@ -1004,10 +1042,7 @@ components:
         - PrincipleCatalog
         - AuditLog
       - {}
-      description: |-
-        EvidenceType categorizes the kind of evidence. It remains an open enum:
-        recommended values include artifact types already known to Gemara (e.g.
-        EvaluationLog, EnforcementLog) plus categories for common evidence forms.
+      description: "EvidenceType says what kind of thing a piece of evidence is. It is open, and\ntakes one of three forms:\n\n  - A Gemara artifact type (e.g. EvaluationLog, EnforcementLog), when the evidence\n    is a Gemara artifact. Tools rely on this to validate the content and follow\n    the chain into it.\n  - A URI naming the published format the content follows, when there is one\n    (e.g. an SBOM or provenance format), so a tool can choose how to interpret it.\n  - Otherwise a short plain label (e.g. api-response). This is a label for a\n    reader only; nothing depends on its value."
       type: string
       x-status: stable
     Exemption:
@@ -1437,7 +1472,10 @@ components:
       type: object
       x-status: experimental
     MappingReference:
-      description: MappingReference represents a reference to an external document with full metadata.
+      description: |-
+        MappingReference is a reusable back-matter entry describing an external source or
+        authority. It provides source identity and may provide a location, but does not
+        itself represent a retrieved representation.
       properties:
         description:
           description: description is prose regarding the artifact's purpose or content
@@ -1452,7 +1490,8 @@ components:
           type: string
         url:
           description: |-
-            url is the path where the artifact may be retrieved; preferably responds with Gemara-compatible YAML/JSON.
+            url is an optional location from which a representation of the referenced source
+            may be retrieved; preferably responds with Gemara-compatible YAML/JSON.
             Any URI scheme is accepted (e.g. https, file, oci, s3, arn) so evidence can be
             addressed wherever it actually lives.
           pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
@@ -2075,6 +2114,13 @@ components:
           description: entry-type identifies the type of atomic unit entries in this direction
       type: object
       x-status: experimental
+    URL:
+      description: |-
+        URL is a URI with a scheme. Any scheme is accepted (e.g. https, file, oci, s3,
+        arn), so content hosted outside http(s) can be addressed.
+      pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
+      type: string
+      x-status: stable
     Vector:
       description: A Vector represents a method, pathway, or technique through which a threat may be realized or an attack may be carried out.
       properties:

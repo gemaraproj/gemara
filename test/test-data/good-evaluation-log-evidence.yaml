@@ -1,0 +1,119 @@
+metadata:
+  id: EVAL-EVIDENCE
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: >
+    Evaluation log exercising the shapes evidence can take: addressed with a full
+    description of the content, addressed through the mapping reference, addressed
+    with no integrity claim, and carried inline.
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+  mapping-references:
+  - id: OSPS-B
+    title: Open Source Project Security Baseline
+    version: "2025.1"
+    url: "https://baseline.openssf.org"
+  - id: github-api
+    title: GitHub REST API
+    version: "2026"
+    url: "https://docs.github.com/en/rest"
+result: Passed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Passed
+  message: Access control assessments passed
+  assessment-logs:
+  # Addressed evidence, with the address, digest, size and media type of what was fetched.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.01
+    description: Verify that multi-factor authentication is required.
+    result: Passed
+    message: Verify that multi-factor authentication is required.
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
+    steps-executed: 1
+    start: 2026-03-28T04:10:00Z
+    end: 2026-03-28T04:10:02Z
+    evidence:
+    - id: EV-AC-01-01
+      type: api-response
+      collected-at: 2026-03-28T04:10:01Z
+      description: Organization settings showing org-wide MFA enforcement
+      source:
+        reference-id: github-api
+        coordinate: "/orgs/gemaraproj/settings"
+        download-url: "https://api.github.com/orgs/gemaraproj/settings"
+        digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        size: 4096
+        media-type: application/json
+  # No download-url, which is legal. The digest records what was collected, but the
+  # mapping reference is the API and not this response, so a reader has only the
+  # coordinate to find the content again.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.02
+    description: Verify that administrative access is restricted.
+    result: Passed
+    message: Verify that administrative access is restricted.
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.adminAccess
+    steps-executed: 1
+    start: 2026-03-28T04:11:00Z
+    end: 2026-03-28T04:11:02Z
+    evidence:
+    - id: EV-AC-01-02
+      type: api-response
+      collected-at: 2026-03-28T04:11:01Z
+      description: Organization member roles
+      source:
+        reference-id: github-api
+        coordinate: "/orgs/gemaraproj/members?role=admin"
+        digest: "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  # A download-url with no digest makes no integrity claim. The second item is
+  # carried inline, with a media-type saying how to read it.
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.03
+    description: Verify that branch protection is enabled on release branches.
+    result: Passed
+    message: Verify that branch protection is enabled on release branches.
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.branchProtection
+    steps-executed: 1
+    start: 2026-03-28T04:12:00Z
+    end: 2026-03-28T04:12:02Z
+    evidence:
+    - id: EV-AC-01-03
+      type: api-response
+      collected-at: 2026-03-28T04:12:01Z
+      description: Branch protection settings
+      source:
+        reference-id: github-api
+        download-url: "https://api.github.com/repos/gemaraproj/gemara/branches/main/protection"
+    - id: EV-AC-01-04
+      type: api-response
+      collected-at: 2026-03-28T04:12:01Z
+      description: Branch protection settings as returned
+      source:
+        reference-id: github-api
+        coordinate: "/repos/gemaraproj/gemara/branches/main/protection"
+        media-type: application/json
+      payload:
+        required_pull_request_reviews: true

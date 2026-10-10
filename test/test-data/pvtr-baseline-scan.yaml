@@ -44,7 +44,7 @@ evaluations:
       source:
         reference-id: github-api
         coordinate: "/orgs/revanite-io/settings"
-        digest: "sha256:b3c4d5e6f7a8901bcdef234567890abcdef1234567890abcdef1234567890ab12"
+        digest: "sha256:b3c4d5e6f7a8901bcdef234567890abcdef1234567890abcdef1234567890ab1"
       payload:
         login: revanite-io
         two_factor_requirement_enabled: true

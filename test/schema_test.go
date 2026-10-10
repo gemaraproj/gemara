@@ -5,6 +5,7 @@ package schema_test
 import (
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -109,6 +110,16 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
 
+		// Evidence rules ride on #Evidence and #EvidenceMapping, which both logs use.
+		// Their fixtures are evaluation logs so that reshaping the audit — which is
+		// happening under #496 — cannot quietly stop them testing evidence. Each
+		// negative fixture stands for one rule; TestDigestFormat covers the full
+		// digest format matrix.
+		{"evidence that is addressed, addressed without a digest, and carried", "./test-data/good-evaluation-log-evidence.yaml", "#EvaluationLog", false, ""},
+		{"sha256 digest of the wrong length", "./test-data/bad-evaluation-log-digest-sha256-length.yaml", "#EvaluationLog", true, "source.digest"},
+		{"download-url with no URI scheme", "./test-data/bad-evaluation-log-download-url-no-scheme.yaml", "#EvaluationLog", true, "\"download-url\""},
+		{"media-type with no subtype separator", "./test-data/bad-evaluation-log-media-type-malformed.yaml", "#EvaluationLog", true, "\"media-type\""},
+
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 
@@ -181,6 +192,46 @@ func TestSchemaValidation(t *testing.T) {
 				if !strings.Contains(validationErr.Error(), tt.errContains) {
 					t.Errorf("error %q does not contain %q", validationErr.Error(), tt.errContains)
 				}
+			}
+		})
+	}
+}
+
+func TestDigestFormat(t *testing.T) {
+	const hex64 = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+	tests := []struct {
+		name    string
+		digest  string
+		wantErr bool
+	}{
+		{"sha256 with 64 lowercase hex", "sha256:" + hex64, false},
+		{"sha512 with 128 lowercase hex", "sha512:" + hex64 + hex64, false},
+		{"blake3 with 64 lowercase hex", "blake3:" + hex64, false},
+		// An algorithm this schema does not know is checked for grammar only, so a
+		// misspelt name passes as unknown.
+		{"unknown algorithm", "sha3-512:" + hex64 + hex64, false},
+		{"misspelt sha256 passes as unknown", "sha-256:" + hex64, false},
+		{"no algorithm separator", "sha256", true},
+		{"uppercase algorithm name", "SHA256:" + hex64, true},
+		{"sha256 one character short", "sha256:" + hex64[1:], true},
+		{"sha256 in uppercase hex", "sha256:" + strings.ToUpper(hex64), true},
+		{"sha512 with a sha256 length", "sha512:" + hex64, true},
+		{"blake3 one character short", "blake3:" + hex64[1:], true},
+	}
+
+	def := schemaValue.LookupPath(cue.ParsePath("#Digest"))
+	if def.Err() != nil {
+		t.Fatalf("lookup #Digest: %v", def.Err())
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := def.Unify(schemaValue.Context().CompileString(strconv.Quote(tt.digest))).Validate()
+			if tt.wantErr && err == nil {
+				t.Error("expected validation error, got nil")
+			}
+			if !tt.wantErr && err != nil {
+				t.Errorf("unexpected validation error: %v", err)
 			}
 		})
 	}
