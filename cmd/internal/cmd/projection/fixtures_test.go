@@ -41,6 +41,7 @@ var repoFixtures = []struct {
 	{"test/test-data/good-lexicon.yaml", "Lexicon"},
 	{"test/test-data/pvtr-baseline-scan.yaml", "EvaluationLog"},
 	{"test/test-data/good-evaluation-log-unstarted.yaml", "EvaluationLog"},
+	{"test/test-data/good-evaluation-log-evidence.yaml", "EvaluationLog"},
 	{"test/test-data/good-enforcement-log.yaml", "EnforcementLog"},
 	{"test/test-data/good-audit-log.yaml", "AuditLog"},
 	{"examples/ai-agent/ai-agent-capability-catalog.yaml", "CapabilityCatalog"},

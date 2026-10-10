@@ -33,6 +33,33 @@ import "list"
 		for i, r in results {
 			_criteriaValidation: "\(i)": _validCriteriaIds & list.Contains(r."criteria-reference"."reference-id")
 		}
+
+		// Within one log an evidence id names exactly one evidence item. The same
+		// item may be repeated under its id; two different items may not share one.
+		_evidenceByID: {
+			for i, r in results
+			if r.evidence != _|_
+			for k, item in r.evidence {
+				(item.id): "\(i).\(k)": item
+			}
+		}
+		for id, occurrences in _evidenceByID
+		for p, first in occurrences
+		for q, second in occurrences
+		if p < q && first != second {
+			_evidenceIDReuse: (id): error("evidence id \(id) names two different evidence items in this log")
+		}
+
+		// An evidence source names where the evidence came from, so its reference-id
+		// must be a mapping reference declared in this log's metadata.
+		_declaredReferenceIDs: [if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r.id}]
+		for i, r in results
+		if r.evidence != _|_
+		for k, item in r.evidence
+		if item.source != _|_
+		if !list.Contains(_declaredReferenceIDs, item.source."reference-id") {
+			_evidenceSourceUndeclared: "\(i).\(k)": error("evidence \(item.id) names source \(item.source."reference-id"), which is not declared in metadata.mapping-references")
+		}
 	}
 }
 
@@ -75,41 +102,3 @@ import "list"
 	// required indicates whether this recommendation is a mandatory corrective action
 	required: *false | bool @gemara(default=false)
 }
-
-// Evidence records what was cited to support an opinion for a specific activity:
-// raw data for the evaluation layer, evaluation and enforcement artifacts for the audit layer.
-// At least one of payload or source MUST be present; an entry with neither is semantically incomplete.
-#Evidence: {
-	// id uniquely identifies this evidence
-	id: string
-
-	// type categorizes the kind of evidence
-	type: #EvidenceType
-
-	// collected-at is the timestamp when the evidence was gathered
-	"collected-at": #Datetime @go(CollectedAt)
-
-	// payload is the raw evidence data collected inline
-	payload?: _ @go(Payload,type=any)
-
-	// source identifies the artifact or system from which this evidence was collected
-	source?: #EvidenceMapping @go(Source)
-
-	// description explains what this evidence represents
-	description?: string
-}
-
-// _EvidenceStrict layers the "at least one of payload or source" rule on top of #Evidence
-#_EvidenceStrict: {
-	@go(-)
-} & #Evidence & {
-	payload?: _
-	if payload == _|_ {
-		source: #EvidenceMapping
-	}
-}
-
-// EvidenceType categorizes the kind of evidence. It remains an open enum:
-// recommended values include artifact types already known to Gemara (e.g.
-// EvaluationLog, EnforcementLog) plus categories for common evidence forms.
-#EvidenceType: #ArtifactType | string @go(-)
