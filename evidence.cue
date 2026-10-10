@@ -18,8 +18,9 @@ package gemara
 //
 // A reviewer reading evidence can rely on the following. source.reference-id
 // resolves to a source declared in the log. Within a log, one id names one item.
-// A digest is well-formed for its algorithm. Inline content carries no digest of
-// its own, because it is as trustworthy as the log around it.
+// A sha256, sha512 or blake3 digest has the right length and encoding. Inline
+// content carries no digest of its own, because it is as trustworthy as the log
+// around it.
 #Evidence: {
 	// id identifies this evidence item within its log, so that a citation can
 	// point at it. Within one log an id names exactly one item: the same item may

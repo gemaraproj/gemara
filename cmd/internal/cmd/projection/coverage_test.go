@@ -253,10 +253,10 @@ func TestEvidenceMappingDocumentationExplainsRepresentationScopedMetadata(t *tes
 	}
 
 	for field, want := range map[string]string{
-		"digest":     "representation-scoped integrity claim",
+		"digest":       "representation-scoped integrity claim",
 		"download-url": "where this exact evidence content can be fetched",
-		"size":       "that octet stream",
-		"media-type": "tells a tool how to read the payload",
+		"size":         "that octet stream",
+		"media-type":   "tells a tool how to read the payload",
 	} {
 		description, _ := mapOf(properties[field])["description"].(string)
 		if !strings.Contains(description, want) {
