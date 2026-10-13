@@ -4,6 +4,8 @@
 @gemara(status="stable")
 package gemara
 
+import "strings"
+
 @go(gemara)
 
 // EvaluationLog contains the results of evaluating a set of Layer 2 controls.
@@ -28,9 +30,9 @@ package gemara
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
 			for j, a in e."assessment-logs" {
-				let _plan = [if a.plan != _|_ {a.plan."entry-id"}, "-"][0]
-				let _method = [if a["execution-context"] != _|_ if a["execution-context"]["method-id"] != _|_ {a["execution-context"]."method-id"}, "-"][0]
-				"\(a.requirement."entry-id")/\(_plan)/\(_method)": j
+				let _plan = [if a.plan != _|_ {"present:\(a.plan."entry-id")"}, "absent"][0]
+				let _method = [if a["execution-context"] != _|_ if a["execution-context"]["method-id"] != _|_ {"present:\(a["execution-context"]."method-id")"}, "absent"][0]
+				"\(a.requirement."entry-id")": "\(_plan)": "\(_method)": j
 			}
 		}
 	}
@@ -74,7 +76,7 @@ package gemara
 	// method-id names the accepted method this assessment executed, where the policy
 	// prescribed one: a method of the cited plan, or one of the policy's own
 	// evaluation-methods, which are the fallback where no plan is bound.
-	"method-id"?: string @go(MethodId)
+	"method-id"?: string & strings.MinRunes(1) @go(MethodId)
 }
 
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.

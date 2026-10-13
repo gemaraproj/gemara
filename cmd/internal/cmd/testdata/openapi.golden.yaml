@@ -1069,6 +1069,7 @@ components:
       properties:
         method-id:
           description: "method-id names the accepted method this assessment executed, where the policy\nprescribed one: a method of the cited plan, or one of the policy's own\nevaluation-methods, which are the fallback where no plan is bound."
+          minLength: 1
           type: string
       type: object
       x-status: stable
