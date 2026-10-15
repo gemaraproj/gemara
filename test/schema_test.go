@@ -10,6 +10,7 @@ import (
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
+	cueerrors "cuelang.org/go/cue/errors"
 	"cuelang.org/go/cue/load"
 	cuejson "cuelang.org/go/encoding/json"
 	cueyaml "cuelang.org/go/encoding/yaml"
@@ -109,6 +110,35 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
 
+		// Evidence rules ride on #Evidence and #EvidenceMapping, which both logs use.
+		// Their fixtures are evaluation logs so that reshaping the audit — which is
+		// happening under #496 — cannot quietly stop them testing evidence. Each
+		// negative fixture stands for one rule.
+		{"evidence that is addressed, carried, and reused by two assessments", "./test-data/good-evaluation-log-evidence.yaml", "#EvaluationLog", false, ""},
+		{"sha256 digest of the wrong length", "./test-data/bad-evaluation-log-digest-sha256-length.yaml", "#EvaluationLog", true, "source.digest"},
+		{"download-url with no URI scheme", "./test-data/bad-evaluation-log-download-url-no-scheme.yaml", "#EvaluationLog", true, "\"download-url\""},
+		{"media-type with no subtype separator", "./test-data/bad-evaluation-log-media-type-malformed.yaml", "#EvaluationLog", true, "\"media-type\""},
+		{"inline payload with a source digest", "./test-data/bad-evaluation-log-evidence-payload-with-digest.yaml", "#EvaluationLog", true, "inline payload cannot also have a source digest"},
+		{"one evidence id naming different items in two assessments", "./test-data/bad-evaluation-log-evidence-id-reused.yaml", "#EvaluationLog", true, "names two different evidence items"},
+		{"one evidence item listed twice in one evidence list", "./test-data/bad-evaluation-log-evidence-id-repeated-in-list.yaml", "#EvaluationLog", true, "appears more than once in one evidence list"},
+		{"evidence source that is not declared", "./test-data/bad-evaluation-log-evidence-source-undeclared.yaml", "#EvaluationLog", true, "not declared in metadata.mapping-references"},
+		{"evidence with no id reported where the id is missing", "./test-data/bad-evaluation-log-evidence-missing-id.yaml", "#EvaluationLog", true, "evidence.0.id: incomplete value string"},
+		{"entry-id on evidence that is not a Gemara artifact", "./test-data/bad-evaluation-log-evidence-entry-id-not-artifact.yaml", "#EvaluationLog", true, "entry-id is only for evidence that is a Gemara artifact"},
+
+		// Fragments are validated against one definition, so a case that needs only
+		// a digest or one evidence item does not carry a whole log. They live in
+		// their own folder because they are not Gemara documents.
+		{"sha512 digest", "./test-data/fragments/good-digest-sha512.yaml", "#Digest", false, ""},
+		{"blake3 digest", "./test-data/fragments/good-digest-blake3.yaml", "#Digest", false, ""},
+		{"digest with an unknown algorithm", "./test-data/fragments/good-digest-unknown-algorithm.yaml", "#Digest", false, ""},
+		{"digest with a misspelt algorithm passes as unknown", "./test-data/fragments/good-digest-misspelt-algorithm.yaml", "#Digest", false, ""},
+		{"digest with no algorithm separator", "./test-data/fragments/bad-digest-no-separator.yaml", "#Digest", true, ""},
+		{"sha256 digest in uppercase hex", "./test-data/fragments/bad-digest-sha256-uppercase-hex.yaml", "#Digest", true, ""},
+		{"sha512 digest with a sha256 length", "./test-data/fragments/bad-digest-sha512-length.yaml", "#Digest", true, ""},
+		{"blake3 digest one character short", "./test-data/fragments/bad-digest-blake3-length.yaml", "#Digest", true, ""},
+		{"inline payload with a source size", "./test-data/fragments/bad-evidence-payload-with-size.yaml", "#_EvidenceStrict", true, "inline payload cannot also have a source size"},
+		{"inline payload with a source download-url", "./test-data/fragments/bad-evidence-payload-with-download-url.yaml", "#_EvidenceStrict", true, "inline payload cannot also have a source download-url"},
+
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 
@@ -181,6 +211,51 @@ func TestSchemaValidation(t *testing.T) {
 				if !strings.Contains(validationErr.Error(), tt.errContains) {
 					t.Errorf("error %q does not contain %q", validationErr.Error(), tt.errContains)
 				}
+			}
+		})
+	}
+}
+
+// TestSchemaValidationErrorsExclude covers what the table above cannot: an
+// invalid document must fail for its own reason, and not also report errors
+// against parts of it that are valid. Each row names a message that must not
+// appear anywhere in the document's errors.
+func TestSchemaValidationErrorsExclude(t *testing.T) {
+	tests := []struct {
+		name       string
+		file       string
+		definition string
+		excludes   string
+	}{
+		{"one bad mapping reference does not make audit evidence undeclared", "./test-data/bad-audit-log-url-no-scheme.yaml", "#AuditLog", "not declared in metadata.mapping-references"},
+		{"one bad mapping reference does not make evaluation evidence undeclared", "./test-data/bad-evaluation-log-mapping-reference-url-no-scheme.yaml", "#EvaluationLog", "not declared in metadata.mapping-references"},
+		{"evidence with neither payload nor source is reported as missing its source", "./test-data/bad-audit-log-evidence-neither.yaml", "#AuditLog", "invalid left-hand value"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := os.ReadFile(tt.file)
+			if err != nil {
+				t.Fatalf("read %s: %v", tt.file, err)
+			}
+
+			def := schemaValue.LookupPath(cue.ParsePath(tt.definition))
+			if def.Err() != nil {
+				t.Fatalf("lookup %s: %v", tt.definition, def.Err())
+			}
+
+			// Validate stops at the first error. Unify and validate the whole
+			// document instead, so every error it has is reported.
+			file, err := cueyaml.Extract(tt.file, data)
+			if err != nil {
+				t.Fatalf("parse %s: %v", tt.file, err)
+			}
+			validationErr := def.Unify(schemaCtx.BuildFile(file)).Validate(cue.All(), cue.Concrete(true))
+			if validationErr == nil {
+				t.Fatal("expected validation error, got nil")
+			}
+			if details := cueerrors.Details(validationErr, nil); strings.Contains(details, tt.excludes) {
+				t.Errorf("errors contain %q:\n%s", tt.excludes, details)
 			}
 		})
 	}

@@ -62,6 +62,27 @@ func fieldDocs(v cue.Value) (map[string]string, error) {
 	return out, nil
 }
 
+// definitionDocs collects definition doc comments keyed by schema name. The
+// encoder can omit these top-level descriptions, so the post-pass restores
+// them for schemas it emits.
+func definitionDocs(v cue.Value) (map[string]string, error) {
+	out := map[string]string{}
+	defs, err := v.Fields(cue.Definitions(true))
+	if err != nil {
+		return nil, fmt.Errorf("enumerating definitions for doc comments: %w", err)
+	}
+	for defs.Next() {
+		sel := defs.Selector()
+		if !sel.IsDefinition() {
+			continue
+		}
+		if text := docText(defs.Value()); text != "" {
+			out[strings.TrimPrefix(sel.String(), "#")] = text
+		}
+	}
+	return out, nil
+}
+
 // fieldDeprecations collects the @deprecated attribute of every field of
 // every definition, keyed "Schema.property". Presence of a key means the
 // field is deprecated; its value is the attribute's optional reason argument

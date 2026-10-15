@@ -205,6 +205,17 @@ func TestEveryDocumentedFieldKeepsItsDescription(t *testing.T) {
 	}
 }
 
+func TestEvidenceMappingRemarksDescriptionExcludesValidationComments(t *testing.T) {
+	schemas, _ := loadGenerated(t)
+	evidenceMapping := mapOf(schemas["EvidenceMapping"])
+	remarks := mapOf(mapOf(evidenceMapping["properties"])["remarks"])
+	description, _ := remarks["description"].(string)
+
+	if strings.Contains(description, "Validation") {
+		t.Errorf("EvidenceMapping.remarks description includes validation comments: %q", description)
+	}
+}
+
 // OpenAPI 3.0 requires these keywords to be integers. JSON decoding turns every
 // number into a float64, which YAML then renders as `1.0` — valid-looking and
 // off-spec. This is the shape of bug the whole migration exists to prevent, so

@@ -23,10 +23,11 @@ package gemara
 	// description provides additional context about the entity
 	description?: string
 
-	// uri is a general URI for the entity information.
-	// Any URI scheme is accepted (e.g. https, file, oci, s3, arn) so entities
-	// hosted outside http(s) can be referenced.
-	uri?: =~"^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
+	// uri is a general URI for the entity information. Any URI scheme is accepted
+	// (e.g. https, file, oci, s3, arn) so entities hosted outside http(s) can be
+	// referenced. It is the named #URL type rather than a second copy of the same
+	// pattern, so the two cannot drift apart.
+	uri?: #URL @go(Uri,type=string)
 }
 
 // Actor represents an entity (human or tool) that performs actions in evaluations

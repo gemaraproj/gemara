@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -42,10 +43,48 @@ func TestRegexConstraintsReachTheDocument(t *testing.T) {
 		{"MappingReference", "url"},
 		{"EvidenceMapping", "digest"},
 	} {
-		if p, _ := propOf(t, schemas, tc.schema, tc.field)["pattern"].(string); p == "" {
-			t.Errorf("%s.%s has no pattern", tc.schema, tc.field)
+		ps := patternsOf(schemas, propOf(t, schemas, tc.schema, tc.field), map[string]bool{})
+		if len(ps) == 0 {
+			t.Errorf("%s.%s has no pattern, directly or through a referenced definition", tc.schema, tc.field)
+		}
+		for _, p := range ps {
+			if _, err := regexp.Compile(p); err != nil {
+				t.Errorf("%s.%s pattern %q does not compile: %v", tc.schema, tc.field, p, err)
+			}
 		}
 	}
+}
+
+// patternsOf collects every regex reachable from node: its own pattern, the
+// patterns of any definition it references by $ref, and those nested under
+// allOf/oneOf/anyOf/not. A constraint expressed on a named definition (e.g.
+// #URL, #Digest) then counts the same as one written directly on the field.
+func patternsOf(schemas map[string]any, node map[string]any, seen map[string]bool) []string {
+	var out []string
+	if p, _ := node["pattern"].(string); p != "" {
+		out = append(out, p)
+	}
+	if ref, _ := node["$ref"].(string); ref != "" {
+		name := strings.TrimPrefix(ref, "#/components/schemas/")
+		if !seen[name] {
+			seen[name] = true
+			if s, ok := schemas[name].(map[string]any); ok {
+				out = append(out, patternsOf(schemas, s, seen)...)
+			}
+		}
+	}
+	for _, k := range []string{"allOf", "oneOf", "anyOf"} {
+		items, _ := node[k].([]any)
+		for _, it := range items {
+			if m, ok := it.(map[string]any); ok {
+				out = append(out, patternsOf(schemas, m, seen)...)
+			}
+		}
+	}
+	if m, ok := node["not"].(map[string]any); ok {
+		out = append(out, patternsOf(schemas, m, seen)...)
+	}
+	return out
 }
 
 // gemara#468: payload is the top type and must constrain nothing.
