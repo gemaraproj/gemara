@@ -159,6 +159,9 @@ func TestSchemaValidation(t *testing.T) {
 		// happening under #496 — cannot quietly stop them testing evidence. Each
 		// negative fixture stands for one rule.
 		{"evidence that is addressed, carried, and reused by two assessments", "./test-data/good-evaluation-log-evidence.yaml", "#EvaluationLog", false, ""},
+		{"sha256 digest of the wrong length", "./test-data/bad-evaluation-log-digest-sha256-length.yaml", "#EvaluationLog", true, "source.digest"},
+		{"download-url with no URI scheme", "./test-data/bad-evaluation-log-download-url-no-scheme.yaml", "#EvaluationLog", true, "\"download-url\""},
+		{"media-type with no subtype separator", "./test-data/bad-evaluation-log-media-type-malformed.yaml", "#EvaluationLog", true, "\"media-type\""},
 		{"inline payload with a source digest", "./test-data/bad-evaluation-log-evidence-payload-with-digest.yaml", "#EvaluationLog", true, "inline payload cannot also have a source digest"},
 		{"one evidence id naming different items in two assessments", "./test-data/bad-evaluation-log-evidence-id-reused.yaml", "#EvaluationLog", true, "names two different evidence items in this log: evaluations.0.assessment-logs.1.evidence.0 differs from evaluations.0.assessment-logs.0.evidence.0"},
 		{"one evidence item listed twice in one evidence list", "./test-data/bad-evaluation-log-evidence-id-repeated-in-list.yaml", "#EvaluationLog", true, "appears more than once in one evidence list"},
@@ -168,6 +171,20 @@ func TestSchemaValidation(t *testing.T) {
 		{"evidence reused with an incomplete copy reports what is missing", "./test-data/bad-evaluation-log-evidence-id-reused-incomplete.yaml", "#EvaluationLog", true, "evidence.1.type: incomplete value"},
 		{"mapping reference with no id reported where the id is missing", "./test-data/bad-evaluation-log-mapping-reference-missing-id.yaml", "#EvaluationLog", true, "\"mapping-references\".1.id: incomplete value string"},
 		{"evaluation log mapping reference url with no scheme", "./test-data/bad-evaluation-log-mapping-reference-url-no-scheme.yaml", "#EvaluationLog", true, `metadata."mapping-references".0.url: invalid value "baseline.openssf.org"`},
+
+		// Fragments are validated against one definition, so a case that needs only
+		// a digest or one evidence item does not carry a whole log. They live in
+		// their own folder because they are not Gemara documents.
+		{"sha512 digest", "./test-data/fragments/good-digest-sha512.yaml", "#Digest", false, ""},
+		{"blake3 digest", "./test-data/fragments/good-digest-blake3.yaml", "#Digest", false, ""},
+		{"digest with an unknown algorithm", "./test-data/fragments/good-digest-unknown-algorithm.yaml", "#Digest", false, ""},
+		{"digest with a misspelt algorithm passes as unknown", "./test-data/fragments/good-digest-misspelt-algorithm.yaml", "#Digest", false, ""},
+		{"digest with no algorithm separator", "./test-data/fragments/bad-digest-no-separator.yaml", "#Digest", true, ""},
+		{"sha256 digest in uppercase hex", "./test-data/fragments/bad-digest-sha256-uppercase-hex.yaml", "#Digest", true, ""},
+		{"sha512 digest with a sha256 length", "./test-data/fragments/bad-digest-sha512-length.yaml", "#Digest", true, ""},
+		{"blake3 digest one character short", "./test-data/fragments/bad-digest-blake3-length.yaml", "#Digest", true, ""},
+		{"inline payload with a source size", "./test-data/fragments/bad-evidence-payload-with-size.yaml", "#_EvidenceStrict", true, "inline payload cannot also have a source size"},
+		{"inline payload with a source download-url", "./test-data/fragments/bad-evidence-payload-with-download-url.yaml", "#_EvidenceStrict", true, "inline payload cannot also have a source download-url"},
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
@@ -189,7 +206,7 @@ func TestSchemaValidation(t *testing.T) {
 		// AuditLog — negative
 		{"audit log missing summary criteria and results", "./test-data/bad-audit-log.yaml", "#AuditLog", true, "summary: incomplete value string"},
 		{"audit log with duplicate result id", "./test-data/bad-audit-log-duplicate-result-id.yaml", "#AuditLog", true, `_uniqueResultIds."RES-001"`},
-		{"audit log evidence source with invalid digest format", "./test-data/bad-audit-log-invalid-digest.yaml", "#AuditLog", true, `invalid value "SHA256:invalidbecauseuppercasealgorithm"`},
+		{"audit log evidence source with invalid digest format", "./test-data/bad-audit-log-invalid-digest.yaml", "#AuditLog", true, `results.0.evidence.0.source.digest`},
 		{"audit result referencing undeclared criteria", "./test-data/bad-audit-log-undeclared-criteria.yaml", "#AuditLog", true, `does not satisfy list.Contains("OSPS")`},
 		{"audit log evidence with neither payload nor source", "./test-data/bad-audit-log-evidence-neither.yaml", "#AuditLog", true, `evidence.0.source."reference-id": incomplete value string`},
 		{"audit log evidence reused with an incomplete copy reports what is missing", "./test-data/bad-audit-log-evidence-id-reused-incomplete.yaml", "#AuditLog", true, "evidence.1.type: incomplete value"},

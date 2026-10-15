@@ -4,9 +4,9 @@ metadata:
   gemara-version: "1.1.0"
   version: 1.0.0
   description: >
-    Evaluation log exercising the shapes evidence can take: addressed with a
-    digest, addressed with no integrity claim, carried inline, and one item
-    reused by two assessments.
+    Evaluation log exercising the shapes evidence can take: addressed with a full
+    description of the content, addressed through the mapping reference, addressed
+    with no integrity claim, carried inline, and one item reused by two assessments.
   author:
     id: pvtr
     name: PVTR
@@ -33,7 +33,7 @@ evaluations:
   result: Passed
   message: Access control assessments passed
   assessment-logs:
-  # Addressed evidence, with a digest of what was collected.
+  # Addressed evidence, with the address, digest, size and media type of what was fetched.
   - requirement:
       reference-id: OSPS-B
       entry-id: OSPS-AC-01.01
@@ -55,7 +55,13 @@ evaluations:
       source:
         reference-id: github-api
         coordinate: "/orgs/gemaraproj/settings"
+        download-url: "https://example.com/storage/payload.json"
         digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        size: 4096
+        media-type: application/json
+  # No download-url, which is legal. The digest records what was collected, but the
+  # mapping reference is the API and not this response, so a reader has only the
+  # coordinate to find the content again.
   - requirement:
       reference-id: OSPS-B
       entry-id: OSPS-AC-01.02
@@ -88,9 +94,12 @@ evaluations:
       source:
         reference-id: github-api
         coordinate: "/orgs/gemaraproj/settings"
+        download-url: "https://example.com/storage/payload.json"
         digest: "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-  # A source with no digest makes no integrity claim. The second item is carried
-  # inline: its source may name where it came from, but carries no digest.
+        size: 4096
+        media-type: application/json
+  # A download-url with no digest makes no integrity claim. The second item is
+  # carried inline: it may state a media-type, but not a digest, size or download-url.
   - requirement:
       reference-id: OSPS-B
       entry-id: OSPS-AC-01.03
@@ -111,7 +120,7 @@ evaluations:
       description: Branch protection settings
       source:
         reference-id: github-api
-        coordinate: "/repos/gemaraproj/gemara/branches/release/protection"
+        download-url: "https://example.com/storage/branch-protection.json"
     - id: EV-AC-01-04
       type: api-response
       collected-at: 2026-03-28T04:12:01Z
@@ -119,5 +128,6 @@ evaluations:
       source:
         reference-id: github-api
         coordinate: "/repos/gemaraproj/gemara/branches/main/protection"
+        media-type: application/json
       payload:
         required_pull_request_reviews: true

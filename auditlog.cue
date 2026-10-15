@@ -119,7 +119,7 @@ import "list"
 	"criteria-reference": #MultiEntryMapping @go(CriteriaReference)
 
 	// evidence records the data sources that support this result
-	evidence?: [#Evidence, ...#Evidence] @go(Evidence)
+	evidence?: [#Evidence, ...#Evidence] @go(Evidence,type=[]Evidence)
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
 
 	// recommendations records corrective actions for this result
