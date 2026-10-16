@@ -36,14 +36,47 @@ func TestRegexConstraintsReachTheDocument(t *testing.T) {
 		}
 	}
 
+	digest, _ := schemas["Digest"].(map[string]any)
+	digestPattern, _ := digest["pattern"].(string)
+	digestRx, err := regexp.Compile(digestPattern)
+	if err != nil {
+		t.Fatalf("Digest pattern %q does not compile: %v", digestPattern, err)
+	}
+	for _, d := range []string{"sha256:abc123", "sha3-256:ABC=_-"} {
+		if !digestRx.MatchString(d) {
+			t.Errorf("Digest pattern %q rejects %s", digestPattern, d)
+		}
+	}
+	for _, d := range []string{"abc123", "SHA256:abc123"} {
+		if digestRx.MatchString(d) {
+			t.Errorf("Digest pattern %q accepts %s", digestPattern, d)
+		}
+	}
+
 	for _, tc := range []struct{ schema, field string }{
 		{"Entity", "uri"},
 		{"LexiconReference", "url"},
 		{"MappingReference", "url"},
-		{"EvidenceMapping", "digest"},
 	} {
 		if p, _ := propOf(t, schemas, tc.schema, tc.field)["pattern"].(string); p == "" {
 			t.Errorf("%s.%s has no pattern", tc.schema, tc.field)
+		}
+	}
+
+	// Fields typed by a named definition carry its pattern through a reference.
+	for _, tc := range []struct{ schema, field string }{
+		{"EvidenceMapping", "digest"},
+		{"ExecutionEnvironment", "config-digest"},
+	} {
+		refs, _ := propOf(t, schemas, tc.schema, tc.field)["allOf"].([]any)
+		var ref any
+		if len(refs) > 0 {
+			if m, ok := refs[0].(map[string]any); ok {
+				ref = m["$ref"]
+			}
+		}
+		if ref != "#/components/schemas/Digest" {
+			t.Errorf("%s.%s does not reference Digest: %v", tc.schema, tc.field, refs)
 		}
 	}
 }

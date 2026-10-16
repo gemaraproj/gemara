@@ -99,6 +99,14 @@ components:
           allOf:
           - $ref: "#/components/schemas/Contact"
           description: contact is contact information for the actor
+        execution-environment:
+          allOf:
+          - $ref: "#/components/schemas/ExecutionEnvironment"
+          description: |-
+            execution-environment describes where this actor runs. When the actor is the
+            executor a Policy names on an AcceptedMethod, it states the environment the
+            policy accepts that method's results from; when the actor is a log's author, it
+            records the environment the log was produced in.
       type: object
       x-status: stable
     Adherence:
@@ -722,6 +730,11 @@ components:
       format: date-time
       type: string
       x-status: stable
+    Digest:
+      description: Digest is a cryptographic hash of some content in the form algorithm:encoded (e.g. sha256:abc123...)
+      pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
+      type: string
+      x-status: stable
     Dimensions:
       description: Dimensions specify the applicability criteria for a policy
       properties:
@@ -969,9 +982,9 @@ components:
             entry-id to identify a sub-location within that entry's output.
           type: string
         digest:
-          description: "digest is a cryptographic hash of the observed content at collection time; format: algorithm:encoded (e.g. sha256:abc123...)"
-          pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
-          type: string
+          allOf:
+          - $ref: "#/components/schemas/Digest"
+          description: digest is a cryptographic hash of the observed content at collection time
         entry-id:
           description: |-
             entry-id identifies a specific entry within a referenced Gemara artifact.
@@ -1010,6 +1023,30 @@ components:
         EvaluationLog, EnforcementLog) plus categories for common evidence forms.
       type: string
       x-status: experimental
+    ExecutionEnvironment:
+      description: |-
+        ExecutionEnvironment identifies the environment an actor runs in, so that a log's
+        author can be compared with the executor its policy accepts. It describes the
+        actor, never the resources the actor evaluates.
+      properties:
+        config-digest:
+          allOf:
+          - $ref: "#/components/schemas/Digest"
+          description: config-digest pins the configuration the actor runs with
+        digests:
+          description: |-
+            digests pins the content the actor runs, one entry per component such as an
+            image manifest or a plugin binary; the actor's uri and version name it
+          items:
+            $ref: "#/components/schemas/Digest"
+          minItems: 1
+          type: array
+        observation-vantage:
+          allOf:
+          - $ref: "#/components/schemas/ObservationVantage"
+          description: observation-vantage states where the actor observes its targets from
+      type: object
+      x-status: stable
     Exemption:
       description: Exemption describes a single scenario where the catalog is not applicable
       properties:
@@ -1602,6 +1639,13 @@ components:
           minItems: 1
           type: array
       type: object
+      x-status: stable
+    ObservationVantage:
+      description: "ObservationVantage states whether every input a result depends on was obtained at a\nvantage the evaluated resource could neither forge nor suppress (substrate: a network\nboundary, syscall supervision, a hypervisor's read of guest state) or rests on output\nthe resource produced or could influence (artifact). A result drawing on both is artifact.\nValues follow observation_vantage in https://github.com/probityai/agent-evidence-vocabulary"
+      enum:
+      - substrate
+      - artifact
+      type: string
       x-status: stable
     Parameter:
       description: Parameter defines a configurable parameter for assessment or enforcement activities.
