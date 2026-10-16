@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	cuelang.org/go v0.15.4
-	github.com/getkin/kin-openapi v0.147.0
+	github.com/getkin/kin-openapi v0.149.0
 	github.com/goccy/go-yaml v1.19.2
 	github.com/oasdiff/oasdiff v1.29.1
 	github.com/spf13/cobra v1.10.2
