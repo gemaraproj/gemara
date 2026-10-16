@@ -1,0 +1,72 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: "30 1 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write # Label, comment on, and close stale issues
+      pull-requests: write # Label, comment on, and close stale pull requests
+    steps:
+      - uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: audit
+
+      - id: stale
+        uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
+        with:
+          days-before-issue-stale: 60
+          days-before-issue-close: 14
+          days-before-pr-stale: 30
+          days-before-pr-close: 14
+          exempt-issue-labels: keep,security
+          exempt-pr-labels: keep,security
+          stale-issue-message: >-
+            This issue has had no activity for 60 days. It will close in 14 days
+            unless there is new activity. Add the `keep` label to exempt it.
+          stale-pr-message: >-
+            This pull request has had no activity for 30 days. It will close in
+            14 days unless there is new activity. Add the `keep` label to exempt
+            it.
+          close-issue-message: This issue closed after 74 days without activity.
+          close-pr-message: This pull request closed after 44 days without activity.
+
+      - name: Report stale and closed items
+        env:
+          GH_REPO: ${{ github.repository }}
+          STALED: ${{ steps.stale.outputs.staled-issues-prs }}
+          CLOSED: ${{ steps.stale.outputs.closed-issues-prs }}
+        run: |
+          rows=""
+          add_row() { # number, type, title, action
+            echo "#$1 ($2): $4: $3"
+            rows+="| [#$1](https://github.com/$GH_REPO/issues/$1) | $2 | ${3//|/\\|} | $4 |"$'\n'
+          }
+          items() { echo "${1:-[]}" | jq -r '.[] | [(if .pull_request then "PR" else "Issue" end), .number, .title] | @tsv'; }
+
+          while IFS=$'\t' read -r type number title; do
+            add_row "$number" "$type" "$title" "Marked stale"
+          done < <(items "$STALED")
+
+          while IFS=$'\t' read -r type number title; do
+            add_row "$number" "$type" "$title" "Closed"
+          done < <(items "$CLOSED")
+
+          {
+            echo "## Stale run"
+            echo
+            if [ -z "$rows" ]; then
+              echo "No issues or pull requests went stale or closed this run."
+            else
+              echo "| Item | Type | Title | Action |"
+              echo "| --- | --- | --- | --- |"
+              printf '%s' "$rows"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ -n "$rows" ] || echo "No issues or pull requests went stale or closed this run."
