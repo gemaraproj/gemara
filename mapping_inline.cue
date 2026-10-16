@@ -55,26 +55,3 @@ package gemara
 	// remarks is prose describing the mapping relationship
 	remarks?: string
 }
-
-// EvidenceMapping identifies the source from which evidence was collected.
-// reference-id names the MappingReference; coordinate or entry-id gives
-// specificity within it; digest pins the observed content at collection time.
-#EvidenceMapping: {
-	// reference-id ties this evidence to a mapping-reference in the artifact's metadata
-	"reference-id": string @go(ReferenceId)
-
-	// coordinate is the precise location within the stream identified by reference-id
-	// (e.g. an API path, file path, or JSON path expression). May be combined with
-	// entry-id to identify a sub-location within that entry's output.
-	coordinate?: string
-
-	// entry-id identifies a specific entry within a referenced Gemara artifact.
-	// May be combined with coordinate to identify a sub-location within that entry's output.
-	"entry-id"?: string @go(EntryId)
-
-	// digest is a cryptographic hash of the observed content at collection time; format: algorithm:encoded (e.g. sha256:abc123...)
-	digest?: =~"^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$"
-
-	// remarks is prose regarding this evidence reference
-	remarks?: string
-}

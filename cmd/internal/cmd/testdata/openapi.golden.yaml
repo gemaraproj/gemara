@@ -929,6 +929,16 @@ components:
         Evidence records what was cited to support an opinion for a specific activity:
         raw data for the evaluation layer, evaluation and enforcement artifacts for the audit layer.
         At least one of payload or source MUST be present; an entry with neither is semantically incomplete.
+        
+        A tool attaching evidence gives it an id, says when it was collected and what
+        it is, and either carries small content inline in payload or leaves the content
+        where it lives and describes it in source. Evidence that came from somewhere
+        names that source.
+        
+        A reviewer reading evidence can rely on the following. source.reference-id
+        resolves to a source declared in the log. Within a log, one id names one item.
+        Inline content carries no digest of its own, because it is as trustworthy as
+        the log around it.
       properties:
         collected-at:
           allOf:
@@ -938,7 +948,14 @@ components:
           description: description explains what this evidence represents
           type: string
         id:
-          description: id uniquely identifies this evidence
+          description: |-
+            id identifies this evidence item within its log, so that a citation can
+            point at it. Within one log an id names exactly one item. It appears once
+            in any one evidence list. The same item may appear again under its id in
+            another evidence list of the log, which is how one artifact supports
+            several results, but two different items may not share an id. It identifies
+            the record in the log; source.reference-id identifies where the evidence
+            came from.
           type: string
         payload:
           description: payload is the raw evidence data collected inline
@@ -955,7 +972,7 @@ components:
       - type
       - collected-at
       type: object
-      x-status: experimental
+      x-status: stable
     EvidenceMapping:
       description: |-
         EvidenceMapping identifies the source from which evidence was collected.
@@ -973,9 +990,7 @@ components:
           pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
           type: string
         entry-id:
-          description: |-
-            entry-id identifies a specific entry within a referenced Gemara artifact.
-            May be combined with coordinate to identify a sub-location within that entry's output.
+          description: "entry-id is the id of a catalog entry: a control or an assessment requirement.\nIt is used only when the evidence is a Gemara artifact, and selects what that\nartifact recorded for the entry. In an audit that is the findings an\nevaluation or enforcement log holds for that control or requirement. It\nnarrows where to look and never what to fetch: the whole artifact is\nretrieved, and entry-id is not an input to digest. May be combined with\ncoordinate."
           type: string
         reference-id:
           description: reference-id ties this evidence to a mapping-reference in the artifact's metadata
@@ -1009,7 +1024,7 @@ components:
         recommended values include artifact types already known to Gemara (e.g.
         EvaluationLog, EnforcementLog) plus categories for common evidence forms.
       type: string
-      x-status: experimental
+      x-status: stable
     Exemption:
       description: Exemption describes a single scenario where the catalog is not applicable
       properties:

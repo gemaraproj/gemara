@@ -4,6 +4,8 @@
 @gemara(status="stable")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // EvaluationLog contains the results of evaluating a set of Layer 2 controls.
@@ -13,6 +15,59 @@ package gemara
 	// result is the aggregate outcome across all evaluations in this log
 	result: #Result
 	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
+
+	// Within one evidence list an id appears once: listing an item twice in the
+	// same place says nothing. Every rule here skips an item with no id, which
+	// the schema already reports where the id is missing.
+	for i, evaluation in evaluations
+	for j, assessment in evaluation."assessment-logs"
+	if assessment.evidence != _|_
+	for p, first in assessment.evidence
+	for q, second in assessment.evidence
+	if p < q
+	if first.id != _|_
+	if second.id != _|_
+	if first.id == second.id {
+		_evidenceIDRepeatedInList: "\(i).\(j)": (first.id): error("evidence id \(first.id) appears more than once in one evidence list")
+	}
+
+	// Across the log an evidence id names exactly one evidence item. The same
+	// item may appear under its id in another assessment's evidence, which is how
+	// one artifact supports several results; two different items may not share
+	// an id.
+	_evidenceByID: {
+		for i, evaluation in evaluations
+		for j, assessment in evaluation."assessment-logs"
+		if assessment.evidence != _|_
+		for k, item in assessment.evidence
+		if item.id != _|_ {
+			(item.id): "\(i).\(j).\(k)": item
+		}
+	}
+	for id, occurrences in _evidenceByID
+	for p, first in occurrences
+	for q, second in occurrences
+	if p < q
+	if first != second {
+		_evidenceIDReuse: (id): error("evidence id \(id) names two different evidence items in this log")
+	}
+
+	// An evidence source names where the evidence came from, so its reference-id
+	// must be a mapping reference declared in this log's metadata. The check is an
+	// assignment rather than a condition, because an assignment tolerates an
+	// item that is incomplete and a condition fails on one, hiding what is missing.
+	// The declared ids are read by iterating metadata's fields, because selecting
+	// mapping-references directly fails as a whole when any one entry is invalid,
+	// and every sourced item would then be reported as undeclared.
+	_declaredReferenceIDs: [for k, refs in metadata if k == "mapping-references" for r in refs {r.id}]
+	for evaluation in evaluations
+	for assessment in evaluation."assessment-logs"
+	if assessment.evidence != _|_
+	for item in assessment.evidence
+	if item.id != _|_
+	if item.source != _|_ {
+		_evidenceSourceDeclared: "evidence \(item.id) names a source that is not declared in metadata.mapping-references": true & list.Contains(_declaredReferenceIDs, item.source."reference-id")
+	}
 }
 
 // ControlEvaluation contains the results of evaluating a single Layer 5 control.
