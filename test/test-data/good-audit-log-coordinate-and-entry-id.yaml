@@ -80,9 +80,9 @@ results:
         collected-at: "2025-08-22T16:02:00Z"
         source:
           reference-id: eval-log
-          entry-id: "assessment-do-01"
+          entry-id: OSPS-DO-01
           coordinate: "$.results[0].checks[2]"
-          digest: "sha256:c4d5e6f7a8b9012cdef34567890abcdef1234567890abcdef1234567890abc123"
+          digest: "sha256:c4d5e6f7a8b9012cdef34567890abcdef1234567890abcdef1234567890abc12"
     recommendations:
       - id: REC-01
         text: "Add user guide references to the Security Insights file and publish basic user documentation."

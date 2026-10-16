@@ -29,7 +29,11 @@ func (c *Converter) Post() error {
 	if err := collapseHelperSchemasTyped(doc); err != nil {
 		return err
 	}
-	docs, err := fieldDocs(c.value)
+	fieldDocumentation, err := fieldDocs(c.value)
+	if err != nil {
+		return err
+	}
+	definitionDocumentation, err := definitionDocs(c.value)
 	if err != nil {
 		return err
 	}
@@ -37,7 +41,8 @@ func (c *Converter) Post() error {
 	if err != nil {
 		return err
 	}
-	if err := restoreRefDescriptionsTyped(doc, docs, deprecations); err != nil {
+	restoreDefinitionDescriptionsTyped(doc, definitionDocumentation)
+	if err := restoreRefDescriptionsTyped(doc, fieldDocumentation, deprecations); err != nil {
 		return err
 	}
 	unprojectable, err := unprojectableFields(c.value)
@@ -456,6 +461,17 @@ func restoreRefDescriptionsTyped(doc *openapi3.T, docs, deprecations map[string]
 		}
 	}
 	return nil
+}
+
+// restoreDefinitionDescriptionsTyped restores top-level definition docs the
+// encoder omitted without replacing descriptions it already emitted.
+func restoreDefinitionDescriptionsTyped(doc *openapi3.T, docs map[string]string) {
+	for name, ref := range doc.Components.Schemas {
+		if ref == nil || ref.Value == nil || ref.Value.Description != "" {
+			continue
+		}
+		ref.Value.Description = docs[name]
+	}
 }
 
 func applyFormatsTyped(doc *openapi3.T, formats map[string]string) error {

@@ -109,6 +109,38 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
 
+		// Evidence rules ride on #Evidence and #EvidenceMapping, which both logs use.
+		// Their fixtures are evaluation logs so that reshaping the audit — which is
+		// happening under #496 — cannot quietly stop them testing evidence. Each
+		// negative fixture stands for one rule.
+		{"evidence that is addressed, carried, and reused by two assessments", "./test-data/good-evaluation-log-evidence.yaml", "#EvaluationLog", false, ""},
+		{"evidence that omits digest where its locator fixes the bytes or no claim is made", "./test-data/good-evaluation-log-evidence-digest-basis.yaml", "#EvaluationLog", false, ""},
+		{"sha256 digest of the wrong length", "./test-data/bad-evaluation-log-digest-sha256-length.yaml", "#EvaluationLog", true, "source.digest"},
+		{"download-url with no URI scheme", "./test-data/bad-evaluation-log-download-url-no-scheme.yaml", "#EvaluationLog", true, "\"download-url\""},
+		{"media-type with no subtype separator", "./test-data/bad-evaluation-log-media-type-malformed.yaml", "#EvaluationLog", true, "\"media-type\""},
+		{"inline payload with a source digest", "./test-data/bad-evaluation-log-evidence-payload-with-digest.yaml", "#EvaluationLog", true, "inline payload cannot also have a source digest"},
+		{"one evidence id naming different items in two assessments", "./test-data/bad-evaluation-log-evidence-id-reused.yaml", "#EvaluationLog", true, "names two different evidence items"},
+		{"one evidence item listed twice in one evidence list", "./test-data/bad-evaluation-log-evidence-id-repeated-in-list.yaml", "#EvaluationLog", true, "_uniqueEvidenceIDsInList"},
+		{"evidence source that is not declared", "./test-data/bad-evaluation-log-evidence-source-undeclared.yaml", "#EvaluationLog", true, "not declared in metadata.mapping-references"},
+		{"entry-id on evidence that is not a Gemara artifact", "./test-data/bad-evaluation-log-evidence-entry-id-not-artifact.yaml", "#EvaluationLog", true, "entry-id is only for evidence that is a Gemara artifact"},
+		{"evidence with no digest from a tag-only oci url", "./test-data/bad-evaluation-log-evidence-tag-only-oci-no-digest.yaml", "#EvaluationLog", true, "oci url not pinned by digest"},
+		{"evidence with no digest from a tag-only OCI url in uppercase", "./test-data/bad-evaluation-log-evidence-tag-only-oci-uppercase-scheme.yaml", "#EvaluationLog", true, "oci url not pinned by digest"},
+		{"evidence with no digest from a tag-only oci download-url", "./test-data/bad-evaluation-log-evidence-tag-only-oci-download-url.yaml", "#EvaluationLog", true, "oci url not pinned by digest"},
+
+		// Fragments are validated against one definition, so a case that needs only
+		// a digest or one evidence item does not carry a whole log. They live in
+		// their own folder because they are not Gemara documents.
+		{"sha512 digest", "./test-data/fragments/good-digest-sha512.yaml", "#Digest", false, ""},
+		{"blake3 digest", "./test-data/fragments/good-digest-blake3.yaml", "#Digest", false, ""},
+		{"digest with an unknown algorithm", "./test-data/fragments/good-digest-unknown-algorithm.yaml", "#Digest", false, ""},
+		{"digest with a misspelt algorithm passes as unknown", "./test-data/fragments/good-digest-misspelt-algorithm.yaml", "#Digest", false, ""},
+		{"digest with no algorithm separator", "./test-data/fragments/bad-digest-no-separator.yaml", "#Digest", true, ""},
+		{"sha256 digest in uppercase hex", "./test-data/fragments/bad-digest-sha256-uppercase-hex.yaml", "#Digest", true, ""},
+		{"sha512 digest with a sha256 length", "./test-data/fragments/bad-digest-sha512-length.yaml", "#Digest", true, ""},
+		{"blake3 digest one character short", "./test-data/fragments/bad-digest-blake3-length.yaml", "#Digest", true, ""},
+		{"inline payload with a source size", "./test-data/fragments/bad-evidence-payload-with-size.yaml", "#_EvidenceStrict", true, "inline payload cannot also have a source size"},
+		{"inline payload with a source download-url", "./test-data/fragments/bad-evidence-payload-with-download-url.yaml", "#_EvidenceStrict", true, "inline payload cannot also have a source download-url"},
+
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 
@@ -132,6 +164,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"audit log mapping reference url with no scheme", "./test-data/bad-audit-log-url-no-scheme.yaml", "#AuditLog", true, ""},
 		{"audit log mapping reference url with a non-alphabetic scheme", "./test-data/bad-audit-log-url-invalid-scheme.yaml", "#AuditLog", true, ""},
 		{"audit log target uri with no scheme", "./test-data/bad-audit-log-uri-no-scheme.yaml", "#AuditLog", true, ""},
+		{"audit log evidence with no digest from a tag-only oci url", "./test-data/bad-audit-log-evidence-tag-only-oci-no-digest.yaml", "#AuditLog", true, "oci url not pinned by digest"},
+		{"audit log evidence with no digest from a tag-only OCI url in uppercase", "./test-data/bad-audit-log-evidence-tag-only-oci-uppercase-scheme.yaml", "#AuditLog", true, "oci url not pinned by digest"},
 
 		// CapabilityCatalog — negative
 		{"capability with invalid group", "./test-data/bad-capability-invalid-group.yaml", "#CapabilityCatalog", true, ""},

@@ -4,6 +4,8 @@
 @gemara(status="stable")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // EvaluationLog contains the results of evaluating a set of Layer 2 controls.
@@ -13,6 +15,54 @@ package gemara
 	// result is the aggregate outcome across all evaluations in this log
 	result: #Result
 	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
+
+	// Within one evidence list an id appears once: listing an item twice in the
+	// same place says nothing.
+	for i, evaluation in evaluations
+	for j, assessment in evaluation."assessment-logs"
+	if assessment.evidence != _|_ {
+		_uniqueEvidenceIDsInList: "\(i).\(j)": {for k, item in assessment.evidence {(item.id): k}}
+	}
+
+	// Across the log an evidence id names exactly one evidence item. The same
+	// item may appear under its id in another assessment's evidence, which is how
+	// one artifact supports several results; two different items may not share
+	// an id.
+	_evidenceByID: {
+		for i, evaluation in evaluations
+		for j, assessment in evaluation."assessment-logs"
+		if assessment.evidence != _|_
+		for k, item in assessment.evidence {
+			(item.id): "\(i).\(j).\(k)": item
+		}
+	}
+	for id, occurrences in _evidenceByID
+	for p, first in occurrences
+	for q, second in occurrences
+	if p < q
+	if first != second {
+		_evidenceIDReuse: (id): error("evidence id \(id) names two different evidence items in this log")
+	}
+
+	// An evidence source names where the evidence came from, so its reference-id
+	// must be a mapping reference declared in this log's metadata. The check is an
+	// assignment rather than a condition, because an assignment tolerates an
+	// item that is incomplete and a condition fails on one, hiding what is missing.
+	_declaredReferenceIDs: [if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r.id}]
+	for evaluation in evaluations
+	for assessment in evaluation."assessment-logs"
+	if assessment.evidence != _|_
+	for item in assessment.evidence
+	if item.source != _|_ {
+		_evidenceSourceDeclared: "evidence \(item.id) names a source that is not declared in metadata.mapping-references": true & list.Contains(_declaredReferenceIDs, item.source."reference-id")
+	}
+
+	// Evidence that omits digest must be located by a url that fixes its bytes
+	// (see EvidenceMapping.digest).
+	_ociDigestCheck: _ociDigestRule & {
+		references: [if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r}]
+		evidence: [for e in _evidenceByID for item in e {item}]
+	}
 }
 
 // ControlEvaluation contains the results of evaluating a single Layer 5 control.
