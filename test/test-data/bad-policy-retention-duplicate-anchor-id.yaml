@@ -1,0 +1,76 @@
+metadata:
+  id: "records-policy-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Retention of audit evidence under the records schedules this organization adopts"
+  version: "1.0.0"
+  author:
+    id: records-team
+    name: "Records Management"
+    type: Human
+  mapping-references:
+    - id: sox-802
+      title: "Sarbanes-Oxley Act section 802"
+      version: "2002"
+      url: "https://www.congress.gov/bill/107th-congress/house-bill/3763"
+    - id: gdpr
+      title: "Regulation (EU) 2016/679"
+      version: "2016"
+      url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj"
+    - id: records-manual
+      title: "Records Management Manual"
+      version: "2026-01"
+      url: "https://records.example.com/manual"
+
+title: "Evidence Retention Policy"
+contacts:
+  responsible:
+    - name: "Records Manager"
+  accountable:
+    - name: "General Counsel"
+
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+
+imports:
+  guidance:
+    - reference-id: records-manual
+
+adherence:
+  retention-anchors:
+    - id: matter-closed
+      title: "Legal matter closed"
+      description: "Date counsel formally closes the matter. Determined by Legal; not derivable from any Gemara artifact."
+      authority:
+        reference-id: records-manual
+        entry-id: "4.2"
+    - id: matter-closed
+      title: "Matter closed, restated"
+      description: "A second declaration of the same anchor id."
+  retention-obligations:
+    - id: RET-AUDIT-7Y
+      kind: minimum
+      authority:
+        reference-id: sox-802
+        entry-id: "a"
+      anchor: collected-at
+      duration: P7Y
+      applies-to:
+        - OSPS-AC-01
+        - OSPS-AC-02
+    - id: RET-PII-MAX
+      kind: maximum
+      authority:
+        reference-id: gdpr
+        entry-id: "art-5-1-e"
+      anchor: collected-at
+      duration: P1Y
+    - id: RET-LIT-3Y
+      kind: minimum
+      authority:
+        reference-id: records-manual
+        entry-id: "6.1"
+      anchor: matter-closed
+      duration: P3Y
