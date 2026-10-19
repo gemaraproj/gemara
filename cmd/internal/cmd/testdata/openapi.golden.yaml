@@ -1379,6 +1379,9 @@ components:
     Log:
       description: Log describes a set of recorded entries from a measurement activity
       properties:
+        invocation:
+          description: "invocation names the orchestrated run that produced this log. Logs carrying\nthe same value came from the same run, and that is all it asserts: a match\ndoes not mean a shared target, a shared assessment scope, or membership in an\naggregation set. A consumer MUST NOT infer any of those from a matching value,\nor infer anything from two values that differ.\n\nThe orchestrator (a CI job, a scheduler, a compliance orchestrator) supplies\nthe value, and every tool it runs stamps it into its own log. The value MUST\nbe unique across orchestrators, not only within one, and SHOULD be a URI that\nnames the run, such as a CI run's URL. A log produced outside an orchestrated\nrun omits the field; absence asserts nothing.\n\nThe value is self-asserted by the producer, at the same trust level as author\nand target. Gemara does not verify it and cannot enforce its uniqueness, since\nit only has meaning across documents."
+          type: string
         metadata:
           allOf:
           - $ref: "#/components/schemas/Metadata"

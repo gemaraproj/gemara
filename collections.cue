@@ -45,6 +45,23 @@ package gemara
 
 	// target identifies the resource being evaluated
 	target: #Resource @go(Target)
+
+	// invocation names the orchestrated run that produced this log. Logs carrying
+	// the same value came from the same run, and that is all it asserts: a match
+	// does not mean a shared target, a shared assessment scope, or membership in an
+	// aggregation set. A consumer MUST NOT infer any of those from a matching value,
+	// or infer anything from two values that differ.
+	//
+	// The orchestrator (a CI job, a scheduler, a compliance orchestrator) supplies
+	// the value, and every tool it runs stamps it into its own log. The value MUST
+	// be unique across orchestrators, not only within one, and SHOULD be a URI that
+	// names the run, such as a CI run's URL. A log produced outside an orchestrated
+	// run omits the field; absence asserts nothing.
+	//
+	// The value is self-asserted by the producer, at the same trust level as author
+	// and target. Gemara does not verify it and cannot enforce its uniqueness, since
+	// it only has meaning across documents.
+	invocation?: string @go(Invocation) @yaml("invocation,omitempty")
 }
 
 // Lifecycle represents the lifecycle state of a guideline, control, or assessment requirement
