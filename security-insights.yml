@@ -1,6 +1,6 @@
 header:
   schema-version: 2.0.0
-  last-updated: '2026-01-15'
+  last-updated: '2026-10-18'
   last-reviewed: '2026-01-15'
   url: https://github.com/gemaraproj/gemara
   project-si-source: https://raw.githubusercontent.com/gemaraproj/.github/refs/heads/main/.github/security-insights.yml
@@ -12,8 +12,8 @@ repository:
   accepts-automated-change-request: true
   core-team:
     - name: Eddie Knight
-      affiliation: Sonatype
-      email: knight@linux.com
+      affiliation: Revanite
+      email: eknight@revanite.io
       primary: false
     - name: Jenn Power
       affiliation: Red Hat
