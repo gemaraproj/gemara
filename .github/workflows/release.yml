@@ -15,7 +15,7 @@ jobs:
       id-token: write       # Federate for artifact attestation
       attestations: write   # Generate build provenance attestations
       discussions: write    # Create release announcement discussion
-    uses: github-community-projects/ospo-reusable-workflows/.github/workflows/release.yaml@690dbbefe65f0c1d68c5211dd6ff997f533099b5 # v2.2.0
+    uses: github-community-projects/ospo-reusable-workflows/.github/workflows/release.yaml@3e055d5fc59e62419fb3103d96fd116ddcf89c8c # v2.3.0
     with:
       publish: true
       release-config-name: release-drafter.yml
@@ -82,7 +82,7 @@ jobs:
     permissions: {}
     steps:
       - name: Generate GitHub App token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         id: app-token
         with:
           client-id: ${{ secrets.GEMARA_AUTOMATION_CLIENT_ID }}
