@@ -60,6 +60,9 @@ controls:
     objective: |
       Ensure that all communications are encrypted in transit to protect data
       integrity and confidentiality.
+    remarks: |
+      Scoped to transport encryption only; at-rest encryption is covered by a
+      separate control.
     threats:
       - reference-id: CCC
         entries:
@@ -87,6 +90,7 @@ controls:
         text: |
           When a port is exposed for non-SSH network traffic, all traffic MUST
           include a TLS handshake AND be encrypted using TLS 1.2 or higher.
+        remarks: TLS 1.2 is the floor because some supported clients lack TLS 1.3.
         applicability:
           - tlp_clear
           - tlp_green
