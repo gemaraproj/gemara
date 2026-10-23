@@ -102,7 +102,7 @@ components:
       type: object
       x-status: stable
     Adherence:
-      description: Adherence defines evaluation methods, assessment plans, enforcement methods, and non-compliance notifications.
+      description: Adherence defines evaluation methods, assessment plans, enforcement methods, retention obligations, and non-compliance notifications.
       properties:
         assessment-plans:
           items:
@@ -135,6 +135,18 @@ components:
           type: array
         non-compliance:
           type: string
+        retention-anchors:
+          description: retention-anchors declares the events, other than collected-at, from which retention obligations measure their duration
+          items:
+            $ref: "#/components/schemas/RetentionAnchor"
+          minItems: 1
+          type: array
+        retention-obligations:
+          description: retention-obligations lists the preservation and disposal requirements this policy adopts from external records schedules
+          items:
+            $ref: "#/components/schemas/RetentionObligation"
+          minItems: 1
+          type: array
       type: object
       x-status: experimental
     ArtifactMapping:
@@ -551,6 +563,14 @@ components:
       - reference-id
       type: object
       x-status: experimental
+    CollectedAtAnchor:
+      description: |-
+        CollectedAtAnchor is the retention anchor Gemara resolves from the evidence itself,
+        so it is understood without a declaration and a policy may not redeclare it.
+      enum:
+      - collected-at
+      type: string
+      x-status: experimental
     ConfidenceLevel:
       description: ConfidenceLevel indicates the evaluator's confidence level in an assessment result.
       enum:
@@ -948,6 +968,10 @@ components:
           type: string
         payload:
           description: payload is the raw evidence data collected inline
+        retention:
+          allOf:
+          - $ref: "#/components/schemas/Retention"
+          description: retention records the obligations governing how long this evidence must be kept
         source:
           allOf:
           - $ref: "#/components/schemas/EvidenceMapping"
@@ -1831,6 +1855,128 @@ components:
       - Observation
       - Strength
       type: string
+      x-status: experimental
+    Retention:
+      description: |-
+        Retention records the resolved policy obligations governing referenced evidence.
+        Each effective instant is a snapshot for this evidence at publication.
+        Conflicting obligations are recorded side by side rather than reconciled by the producer.
+      properties:
+        obligations:
+          description: |-
+            obligations records each retention rule that applies to this evidence and
+            the instant it resolves to
+          items:
+            $ref: "#/components/schemas/RetentionObligationRef"
+          minItems: 1
+          type: array
+      required:
+      - obligations
+      type: object
+      x-status: experimental
+    RetentionAnchor:
+      description: |-
+        RetentionAnchor declares an event from which a retention duration is measured.
+        Policies declare the anchors they use rather than drawing on a fixed vocabulary,
+        because records schedules anchor to events Gemara cannot enumerate.
+      properties:
+        defined-by:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          description: defined-by cites the schedule or record that defines the event
+        description:
+          description: description explains when the event occurs and who determines it
+          type: string
+        id:
+          description: id is referenced by a retention obligation's anchor field; it must not be collected-at
+          type: string
+        title:
+          description: title names the anchoring event at a glance
+          type: string
+      required:
+      - id
+      - title
+      - description
+      type: object
+      x-status: experimental
+    RetentionDuration:
+      description: "RetentionDuration is a records-retention period: an ISO 8601 duration limited to date\ncomponents (e.g. P7Y, P18M, P1Y2M3W4D). Records schedules do not express retention below\nday precision, so a sub-day period such as PT1H is rejected. Because of that it is not a\ngeneral-purpose duration, and frequency or freshness windows need a type of their own."
+      pattern: "^P(?:\\d+Y(?:\\d+M)?(?:\\d+W)?(?:\\d+D)?|\\d+M(?:\\d+W)?(?:\\d+D)?|\\d+W(?:\\d+D)?|\\d+D)$"
+      type: string
+      x-status: experimental
+    RetentionKind:
+      description: RetentionKind states whether an obligation sets a floor or a ceiling.
+      enum:
+      - minimum
+      - maximum
+      type: string
+      x-status: experimental
+    RetentionObligation:
+      description: |-
+        RetentionObligation is a typed preservation or disposal requirement adopted
+        from an external records schedule.
+      properties:
+        anchor:
+          anyOf:
+          - enum:
+            - collected-at
+          - {}
+          description: |-
+            anchor names the event from which duration is measured. collected-at is
+            resolved by Gemara from the evidence itself; any other value must match a
+            declared retention-anchors id, and duration is then advisory, with the
+            citation's effective instant being authoritative.
+          type: string
+        applies-to:
+          description: applies-to optionally narrows this obligation to specific assessment requirements
+          items:
+            type: string
+          minItems: 1
+          type: array
+        duration:
+          allOf:
+          - $ref: "#/components/schemas/RetentionDuration"
+          description: |-
+            duration is the period measured from the anchor. Omit it when the obligation runs to
+            the anchor itself, such as keeping records until a support period ends, rather than
+            writing a zero period. A zero period stays valid, since a ceiling of P0D from
+            collected-at means the evidence is disposed of when it is collected. An obligation
+            measured from collected-at always states a duration.
+        id:
+          description: id allows evidence citations to reference this obligation
+          type: string
+        implements:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          description: |-
+            implements cites the entry in the external schedule that this obligation puts into
+            effect, in the sense the implements relationship has in a mapping document
+        kind:
+          allOf:
+          - $ref: "#/components/schemas/RetentionKind"
+          description: kind states whether this obligation sets a floor or a ceiling
+      required:
+      - id
+      - kind
+      - implements
+      - anchor
+      type: object
+      x-status: experimental
+    RetentionObligationRef:
+      description: RetentionObligationRef ties a resolved instant to the obligation that produced it.
+      properties:
+        effective:
+          allOf:
+          - $ref: "#/components/schemas/Datetime"
+          description: effective is the instant this obligation resolves to for this evidence
+        obligation:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          description: obligation references a retention-obligations entry in the governing Policy
+      required:
+      - obligation
+      - effective
+      type: object
       x-status: experimental
     Risk:
       description: A Risk represents the potential for negative impact resulting from one or more threats.
