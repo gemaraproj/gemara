@@ -1,14 +1,15 @@
 title: ATR Rule Categories to AI Agent Capabilities
 metadata:
   id: ATR-CAP-MAP-001
-  version: "0.1.0"
+  version: "0.2.0"
   type: MappingDocument
   gemara-version: "1.1.0"
   description: >
     Maps Agent Threat Rules (ATR) detection rule categories to the AI agent
     capabilities that create the opportunity for each category of threat.
-    The source artifact is the ATR rule corpus, grouped by its detection
-    categories; the target artifact is the AI Agent Capability Catalog.
+    The source artifact is the ATR attack vector catalog, whose vector ids
+    are the ATR detection categories; the target artifact is the AI Agent
+    Capability Catalog. ATR publishes both in one signed OCI bundle.
     Relationships are expressed as relates-to following the convention that
     external cross-references are refined by downstream consumers in their
     applicability context.
@@ -22,24 +23,24 @@ metadata:
       email: adam@agentthreatrule.org
       social: eeee2345
   mapping-references:
-    - id: ATR
-      title: Agent Threat Rules
-      version: "0.1.0"
-      url: "https://github.com/Agent-Threat-Rule/agent-threat-rules"
+    - id: ATR-AI-AGENT-VECTOR-CATALOG
+      title: AI Agent Attack Vector Catalog (ATR)
+      version: "1.0.0"
+      url: "oci://ghcr.io/agent-threat-rule/agent-threat-rules/gemara:1.0.0"
       description: >
-        Open MIT detection standard for AI agent threats. Rules are grouped
-        into detection categories under rules/; the reference-ids below are
-        those category identifiers.
+        One vector per ATR detection category. Each vector id is a category
+        id, which is also the directory under rules/ in the ATR repository.
     - id: ATR-AI-AGENT-CAPABILITY-CATALOG
       title: AI Agent Capability Catalog
-      version: "0.1.0"
+      version: "1.0.0"
+      url: "oci://ghcr.io/agent-threat-rule/agent-threat-rules/gemara:1.0.0"
       description: >
         Capabilities of AI agent systems that create the opportunity for the
         threats ATR detects.
 
 source-reference:
-  reference-id: ATR
-  entry-type: Control
+  reference-id: ATR-AI-AGENT-VECTOR-CATALOG
+  entry-type: Vector
 target-reference:
   reference-id: ATR-AI-AGENT-CAPABILITY-CATALOG
   entry-type: Capability
@@ -217,5 +218,4 @@ mappings:
           Behaviour-extraction rules detect systematic probing of decision
           boundaries and system prompts, which depends on the agent exposing
           model inference to callers. The remaining rules in this category
-          address the model supply chain, which this capability catalog does
-          not yet model.
+          address the model supply chain and are not mapped in this example.
