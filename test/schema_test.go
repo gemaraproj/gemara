@@ -83,6 +83,11 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
+		{"policy executor with an execution environment", "./test-data/good-policy-executor-environment.yaml", "#Policy", false, ""},
+
+		// Policy — negative (execution environment)
+		{"executor environment config digest without an algorithm", "./test-data/bad-policy-executor-environment-digest.yaml", "#Policy", true, `"config-digest": invalid value "60303ae2`},
+		{"executor environment with an undefined observation vantage", "./test-data/bad-policy-executor-environment-vantage.yaml", "#Policy", true, `executor."execution-environment"."observation-vantage": `},
 
 		// Policy — negative (retention)
 		{"retention obligation measured from an undeclared anchor", "./test-data/bad-policy-retention-undeclared-anchor.yaml", "#Policy", true, `does not satisfy list.Contains("employee-separation")`},
@@ -118,9 +123,11 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
+		{"log author recording its execution environment", "./test-data/good-evaluation-log-author-environment.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
+		{"execution environment on the evaluated target", "./test-data/bad-evaluation-log-target-environment.yaml", "#EvaluationLog", true, `target."execution-environment": field not allowed`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},

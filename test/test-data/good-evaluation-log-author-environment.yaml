@@ -1,0 +1,73 @@
+metadata:
+  id: EVAL-AUTHOR-ENVIRONMENT
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: Evaluation log whose author records the environment it ran in
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+    version: 1.5.0
+    uri: oci://registry.example.com/pvtr-github-repo:1.5.0
+    execution-environment:
+      digests:
+      - sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
+      observation-vantage: artifact
+result: Needs Review
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Needs Review
+  message: Assessments did not execute
+  assessment-logs:
+  # Not Run: no start time is recorded because the procedure never began
+  - requirement:
+      entry-id: OSPS-AC-01.01
+    description: Verify that multi-factor authentication is required.
+    result: Not Run
+    message: Halted before execution because a prior assessment failed
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
+    steps-executed: 0
+  # Unknown: the outcome could not be determined, so no timing is asserted
+  - requirement:
+      entry-id: OSPS-AC-01.02
+    description: Verify that administrative access is restricted.
+    result: Unknown
+    message: Evaluator could not reach the target
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.adminAccess
+  # Not Applicable: the procedure was skipped as out of scope
+  - requirement:
+      entry-id: OSPS-AC-01.03
+    description: Verify that branch protection is enabled on release branches.
+    result: Not Applicable
+    message: Project has no release branches
+    applicability:
+    - Maturity Level 2
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.branchProtection
+  # Passed: an executed assessment still records its start time
+  - requirement:
+      entry-id: OSPS-AC-01.04
+    description: Verify that the default branch requires review.
+    result: Passed
+    message: Reviews are required on the default branch
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.reviewRequired
+    steps-executed: 1
+    start: 2025-08-22T16:02:00.000000000Z
+    end: 2025-08-22T16:02:00.000003708Z
