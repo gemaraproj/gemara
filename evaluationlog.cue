@@ -20,19 +20,22 @@ import "strings"
 	// are never published as a field's API description.
 
 	// An AssessmentLog is one method's execution against one requirement under one
-	// plan, so (this control evaluation, requirement, plan-id, method-id) is its key.
-	// This is what lets a log hold several results for one requirement — a plan
-	// requiring an automated probe and a manual review produces two — and what stops
-	// it holding two that nothing tells apart. An assessment citing no plan has no
-	// method to select, so the requirement alone must be unique within its control
-	// evaluation: attribution by executor does not make two such records distinct.
+	// plan, so (this control evaluation, requirement, plan, method-id) is its key,
+	// where the plan is its reference-id and entry-id together: two policies may each
+	// have a plan with the same entry-id. This is what lets a log hold several
+	// results for one requirement — a plan requiring an automated probe and a manual
+	// review produces two — and what stops it holding two that nothing tells apart.
+	// An assessment citing no plan is told apart by its method-id alone, so two
+	// plan-less records of one requirement need different method-ids; attribution by
+	// executor does not make them distinct.
 
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
 			for j, a in e."assessment-logs" {
+				let _planRef = [if a.plan != _|_ {"present:\(a.plan."reference-id")"}, "absent"][0]
 				let _plan = [if a.plan != _|_ {"present:\(a.plan."entry-id")"}, "absent"][0]
 				let _method = [if a["execution-context"] != _|_ if a["execution-context"]["method-id"] != _|_ {"present:\(a["execution-context"]."method-id")"}, "absent"][0]
-				"\(a.requirement."entry-id")": "\(_plan)": "\(_method)": j
+				"\(a.requirement."entry-id")": "\(_planRef)": "\(_plan)": "\(_method)": j
 			}
 		}
 	}
@@ -65,7 +68,7 @@ import "strings"
 }
 
 // ExecutionContext records how an assessment was configured: which method it
-// ran, and the values it ran with. What the assessment is, its result, timing, steps,
+// ran. What the assessment is, its result, timing, steps,
 // and the executor that produced it, stays at the top level of #AssessmentLog.
 // Who performed the execution is executor, not part of its configuration. It is one
 // field rather than several so that a stable type does not gain a permanent

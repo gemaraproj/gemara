@@ -78,6 +78,28 @@ func TestAssessmentIdentity(t *testing.T) {
 				"    execution-context:\n      method-id: EM-AC-01-review\n", "",
 			},
 		},
+		{
+			name:         "cited plan with an empty execution context",
+			replacements: []string{"execution-context:\n      method-id: EM-AC-01-probe", "execution-context: {}"},
+			wantErr:      true,
+			errContains:  `"execution-context"."method-id"`,
+		},
+		{
+			name: "two plan-less records with no method",
+			replacements: []string{
+				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe\n", "",
+				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review\n", "",
+			},
+			wantErr:     true,
+			errContains: "_uniqueAssessments",
+		},
+		{
+			name: "same plan id and method under two policies",
+			replacements: []string{
+				"reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review",
+				"reference-id: other-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
