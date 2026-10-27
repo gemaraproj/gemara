@@ -1,5 +1,6 @@
-# config-digest is the sha256 of the scanner config text
-# "catalog: osps-baseline-2025-10\ntoken-scope: repo:read\n".
+# The plan pins what a policy author knows before any run: the scanner image digest and
+# the parameters whose accepted values do not change per target. org and repo are
+# parameters with no accepted-values, so each target's value is recorded by the log.
 metadata:
   id: "security-policy-executor-pvtr"
   type: Policy
@@ -80,23 +81,43 @@ imports:
     - reference-id: "ISO-27001"
 
 adherence:
+  assessment-plans:
+    - id: "AP-OSPS-BASELINE"
+      requirement-id: "OSPS-B"
+      frequency: "Per release"
+      evaluation-methods:
+        - id: "EV-PVTR-01"
+          type: "Behavioral"
+          mode: "Automated"
+          required: true
+          description: "OpenSSF Baseline checks of the project repository by the pvtr scanner"
+          executor:
+            id: pvtr
+            name: PVTR
+            type: Software
+            version: "1.5.0"
+            uri: "oci://registry.example.com/pvtr-github-repo:1.5.0"
+            execution-environment:
+              digests:
+                - "sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351"
+      parameters:
+        - id: "catalog"
+          label: "Baseline catalog"
+          description: "Version of the OSPS Baseline catalog the scanner evaluates against"
+          accepted-values:
+            - "osps-baseline-2025-10"
+        - id: "token-scope"
+          label: "Token scope"
+          description: "Scope of the token the scanner reads GitHub with"
+          accepted-values:
+            - "repo:read"
+        - id: "org"
+          label: "Organisation"
+          description: "GitHub organisation scanned; differs for each target"
+        - id: "repo"
+          label: "Repository"
+          description: "GitHub repository scanned; differs for each target"
   evaluation-methods:
-    - id: "EV-PVTR-01"
-      type: "Behavioral"
-      mode: "Automated"
-      required: true
-      description: "OpenSSF Baseline checks of the project repository by the pvtr scanner"
-      executor:
-        id: pvtr
-        name: PVTR
-        type: Software
-        version: "1.5.0"
-        uri: "oci://registry.example.com/pvtr-github-repo:1.5.0"
-        execution-environment:
-          digests:
-            - "sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351"
-          config-digest: "sha256:d83ada67c663f10fa9d8b1af8fdd251a2d9e0d0ae9d2d70617d94bc0e1b74fe9"
-          observation-vantage: artifact
     - id: "EV-MANUAL-01"
       type: "Behavioral"
       mode: "Manual"

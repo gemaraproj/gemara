@@ -1,11 +1,9 @@
-# config-digest is the sha256 of the scanner config text
-# "catalog: osps-baseline-2025-10\ntoken-scope: repo:read\n".
 metadata:
   id: EVAL-AUTHOR-ENVIRONMENT-ACCEPTED
   type: EvaluationLog
   gemara-version: "1.1.0"
   version: 1.0.0
-  description: Evaluation log produced in the environment its policy accepts
+  description: Evaluation log produced as its policy accepts
   author:
     id: pvtr
     name: PVTR
@@ -15,9 +13,14 @@ metadata:
     execution-environment:
       digests:
       - sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
-      config-digest: sha256:d83ada67c663f10fa9d8b1af8fdd251a2d9e0d0ae9d2d70617d94bc0e1b74fe9
-      observation-vantage: artifact
-result: Needs Review
+  mapping-references:
+  - id: OSPS-B
+    title: Open Source Project Security Baseline
+    version: "2025.1"
+  - id: security-policy-executor-pvtr
+    title: Information Security Policy
+    version: "2.1.0"
+result: Passed
 target:
   id: github-repo
   name: GitHub Repository
@@ -27,50 +30,78 @@ evaluations:
   control:
     reference-id: OSPS-B
     entry-id: OSPS-AC-01
-  result: Needs Review
-  message: Assessments did not execute
+  result: Passed
+  message: Multi-factor authentication is required
   assessment-logs:
-  # Not Run: no start time is recorded because the procedure never began
+  # Read from the platform's own report of its settings, so the evaluated project could
+  # not have written it: substrate.
   - requirement:
       entry-id: OSPS-AC-01.01
+    plan:
+      reference-id: security-policy-executor-pvtr
+      entry-id: AP-OSPS-BASELINE
+    execution-context:
+      method-id: EV-PVTR-01
+      parameter-inputs:
+        catalog: osps-baseline-2025-10
+        token-scope: repo:read
+        org: example-org
+        repo: service-a
     description: Verify that multi-factor authentication is required.
-    result: Not Run
-    message: Halted before execution because a prior assessment failed
+    result: Passed
+    message: The organisation requires two-factor authentication
     applicability:
     - Maturity Level 1
     steps:
     - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
-    steps-executed: 0
-  # Unknown: the outcome could not be determined, so no timing is asserted
-  - requirement:
-      entry-id: OSPS-AC-01.02
-    description: Verify that administrative access is restricted.
-    result: Unknown
-    message: Evaluator could not reach the target
-    applicability:
-    - Maturity Level 1
-    steps:
-    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.adminAccess
-  # Not Applicable: the procedure was skipped as out of scope
-  - requirement:
-      entry-id: OSPS-AC-01.03
-    description: Verify that branch protection is enabled on release branches.
-    result: Not Applicable
-    message: Project has no release branches
-    applicability:
-    - Maturity Level 2
-    steps:
-    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.branchProtection
-  # Passed: an executed assessment still records its start time
-  - requirement:
-      entry-id: OSPS-AC-01.04
-    description: Verify that the default branch requires review.
-    result: Passed
-    message: Reviews are required on the default branch
-    applicability:
-    - Maturity Level 1
-    steps:
-    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.reviewRequired
     steps-executed: 1
     start: 2025-08-22T16:02:00.000000000Z
     end: 2025-08-22T16:02:00.000003708Z
+    evidence:
+    - id: ev-org-settings
+      type: PlatformSettings
+      collected-at: 2025-08-22T16:02:00.000001000Z
+      description: GitHub API report of the organisation's authentication settings
+      observation-vantage: substrate
+      payload:
+        two_factor_requirement_enabled: true
+- name: documentation
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-QA-04
+  result: Passed
+  message: Subproject codebases are listed
+  assessment-logs:
+  # Read from the Security Insights file the project writes about itself, so the project
+  # could have written anything there: artifact.
+  - requirement:
+      entry-id: OSPS-QA-04.01
+    plan:
+      reference-id: security-policy-executor-pvtr
+      entry-id: AP-OSPS-BASELINE
+    execution-context:
+      method-id: EV-PVTR-01
+      parameter-inputs:
+        catalog: osps-baseline-2025-10
+        token-scope: repo:read
+        org: example-org
+        repo: service-a
+    description: Verify that the project documentation lists its subproject codebases.
+    result: Passed
+    message: Security Insights lists the subproject codebases
+    applicability:
+    - Maturity Level 2
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/documentation.subprojects
+    steps-executed: 1
+    start: 2025-08-22T16:02:01.000000000Z
+    end: 2025-08-22T16:02:01.000003708Z
+    evidence:
+    - id: ev-security-insights
+      type: SecurityInsights
+      collected-at: 2025-08-22T16:02:01.000001000Z
+      description: security-insights.yml as the project wrote it
+      observation-vantage: artifact
+      payload:
+        path: security-insights.yml
+        repository: example-org/service-a

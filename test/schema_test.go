@@ -186,8 +186,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"policy executor with an execution environment", "./test-data/good-policy-executor-environment.yaml", "#Policy", false, ""},
 
 		// Policy — negative (execution environment)
-		{"executor environment config digest without an algorithm", "./test-data/bad-policy-executor-environment-digest.yaml", "#Policy", true, `"config-digest": invalid value "60303ae2`},
-		{"executor environment with an undefined observation vantage", "./test-data/bad-policy-executor-environment-vantage.yaml", "#Policy", true, `executor."execution-environment"."observation-vantage": `},
+		{"executor environment digest without an algorithm", "./test-data/bad-policy-executor-environment-digest.yaml", "#Policy", true, `digests.0: invalid value "9f86d081`},
+		{"observation vantage on the executor instead of the evidence", "./test-data/bad-policy-executor-environment-vantage.yaml", "#Policy", true, `"observation-vantage": field not allowed`},
 
 		// Policy — negative (retention)
 		{"retention obligation measured from an undeclared anchor", "./test-data/bad-policy-retention-undeclared-anchor.yaml", "#Policy", true, `does not satisfy list.Contains("employee-separation")`},
@@ -223,11 +223,13 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
-		{"log author recording its execution environment", "./test-data/good-evaluation-log-author-environment.yaml", "#EvaluationLog", false, ""},
+		{"log author recording its execution environment, parameter inputs and per-evidence vantage", "./test-data/good-evaluation-log-author-environment-accepted.yaml", "#EvaluationLog", false, ""},
 		{"assessments naming their executors and execution context", "./test-data/good-evaluation-log-execution.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
+		{"evidence naming an undefined observation vantage", "./test-data/bad-evaluation-log-evidence-vantage.yaml", "#EvaluationLog", true, `"observation-vantage"`},
+		{"parameter input that is not a string", "./test-data/bad-evaluation-log-parameter-input-type.yaml", "#EvaluationLog", true, `"parameter-inputs"."token-scope"`},
 		{"execution environment on the evaluated target", "./test-data/bad-evaluation-log-target-environment.yaml", "#EvaluationLog", true, `target."execution-environment": field not allowed`},
 		{"two assessments nothing tells apart", "./test-data/bad-evaluation-log-duplicate-assessment.yaml", "#EvaluationLog", true, "_uniqueAssessments"},
 		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".\"method-id\""},

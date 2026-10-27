@@ -92,9 +92,7 @@ adherence:
         uri: "oci://registry.example.com/scanners/cloud-compliance:2.4.1"
         execution-environment:
           digests:
-            - "sha256:9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
-          config-digest: "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752"
-          observation-vantage: substrate
+            - "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
     - id: "EV-MANUAL-01"
       type: "Behavioral"
       mode: "Manual"
