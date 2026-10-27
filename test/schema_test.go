@@ -18,6 +18,106 @@ import (
 var schemaValue cue.Value
 var schemaCtx *cue.Context
 
+func TestAssessmentIdentity(t *testing.T) {
+	data, err := os.ReadFile("./test-data/good-evaluation-log-execution.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	def := schemaValue.LookupPath(cue.ParsePath("#EvaluationLog"))
+	tests := []struct {
+		name         string
+		replacements []string
+		wantErr      bool
+		errContains  string
+	}{
+		{
+			name:         "cited plan with empty method",
+			replacements: []string{"method-id: EM-AC-01-probe", `method-id: ""`},
+			wantErr:      true,
+			errContains:  `"execution-context"."method-id"`,
+		},
+		{
+			name:         "fallback with empty method",
+			replacements: []string{"method-id: EM-BASELINE-SCAN", `method-id: ""`},
+			wantErr:      true,
+			errContains:  `"execution-context"."method-id"`,
+		},
+		{
+			name: "distinct plans and methods containing slashes",
+			replacements: []string{
+				"entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe",
+				"entry-id: AP/AC-01\n    execution-context:\n      method-id: X",
+				"entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review",
+				"entry-id: AP\n    execution-context:\n      method-id: AC-01/X",
+			},
+		},
+		{
+			name: "duplicate identities containing slashes",
+			replacements: []string{
+				"entry-id: AP-AC-01", "entry-id: AP/AC-01",
+				"method-id: EM-AC-01-probe", "method-id: AC-01/X",
+				"method-id: EM-AC-01-review", "method-id: AC-01/X",
+			},
+			wantErr:     true,
+			errContains: "_uniqueAssessments",
+		},
+		{
+			name: "literal hyphen plan differs from omitted plan",
+			replacements: []string{
+				"entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe",
+				"entry-id: '-'\n    execution-context:\n      method-id: X",
+				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review",
+				"    execution-context:\n      method-id: X",
+			},
+		},
+		{
+			name: "literal hyphen method differs from omitted method",
+			replacements: []string{
+				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n", "",
+				"method-id: EM-AC-01-probe", "method-id: '-'",
+				"    execution-context:\n      method-id: EM-AC-01-review\n", "",
+			},
+		},
+		{
+			name:         "cited plan with an empty execution context",
+			replacements: []string{"execution-context:\n      method-id: EM-AC-01-probe", "execution-context: {}"},
+			wantErr:      true,
+			errContains:  `"execution-context"."method-id"`,
+		},
+		{
+			name: "two plan-less records with no method",
+			replacements: []string{
+				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe\n", "",
+				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review\n", "",
+			},
+			wantErr:     true,
+			errContains: "_uniqueAssessments",
+		},
+		{
+			name: "same plan id and method under two policies",
+			replacements: []string{
+				"reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review",
+				"reference-id: other-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := strings.NewReplacer(tt.replacements...).Replace(string(data))
+			validationErr := cueyaml.Validate([]byte(input), def)
+			if tt.wantErr && validationErr == nil {
+				t.Fatal("expected validation error, got nil")
+			}
+			if !tt.wantErr && validationErr != nil {
+				t.Fatalf("unexpected validation error: %v", validationErr)
+			}
+			if validationErr != nil && !strings.Contains(validationErr.Error(), tt.errContains) {
+				t.Errorf("error %q does not contain %q", validationErr.Error(), tt.errContains)
+			}
+		})
+	}
+}
+
 func TestMain(m *testing.M) {
 	schemaCtx = cuecontext.New()
 	ctx := schemaCtx
@@ -124,10 +224,13 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
 		{"log author recording its execution environment", "./test-data/good-evaluation-log-author-environment.yaml", "#EvaluationLog", false, ""},
+		{"assessments naming their executors and execution context", "./test-data/good-evaluation-log-execution.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 		{"execution environment on the evaluated target", "./test-data/bad-evaluation-log-target-environment.yaml", "#EvaluationLog", true, `target."execution-environment": field not allowed`},
+		{"two assessments nothing tells apart", "./test-data/bad-evaluation-log-duplicate-assessment.yaml", "#EvaluationLog", true, "_uniqueAssessments"},
+		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".\"method-id\""},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
