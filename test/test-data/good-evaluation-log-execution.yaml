@@ -40,7 +40,9 @@ evaluations:
       reference-id: security-policy
       entry-id: AP-AC-01
     execution-context:
-      method-id: EM-AC-01-probe
+      method:
+        reference-id: security-policy
+        entry-id: EM-AC-01-probe
     executor:
       id: pvtr-github-repo
       name: PVTR GitHub Repository Probe
@@ -63,7 +65,9 @@ evaluations:
       reference-id: security-policy
       entry-id: AP-AC-01
     execution-context:
-      method-id: EM-AC-01-review
+      method:
+        reference-id: security-policy
+        entry-id: EM-AC-01-review
     executor:
       id: platform-security
       name: Platform Security Review
@@ -90,7 +94,9 @@ evaluations:
       reference-id: OSPS-B
       entry-id: OSPS-AC-01.04
     execution-context:
-      method-id: EM-BASELINE-SCAN
+      method:
+        reference-id: security-policy
+        entry-id: EM-BASELINE-SCAN
     description: Verify that the default branch requires review.
     result: Passed
     message: Reviews are required on the default branch

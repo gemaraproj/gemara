@@ -63,15 +63,18 @@ func TestExecutionContextRejectsEmptyMethod(t *testing.T) {
 		t.Fatal(err)
 	}
 	schema := doc.Components.Schemas["ExecutionContext"].Value
-	if err := schema.VisitJSON(map[string]any{"method-id": ""}); err == nil {
-		t.Error("expected empty method-id to be rejected")
+	// The method's EntryMapping is a $ref VisitJSON cannot resolve from here, so check
+	// the entry-id constraint the schema layers on top of it.
+	entryID := schema.Properties["method"].Value.Properties["entry-id"].Value
+	if err := entryID.VisitJSON(""); err == nil {
+		t.Error("expected empty method entry-id to be rejected")
 	}
-	for _, method := range []string{"X", "AC-01/X", "é", "\n"} {
-		if err := schema.VisitJSON(map[string]any{"method-id": method}); err != nil {
-			t.Errorf("non-empty method-id %q was rejected: %v", method, err)
+	for _, entry := range []string{"X", "AC-01/X", "é", "\n"} {
+		if err := entryID.VisitJSON(entry); err != nil {
+			t.Errorf("non-empty method entry-id %q was rejected: %v", entry, err)
 		}
 	}
 	if err := schema.VisitJSON(map[string]any{}); err != nil {
-		t.Errorf("omitted optional method-id was rejected: %v", err)
+		t.Errorf("omitted optional method was rejected: %v", err)
 	}
 }
