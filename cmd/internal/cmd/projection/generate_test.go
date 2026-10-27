@@ -52,3 +52,26 @@ func TestGenerateRawHasNoDefaultsOrAdditionalItems(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestExecutionContextRejectsEmptyMethod(t *testing.T) {
+	v, _, _, err := loadPrepared("../../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := generateRaw(v, "Gemara", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	schema := doc.Components.Schemas["ExecutionContext"].Value
+	if err := schema.VisitJSON(map[string]any{"method-id": ""}); err == nil {
+		t.Error("expected empty method-id to be rejected")
+	}
+	for _, method := range []string{"X", "AC-01/X", "é", "\n"} {
+		if err := schema.VisitJSON(map[string]any{"method-id": method}); err != nil {
+			t.Errorf("non-empty method-id %q was rejected: %v", method, err)
+		}
+	}
+	if err := schema.VisitJSON(map[string]any{}); err != nil {
+		t.Errorf("omitted optional method-id was rejected: %v", err)
+	}
+}

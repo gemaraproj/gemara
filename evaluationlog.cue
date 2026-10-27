@@ -4,6 +4,8 @@
 @gemara(status="stable")
 package gemara
 
+import "strings"
+
 @go(gemara)
 
 // EvaluationLog contains the results of evaluating a set of Layer 2 controls.
@@ -13,6 +15,31 @@ package gemara
 	// result is the aggregate outcome across all evaluations in this log
 	result: #Result
 	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
+	// ---- Validation --------------------------------------------------------
+	// Comments in validation sections stay detached (blank line after), so they
+	// are never published as a field's API description.
+
+	// An AssessmentLog is one method's execution against one requirement under one
+	// plan, so (this control evaluation, requirement, plan, method-id) is its key,
+	// where the plan is its reference-id and entry-id together: two policies may each
+	// have a plan with the same entry-id. This is what lets a log hold several
+	// results for one requirement — a plan requiring an automated probe and a manual
+	// review produces two — and what stops it holding two that nothing tells apart.
+	// An assessment citing no plan is told apart by its method-id alone, so two
+	// plan-less records of one requirement need different method-ids; attribution by
+	// executor does not make them distinct.
+
+	for i, e in evaluations {
+		_uniqueAssessments: "\(i)": {
+			for j, a in e."assessment-logs" {
+				let _planRef = [if a.plan != _|_ {"present:\(a.plan."reference-id")"}, "absent"][0]
+				let _plan = [if a.plan != _|_ {"present:\(a.plan."entry-id")"}, "absent"][0]
+				let _method = [if a["execution-context"] != _|_ if a["execution-context"]["method-id"] != _|_ {"present:\(a["execution-context"]."method-id")"}, "absent"][0]
+				"\(a.requirement."entry-id")": "\(_planRef)": "\(_plan)": "\(_method)": j
+			}
+		}
+	}
+
 }
 
 // ControlEvaluation contains the results of evaluating a single Layer 5 control.
@@ -41,12 +68,41 @@ package gemara
 	}
 }
 
+// ExecutionContext records how an assessment was configured: which method it
+// ran and the value each plan parameter was run with. What the assessment is, its result, timing, steps,
+// and the executor that produced it, stays at the top level of #AssessmentLog.
+// Who performed the execution is executor, not part of its configuration. It is one
+// field rather than several so that a stable type does not gain a permanent
+// top-level field per configuration input; further inputs land here additively, where
+// a top-level field could never be moved.
+//
+#ExecutionContext: {
+	// method-id names the accepted method this assessment executed, where the policy
+	// prescribed one: a method of the cited plan, or one of the policy's own
+	// evaluation-methods, which are the fallback where no plan is bound.
+	"method-id"?: string & strings.MinRunes(1) @go(MethodId)
+
+	// parameter-inputs records the value each plan parameter (#Parameter id) was run with.
+	// A policy pins a parameter by listing its accepted-values, and leaves free the
+	// parameters whose value differs per target, such as the organisation or repository
+	// scanned, so a log and its plan are compared on these values rather than on a hash
+	// of the whole configuration.
+	"parameter-inputs"?: {[string & strings.MinRunes(1)]: string} @go(ParameterInputs,type=map[string]string)
+}
+
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
 #AssessmentLog: {
 	// Requirement should map to the assessment requirement for this assessment.
 	requirement: #EntryMapping
 	// Plan maps to the policy assessment plan being executed.
 	plan?: #EntryMapping @go(Plan,optional=nillable)
+	// execution-context records how this assessment was configured. A cited plan obliges a
+	// method: the plan lists the methods it accepts, so a record of running under it
+	// has to say which one ran.
+	"execution-context"?: #ExecutionContext @go(ExecutionContext,optional=nillable)
+	// executor is the actor that performed this assessment: the tool instance,
+	// service or person that produced this result when it is not the author of the log.
+	executor?: #Actor @go(Executor,optional=nillable)
 	// Description provides a summary of the assessment procedure.
 	description: string
 	// Result is the overall outcome of the assessment procedure, matching the result of the last step that was run.
@@ -72,6 +128,23 @@ package gemara
 	// Evidence records the raw data cited to support this assessment's opinion.
 	evidence?: [#Evidence, ...#Evidence] @go(Evidence)
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
+
+	// ---- Validation --------------------------------------------------------
+	// Comments in validation sections stay detached (blank line after), so they
+	// are never published as a field's API description.
+
+	// A cited plan obliges a method: the plan lists the methods it accepts, and a
+	// record of running under it that does not say which one ran leaves two results
+	// against the same plan indistinguishable. Stated on the field it requires —
+	// forbidding a field instead puts bottom in that field's type, and the Go
+	// projection degrades it to an unusable `any`.
+	//
+	// There is no rule the other way. Settings without a plan is the ordinary case
+	// for a producer running the policy's fallback method, or for one that knows of
+	// no policy at all.
+
+	if plan != _|_ {"execution-context": "method-id": string}
+
 }
 
 #AssessmentStep: string @go(-)
