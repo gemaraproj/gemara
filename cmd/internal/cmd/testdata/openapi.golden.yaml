@@ -951,6 +951,12 @@ components:
           allOf:
           - $ref: "#/components/schemas/Datetime"
           description: collected-at is the timestamp when the evidence was gathered
+        collector:
+          allOf:
+          - $ref: "#/components/schemas/Actor"
+          description: |-
+            collector identifies the actor that gathered this evidence.
+            When absent, consumers may fall back to the enclosing artifact's metadata.author.
         description:
           description: description explains what this evidence represents
           type: string
