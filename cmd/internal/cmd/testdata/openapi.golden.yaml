@@ -332,6 +332,9 @@ components:
         recommendation:
           description: recommendation provides readers with non-binding suggestions to aid in evaluation or enforcement of the requirement
           type: string
+        remarks:
+          description: remarks is prose recording context or reasoning for content maintainers; it is not intended to be presented to consumers
+          type: string
         replaced-by:
           allOf:
           - $ref: "#/components/schemas/EntryMapping"
@@ -646,6 +649,9 @@ components:
           type: string
         objective:
           description: objective is a unified statement of intent, which may encompass multiple situationally applicable requirements
+          type: string
+        remarks:
+          description: remarks is prose recording context or reasoning for content maintainers; it is not intended to be presented to consumers
           type: string
         replaced-by:
           allOf:
