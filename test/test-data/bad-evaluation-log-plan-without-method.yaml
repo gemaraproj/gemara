@@ -59,7 +59,9 @@ evaluations:
       reference-id: security-policy
       entry-id: AP-AC-01
     execution-context:
-      method-id: EM-AC-01-review
+      method:
+        reference-id: security-policy
+        entry-id: EM-AC-01-review
     executor:
       id: platform-security
       name: Platform Security Review

@@ -248,7 +248,7 @@ components:
         execution-context:
           allOf:
           - $ref: "#/components/schemas/ExecutionContext"
-          description: "execution-context records how this assessment was configured. A cited plan obliges a\nmethod: the plan lists the methods it accepts, so a record of running under it\nhas to say which one ran."
+          description: "execution-context records how this assessment was configured. A cited plan obliges a\nmethod of that plan: it lists the methods it accepts, so a record of running under\nit has to say which one ran."
         executor:
           allOf:
           - $ref: "#/components/schemas/Actor"
@@ -1065,12 +1065,23 @@ components:
       type: string
       x-status: experimental
     ExecutionContext:
-      description: "ExecutionContext records how an assessment was configured: which method it\nran. What the assessment is, its result, timing, steps,\nand the executor that produced it, stays at the top level of #AssessmentLog.\nWho performed the execution is executor, not part of its configuration. It is one\nfield rather than several so that a stable type does not gain a permanent\ntop-level field per configuration input; further inputs land here additively, where\na top-level field could never be moved."
+      description: "ExecutionContext records how an assessment was configured: which method it\nran. What the assessment is, its result, timing, steps, and the executor that\nproduced it, stays at the top level of #AssessmentLog. Who performed the\nexecution is executor, not part of its configuration. It is one field rather\nthan several so that a stable type does not gain a permanent top-level field per\nconfiguration input; further inputs land here additively, where a top-level field\ncould never be moved."
       properties:
-        method-id:
-          description: "method-id names the accepted method this assessment executed, where the policy\nprescribed one: a method of the cited plan, or one of the policy's own\nevaluation-methods, which are the fallback where no plan is bound."
-          minLength: 1
-          type: string
+        method:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          - required:
+            - entry-id
+          description: |-
+            method names the accepted method this assessment executed. Under a cited plan it
+            is one of that plan's evaluation-methods, and its reference-id is the plan's.
+            Without a plan its reference-id names the policy, and its entry-id one of that
+            policy's own evaluation-methods, which are the fallback where no plan is bound.
+          properties:
+            entry-id:
+              minLength: 1
+              type: string
+          type: object
       type: object
       x-status: stable
     Exemption:

@@ -38,7 +38,9 @@ evaluations:
       reference-id: security-policy
       entry-id: AP-AC-01
     execution-context:
-      method-id: EM-AC-01-probe
+      method:
+        reference-id: security-policy
+        entry-id: EM-AC-01-probe
     executor:
       id: pvtr-github-repo
       name: PVTR GitHub Repository Probe
@@ -61,7 +63,9 @@ evaluations:
       reference-id: security-policy
       entry-id: AP-AC-01
     execution-context:
-      method-id: EM-AC-01-probe
+      method:
+        reference-id: security-policy
+        entry-id: EM-AC-01-probe
     executor:
       id: platform-security
       name: Platform Security Review

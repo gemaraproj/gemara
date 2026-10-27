@@ -20,22 +20,26 @@ import "strings"
 	// are never published as a field's API description.
 
 	// An AssessmentLog is one method's execution against one requirement under one
-	// plan, so (this control evaluation, requirement, plan, method-id) is its key,
-	// where the plan is its reference-id and entry-id together: two policies may each
-	// have a plan with the same entry-id. This is what lets a log hold several
-	// results for one requirement — a plan requiring an automated probe and a manual
-	// review produces two — and what stops it holding two that nothing tells apart.
-	// An assessment citing no plan is told apart by its method-id alone, so two
-	// plan-less records of one requirement need different method-ids; attribution by
-	// executor does not make them distinct.
+	// plan, so (this control evaluation, requirement, plan, method) is its key, where
+	// the plan and the method are each their reference-id and entry-id together: two
+	// policies may each have a plan, or a method, with the same entry-id. This is what
+	// lets a log hold several results for one requirement — a plan requiring an
+	// automated probe and a manual review produces two — and what stops it holding
+	// two that nothing tells apart.
+	// An assessment citing no plan has no policy to tell its results apart, so its
+	// executor is part of the key: two plan-less records of one requirement need
+	// different methods or different executors. An executor is not part of a plan's
+	// key, where the plan and method already say what ran.
 
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
 			for j, a in e."assessment-logs" {
 				let _planRef = [if a.plan != _|_ {"present:\(a.plan."reference-id")"}, "absent"][0]
 				let _plan = [if a.plan != _|_ {"present:\(a.plan."entry-id")"}, "absent"][0]
-				let _method = [if a["execution-context"] != _|_ if a["execution-context"]["method-id"] != _|_ {"present:\(a["execution-context"]."method-id")"}, "absent"][0]
-				"\(a.requirement."entry-id")": "\(_planRef)": "\(_plan)": "\(_method)": j
+				let _methodRef = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."reference-id")"}, "absent"][0]
+				let _method = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."entry-id")"}, "absent"][0]
+				let _executor = [if a.plan != _|_ {"planned"}, if a.executor != _|_ {"present:\(a.executor.id)"}, "absent"][0]
+				"\(a.requirement."entry-id")": "\(_planRef)": "\(_plan)": "\(_methodRef)": "\(_method)": "\(_executor)": j
 			}
 		}
 	}
@@ -68,18 +72,18 @@ import "strings"
 }
 
 // ExecutionContext records how an assessment was configured: which method it
-// ran. What the assessment is, its result, timing, steps,
-// and the executor that produced it, stays at the top level of #AssessmentLog.
-// Who performed the execution is executor, not part of its configuration. It is one
-// field rather than several so that a stable type does not gain a permanent
-// top-level field per configuration input; further inputs land here additively, where
-// a top-level field could never be moved.
-//
+// ran. What the assessment is, its result, timing, steps, and the executor that
+// produced it, stays at the top level of #AssessmentLog. Who performed the
+// execution is executor, not part of its configuration. It is one field rather
+// than several so that a stable type does not gain a permanent top-level field per
+// configuration input; further inputs land here additively, where a top-level field
+// could never be moved.
 #ExecutionContext: {
-	// method-id names the accepted method this assessment executed, where the policy
-	// prescribed one: a method of the cited plan, or one of the policy's own
-	// evaluation-methods, which are the fallback where no plan is bound.
-	"method-id"?: string & strings.MinRunes(1) @go(MethodId)
+	// method names the accepted method this assessment executed. Under a cited plan it
+	// is one of that plan's evaluation-methods, and its reference-id is the plan's.
+	// Without a plan its reference-id names the policy, and its entry-id one of that
+	// policy's own evaluation-methods, which are the fallback where no plan is bound.
+	method?: #EntryMapping & {"entry-id": string & strings.MinRunes(1)} @go(Method,optional=nillable)
 }
 
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
@@ -90,8 +94,8 @@ import "strings"
 	// Plan maps to the policy assessment plan being executed.
 	plan?: #EntryMapping @go(Plan,optional=nillable)
 	// execution-context records how this assessment was configured. A cited plan obliges a
-	// method: the plan lists the methods it accepts, so a record of running under it
-	// has to say which one ran.
+	// method of that plan: it lists the methods it accepts, so a record of running under
+	// it has to say which one ran.
 	"execution-context"?: #ExecutionContext @go(ExecutionContext,optional=nillable)
 	// executor is the actor that performed this assessment: the tool instance,
 	// service or person that produced this result when it is not the author of the log.
@@ -126,17 +130,18 @@ import "strings"
 	// Comments in validation sections stay detached (blank line after), so they
 	// are never published as a field's API description.
 
-	// A cited plan obliges a method: the plan lists the methods it accepts, and a
-	// record of running under it that does not say which one ran leaves two results
-	// against the same plan indistinguishable. Stated on the field it requires —
-	// forbidding a field instead puts bottom in that field's type, and the Go
-	// projection degrades it to an unusable `any`.
+	// A cited plan obliges a method of that plan: the plan lists the methods it accepts,
+	// and a record of running under it that does not say which one ran leaves two
+	// results against the same plan indistinguishable. The method's reference-id is
+	// the plan's, the way a requirement's is its control's. Stated on the field it
+	// requires — forbidding a field instead puts bottom in that field's type, and the
+	// Go projection degrades it to an unusable `any`.
 	//
-	// There is no rule the other way. Settings without a plan is the ordinary case
-	// for a producer running the policy's fallback method, or for one that knows of
-	// no policy at all.
+	// There is no rule the other way. A method without a plan is the ordinary case for
+	// a producer running the policy's fallback method, and a producer that knows of no
+	// policy omits it.
 
-	if plan != _|_ {"execution-context": "method-id": string}
+	if plan != _|_ {"execution-context": method: {"reference-id": plan."reference-id", "entry-id": string}}
 
 }
 

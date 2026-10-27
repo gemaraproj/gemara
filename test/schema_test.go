@@ -24,6 +24,17 @@ func TestAssessmentIdentity(t *testing.T) {
 		t.Fatal(err)
 	}
 	def := schemaValue.LookupPath(cue.ParsePath("#EvaluationLog"))
+
+	// ctx renders the execution-context block the fixture uses, for one method.
+	ctx := func(ref, entry string) string {
+		return "    execution-context:\n      method:\n        reference-id: " + ref + "\n        entry-id: " + entry
+	}
+	planRef := "    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n"
+	probeExecutor := "    executor:\n      id: pvtr-github-repo\n      name: PVTR GitHub Repository Probe\n      type: Software\n      uri: \"https://github.com/revanite-io/pvtr-github-repo\"\n"
+	reviewExecutor := "    executor:\n      id: platform-security\n      name: Platform Security Review\n      type: Human\n      contact:\n        name: Platform Security\n        affiliation: Example Org\n"
+	probe := planRef + ctx("security-policy", "EM-AC-01-probe") + "\n"
+	review := planRef + ctx("security-policy", "EM-AC-01-review") + "\n"
+
 	tests := []struct {
 		name         string
 		replacements []string
@@ -32,31 +43,39 @@ func TestAssessmentIdentity(t *testing.T) {
 	}{
 		{
 			name:         "cited plan with empty method",
-			replacements: []string{"method-id: EM-AC-01-probe", `method-id: ""`},
+			replacements: []string{"entry-id: EM-AC-01-probe", `entry-id: ""`},
 			wantErr:      true,
-			errContains:  `"execution-context"."method-id"`,
+			errContains:  `"execution-context".method."entry-id"`,
 		},
 		{
 			name:         "fallback with empty method",
-			replacements: []string{"method-id: EM-BASELINE-SCAN", `method-id: ""`},
+			replacements: []string{"entry-id: EM-BASELINE-SCAN", `entry-id: ""`},
 			wantErr:      true,
-			errContains:  `"execution-context"."method-id"`,
+			errContains:  `"execution-context".method."entry-id"`,
+		},
+		{
+			name: "cited plan with a method from another policy",
+			replacements: []string{
+				ctx("security-policy", "EM-AC-01-probe"), ctx("other-policy", "EM-AC-01-probe"),
+			},
+			wantErr:     true,
+			errContains: `"execution-context".method."reference-id"`,
 		},
 		{
 			name: "distinct plans and methods containing slashes",
 			replacements: []string{
-				"entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe",
-				"entry-id: AP/AC-01\n    execution-context:\n      method-id: X",
-				"entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review",
-				"entry-id: AP\n    execution-context:\n      method-id: AC-01/X",
+				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-probe"),
+				"entry-id: AP/AC-01\n" + ctx("security-policy", "X"),
+				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-review"),
+				"entry-id: AP\n" + ctx("security-policy", "AC-01/X"),
 			},
 		},
 		{
 			name: "duplicate identities containing slashes",
 			replacements: []string{
 				"entry-id: AP-AC-01", "entry-id: AP/AC-01",
-				"method-id: EM-AC-01-probe", "method-id: AC-01/X",
-				"method-id: EM-AC-01-review", "method-id: AC-01/X",
+				"entry-id: EM-AC-01-probe", "entry-id: AC-01/X",
+				"entry-id: EM-AC-01-review", "entry-id: AC-01/X",
 			},
 			wantErr:     true,
 			errContains: "_uniqueAssessments",
@@ -64,31 +83,45 @@ func TestAssessmentIdentity(t *testing.T) {
 		{
 			name: "literal hyphen plan differs from omitted plan",
 			replacements: []string{
-				"entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe",
-				"entry-id: '-'\n    execution-context:\n      method-id: X",
-				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review",
-				"    execution-context:\n      method-id: X",
+				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-probe"),
+				"entry-id: '-'\n" + ctx("security-policy", "X"),
+				review, ctx("security-policy", "X") + "\n",
 			},
 		},
 		{
 			name: "literal hyphen method differs from omitted method",
 			replacements: []string{
-				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n", "",
-				"method-id: EM-AC-01-probe", "method-id: '-'",
-				"    execution-context:\n      method-id: EM-AC-01-review\n", "",
+				probe, ctx("security-policy", "'-'") + "\n",
+				review, "",
+				probeExecutor, "",
+				reviewExecutor, "",
 			},
 		},
 		{
 			name:         "cited plan with an empty execution context",
-			replacements: []string{"execution-context:\n      method-id: EM-AC-01-probe", "execution-context: {}"},
+			replacements: []string{ctx("security-policy", "EM-AC-01-probe"), "    execution-context: {}"},
 			wantErr:      true,
-			errContains:  `"execution-context"."method-id"`,
+			errContains:  `"execution-context".method`,
 		},
 		{
-			name: "two plan-less records with no method",
+			name: "two plan-less records with no method and no executor",
 			replacements: []string{
-				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe\n", "",
-				"    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review\n", "",
+				probe, "", review, "", probeExecutor, "", reviewExecutor, "",
+			},
+			wantErr:     true,
+			errContains: "_uniqueAssessments",
+		},
+		{
+			name: "two plan-less records with different executors",
+			replacements: []string{
+				probe, "", review, "",
+			},
+		},
+		{
+			name: "two plan-less records with the same executor and no method",
+			replacements: []string{
+				probe, "", review, "",
+				"id: platform-security", "id: pvtr-github-repo",
 			},
 			wantErr:     true,
 			errContains: "_uniqueAssessments",
@@ -96,8 +129,8 @@ func TestAssessmentIdentity(t *testing.T) {
 		{
 			name: "same plan id and method under two policies",
 			replacements: []string{
-				"reference-id: security-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-review",
-				"reference-id: other-policy\n      entry-id: AP-AC-01\n    execution-context:\n      method-id: EM-AC-01-probe",
+				"reference-id: security-policy\n      entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-review"),
+				"reference-id: other-policy\n      entry-id: AP-AC-01\n" + ctx("other-policy", "EM-AC-01-probe"),
 			},
 		},
 	}
@@ -226,7 +259,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 		{"two assessments nothing tells apart", "./test-data/bad-evaluation-log-duplicate-assessment.yaml", "#EvaluationLog", true, "_uniqueAssessments"},
-		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".\"method-id\""},
+		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".method"},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
