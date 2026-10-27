@@ -38,32 +38,24 @@ package gemara
 
 	// execution-environment describes where this actor runs. When the actor is the
 	// executor a Policy names on an AcceptedMethod, it states the environment the
-	// policy accepts that method's results from; when the actor is a log's author, it
-	// records the environment the log was produced in.
+	// policy accepts that method's results from; when the actor is a log's author or
+	// an assessment's executor, it records the environment the result was produced in.
 	"execution-environment"?: #ExecutionEnvironment @go(ExecutionEnvironment,optional=nillable)
 }
 
 // ExecutionEnvironment identifies the environment an actor runs in, so that a log's
 // author can be compared with the executor its policy accepts. It describes the
-// actor, never the resources the actor evaluates.
+// actor, never the resources the actor evaluates, and it holds only what a policy
+// author can know before any run: content that does not change from one target to
+// the next. Values that differ per target, such as the organisation or repository a
+// scan is pointed at, are parameters of the plan (#Parameter), recorded by a log in
+// its assessments' execution-context parameter-inputs. Where an observation was made
+// from is a property of the evidence, not of the actor (#Evidence observation-vantage).
 #ExecutionEnvironment: {
 	// digests pins the content the actor runs, one entry per component such as an
 	// image manifest or a plugin binary; the actor's uri and version name it
 	digests?: [#Digest, ...#Digest] @go(Digests,type=[]string)
-
-	// config-digest pins the configuration the actor runs with
-	"config-digest"?: #Digest @go(ConfigDigest,type=string)
-
-	// observation-vantage states where the actor observes its targets from
-	"observation-vantage"?: #ObservationVantage @go(ObservationVantage)
 }
-
-// ObservationVantage states whether every input a result depends on was obtained at a
-// vantage the evaluated resource could neither forge nor suppress (substrate: a network
-// boundary, syscall supervision, a hypervisor's read of guest state) or rests on output
-// the resource produced or could influence (artifact). A result drawing on both is artifact.
-// Values follow observation_vantage in https://github.com/probityai/agent-evidence-vocabulary
-#ObservationVantage: "substrate" | "artifact" @go(-)
 
 // Resource represents an entity that exists in the system and can be evaluated
 #Resource: {

@@ -105,8 +105,8 @@ components:
           description: |-
             execution-environment describes where this actor runs. When the actor is the
             executor a Policy names on an AcceptedMethod, it states the environment the
-            policy accepts that method's results from; when the actor is a log's author, it
-            records the environment the log was produced in.
+            policy accepts that method's results from; when the actor is a log's author or
+            an assessment's executor, it records the environment the result was produced in.
       type: object
       x-status: stable
     Adherence:
@@ -240,6 +240,14 @@ components:
             type: object
           minItems: 1
           type: array
+        execution-context:
+          allOf:
+          - $ref: "#/components/schemas/ExecutionContext"
+          description: "execution-context records how this assessment was configured. A cited plan obliges a\nmethod: the plan lists the methods it accepts, so a record of running under it\nhas to say which one ran."
+        executor:
+          allOf:
+          - $ref: "#/components/schemas/Actor"
+          description: "executor is the actor that performed this assessment: the tool instance,\nservice or person that produced this result when it is not the author of the log."
         message:
           description: Message provides additional context about the assessment result.
           type: string
@@ -979,6 +987,14 @@ components:
         id:
           description: id uniquely identifies this evidence
           type: string
+        observation-vantage:
+          allOf:
+          - $ref: "#/components/schemas/ObservationVantage"
+          description: |-
+            observation-vantage states where this evidence was obtained from. It belongs to
+            the evidence rather than to the actor that collected it, because one executor
+            reads some inputs from a place the evaluated resource could not influence and
+            others from output the resource produced.
         payload:
           description: payload is the raw evidence data collected inline
         retention:
@@ -1053,16 +1069,23 @@ components:
         EvaluationLog, EnforcementLog) plus categories for common evidence forms.
       type: string
       x-status: experimental
-    ExecutionEnvironment:
-      description: |-
-        ExecutionEnvironment identifies the environment an actor runs in, so that a log's
-        author can be compared with the executor its policy accepts. It describes the
-        actor, never the resources the actor evaluates.
+    ExecutionContext:
+      description: "ExecutionContext records how an assessment was configured: which method it\nran and the value each plan parameter was run with. What the assessment is, its result, timing, steps,\nand the executor that produced it, stays at the top level of #AssessmentLog.\nWho performed the execution is executor, not part of its configuration. It is one\nfield rather than several so that a stable type does not gain a permanent\ntop-level field per configuration input; further inputs land here additively, where\na top-level field could never be moved."
       properties:
-        config-digest:
-          allOf:
-          - $ref: "#/components/schemas/Digest"
-          description: config-digest pins the configuration the actor runs with
+        method-id:
+          description: "method-id names the accepted method this assessment executed, where the policy\nprescribed one: a method of the cited plan, or one of the policy's own\nevaluation-methods, which are the fallback where no plan is bound."
+          minLength: 1
+          type: string
+        parameter-inputs:
+          additionalProperties:
+            type: string
+          description: "parameter-inputs records the value each plan parameter (#Parameter id) was run with.\nA policy pins a parameter by listing its accepted-values, and leaves free the\nparameters whose value differs per target, such as the organisation or repository\nscanned, so a log and its plan are compared on these values rather than on a hash\nof the whole configuration."
+          type: object
+      type: object
+      x-status: stable
+    ExecutionEnvironment:
+      description: "ExecutionEnvironment identifies the environment an actor runs in, so that a log's\nauthor can be compared with the executor its policy accepts. It describes the\nactor, never the resources the actor evaluates, and it holds only what a policy\nauthor can know before any run: content that does not change from one target to\nthe next. Values that differ per target, such as the organisation or repository a\nscan is pointed at, are parameters of the plan (#Parameter), recorded by a log in\nits assessments' execution-context parameter-inputs. Where an observation was made\nfrom is a property of the evidence, not of the actor (#Evidence observation-vantage)."
+      properties:
         digests:
           description: |-
             digests pins the content the actor runs, one entry per component such as an
@@ -1071,10 +1094,6 @@ components:
             $ref: "#/components/schemas/Digest"
           minItems: 1
           type: array
-        observation-vantage:
-          allOf:
-          - $ref: "#/components/schemas/ObservationVantage"
-          description: observation-vantage states where the actor observes its targets from
       type: object
       x-status: stable
     Exemption:
@@ -1671,12 +1690,12 @@ components:
       type: object
       x-status: stable
     ObservationVantage:
-      description: "ObservationVantage states whether every input a result depends on was obtained at a\nvantage the evaluated resource could neither forge nor suppress (substrate: a network\nboundary, syscall supervision, a hypervisor's read of guest state) or rests on output\nthe resource produced or could influence (artifact). A result drawing on both is artifact.\nValues follow observation_vantage in https://github.com/probityai/agent-evidence-vocabulary"
+      description: "ObservationVantage states whether an input was obtained at a vantage the evaluated\nresource could neither forge nor suppress (substrate: a network boundary, syscall\nsupervision, a platform API's report of its own settings, a hypervisor's read of guest\nstate) or rests on output the resource produced or could influence (artifact: a file\nthe project writes about itself). A result drawing on both is artifact.\nValues follow observation_vantage in https://github.com/probityai/agent-evidence-vocabulary"
       enum:
       - substrate
       - artifact
       type: string
-      x-status: stable
+      x-status: experimental
     Parameter:
       description: Parameter defines a configurable parameter for assessment or enforcement activities.
       properties:

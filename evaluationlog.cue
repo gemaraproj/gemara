@@ -69,7 +69,7 @@ import "strings"
 }
 
 // ExecutionContext records how an assessment was configured: which method it
-// ran. What the assessment is, its result, timing, steps,
+// ran and the value each plan parameter was run with. What the assessment is, its result, timing, steps,
 // and the executor that produced it, stays at the top level of #AssessmentLog.
 // Who performed the execution is executor, not part of its configuration. It is one
 // field rather than several so that a stable type does not gain a permanent
@@ -81,6 +81,13 @@ import "strings"
 	// prescribed one: a method of the cited plan, or one of the policy's own
 	// evaluation-methods, which are the fallback where no plan is bound.
 	"method-id"?: string & strings.MinRunes(1) @go(MethodId)
+
+	// parameter-inputs records the value each plan parameter (#Parameter id) was run with.
+	// A policy pins a parameter by listing its accepted-values, and leaves free the
+	// parameters whose value differs per target, such as the organisation or repository
+	// scanned, so a log and its plan are compared on these values rather than on a hash
+	// of the whole configuration.
+	"parameter-inputs"?: {[string & strings.MinRunes(1)]: string} @go(ParameterInputs,type=map[string]string)
 }
 
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.

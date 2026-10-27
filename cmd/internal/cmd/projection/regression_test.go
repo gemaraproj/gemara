@@ -66,7 +66,6 @@ func TestRegexConstraintsReachTheDocument(t *testing.T) {
 	// Fields typed by a named definition carry its pattern through a reference.
 	for _, tc := range []struct{ schema, field string }{
 		{"EvidenceMapping", "digest"},
-		{"ExecutionEnvironment", "config-digest"},
 	} {
 		refs, _ := propOf(t, schemas, tc.schema, tc.field)["allOf"].([]any)
 		var ref any
@@ -78,6 +77,12 @@ func TestRegexConstraintsReachTheDocument(t *testing.T) {
 		if ref != "#/components/schemas/Digest" {
 			t.Errorf("%s.%s does not reference Digest: %v", tc.schema, tc.field, refs)
 		}
+	}
+
+	// A list of digests references it from its items.
+	items, _ := propOf(t, schemas, "ExecutionEnvironment", "digests")["items"].(map[string]any)
+	if items["$ref"] != "#/components/schemas/Digest" {
+		t.Errorf("ExecutionEnvironment.digests items do not reference Digest: %v", items)
 	}
 }
 

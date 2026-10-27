@@ -98,9 +98,23 @@ import "list"
 	// description explains what this evidence represents
 	description?: string
 
+	// observation-vantage states where this evidence was obtained from. It belongs to
+	// the evidence rather than to the actor that collected it, because one executor
+	// reads some inputs from a place the evaluated resource could not influence and
+	// others from output the resource produced.
+	"observation-vantage"?: #ObservationVantage @go(ObservationVantage)
+
 	// retention records the obligations governing how long this evidence must be kept
 	retention?: #Retention @go(Retention,optional=nillable)
 }
+
+// ObservationVantage states whether an input was obtained at a vantage the evaluated
+// resource could neither forge nor suppress (substrate: a network boundary, syscall
+// supervision, a platform API's report of its own settings, a hypervisor's read of guest
+// state) or rests on output the resource produced or could influence (artifact: a file
+// the project writes about itself). A result drawing on both is artifact.
+// Values follow observation_vantage in https://github.com/probityai/agent-evidence-vocabulary
+#ObservationVantage: "substrate" | "artifact" @go(-)
 
 // _EvidenceStrict layers the "at least one of payload or source" rule on top of #Evidence
 #_EvidenceStrict: {
