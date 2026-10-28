@@ -186,7 +186,9 @@ components:
         log:
           allOf:
           - $ref: "#/components/schemas/EntryMapping"
-          description: log maps to the EvaluationLog entry containing the finding
+          description: |-
+            log references the EvaluationLog entry containing the finding; it identifies the
+            ControlEvaluation rather than a nested AssessmentLog.
         plan:
           allOf:
           - $ref: "#/components/schemas/EntryMapping"

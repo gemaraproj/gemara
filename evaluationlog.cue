@@ -13,6 +13,15 @@ package gemara
 	// result is the aggregate outcome across all evaluations in this log
 	result: #Result
 	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
+
+	// Each control entry mapping must identify at most one evaluation in this log.
+	_uniqueControlMappings: {
+		for i, e in evaluations {
+			(e.control."reference-id"): {
+				(e.control."entry-id"): i
+			}
+		}
+	}
 }
 
 // ControlEvaluation contains the results of evaluating a single Layer 5 control.

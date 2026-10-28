@@ -69,7 +69,8 @@ package gemara
 	// plan maps to the Policy assessment plan that was executed
 	plan?: #EntryMapping @go(Plan)
 
-	// log maps to the EvaluationLog entry containing the finding
+	// log references the EvaluationLog entry containing the finding; it identifies the
+	// ControlEvaluation rather than a nested AssessmentLog.
 	log: #EntryMapping @go(Log)
 }
 
