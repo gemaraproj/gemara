@@ -1,0 +1,36 @@
+metadata:
+  id: EVAL-MISMATCHED-REFERENCE
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: Evaluation log with a requirement reference-id that conflicts with the enclosing control
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+result: Passed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Passed
+  message: Multi-factor authentication is required
+  assessment-logs:
+  - requirement:
+      reference-id: MISMATCHED-REF
+      entry-id: OSPS-AC-01.01
+    description: Verify that multi-factor authentication is required.
+    result: Passed
+    message: Two-factor authentication is configured as required by the parent organization
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
+    steps-executed: 1
+    start: 2025-08-22T16:02:00.000000000Z
+    end: 2025-08-22T16:02:00.000003708Z
