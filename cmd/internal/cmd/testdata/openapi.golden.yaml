@@ -244,7 +244,7 @@ components:
           type: string
         requirement:
           allOf:
-          - $ref: "#/components/schemas/EntryMapping"
+          - $ref: "#/components/schemas/AssessmentRequirementMapping"
           description: Requirement should map to the assessment requirement for this assessment.
         result:
           allOf:
@@ -343,6 +343,26 @@ components:
       - id
       - text
       - applicability
+      type: object
+      x-status: stable
+    AssessmentRequirementMapping:
+      description: |-
+        AssessmentRequirementMapping represents how an assessment requirement maps to a control catalog entry.
+        The reference-id is optional because it is dynamically derived from the enclosing control's reference-id.
+      properties:
+        entry-id:
+          description: entry-id is the identifier being mapped to in the referenced artifact
+          type: string
+        reference-id:
+          description: |-
+            reference-id is the id for a MappingReference entry in the artifact's metadata.
+            When omitted in an assessment log, it is derived from the enclosing control.
+          type: string
+        remarks:
+          description: remarks is prose describing the mapping relationship
+          type: string
+      required:
+      - entry-id
       type: object
       x-status: stable
     AssessmentRequirementModifier:
@@ -721,8 +741,6 @@ components:
                 properties:
                   reference-id:
                     type: string
-                required:
-                - reference-id
                 type: object
             type: object
           minItems: 1
