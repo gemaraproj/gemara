@@ -1,0 +1,68 @@
+metadata:
+  id: ISO-42001-AI-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example AI Risk Catalog showcasing ISO 42001 Stakeholder and Role Assignments
+  author:
+    id: ai-governance-team
+    name: AI Governance Team
+    type: Human
+
+title: AI Governance Risk Catalog (ISO 42001)
+
+groups:
+  - id: CAT-AI-ETHICS
+    title: AI Ethics and Fairness
+    description: Risks related to bias, discrimination, and model unfairness
+    appetite: Minimal
+
+stakeholders:
+  parties:
+    - id: ai-governance-office
+      name: AI Governance Office
+      kind: Team
+      contact:
+        name: Chief AI Ethics Officer
+        email: ethics@example.org
+    - id: portfolio-managers
+      name: Portfolio Managers
+      kind: Group
+    - id: regulator-fca
+      name: Financial Conduct Authority
+      kind: Regulator
+      uri: https://www.fca.org.uk
+  roles:
+    - id: accountable
+      title: Accountable
+      description: Ultimately answerable for correct risk oversight
+    - id: responsible
+      title: Responsible
+      description: Operational team executing mitigations
+    - id: affected
+      title: Affected
+      description: Interested party impacted by model behavior or decisions
+    - id: escalation
+      title: Escalation
+      description: Authority notified when risks exceed thresholds
+  assignments:
+    - role-id: accountable
+      party-ids: [ai-governance-office]
+    - role-id: responsible
+      party-ids: [ai-governance-office]
+    - role-id: affected
+      party-ids: [portfolio-managers]
+    - role-id: escalation
+      party-ids: [regulator-fca]
+
+risks:
+  - id: RISK-MODEL-BIAS
+    title: Unintended Algorithmic Bias in Portfolio Decisions
+    description: Model predictions systematically disfavor certain demographic segments.
+    group: CAT-AI-ETHICS
+    severity: High
+    role-ids:
+      - accountable
+      - affected
+      - escalation
+    impact: Regulatory penalties, reputational damage, and unfair customer outcomes.

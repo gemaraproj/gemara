@@ -1,0 +1,50 @@
+metadata:
+  id: "security-policy-stakeholders-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Information security policy with stakeholders and role assignments"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+
+title: "Information Security Policy with Stakeholders"
+
+stakeholders:
+  parties:
+    - id: sec-ops
+      name: Security Operations
+      kind: Team
+      contact:
+        name: SecOps Lead
+        email: secops@company.com
+    - id: ciso-office
+      name: CISO Office
+      kind: Team
+  roles:
+    - id: accountable
+      title: Accountable
+    - id: responsible
+      title: Responsible
+  assignments:
+    - role-id: accountable
+      party-ids: [ciso-office]
+    - role-id: responsible
+      party-ids: [sec-ops]
+
+role-ids:
+  - accountable
+  - responsible
+
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+
+imports:
+  catalogs:
+    - reference-id: "NIST-800-53"
+
+adherence:
+  non-compliance: "Non-compliant systems will be quarantined pending remediation"
