@@ -13,12 +13,23 @@ import "list"
 	title:    string
 	metadata: #Metadata
 	metadata: type: "Policy"
-	contacts:               #RACI
+	contacts?:     #RACI         @go(Contacts,optional=nillable)
+	stakeholders?: #Stakeholders @go(Stakeholders,optional=nillable)
+	RIDS="role-ids"?: [string, ...string] @go(RoleIDs) @yaml("role-ids,omitempty")
 	scope:                  #Scope
 	imports:                #Imports
 	"implementation-plan"?: #ImplementationPlan @go(ImplementationPlan)
 	risks?:                 #Risks
 	adherence:              #Adherence
+
+	if RIDS != _|_ {
+		stakeholders: #Stakeholders
+		let _validRoleIds = [for r in stakeholders.roles {r.id}]
+
+		for j, roleId in RIDS {
+			_policyRoleValidation: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+	}
 }
 
 // Scope defines what is included and excluded from policy applicability.
