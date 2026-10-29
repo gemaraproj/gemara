@@ -1,0 +1,36 @@
+metadata:
+  id: BAD-STAKEHOLDERS-UNKNOWN-ROLE
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid Risk Catalog with unknown role id
+  author:
+    id: test-author
+    name: Tester
+    type: Human
+
+title: Bad Stakeholders Risk Catalog
+
+groups:
+  - id: CAT-TEST
+    title: Test
+    description: Test
+    appetite: Low
+
+stakeholders:
+  parties:
+    - id: party-1
+      name: Party One
+  roles:
+    - id: accountable
+      title: Accountable
+  assignments:
+    - role-id: non-existent-role
+      party-ids: [party-1]
+
+risks:
+  - id: RISK-001
+    title: Risk One
+    description: Risk description
+    group: CAT-TEST
+    severity: Low
