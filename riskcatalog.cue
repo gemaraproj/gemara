@@ -21,6 +21,9 @@ import "list"
 	// risks is a list of risks defined by this catalog
 	risks?: [#Risk, ...#Risk] @go(Risks)
 
+	// stakeholders defines the parties, roles, and standing role assignments for this catalog
+	stakeholders?: #Stakeholders @go(Stakeholders)
+
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
 		// Each distinct rank value may appear at most once among risks that set rank (partial ranking allowed).
@@ -32,6 +35,18 @@ import "list"
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, r in risks {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(r.group)
+		}
+
+		if stakeholders != _|_ {
+			let _validRoleIds = [for r in stakeholders.roles {r.id}]
+
+			for i, r in risks {
+				if r."role-ids" != _|_ {
+					for j, roleId in r."role-ids" {
+						_riskRoleValidation: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+					}
+				}
+			}
 		}
 	}
 }
@@ -94,6 +109,9 @@ import "list"
 
 	// owner defines the RACI roles responsible for managing this risk
 	owner?: #RACI @go(Owner)
+
+	// role-ids references standing stakeholder roles from the catalog that apply to this risk
+	"role-ids"?: [string, ...string] @go(RoleIDs) @yaml("role-ids,omitempty")
 
 	// impact describes the business or operational impact
 	impact?: string

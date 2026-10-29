@@ -75,9 +75,13 @@ func TestSchemaValidation(t *testing.T) {
 
 		// RiskCatalog — positive
 		{"valid risk catalog", "./test-data/good-risk-catalog.yaml", "#RiskCatalog", false, ""},
+		{"valid risk catalog with stakeholders and role assignments", "./test-data/good-risk-catalog-stakeholders.yaml", "#RiskCatalog", false, ""},
 
 		// RiskCatalog — negative
 		{"risk catalog with duplicate rank", "./test-data/bad-risk-catalog-duplicate-rank.yaml", "#RiskCatalog", true, `_uniqueRiskRanks."1"`},
+		{"risk catalog with unknown role id in assignments", "./test-data/bad-risk-catalog-stakeholders-unknown-role.yaml", "#RiskCatalog", true, `does not satisfy list.Contains("non-existent-role")`},
+		{"risk catalog with unknown party id in assignments", "./test-data/bad-risk-catalog-stakeholders-unknown-party.yaml", "#RiskCatalog", true, `does not satisfy list.Contains("unknown-party")`},
+		{"risk catalog with duplicate party id", "./test-data/bad-risk-catalog-stakeholders-duplicate-party.yaml", "#RiskCatalog", true, `_uniquePartyIds."party-1"`},
 
 		// Policy — positive
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
