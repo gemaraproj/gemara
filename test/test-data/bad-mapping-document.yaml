@@ -12,6 +12,13 @@ metadata:
 # Note: mapping-references is intentionally missing to test validation
 source-reference:
   reference-id: SOURCE
+  entry-type: Control
 target-reference:
   reference-id: TARGET
-mappings: []
+  entry-type: Control
+mappings:
+  - id: MAP-001
+    source: SOURCE-1
+    relationship: equivalent
+    targets:
+      - entry-id: TARGET-1
