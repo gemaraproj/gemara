@@ -348,7 +348,7 @@ components:
     AssessmentRequirementMapping:
       description: |-
         AssessmentRequirementMapping represents how an assessment requirement maps to a control catalog entry.
-        The reference-id is optional because it is dynamically derived from the enclosing control's reference-id.
+        The reference-id is optional; when omitted, a consumer reads it from the enclosing control.
       properties:
         entry-id:
           description: entry-id is the identifier being mapped to in the referenced artifact
@@ -356,7 +356,7 @@ components:
         reference-id:
           description: |-
             reference-id is the id for a MappingReference entry in the artifact's metadata.
-            When omitted in an assessment log, it is derived from the enclosing control.
+            When omitted in an assessment log, a consumer reads it from the enclosing control.
           type: string
         remarks:
           description: remarks is prose describing the mapping relationship
@@ -724,8 +724,8 @@ components:
       properties:
         assessment-logs:
           description: |-
-            Enforce that control reference and the assessments' references match
-            This formulation uses the control's reference if the assessment doesn't include a reference
+            Enforce that control reference and the assessments' references match when supplied.
+            When omitted, a consumer reads it from the enclosing control.
             
             
             Require start timestamp on assessments that actually executed
