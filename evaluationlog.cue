@@ -26,10 +26,11 @@ import "strings"
 	// lets a log hold several results for one requirement — a plan requiring an
 	// automated probe and a manual review produces two — and what stops it holding
 	// two that nothing tells apart.
-	// The executor is part of the key whether or not a plan is cited: a method does
-	// not identify the instance that ran it, so one requirement run by the same
-	// method on two instances is two results. Two records that agree on every part
-	// of the key, the executor included, are rejected.
+	// The executor is part of the key whether or not a plan is cited. A plan's method
+	// may name the executor meant to run it, but the key uses the executor that did,
+	// and the two can differ: one requirement run by the same method on two instances
+	// is two results. Two records that agree on every part of the key, the executor
+	// included, are rejected.
 
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
