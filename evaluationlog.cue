@@ -26,10 +26,10 @@ import "strings"
 	// lets a log hold several results for one requirement — a plan requiring an
 	// automated probe and a manual review produces two — and what stops it holding
 	// two that nothing tells apart.
-	// An assessment citing no plan has no policy to tell its results apart, so its
-	// executor is part of the key: two plan-less records of one requirement need
-	// different methods or different executors. An executor is not part of a plan's
-	// key, where the plan and method already say what ran.
+	// The executor is part of the key whether or not a plan is cited: a method does
+	// not identify the instance that ran it, so one requirement run by the same
+	// method on two instances is two results. Two records that agree on every part
+	// of the key, the executor included, are rejected.
 
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
@@ -38,7 +38,7 @@ import "strings"
 				let _plan = [if a.plan != _|_ {"present:\(a.plan."entry-id")"}, "absent"][0]
 				let _methodRef = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."reference-id")"}, "absent"][0]
 				let _method = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."entry-id")"}, "absent"][0]
-				let _executor = [if a.plan != _|_ {"planned"}, if a.executor != _|_ {"present:\(a.executor.id)"}, "absent"][0]
+				let _executor = [if a.executor != _|_ {"present:\(a.executor.id)"}, "absent"][0]
 				"\(a.requirement."entry-id")": "\(_planRef)": "\(_plan)": "\(_methodRef)": "\(_method)": "\(_executor)": j
 			}
 		}

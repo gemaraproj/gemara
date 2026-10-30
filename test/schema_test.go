@@ -76,6 +76,22 @@ func TestAssessmentIdentity(t *testing.T) {
 				"entry-id: AP-AC-01", "entry-id: AP/AC-01",
 				"entry-id: EM-AC-01-probe", "entry-id: AC-01/X",
 				"entry-id: EM-AC-01-review", "entry-id: AC-01/X",
+				"id: platform-security", "id: pvtr-github-repo",
+			},
+			wantErr:     true,
+			errContains: "_uniqueAssessments",
+		},
+		{
+			name: "one method run by two executors under a cited plan",
+			replacements: []string{
+				ctx("security-policy", "EM-AC-01-review"), ctx("security-policy", "EM-AC-01-probe"),
+			},
+		},
+		{
+			name: "one method run twice by one executor under a cited plan",
+			replacements: []string{
+				ctx("security-policy", "EM-AC-01-review"), ctx("security-policy", "EM-AC-01-probe"),
+				"id: platform-security", "id: pvtr-github-repo",
 			},
 			wantErr:     true,
 			errContains: "_uniqueAssessments",

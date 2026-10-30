@@ -4,7 +4,7 @@ metadata:
   gemara-version: "1.1.0"
   version: 1.0.0
   description: >
-    Two assessments of one requirement under the same plan and method.
+    Two assessments of one requirement under the same plan, method and executor.
   author:
     id: compliance-orchestrator
     name: Compliance Orchestrator
@@ -67,12 +67,10 @@ evaluations:
         reference-id: security-policy
         entry-id: EM-AC-01-probe
     executor:
-      id: platform-security
-      name: Platform Security Review
-      type: Human
-      contact:
-        name: Platform Security
-        affiliation: Example Org
+      id: pvtr-github-repo
+      name: PVTR GitHub Repository Probe
+      type: Software
+      uri: "https://github.com/revanite-io/pvtr-github-repo"
     description: Review the documented exceptions to the MFA requirement.
     result: Failed
     message: Two service accounts are exempt without a recorded expiry
