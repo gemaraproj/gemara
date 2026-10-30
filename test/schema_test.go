@@ -161,6 +161,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
+		{"control with invalid applicability", "./test-data/bad-control-invalid-applicability.yaml", "#ControlCatalog", true, `_applicabilityValidation."0-0-0": invalid value ["production"]`},
 
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},
