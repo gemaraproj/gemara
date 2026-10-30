@@ -1,0 +1,37 @@
+title: Duplicate Mapping ID Test
+metadata:
+  id: TEST-DUPLICATE-MAPPINGS
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Mapping document with duplicate mapping ids
+  author:
+    id: mapper
+    name: Lead Mapper
+    type: Human
+  mapping-references:
+    - id: OSPS
+      title: Open Source Project Security Baseline
+      version: 1.0.0
+      url: https://example.com/source
+    - id: CRA
+      title: Target Catalog
+      version: 1.0.0
+      url: https://example.com/target
+source-reference:
+  reference-id: OSPS
+  entry-type: Control
+target-reference:
+  reference-id: CRA
+  entry-type: Guideline
+mappings:
+  - id: DUP-01
+    source: OSPS-QA-01
+    relationship: relates-to
+    targets:
+      - entry-id: "1.1"
+  - id: DUP-01
+    source: OSPS-QA-02
+    relationship: relates-to
+    targets:
+      - entry-id: "1.2"
