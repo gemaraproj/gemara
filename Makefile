@@ -1,5 +1,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
+ifeq ($(OS),Windows_NT)
+    # On Windows, GNU Make defaults to cmd.exe unless sh.exe is on PATH.
+    # When running outside Git Bash / MSYS2 (e.g. native cmd.exe or PowerShell),
+    # locate Git for Windows to provide a POSIX shell and core utilities
+    # (rm, mkdir -p, curl, mktemp, etc.).
+    ifeq ($(shell where sh.exe 2>nul),)
+        GIT_ROOT := $(shell for /f "delims=" %%i in ('where git.exe 2^>nul') do @for %%j in ("%%~dpi..") do @echo %%~sj)
+        ifeq ($(GIT_ROOT),)
+            GIT_ROOT := $(firstword $(wildcard C:/Progra~1/Git C:/Progra~2/Git $(LOCALAPPDATA)/Programs/Git))
+        endif
+        ifneq ($(GIT_ROOT),)
+            export PATH := $(GIT_ROOT)/usr/bin;$(GIT_ROOT)/bin;$(PATH)
+            SHELL := $(GIT_ROOT)/bin/sh.exe
+        endif
+    endif
+endif
+
 all: tidy cuefmtcheck lintcue lintinsights test
 
 #
