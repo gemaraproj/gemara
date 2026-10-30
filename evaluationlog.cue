@@ -22,8 +22,8 @@ package gemara
 	message: string
 	control: #EntryMapping
 	"assessment-logs": [#AssessmentLog, ...#AssessmentLog] @gemara(projectable=false) @go(AssessmentLogs,type=[]*AssessmentLog)
-	// Enforce that control reference and the assessments' references match
-	// This formulation uses the control's reference if the assessment doesn't include a reference
+	// Enforce that control reference and the assessments' references match when supplied.
+	// When omitted, a consumer reads it from the enclosing control.
 	"assessment-logs": [...{
 		requirement: "reference-id"?: (control."reference-id")
 	}]
@@ -75,10 +75,10 @@ package gemara
 }
 
 // AssessmentRequirementMapping represents how an assessment requirement maps to a control catalog entry.
-// The reference-id is optional because it is dynamically derived from the enclosing control's reference-id.
+// The reference-id is optional; when omitted, a consumer reads it from the enclosing control.
 #AssessmentRequirementMapping: {
 	// reference-id is the id for a MappingReference entry in the artifact's metadata.
-	// When omitted in an assessment log, it is derived from the enclosing control.
+	// When omitted in an assessment log, a consumer reads it from the enclosing control.
 	"reference-id"?: string @go(ReferenceId)
 
 	// entry-id is the identifier being mapped to in the referenced artifact
