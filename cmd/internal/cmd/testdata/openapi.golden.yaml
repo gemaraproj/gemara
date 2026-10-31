@@ -960,11 +960,18 @@ components:
           allOf:
           - $ref: "#/components/schemas/Datetime"
           description: collected-at is the timestamp when the evidence was gathered
+        collector:
+          allOf:
+          - $ref: "#/components/schemas/Actor"
+          description: collector identifies the actor that gathered this evidence (defaults to metadata.author when absent)
         description:
           description: description explains what this evidence represents
           type: string
         id:
           description: id uniquely identifies this evidence
+          type: string
+        method:
+          description: method describes the evidence collection method
           type: string
         payload:
           description: payload is the raw evidence data collected inline

@@ -77,6 +77,11 @@ results:
       - id: EV-DO-01
         type: EvaluationLog
         description: "PVTR evaluation results for documentation controls"
+        method: "EXAMINE"
+        collector:
+          id: compliance-auditor
+          name: "Compliance Auditor"
+          type: Human
         collected-at: "2025-08-22T16:02:00Z"
         source:
           reference-id: eval-log
