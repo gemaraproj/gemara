@@ -17,6 +17,9 @@ package gemara
 	// groups contains a list of groups that can be referenced by entries in this catalog
 	groups?: [#Group, ...#Group]
 
+	// stakeholders defines the parties, roles, and standing role assignments for this catalog
+	stakeholders?: #Stakeholders @go(Stakeholders)
+
 	// extends references catalogs that this catalog builds upon
 	extends?: [...#ArtifactMapping] @go(Extends)
 

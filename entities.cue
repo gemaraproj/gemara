@@ -4,6 +4,8 @@
 @gemara(status="stable")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // Entity represents a human or tool
@@ -82,4 +84,78 @@ package gemara
 
 	// informed identifies entities that should be notified about changes to the artifact status
 	informed?: [#Contact, ...#Contact]
+}
+
+// Party represents an individual, team, organization, or regulatory authority
+#Party: {
+	// id uniquely identifies this party within stakeholders
+	id: string
+
+	// name is the display name of the party
+	name: string
+
+	// kind specifies the type of party (e.g. Person, Team, Group, Organization, Regulator)
+	kind?: string @go(Kind)
+
+	// description provides additional context about the party
+	description?: string @go(Description)
+
+	// contact provides optional contact details for reaching this party
+	contact?: #Contact @go(Contact)
+
+	// uri points to an external profile, registry, or authoritative record
+	uri?: =~"^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$" @go(URI)
+}
+
+// Role defines a governance, operational, or interest role that can be bound to parties
+#Role: {
+	// id uniquely identifies this role
+	id: string
+
+	// title is the human-readable name of the role
+	title: string
+
+	// description describes the responsibilities or nature of this role
+	description?: string @go(Description)
+}
+
+// RoleAssignment binds one or more parties to a specific role
+#RoleAssignment: {
+	// role-id identifies the role being assigned
+	"role-id": string @go(RoleID) @yaml("role-id")
+
+	// party-ids lists the parties assigned to this role
+	"party-ids": [string, ...string] @go(PartyIDs) @yaml("party-ids")
+}
+
+// Stakeholders defines the reusable parties, roles, and optional standing assignments
+#Stakeholders: {
+	// parties lists the individuals, groups, teams, or external organizations
+	parties: [#Party, ...#Party] @go(Parties)
+
+	// roles lists the roles defined for this context
+	roles: [#Role, ...#Role] @go(Roles)
+
+	// assignments optionally declares standing party-to-role bindings
+	assignments?: [#RoleAssignment, ...#RoleAssignment] @go(Assignments)
+
+	if parties != _|_ {
+		_uniquePartyIds: {for i, p in parties {(p.id): i}}
+	}
+
+	if roles != _|_ {
+		_uniqueRoleIds: {for i, r in roles {(r.id): i}}
+	}
+
+	if assignments != _|_ && roles != _|_ && parties != _|_ {
+		let _validRoleIds = [for r in roles {r.id}]
+		let _validPartyIds = [for p in parties {p.id}]
+
+		for i, a in assignments {
+			_roleValidation: "\(i)": _validRoleIds & list.Contains(a."role-id")
+			for j, pId in a."party-ids" {
+				_partyValidation: "\(i)_\(j)": _validPartyIds & list.Contains(pId)
+			}
+		}
+	}
 }

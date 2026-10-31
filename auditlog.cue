@@ -16,6 +16,9 @@ import "list"
 	// owner defines the RACI roles responsible for managing the audit
 	owner?: #RACI @go(Owner)
 
+	// stakeholders defines the parties, roles, and assignments for this audit
+	stakeholders?: #Stakeholders @go(Stakeholders)
+
 	// summary provides the high-level conclusion
 	summary: string
 

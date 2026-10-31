@@ -414,6 +414,10 @@ components:
             $ref: "#/components/schemas/AuditResult"
           minItems: 1
           type: array
+        stakeholders:
+          allOf:
+          - $ref: "#/components/schemas/Stakeholders"
+          description: stakeholders defines the parties, roles, and assignments for this audit
         summary:
           description: summary provides the high-level conclusion
           type: string
@@ -531,6 +535,10 @@ components:
           allOf:
           - $ref: "#/components/schemas/Metadata"
           description: metadata provides detailed data about this catalog
+        stakeholders:
+          allOf:
+          - $ref: "#/components/schemas/Stakeholders"
+          description: stakeholders defines the parties, roles, and standing role assignments for this catalog
         title:
           description: title describes the purpose of this catalog at a glance
           type: string
@@ -1653,6 +1661,34 @@ components:
       - description
       type: object
       x-status: experimental
+    Party:
+      description: Party represents an individual, team, organization, or regulatory authority
+      properties:
+        contact:
+          allOf:
+          - $ref: "#/components/schemas/Contact"
+          description: contact provides optional contact details for reaching this party
+        description:
+          description: description provides additional context about the party
+          type: string
+        id:
+          description: id uniquely identifies this party within stakeholders
+          type: string
+        kind:
+          description: kind specifies the type of party (e.g. Person, Team, Group, Organization, Regulator)
+          type: string
+        name:
+          description: name is the display name of the party
+          type: string
+        uri:
+          description: uri points to an external profile, registry, or authoritative record
+          pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
+          type: string
+      required:
+      - id
+      - name
+      type: object
+      x-status: stable
     Policy:
       description: Policy represents a policy document with metadata, contacts, scope, imports, implementation plan, risks, and adherence requirements.
       properties:
@@ -1677,14 +1713,20 @@ components:
           type: object
         risks:
           $ref: "#/components/schemas/Risks"
+        role-ids:
+          items:
+            type: string
+          minItems: 1
+          type: array
         scope:
           $ref: "#/components/schemas/Scope"
+        stakeholders:
+          $ref: "#/components/schemas/Stakeholders"
         title:
           type: string
       required:
       - title
       - metadata
-      - contacts
       - scope
       - imports
       - adherence
@@ -2005,6 +2047,12 @@ components:
             
             (Enforced by the CUE schema; not by this OpenAPI projection.)
           type: integer
+        role-ids:
+          description: role-ids references standing stakeholder roles from the catalog that apply to this risk
+          items:
+            type: string
+          minItems: 1
+          type: array
         severity:
           allOf:
           - $ref: "#/components/schemas/Severity"
@@ -2067,6 +2115,10 @@ components:
             $ref: "#/components/schemas/Risk"
           minItems: 1
           type: array
+        stakeholders:
+          allOf:
+          - $ref: "#/components/schemas/Stakeholders"
+          description: stakeholders defines the parties, roles, and standing role assignments for this catalog
       type: object
       x-status: experimental
     RiskCategory:
@@ -2103,6 +2155,40 @@ components:
           type: array
       type: object
       x-status: experimental
+    Role:
+      description: Role defines a governance, operational, or interest role that can be bound to parties
+      properties:
+        description:
+          description: description describes the responsibilities or nature of this role
+          type: string
+        id:
+          description: id uniquely identifies this role
+          type: string
+        title:
+          description: title is the human-readable name of the role
+          type: string
+      required:
+      - id
+      - title
+      type: object
+      x-status: stable
+    RoleAssignment:
+      description: RoleAssignment binds one or more parties to a specific role
+      properties:
+        party-ids:
+          description: party-ids lists the parties assigned to this role
+          items:
+            type: string
+          minItems: 1
+          type: array
+        role-id:
+          description: role-id identifies the role being assigned
+          type: string
+      required:
+      - role-id
+      - party-ids
+      type: object
+      x-status: stable
     Scope:
       description: Scope defines what is included and excluded from policy applicability.
       properties:
@@ -2123,6 +2209,32 @@ components:
       - Critical
       type: string
       x-status: experimental
+    Stakeholders:
+      description: Stakeholders defines the reusable parties, roles, and optional standing assignments
+      properties:
+        assignments:
+          description: assignments optionally declares standing party-to-role bindings
+          items:
+            $ref: "#/components/schemas/RoleAssignment"
+          minItems: 1
+          type: array
+        parties:
+          description: parties lists the individuals, groups, teams, or external organizations
+          items:
+            $ref: "#/components/schemas/Party"
+          minItems: 1
+          type: array
+        roles:
+          description: roles lists the roles defined for this context
+          items:
+            $ref: "#/components/schemas/Role"
+          minItems: 1
+          type: array
+      required:
+      - parties
+      - roles
+      type: object
+      x-status: stable
     Statement:
       description: |-
         Statement represents a structural sub-requirement within a guideline;
