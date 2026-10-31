@@ -42,14 +42,15 @@ jobs:
         run: cue login --token=${{ secrets.CUE_REG_TOKEN }}
       - name: Publish the module
         run: cue mod publish ${{ needs.release.outputs.full-tag }}
-  publish-openapi:
-    # The website (and other downstream type generators) consume the spec's
-    # OpenAPI projection, so attach it to the release as an asset.
+  publish-assets:
+    # Downstream consumers (website, gemara-python, etc.) consume the spec's
+    # OpenAPI projection and canonical JSON Schema, so attach both to the
+    # release as versioned assets.
     needs: release
     if: needs.release.outputs.full-tag != ''
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # Upload the release asset
+      contents: write   # Upload the release assets
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -60,23 +61,29 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: cmd/go.mod
+      - name: Setup Cue
+        uses: cue-lang/setup-cue@b0e30e540a2dae47304ebf16586a5b2db023b61c # v2.0.0
+        with:
+          version: "v0.15.1"
       - name: Generate openapi.yaml
         run: make genopenapi
-      - name: Upload release asset
+      - name: Generate gemara-v1.schema.json
+        run: make genjsonschema
+      - name: Upload release assets
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.release.outputs.full-tag }}
-        run: gh release upload "$TAG" generated/openapi.yaml --clobber
-  notify-website:
-    # The website repo regenerates its schema reference pages from the
-    # released spec, so tell it a new release exists. This must happen here
-    # rather than in an `on: release` workflow in the website repo: the
-    # release is created with GITHUB_TOKEN, whose events do not trigger
-    # other workflows.
+        run: gh release upload "$TAG" generated/openapi.yaml generated/gemara-v1.schema.json --clobber
+  notify-downstream:
+    # Downstream repos regenerate their reference pages and SDK models from
+    # the released spec, so notify them that a new release exists. This must
+    # happen here rather than in an `on: release` workflow in each downstream
+    # repo: the release is created with GITHUB_TOKEN, whose events do not
+    # trigger other workflows.
     #
-    # Runs after publish-openapi so the rebuild finds the openapi.yaml
-    # asset already attached instead of racing the upload.
-    needs: [release, publish-openapi]
+    # Runs after publish-assets so consumers find openapi.yaml and
+    # gemara-v1.schema.json already attached instead of racing the upload.
+    needs: [release, publish-assets]
     if: needs.release.outputs.full-tag != ''
     runs-on: ubuntu-latest
     permissions: {}
@@ -88,18 +95,21 @@ jobs:
           client-id: ${{ secrets.GEMARA_AUTOMATION_CLIENT_ID }}
           private-key: ${{ secrets.GEMARA_AUTOMATION_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
-          repositories: website
+          repositories: "website,gemara-python"
           permission-contents: write
-      - name: Trigger website rebuild
+      - name: Dispatch release notification
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           TAG: ${{ needs.release.outputs.full-tag }}
         with:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
-            await github.rest.repos.createDispatchEvent({
-              owner: context.repo.owner,
-              repo: 'website',
-              event_type: 'gemara-release',
-              client_payload: { ref: process.env.TAG },
-            });
+            const consumers = ['website', 'gemara-python'];
+            for (const repo of consumers) {
+              await github.rest.repos.createDispatchEvent({
+                owner: context.repo.owner,
+                repo: repo,
+                event_type: 'gemara-release',
+                client_payload: { ref: process.env.TAG },
+              });
+            }
