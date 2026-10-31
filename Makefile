@@ -60,6 +60,7 @@ lintinsights:
 
 GENERATED_DIR := generated
 OPENAPI_YAML := $(GENERATED_DIR)/openapi.yaml
+JSON_SCHEMA := $(GENERATED_DIR)/gemara-v1.schema.json
 MANIFEST_JSON := $(GENERATED_DIR)/schema-manifest.json
 
 genopenapi:
@@ -67,6 +68,12 @@ genopenapi:
 	@mkdir -p $(GENERATED_DIR)
 	@cd cmd && go run . cue2openapi --schema .. --output ../$(OPENAPI_YAML) --manifest ../$(MANIFEST_JSON)
 	@echo "  >  OpenAPI schema generation complete!"
+
+genjsonschema:
+	@echo "  >  Converting CUE schema to JSON Schema ..."
+	@mkdir -p $(GENERATED_DIR)
+	@cd cmd && go run . cue2jsonschema --schema .. --output ../$(JSON_SCHEMA)
+	@echo "  >  JSON Schema generation complete!"
 
 #
 # TEST BACKWARD COMPATIBILITY
@@ -105,4 +112,4 @@ cleanup:
 	@rm -rf $(GENERATED_DIR)
 	@echo "  >  Cleanup complete!"
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights test breaking-check cleanup genopenapi
+.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights test breaking-check cleanup genopenapi genjsonschema
