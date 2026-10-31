@@ -3,8 +3,10 @@
 package diff
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -72,5 +74,126 @@ func TestRunBreakingCheckLocalBaseline(t *testing.T) {
 	}
 	if code != 0 {
 		t.Fatalf("expected exit code 0 for no change, got %d", code)
+	}
+}
+
+func TestNewBreakingCheckCmdStructure(t *testing.T) {
+	cmd := NewBreakingCheckCmd()
+	if cmd.Use != "breaking-check" {
+		t.Fatalf("expected command Use to be 'breaking-check', got %q", cmd.Use)
+	}
+
+	flags := []string{"schema", "base", "allow"}
+	for _, f := range flags {
+		if cmd.Flags().Lookup(f) == nil {
+			t.Errorf("expected flag --%s to be defined on breaking-check command", f)
+		}
+	}
+}
+
+func TestBreakingCheckCmdHelp(t *testing.T) {
+	cmd := NewBreakingCheckCmd()
+	var buf bytes.Buffer
+	cmd.SetOut(&buf)
+	cmd.SetErr(&buf)
+	cmd.SetArgs([]string{"--help"})
+	t.Cleanup(func() {
+		cmd.SetOut(nil)
+		cmd.SetErr(nil)
+		cmd.SetArgs(nil)
+	})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("unexpected error running breaking-check --help: %v", err)
+	}
+
+	out := buf.String()
+	if !strings.Contains(out, "breaking-check") {
+		t.Errorf("expected help output to mention 'breaking-check', got:\n%s", out)
+	}
+	if !strings.Contains(out, "--base") {
+		t.Errorf("expected help output to document '--base', got:\n%s", out)
+	}
+}
+
+func TestBreakingCheckCmdMissingBase(t *testing.T) {
+	cmd := NewBreakingCheckCmd()
+	cmd.SetArgs([]string{})
+	t.Cleanup(func() {
+		cmd.SetArgs(nil)
+	})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected error when --base is omitted, got nil")
+	}
+	if !strings.Contains(err.Error(), "--base is required") {
+		t.Fatalf("expected error message to mention '--base is required', got: %v", err)
+	}
+}
+
+func TestBreakingCheckCmdExecutionIdentical(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test invoking CUE generation in -short mode")
+	}
+
+	tmpDir := t.TempDir()
+	baseYaml := filepath.Join(tmpDir, "base.yaml")
+	if err := convertCUEToOpenAPI("../../../..", baseYaml); err != nil {
+		t.Fatalf("convertCUEToOpenAPI failed: %v", err)
+	}
+
+	cmd := NewBreakingCheckCmd()
+	cmd.SetArgs([]string{
+		"--base", baseYaml,
+		"--schema", "../../../..",
+	})
+	t.Cleanup(func() {
+		cmd.SetArgs(nil)
+	})
+
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("expected breaking-check to pass on identical base and schema, got: %v", err)
+	}
+}
+
+func TestBreakingCheckCmdBreakingDetected(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test invoking CUE generation in -short mode")
+	}
+
+	cmd := NewBreakingCheckCmd()
+	cmd.SetArgs([]string{
+		"--base", "testdata/base.yaml",
+		"--schema", "../../../..",
+	})
+	t.Cleanup(func() {
+		cmd.SetArgs(nil)
+	})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected breaking changes to be detected, got nil")
+	}
+	if !strings.Contains(err.Error(), "breaking changes detected") {
+		t.Fatalf("expected error 'breaking changes detected', got: %v", err)
+	}
+}
+
+func TestBreakingCheckCmdInvalidSchema(t *testing.T) {
+	cmd := NewBreakingCheckCmd()
+	tmpDir := t.TempDir()
+	nonExistent := filepath.Join(tmpDir, "does-not-exist")
+
+	cmd.SetArgs([]string{
+		"--base", "testdata/base.yaml",
+		"--schema", nonExistent,
+	})
+	t.Cleanup(func() {
+		cmd.SetArgs(nil)
+	})
+
+	if err := cmd.Execute(); err == nil {
+		t.Fatalf("expected error when running breaking-check on nonexistent schema dir, got nil")
 	}
 }
