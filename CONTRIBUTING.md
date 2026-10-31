@@ -121,5 +121,35 @@ The release workflow will automatically:
 - Create a GitHub release with the appropriate version tag
 - Generate release notes from the PR using release-drafter
 - Publish the CUE module to the central registry
+- Generate and attach release assets (`openapi.yaml` and `gemara-v1.schema.json`)
+- Dispatch a `gemara-release` event to downstream consumer repositories
 
 **Note:** Only PRs merged into `main` with the `release` label will trigger a release. Other labels (such as `breaking`, `feature`, or `vuln`) will not trigger releases.
+
+### Release Assets and Downstream Notification
+
+Each release generates and publishes canonical schema assets:
+- `openapi.yaml`: OpenAPI 3.0.3 specification for API documentation and web reference generation.
+- `gemara-v1.schema.json`: Canonical Draft 2020-12 JSON Schema for downstream language SDKs (e.g. `gemara-python`) and validators.
+
+#### Downstream Repository Dispatch Contract
+
+After all release assets are generated and uploaded, the release workflow dispatches a `gemara-release` event to designated downstream consumer repositories using GitHub App authentication:
+
+- **Event Type:** `gemara-release`
+- **Payload Schema:**
+  ```json
+  {
+    "ref": "<released-tag>"
+  }
+  ```
+- **Maintained Consumers:**
+  - `website`: Consumes `openapi.yaml` to rebuild and publish schema reference documentation.
+  - `gemara-python`: Consumes `gemara-v1.schema.json` to generate strongly-typed Python SDK models and validate fixtures.
+
+Downstream repositories can subscribe to this event by adding an `on: repository_dispatch` trigger:
+```yaml
+on:
+  repository_dispatch:
+    types: [gemara-release]
+```
