@@ -124,8 +124,6 @@ func TestAssessmentIdentity(t *testing.T) {
 			replacements: []string{
 				probe, "", review, "", probeExecutor, "", reviewExecutor, "",
 			},
-			wantErr:     true,
-			errContains: "_uniqueAssessments",
 		},
 		{
 			name: "two plan-less records with different executors",
@@ -139,8 +137,6 @@ func TestAssessmentIdentity(t *testing.T) {
 				probe, "", review, "",
 				"id: platform-security", "id: pvtr-github-repo",
 			},
-			wantErr:     true,
-			errContains: "_uniqueAssessments",
 		},
 		{
 			name: "same plan id and method under two policies",

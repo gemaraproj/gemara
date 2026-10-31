@@ -19,28 +19,29 @@ import "strings"
 	// Comments in validation sections stay detached (blank line after), so they
 	// are never published as a field's API description.
 
-	// An AssessmentLog is one method's execution against one requirement under one
-	// plan, so (this control evaluation, requirement, plan, method) is its key, where
-	// the plan and the method are each their reference-id and entry-id together: two
-	// policies may each have a plan, or a method, with the same entry-id. This is what
-	// lets a log hold several results for one requirement — a plan requiring an
-	// automated probe and a manual review produces two — and what stops it holding
-	// two that nothing tells apart.
-	// The executor is part of the key whether or not a plan is cited. A plan's method
-	// may name the executor meant to run it, but the key uses the executor that did,
-	// and the two can differ: one requirement run by the same method on two instances
-	// is two results. Two records that agree on every part of the key, the executor
-	// included, are rejected.
+	// Under a cited plan an AssessmentLog is one method's execution against one
+	// requirement, so (this control evaluation, requirement, plan, method, executor)
+	// is its key, where the plan and the method are each their reference-id and
+	// entry-id together: two policies may each have a plan, or a method, with the
+	// same entry-id. This is what lets a log hold several results for one
+	// requirement — a plan requiring an automated probe and a manual review
+	// produces two — and lets a citation name exactly one of them. Two records
+	// that agree on every part of the key are rejected.
+	// The executor is part of the key because a plan's method may name the executor
+	// meant to run it, but the key uses the executor that did, and the two can
+	// differ: one requirement run by the same method on two instances is two results.
+	// A record with no plan is not keyed. It has no method for a citation to name,
+	// so nothing could tell a second record from the first, and a producer with no
+	// policy is not required to supply anything that would.
 
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
-			for j, a in e."assessment-logs" {
-				let _planRef = [if a.plan != _|_ {"present:\(a.plan."reference-id")"}, "absent"][0]
-				let _plan = [if a.plan != _|_ {"present:\(a.plan."entry-id")"}, "absent"][0]
+			for j, a in e."assessment-logs"
+			if a.plan != _|_ {
 				let _methodRef = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."reference-id")"}, "absent"][0]
 				let _method = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."entry-id")"}, "absent"][0]
 				let _executor = [if a.executor != _|_ {"present:\(a.executor.id)"}, "absent"][0]
-				"\(a.requirement."entry-id")": "\(_planRef)": "\(_plan)": "\(_methodRef)": "\(_method)": "\(_executor)": j
+				"\(a.requirement."entry-id")": "\(a.plan."reference-id")": "\(a.plan."entry-id")": "\(_methodRef)": "\(_method)": "\(_executor)": j
 			}
 		}
 	}
