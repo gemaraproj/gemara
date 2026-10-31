@@ -113,16 +113,16 @@ func TestConverter(t *testing.T) {
 
 	// Refs to a hidden definition resolve to their visible base type
 	// (#_MappingStrict -> Mapping, mappingdocument.cue), not merely to
-	// something non-hidden. The omitted CUE conditional is disclosed by the
-	// projectable=false caveat on the enclosing field.
+	// something non-hidden. The helper's rule is projected onto the base;
+	// helperrules_test.go covers that.
 	mappings, ok := mapOf(mapOf(schemas["MappingDocument"])["properties"])["mappings"].(map[string]any)
 	if !ok {
 		t.Fatalf("MappingDocument.mappings missing: %v", schemas["MappingDocument"])
 	}
 	requireRef(t, mapOf(mappings["items"]), "#/components/schemas/Mapping", "MappingDocument.mappings")
 
-	// The at-least-one Evidence rule is intentionally not projected; its source
-	// field carries projectable=false, and the hidden helper must not leak.
+	// The at-least-one Evidence rule is projected onto Evidence;
+	// helperrules_test.go covers that. Here the hidden helper must not leak.
 	evidence, ok := mapOf(mapOf(schemas["AssessmentLog"])["properties"])["evidence"].(map[string]any)
 	if !ok {
 		t.Fatalf("AssessmentLog.evidence missing: %v", schemas["AssessmentLog"])

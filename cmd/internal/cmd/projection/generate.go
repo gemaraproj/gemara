@@ -28,13 +28,16 @@ func loadPrepared(schemaDir string) (cue.Value, *prepInfo, *build.Instance, erro
 		return cue.Value{}, nil, nil, fmt.Errorf("loading CUE package %s: %w", schemaDir, inst.Err)
 	}
 
-	info := &prepInfo{}
+	info := &prepInfo{HelperRules: map[string][]helperRule{}}
 	for _, f := range inst.Files {
 		fileInfo, err := prepare(f)
 		if err != nil {
 			return cue.Value{}, nil, nil, fmt.Errorf("preparing %s: %w", f.Filename, err)
 		}
 		info.DroppedConditionals = append(info.DroppedConditionals, fileInfo.DroppedConditionals...)
+		for helper, rules := range fileInfo.HelperRules {
+			info.HelperRules[helper] = append(info.HelperRules[helper], rules...)
+		}
 	}
 
 	v := cuecontext.New().BuildInstance(inst)

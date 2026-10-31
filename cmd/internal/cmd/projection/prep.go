@@ -10,6 +10,7 @@ import (
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/ast/astutil"
 	"cuelang.org/go/cue/literal"
+	"cuelang.org/go/cue/token"
 )
 
 // Prep loads the package and applies required upstream-generator
@@ -41,6 +42,13 @@ type prepInfo struct {
 	// so a newly added conditional announces that it will not reach the
 	// generated document, rather than vanishing silently.
 	DroppedConditionals []string
+
+	// CUE CONVERTER WORKAROUND: HelperRules holds the conditionals of hidden #_
+	// helpers (such as #_AssessmentLogStrict) that stripComprehensions
+	// translated instead of dropping, keyed by helper name without the leading
+	// '#'. Post attaches each rule to the base schema the helper extends, which
+	// every use of the helper is collapsed onto.
+	HelperRules map[string][]helperRule
 }
 
 // prepare rewrites a CUE file into the subset cuelang.org/go/encoding/openapi
@@ -50,10 +58,10 @@ type prepInfo struct {
 // Order matters: comprehensions go first, because removing them is what
 // orphans the aliases and imports the later steps clean up.
 func prepare(f *ast.File) (*prepInfo, error) {
-	info := &prepInfo{}
+	info := &prepInfo{HelperRules: map[string][]helperRule{}}
 	var err error
 
-	f.Decls = stripComprehensions(f.Decls, info)
+	f.Decls = stripComprehensions(f.Decls, info, "")
 	astutil.Apply(f, func(c astutil.Cursor) bool {
 		if err != nil {
 			return false
@@ -64,7 +72,9 @@ func prepare(f *ast.File) (*prepInfo, error) {
 			// translate a cross-field conditional and errors rather than guessing. The walker this replaces
 			// ignored these too, so no fidelity is lost — but it is a
 			// deliberate omission, recorded here rather than incidental.
-			n.Elts = stripComprehensions(n.Elts, info)
+			// Conditionals in a hidden #_ helper are translated where
+			// their shape allows, so Post can restore them.
+			n.Elts = stripComprehensions(n.Elts, info, hiddenHelperName(c))
 		case *ast.Field:
 			// CUE CONVERTER WORKAROUND: X="name": the alias exists to be read by the comprehensions
 			// just removed. CUE rejects an unreferenced alias, so unwrap it
@@ -136,17 +146,67 @@ func prepare(f *ast.File) (*prepInfo, error) {
 
 // stripComprehensions removes *ast.Comprehension entries from a declaration
 // list. astutil's Cursor.Delete does not support this position, so the slice
-// is rebuilt directly.
-func stripComprehensions(decls []ast.Decl, info *prepInfo) []ast.Decl {
+// is rebuilt directly. Inside a hidden helper (helper is non-empty), a
+// conditional that translateHelperConditional recognises is recorded as a
+// helper rule instead of as dropped.
+func stripComprehensions(decls []ast.Decl, info *prepInfo, helper string) []ast.Decl {
 	out := decls[:0:0]
 	for _, d := range decls {
-		if _, ok := d.(*ast.Comprehension); ok {
-			info.DroppedConditionals = append(info.DroppedConditionals, d.Pos().String())
+		c, ok := d.(*ast.Comprehension)
+		if !ok {
+			out = append(out, d)
 			continue
 		}
-		out = append(out, d)
+		if helper != "" {
+			// CUE resolves the condition's field lexically, so it only means
+			// the helper's own field when this block declares it, as the
+			// helpers do (`result: #Result`); otherwise it could bind to
+			// something outside the helper.
+			if rule, ok := translateHelperConditional(c); ok && declaresField(decls, rule.subject) {
+				info.HelperRules[helper] = append(info.HelperRules[helper], rule)
+				continue
+			}
+		}
+		info.DroppedConditionals = append(info.DroppedConditionals, d.Pos().String())
 	}
 	return out
+}
+
+// declaresField reports whether decls declares a field that an unquoted
+// reference to name resolves to. A quoted label does not bind the identifier.
+func declaresField(decls []ast.Decl, name string) bool {
+	for _, d := range decls {
+		if f, ok := d.(*ast.Field); ok {
+			if label, isIdent, err := ast.LabelName(f.Label); err == nil && isIdent && label == name {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// hiddenHelperName returns the name (without '#') of the hidden #_ helper the
+// cursor's struct is a conjunct of, as in `#_X: {@go(-)} & #Base & {...}`, or
+// "" when the struct is anywhere else: inside one of the helper's fields, a
+// let, a disjunction or a list.
+func hiddenHelperName(c astutil.Cursor) string {
+	for p := c.Parent(); p != nil; p = p.Parent() {
+		switch n := p.Node().(type) {
+		case *ast.BinaryExpr:
+			if n.Op != token.AND {
+				return ""
+			}
+		case *ast.ParenExpr:
+		case *ast.Field:
+			if id, ok := n.Label.(*ast.Ident); ok && strings.HasPrefix(id.Name, "#_") {
+				return strings.TrimPrefix(id.Name, "#")
+			}
+			return ""
+		default:
+			return ""
+		}
+	}
+	return ""
 }
 
 // CUE CONVERTER WORKAROUND: pruneImports drops imports left unused by prepare's

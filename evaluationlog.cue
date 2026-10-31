@@ -27,7 +27,6 @@ package gemara
 	"assessment-logs": [...{
 		requirement: "reference-id": (control."reference-id")
 	}]
-	// Require start timestamp on assessments that actually executed
 	"assessment-logs": [#_AssessmentLogStrict, ...#_AssessmentLogStrict]
 }
 
@@ -42,6 +41,7 @@ package gemara
 }
 
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
+// An assessment log MUST include start unless its result is Not Run, Unknown or Not Applicable.
 #AssessmentLog: {
 	// Requirement should map to the assessment requirement for this assessment.
 	requirement: #EntryMapping
