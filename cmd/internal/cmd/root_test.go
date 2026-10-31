@@ -18,7 +18,7 @@ func TestRootCmdStructure(t *testing.T) {
 		subCommands[sub.Name()] = true
 	}
 
-	expectedSubs := []string{"cue2openapi", "breaking-check"}
+	expectedSubs := []string{"cue2openapi", "cue2jsonschema", "breaking-check"}
 	for _, exp := range expectedSubs {
 		if !subCommands[exp] {
 			t.Errorf("expected subcommand %q to be registered under rootCmd", exp)
@@ -47,6 +47,9 @@ func TestRootCmdHelp(t *testing.T) {
 	}
 	if !strings.Contains(out, "cue2openapi") {
 		t.Errorf("expected help output to mention 'cue2openapi', got:\n%s", out)
+	}
+	if !strings.Contains(out, "cue2jsonschema") {
+		t.Errorf("expected help output to mention 'cue2jsonschema', got:\n%s", out)
 	}
 	if !strings.Contains(out, "breaking-check") {
 		t.Errorf("expected help output to mention 'breaking-check', got:\n%s", out)

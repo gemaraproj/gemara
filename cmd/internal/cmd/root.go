@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/gemaraproj/gemara/internal/cmd/diff"
+	"github.com/gemaraproj/gemara/internal/cmd/jsonschema"
 	"github.com/gemaraproj/gemara/internal/cmd/projection"
 	"github.com/spf13/cobra"
 )
@@ -26,5 +27,6 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(projection.NewCue2OpenAPICmd())
+	rootCmd.AddCommand(jsonschema.NewCue2JSONSchemaCmd())
 	rootCmd.AddCommand(diff.NewBreakingCheckCmd())
 }
