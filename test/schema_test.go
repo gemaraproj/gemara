@@ -18,6 +18,151 @@ import (
 var schemaValue cue.Value
 var schemaCtx *cue.Context
 
+func TestAssessmentIdentity(t *testing.T) {
+	data, err := os.ReadFile("./test-data/good-evaluation-log-execution.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	def := schemaValue.LookupPath(cue.ParsePath("#EvaluationLog"))
+
+	// ctx renders the execution-context block the fixture uses, for one method.
+	ctx := func(ref, entry string) string {
+		return "    execution-context:\n      method:\n        reference-id: " + ref + "\n        entry-id: " + entry
+	}
+	planRef := "    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n"
+	probeExecutor := "    executor:\n      id: pvtr-github-repo\n      name: PVTR GitHub Repository Probe\n      type: Software\n      uri: \"https://github.com/revanite-io/pvtr-github-repo\"\n"
+	reviewExecutor := "    executor:\n      id: platform-security\n      name: Platform Security Review\n      type: Human\n      contact:\n        name: Platform Security\n        affiliation: Example Org\n"
+	probe := planRef + ctx("security-policy", "EM-AC-01-probe") + "\n"
+	review := planRef + ctx("security-policy", "EM-AC-01-review") + "\n"
+
+	tests := []struct {
+		name         string
+		replacements []string
+		wantErr      bool
+		errContains  string
+	}{
+		{
+			name:         "cited plan with empty method",
+			replacements: []string{"entry-id: EM-AC-01-probe", `entry-id: ""`},
+			wantErr:      true,
+			errContains:  `"execution-context".method."entry-id"`,
+		},
+		{
+			name:         "fallback with empty method",
+			replacements: []string{"entry-id: EM-BASELINE-SCAN", `entry-id: ""`},
+			wantErr:      true,
+			errContains:  `"execution-context".method."entry-id"`,
+		},
+		{
+			name: "cited plan with a method from another policy",
+			replacements: []string{
+				ctx("security-policy", "EM-AC-01-probe"), ctx("other-policy", "EM-AC-01-probe"),
+			},
+			wantErr:     true,
+			errContains: `"execution-context".method."reference-id"`,
+		},
+		{
+			name: "distinct plans and methods containing slashes",
+			replacements: []string{
+				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-probe"),
+				"entry-id: AP/AC-01\n" + ctx("security-policy", "X"),
+				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-review"),
+				"entry-id: AP\n" + ctx("security-policy", "AC-01/X"),
+			},
+		},
+		{
+			name: "duplicate identities containing slashes",
+			replacements: []string{
+				"entry-id: AP-AC-01", "entry-id: AP/AC-01",
+				"entry-id: EM-AC-01-probe", "entry-id: AC-01/X",
+				"entry-id: EM-AC-01-review", "entry-id: AC-01/X",
+				"id: platform-security", "id: pvtr-github-repo",
+			},
+			wantErr:     true,
+			errContains: "_uniqueAssessments",
+		},
+		{
+			name: "one method run by two executors under a cited plan",
+			replacements: []string{
+				ctx("security-policy", "EM-AC-01-review"), ctx("security-policy", "EM-AC-01-probe"),
+			},
+		},
+		{
+			name: "one method run twice by one executor under a cited plan",
+			replacements: []string{
+				ctx("security-policy", "EM-AC-01-review"), ctx("security-policy", "EM-AC-01-probe"),
+				"id: platform-security", "id: pvtr-github-repo",
+			},
+			wantErr:     true,
+			errContains: "_uniqueAssessments",
+		},
+		{
+			name: "literal hyphen plan differs from omitted plan",
+			replacements: []string{
+				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-probe"),
+				"entry-id: '-'\n" + ctx("security-policy", "X"),
+				review, ctx("security-policy", "X") + "\n",
+			},
+		},
+		{
+			name: "literal hyphen method differs from omitted method",
+			replacements: []string{
+				probe, ctx("security-policy", "'-'") + "\n",
+				review, "",
+				probeExecutor, "",
+				reviewExecutor, "",
+			},
+		},
+		{
+			name:         "cited plan with an empty execution context",
+			replacements: []string{ctx("security-policy", "EM-AC-01-probe"), "    execution-context: {}"},
+			wantErr:      true,
+			errContains:  `"execution-context".method`,
+		},
+		{
+			name: "two plan-less records with no method and no executor",
+			replacements: []string{
+				probe, "", review, "", probeExecutor, "", reviewExecutor, "",
+			},
+		},
+		{
+			name: "two plan-less records with different executors",
+			replacements: []string{
+				probe, "", review, "",
+			},
+		},
+		{
+			name: "two plan-less records with the same executor and no method",
+			replacements: []string{
+				probe, "", review, "",
+				"id: platform-security", "id: pvtr-github-repo",
+			},
+		},
+		{
+			name: "same plan id and method under two policies",
+			replacements: []string{
+				"reference-id: security-policy\n      entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-review"),
+				"reference-id: other-policy\n      entry-id: AP-AC-01\n" + ctx("other-policy", "EM-AC-01-probe"),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			input := strings.NewReplacer(tt.replacements...).Replace(string(data))
+			validationErr := cueyaml.Validate([]byte(input), def)
+			if tt.wantErr && validationErr == nil {
+				t.Fatal("expected validation error, got nil")
+			}
+			if !tt.wantErr && validationErr != nil {
+				t.Fatalf("unexpected validation error: %v", validationErr)
+			}
+			if validationErr != nil && !strings.Contains(validationErr.Error(), tt.errContains) {
+				t.Errorf("error %q does not contain %q", validationErr.Error(), tt.errContains)
+			}
+		})
+	}
+}
+
 func TestMain(m *testing.M) {
 	schemaCtx = cuecontext.New()
 	ctx := schemaCtx
@@ -118,9 +263,12 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
+		{"assessments naming their executors and execution context", "./test-data/good-evaluation-log-execution.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
+		{"two assessments nothing tells apart", "./test-data/bad-evaluation-log-duplicate-assessment.yaml", "#EvaluationLog", true, "_uniqueAssessments"},
+		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".method"},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
