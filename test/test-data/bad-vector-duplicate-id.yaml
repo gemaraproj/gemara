@@ -1,0 +1,27 @@
+metadata:
+  id: TEST-DUPLICATE-VECTORS
+  type: VectorCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Vector catalog with duplicate vector ids
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+
+title: Duplicate Vector ID Test
+
+groups:
+  - id: injection
+    title: Injection Attacks
+    description: Prompt and model injection attack vectors
+
+vectors:
+  - id: VEC-001
+    title: First Vector
+    description: Prompt injection attack vector
+    group: injection
+  - id: VEC-001
+    title: Duplicate Vector
+    description: Context window overflow vector
+    group: injection

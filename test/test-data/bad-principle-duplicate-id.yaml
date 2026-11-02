@@ -1,0 +1,27 @@
+metadata:
+  id: TEST-DUPLICATE-PRINCIPLES
+  type: PrincipleCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Principle catalog with duplicate principle ids
+  author:
+    id: ethics-team
+    name: Ethics Team
+    type: Human
+
+title: Duplicate Principle ID Test
+
+groups:
+  - id: ethics
+    title: Ethics
+    description: Ethical AI principles
+
+principles:
+  - id: PRIN-001
+    title: First Principle
+    description: All systems must be fair and unbiased.
+    group: ethics
+  - id: PRIN-001
+    title: Duplicate Principle
+    description: Systems must avoid disparate impact.
+    group: ethics
