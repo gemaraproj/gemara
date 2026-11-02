@@ -195,3 +195,78 @@ func TestValidate_StrictUnresolvedWarning(t *testing.T) {
 		t.Fatalf("expected strict mode to fail on unresolvable catalog reference")
 	}
 }
+
+func TestValidate_DeterministicCatalogPathResolution(t *testing.T) {
+	// Nested doc with "osps" in its folder path, but a different ID and base filename
+	nestedUnrelatedDoc := &Document{
+		FilePath: "some/nested/osps-directory/unrelated.yaml",
+		ID:       "UNRELATED",
+		Type:     "ControlCatalog",
+		DeclaredEntities: map[string]bool{
+			"UNRELATED-01": true,
+		},
+	}
+
+	// Exact target catalog matching "osps"
+	targetCatalog := &Document{
+		FilePath: "catalogs/good-osps.yml",
+		ID:       "OSPS",
+		Type:     "ControlCatalog",
+		DeclaredEntities: map[string]bool{
+			"OSPS-QA-01": true,
+		},
+	}
+
+	consumerDoc := &Document{
+		FilePath: "mapping.yaml",
+		ID:       "MAP-01",
+		Type:     "MappingDocument",
+		MappingReferences: map[string]MappingReference{
+			"osps": {ID: "osps", Title: "OSPS Baseline"},
+		},
+		EntityUsages: []EntityUsage{
+			{
+				ReferenceID: "osps",
+				EntryID:     "OSPS-QA-01",
+				Context:     "mappings.source",
+			},
+		},
+	}
+
+	res := Validate([]*Document{consumerDoc, nestedUnrelatedDoc, targetCatalog}, Options{})
+	if !res.Passed {
+		t.Fatalf("expected deterministic resolution to targetCatalog, but got diagnostics: %+v", res.Diagnostics)
+	}
+}
+
+func TestValidate_EvaluationLogEnforcementTolerance_Issue499(t *testing.T) {
+	// EvaluationLog target (Issue #499: #ControlEvaluation lacks top-level id)
+	evalLog := &Document{
+		FilePath:         "eval-log.yaml",
+		ID:               "EVAL-LOG-01",
+		Type:             "EvaluationLog",
+		DeclaredEntities: map[string]bool{},
+	}
+
+	// Enforcement log citing evaluation log
+	enforcementLog := &Document{
+		FilePath: "enforcement-log.yaml",
+		ID:       "ENF-01",
+		Type:     "EnforcementLog",
+		MappingReferences: map[string]MappingReference{
+			"EVAL-LOG-01": {ID: "EVAL-LOG-01", Title: "Evaluation Log"},
+		},
+		EntityUsages: []EntityUsage{
+			{
+				ReferenceID: "EVAL-LOG-01",
+				EntryID:     "finding-123",
+				Context:     "actions.justification.assessments.log",
+			},
+		},
+	}
+
+	res := Validate([]*Document{enforcementLog, evalLog}, Options{})
+	if !res.Passed {
+		t.Fatalf("expected EvaluationLog reference to be tolerated per #499, but got diagnostics: %+v", res.Diagnostics)
+	}
+}
