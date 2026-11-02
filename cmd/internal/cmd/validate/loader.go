@@ -365,6 +365,8 @@ func extractEvaluationLog(doc *Document, root map[string]any) {
 					Context:     "evaluations.control",
 				})
 				if ctrlID != "" {
+					// Index the evaluated control so downstream references (e.g. enforcement logs, ref #499) resolve
+					doc.DeclaredEntities[ctrlID] = true
 					doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
 						ReferenceID: ctrlRef,
 						EntryID:     ctrlID,

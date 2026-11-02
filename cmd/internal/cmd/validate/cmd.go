@@ -24,6 +24,9 @@ constructs an index of declared entities and mapping references, and verifies:
 		Args:         cobra.MinimumNArgs(1),
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if opts.Format == "json" {
+				cmd.SilenceErrors = true
+			}
 			return RunValidate(cmd.OutOrStdout(), cmd.ErrOrStderr(), args, opts)
 		},
 	}

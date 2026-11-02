@@ -101,7 +101,7 @@ breaking-check:
 #
 validate:
 	@echo "  >  Validating semantic references and foreign-key integrity across fixtures ..."
-	@( cd cmd && go run . validate ../test/test-data/good-mapping-document.yaml ../test/test-data/good-osps.yml )
+	@( cd cmd && go run . validate ../test/test-data/good-mapping-document.yaml ../test/test-data/good-osps.yml ../test/test-data/good-enforcement-log.yaml )
 	@echo "  >  Semantic reference validation complete."
 
 #

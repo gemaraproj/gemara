@@ -117,3 +117,52 @@ func TestRunValidate_EmptyPaths(t *testing.T) {
 		t.Fatalf("expected error with empty paths, got nil")
 	}
 }
+
+func TestRunValidate_JSONOutputFailure(t *testing.T) {
+	tmpDir := t.TempDir()
+	badFile := filepath.Join(tmpDir, "bad-mapping.yaml")
+
+	content := `title: Broken Mapping
+metadata:
+  id: MAP-BAD-01
+  type: MappingDocument
+source-reference:
+  reference-id: UNDECLARED
+  entry-type: Control
+target-reference:
+  reference-id: UNDECLARED
+  entry-type: Guideline
+mappings:
+  - id: M-01
+    source: NO-SUCH-ID
+    relationship: relates-to
+    targets:
+      - entry-id: T-01
+`
+	if err := os.WriteFile(badFile, []byte(content), 0644); err != nil {
+		t.Fatalf("write bad fixture: %v", err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	err := RunValidate(&stdout, &stderr, []string{badFile}, Options{Format: "json"})
+	if err == nil {
+		t.Fatalf("expected error running validate on broken fixture in JSON mode")
+	}
+
+	// In JSON mode, stderr must not receive diagnostic error streams (stdout has the JSON)
+	if stderr.Len() != 0 {
+		t.Errorf("expected clean stderr in JSON mode, got: %q", stderr.String())
+	}
+
+	var res ValidationResult
+	if err := json.Unmarshal(stdout.Bytes(), &res); err != nil {
+		t.Fatalf("stdout should be valid JSON even on validation failure: %v\nOutput: %s", err, stdout.String())
+	}
+
+	if res.Passed {
+		t.Errorf("expected res.Passed to be false")
+	}
+	if len(res.Diagnostics) == 0 {
+		t.Errorf("expected diagnostics in JSON output")
+	}
+}
