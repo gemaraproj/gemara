@@ -21,6 +21,7 @@ import "list"
 	// risks is a list of risks defined by this catalog
 	risks?: [#Risk, ...#Risk] @go(Risks)
 
+	// when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared category id
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
 		// Each distinct rank value may appear at most once among risks that set rank (partial ranking allowed).

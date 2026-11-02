@@ -141,9 +141,9 @@ func TestPrepareRecordsDroppedConditionals(t *testing.T) {
 	if len(info.DroppedConditionals) != 2 {
 		t.Errorf("DroppedConditionals = %v, want 2 entries", info.DroppedConditionals)
 	}
-	for _, pos := range info.DroppedConditionals {
-		if !strings.Contains(pos, "test.cue:") {
-			t.Errorf("position %q does not name the source file", pos)
+	for _, d := range info.DroppedConditionals {
+		if !strings.Contains(d.pos, "test.cue:") {
+			t.Errorf("position %q does not name the source file", d.pos)
 		}
 	}
 }

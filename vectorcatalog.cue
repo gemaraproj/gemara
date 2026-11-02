@@ -18,6 +18,7 @@ import "list"
 	// vectors is a list of attack vectors documented in this catalog
 	vectors?: [#Vector, ...#Vector] @go(Vectors)
 
+	// when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, and when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups
 	if vectors != _|_ {
 		_uniqueVectorIds: {for i, v in vectors {(v.id): i}}
 		groups: [#Group, ...#Group]

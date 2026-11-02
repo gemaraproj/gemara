@@ -148,6 +148,9 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - retention anchor ids must be unique, and none may redeclare collected-at
+      - retention obligation ids must be unique, each obligation's anchor must be collected-at or a declared retention anchor, and an obligation measured from collected-at must state a duration
       x-status: experimental
     ArtifactMapping:
       description: ArtifactMapping represents a mapping to an external artifact or artifact entry
@@ -357,6 +360,8 @@ components:
       - text
       - applicability
       type: object
+      x-rules:
+      - retired assessment requirements must not have a recommendation
       x-status: stable
     AssessmentRequirementModifier:
       description: AssessmentRequirementModifier allows organizations to customize assessment requirements based on how an organization wants to gather evidence for the objective.
@@ -431,6 +436,8 @@ components:
           description: summary provides the high-level conclusion
           type: string
       type: object
+      x-rules:
+      - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
       x-status: experimental
     AuditResult:
       description: AuditResult records a single result with supporting evidence and recommendations.
@@ -520,6 +527,8 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when capabilities are listed, groups is required, capability ids must be unique, and each capability's group must be a declared group id
       x-status: stable
     Catalog:
       description: Catalog describes a set of topically-associated entries
@@ -551,6 +560,10 @@ components:
       - title
       - metadata
       type: object
+      x-rules:
+      - group ids must be unique
+      - a catalog that extends others must declare metadata.mapping-references
+      - a catalog that imports others must declare metadata.mapping-references
       x-status: stable
     CatalogImport:
       description: CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
@@ -711,6 +724,8 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, and each assessment requirement's applicability must name declared applicability groups
       x-status: stable
     ControlEvaluation:
       description: ControlEvaluation contains the results of evaluating a single Layer 5 control.
@@ -842,6 +857,8 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when the log's disposition is Clear, every assessment cited in an action's justification must have result Passed
       x-status: experimental
     EnforcementMethodType:
       enum:
@@ -1133,6 +1150,8 @@ components:
           - $ref: "#/components/schemas/GuidanceType"
           description: type categorizes this document based on the intent of its contents
       type: object
+      x-rules:
+      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
       x-status: experimental
     GuidanceImport:
       description: GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
@@ -1237,6 +1256,8 @@ components:
       - objective
       - group
       type: object
+      x-rules:
+      - retired guidelines must not have recommendations
       x-status: experimental
     ImplementationDetails:
       description: ImplementationDetails specifies the timeline for policy implementation.
@@ -1334,6 +1355,8 @@ components:
       - metadata
       - terms
       type: object
+      x-rules:
+      - term ids must be unique
       x-status: experimental
     LexiconReference:
       description: LexiconReference cites a source supporting a lexicon definition
@@ -1492,6 +1515,8 @@ components:
       - target-reference
       - mappings
       type: object
+      x-rules:
+      - mapping ids must be unique
       x-status: experimental
     MappingReference:
       description: MappingReference represents a reference to an external document with full metadata.
@@ -1605,6 +1630,9 @@ components:
       - description
       - author
       type: object
+      x-rules:
+      - mapping-reference ids must be unique
+      - applicability group ids must be unique
       x-status: stable
     MethodType:
       enum:
@@ -1769,6 +1797,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when principles are listed, groups is required, principle ids must be unique, and each principle's group must be a declared group id
       x-status: experimental
     RACI:
       description: RACI defines the roles responsible for managing an artifact
@@ -2095,6 +2125,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared category id
       x-status: experimental
     RiskCategory:
       allOf:
@@ -2240,6 +2272,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when threats are listed, groups is required, threat ids must be unique, and each threat's group must be a declared group id
       x-status: stable
     TypedMapping:
       allOf:
@@ -2305,6 +2339,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, and when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups
       x-status: experimental
 info:
   description: Gemara schema definitions
