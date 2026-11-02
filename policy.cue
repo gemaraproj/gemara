@@ -16,9 +16,17 @@ import "list"
 	contacts:               #RACI
 	scope:                  #Scope
 	imports:                #Imports
+	PAG="applicability-groups"?: [string, ...string] @go(ApplicabilityGroups)
 	"implementation-plan"?: #ImplementationPlan @go(ImplementationPlan)
 	risks?:                 #Risks
 	adherence:              #Adherence
+
+	if metadata."applicability-groups" != _|_ if PAG != _|_ {
+		let _validPolicyApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
+		for i, group in PAG {
+			_policyApplicabilityValidation: "\(i)": _validPolicyApplicabilityIds & list.Contains(group)
+		}
+	}
 }
 
 // Scope defines what is included and excluded from policy applicability.
@@ -182,6 +190,7 @@ import "list"
 	"reference-id": string @go(ReferenceId)
 	exclusions?: [string, ...string]
 	constraints?: [#Constraint, ...#Constraint]
+	"applicability-groups"?: [string, ...string] @go(ApplicabilityGroups)
 	"assessment-requirement-modifications"?: [#AssessmentRequirementModifier, ...#AssessmentRequirementModifier] @go(AssessmentRequirementModifications)
 }
 

@@ -1,0 +1,60 @@
+metadata:
+  id: "bad-policy-undeclared-applicability-group"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy referencing an undeclared applicability group"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "OSPS-Baseline"
+      title: "OpenSSF OSPS Baseline"
+      version: "1.0.0"
+      url: "https://github.com/ossf/osps-baseline"
+  applicability-groups:
+    - id: "maturity-level-1"
+      title: "Maturity Level 1"
+      description: "Baseline foundational security controls"
+
+title: "Bad Policy with Undeclared Applicability Group"
+contacts:
+  responsible:
+    - name: "Security Officer"
+      email: "security@example.com"
+  accountable:
+    - name: "CISO"
+      email: "ciso@example.com"
+  consulted:
+    - name: "Engineering Lead"
+      email: "eng-lead@example.com"
+  informed:
+    - name: "All Staff"
+
+scope:
+  in:
+    technologies:
+      - "Cloud Infrastructure"
+
+applicability-groups:
+  - "non-existent-group"
+
+imports:
+  catalogs:
+    - reference-id: "OSPS-Baseline"
+
+adherence:
+  evaluation-methods:
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
+      description: "Continuous automated scanning"
+  enforcement-methods:
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
+      required: true
+      description: "Deployment pipeline gate"
+  non-compliance: "Escalate to security committee"

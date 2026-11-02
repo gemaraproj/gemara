@@ -555,6 +555,11 @@ components:
     CatalogImport:
       description: CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
       properties:
+        applicability-groups:
+          items:
+            type: string
+          minItems: 1
+          type: array
         assessment-requirement-modifications:
           items:
             $ref: "#/components/schemas/AssessmentRequirementModifier"
@@ -1685,6 +1690,11 @@ components:
       properties:
         adherence:
           $ref: "#/components/schemas/Adherence"
+        applicability-groups:
+          items:
+            type: string
+          minItems: 1
+          type: array
         contacts:
           $ref: "#/components/schemas/RACI"
         implementation-plan:
