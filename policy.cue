@@ -13,9 +13,9 @@ import "list"
 	title:    string
 	metadata: #Metadata
 	metadata: type: "Policy"
-	contacts:               #RACI
-	scope:                  #Scope
-	imports:                #Imports
+	contacts: #RACI
+	scope:    #Scope
+	imports:  #Imports
 	PAG="applicability-groups"?: [string, ...string] @go(ApplicabilityGroups)
 	"implementation-plan"?: #ImplementationPlan @go(ImplementationPlan)
 	risks?:                 #Risks
