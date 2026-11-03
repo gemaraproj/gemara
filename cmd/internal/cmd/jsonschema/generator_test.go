@@ -165,3 +165,77 @@ func TestMissingCueBin(t *testing.T) {
 		t.Errorf("expected error with missing cue binary, got nil")
 	}
 }
+
+func TestHelperRulesPreservedInJSONSchema(t *testing.T) {
+	if _, err := exec.LookPath("cue"); err != nil {
+		t.Skip("cue binary not found on PATH; skipping test")
+	}
+
+	schemaDir := filepath.Join("..", "..", "..", "..")
+	gen := NewGenerator(schemaDir)
+
+	schema, err := gen.Generate()
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	defs, ok := schema["$defs"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing $defs map")
+	}
+
+	// 1. Verify AssessmentLog carries the start rule from #_AssessmentLogStrict
+	al, ok := defs["AssessmentLog"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing AssessmentLog in $defs")
+	}
+	alAllOf, ok := al["allOf"].([]any)
+	if !ok || len(alAllOf) == 0 {
+		t.Fatalf("expected AssessmentLog to have allOf containing helper rules, got %v", al["allOf"])
+	}
+	alBytes, _ := json.Marshal(alAllOf)
+	if !jsonContains(string(alBytes), "start") || !jsonContains(string(alBytes), "Not Run") {
+		t.Errorf("AssessmentLog allOf missing expected start conditional: %s", string(alBytes))
+	}
+
+	// 2. Verify Evidence carries the payload-or-source rule from #_EvidenceStrict
+	ev, ok := defs["Evidence"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing Evidence in $defs")
+	}
+	evAllOf, ok := ev["allOf"].([]any)
+	if !ok || len(evAllOf) == 0 {
+		t.Fatalf("expected Evidence to have allOf containing helper rules, got %v", ev["allOf"])
+	}
+	evBytes, _ := json.Marshal(evAllOf)
+	if !jsonContains(string(evBytes), "payload") || !jsonContains(string(evBytes), "source") {
+		t.Errorf("Evidence allOf missing expected payload-or-source conditional: %s", string(evBytes))
+	}
+
+	// 3. Verify Mapping carries the targets-required rule from #_MappingStrict
+	m, ok := defs["Mapping"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing Mapping in $defs")
+	}
+	mAllOf, ok := m["allOf"].([]any)
+	if !ok || len(mAllOf) == 0 {
+		t.Fatalf("expected Mapping to have allOf containing helper rules, got %v", m["allOf"])
+	}
+	mBytes, _ := json.Marshal(mAllOf)
+	if !jsonContains(string(mBytes), "targets") || !jsonContains(string(mBytes), "no-match") {
+		t.Errorf("Mapping allOf missing expected targets conditional: %s", string(mBytes))
+	}
+}
+
+func jsonContains(jsonStr, substr string) bool {
+	return filepath.Clean(jsonStr) != "" && (len(jsonStr) > 0 && (len(substr) > 0 && true)) && (len(jsonStr) >= len(substr) && containsSubstr(jsonStr, substr))
+}
+
+func containsSubstr(s, sub string) bool {
+	for i := 0; i+len(sub) <= len(s); i++ {
+		if s[i:i+len(sub)] == sub {
+			return true
+		}
+	}
+	return false
+}

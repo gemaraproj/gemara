@@ -136,10 +136,80 @@ func (g *Generator) Generate() (map[string]any, error) {
 		defs[normalizeDefName(name)] = body
 	}
 
+	applyHelperRules(defs)
+
 	return map[string]any{
 		"$schema": schemaDialect,
 		"$defs":   defs,
 	}, nil
+}
+
+// applyHelperRules layers the strict validation rules from hidden helper definitions
+// (#_AssessmentLogStrict, #_EvidenceStrict, #_MappingStrict) onto their respective
+// base definitions (AssessmentLog, Evidence, Mapping). This ensures JSON Schema validation
+// stays aligned with CUE and OpenAPI (ref: #537).
+func applyHelperRules(defs map[string]any) {
+	appendAllOf := func(target map[string]any, rule map[string]any) {
+		existing, ok := target["allOf"].([]any)
+		if !ok {
+			target["allOf"] = []any{rule}
+			return
+		}
+		target["allOf"] = append(existing, rule)
+	}
+
+	// 1. #_AssessmentLogStrict: start required unless unexecuted
+	// If result != "Not Run" && result != "Unknown" && result != "Not Applicable" => start is required.
+	if al, ok := defs["AssessmentLog"].(map[string]any); ok {
+		appendAllOf(al, map[string]any{
+			"anyOf": []any{
+				map[string]any{
+					"properties": map[string]any{
+						"result": map[string]any{
+							"type": "string",
+							"enum": []any{"Not Run", "Unknown", "Not Applicable"},
+						},
+					},
+				},
+				map[string]any{
+					"required": []any{"start"},
+				},
+			},
+		})
+	}
+
+	// 2. #_EvidenceStrict: at least one of payload or source MUST be present
+	if ev, ok := defs["Evidence"].(map[string]any); ok {
+		appendAllOf(ev, map[string]any{
+			"anyOf": []any{
+				map[string]any{
+					"required": []any{"payload"},
+				},
+				map[string]any{
+					"required": []any{"source"},
+				},
+			},
+		})
+	}
+
+	// 3. #_MappingStrict: targets required when relationship != "no-match"
+	if m, ok := defs["Mapping"].(map[string]any); ok {
+		appendAllOf(m, map[string]any{
+			"anyOf": []any{
+				map[string]any{
+					"properties": map[string]any{
+						"relationship": map[string]any{
+							"type": "string",
+							"enum": []any{"no-match"},
+						},
+					},
+				},
+				map[string]any{
+					"required": []any{"targets"},
+				},
+			},
+		})
+	}
 }
 
 // Write writes the canonical JSON Schema to outputPath.
