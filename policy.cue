@@ -16,14 +16,16 @@ import "list"
 	contacts: #RACI
 	scope:    #Scope
 	imports:  #Imports
-	PAG="applicability-groups"?: [string, ...string] @go(ApplicabilityGroups)
+	// applicability selects the applicability group IDs this policy adopts.
+	// When metadata."applicability-groups" is present, each selected ID must match a declared group ID; when absent, any selection is rejected.
+	PA="applicability"?: [string, ...string] @go(Applicability)
 	"implementation-plan"?: #ImplementationPlan @go(ImplementationPlan)
 	risks?:                 #Risks
 	adherence:              #Adherence
 
-	if metadata."applicability-groups" != _|_ if PAG != _|_ {
-		let _validPolicyApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
-		for i, group in PAG {
+	if PA != _|_ {
+		let _validPolicyApplicabilityIds = [if metadata."applicability-groups" != _|_ for ag in metadata."applicability-groups" {ag.id}]
+		for i, group in PA {
 			_policyApplicabilityValidation: "\(i)": _validPolicyApplicabilityIds & list.Contains(group)
 		}
 	}
@@ -190,7 +192,9 @@ import "list"
 	"reference-id": string @go(ReferenceId)
 	exclusions?: [string, ...string]
 	constraints?: [#Constraint, ...#Constraint]
-	"applicability-groups"?: [string, ...string] @go(ApplicabilityGroups)
+	// applicability selects the applicability group IDs to adopt for this imported catalog.
+	// Interaction, precedence over policy-level applicability, and catalog-level validation are governed by the Requirements Resolution specification.
+	"applicability"?: [string, ...string] @go(Applicability)
 	"assessment-requirement-modifications"?: [#AssessmentRequirementModifier, ...#AssessmentRequirementModifier] @go(AssessmentRequirementModifications)
 }
 

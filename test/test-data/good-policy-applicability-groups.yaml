@@ -40,13 +40,13 @@ scope:
     technologies:
       - "Cloud Infrastructure"
 
-applicability-groups:
+applicability:
   - "maturity-level-2"
 
 imports:
   catalogs:
     - reference-id: "OSPS-Baseline"
-      applicability-groups:
+      applicability:
         - "maturity-level-2"
 
 adherence:

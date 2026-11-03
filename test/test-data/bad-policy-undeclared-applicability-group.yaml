@@ -37,7 +37,7 @@ scope:
     technologies:
       - "Cloud Infrastructure"
 
-applicability-groups:
+applicability:
   - "non-existent-group"
 
 imports:
