@@ -205,7 +205,20 @@ components:
       type: object
       x-status: experimental
     AssessmentLog:
-      description: AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
+      allOf:
+      - anyOf:
+        - properties:
+            result:
+              enum:
+              - Not Run
+              - Unknown
+              - Not Applicable
+              type: string
+        - required:
+          - start
+      description: |-
+        AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
+        An assessment log MUST include start unless its result is Not Run, Unknown or Not Applicable.
       properties:
         applicability:
           description: Applicability is elevated from the Layer 2 Assessment Requirement to aid in execution and reporting.
@@ -707,9 +720,6 @@ components:
             Enforce that control reference and the assessments' references match
             This formulation uses the control's reference if the assessment doesn't include a reference
             
-            
-            Require start timestamp on assessments that actually executed
-            
             (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             allOf:
@@ -951,6 +961,12 @@ components:
       type: string
       x-status: experimental
     Evidence:
+      allOf:
+      - anyOf:
+        - required:
+          - payload
+        - required:
+          - source
       description: |-
         Evidence records what was cited to support an opinion for a specific activity:
         raw data for the evaluation layer, evaluation and enforcement artifacts for the audit layer.
@@ -1389,7 +1405,18 @@ components:
       type: object
       x-status: stable
     Mapping:
-      description: Mapping represents a relationship between a source entry and one or more target entries
+      allOf:
+      - anyOf:
+        - properties:
+            relationship:
+              enum:
+              - no-match
+              type: string
+        - required:
+          - targets
+      description: |-
+        Mapping represents a relationship between a source entry and one or more target entries.
+        A mapping MUST include targets unless its relationship is no-match.
       properties:
         id:
           description: id allows this mapping to be referenced by other elements

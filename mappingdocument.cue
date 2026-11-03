@@ -69,7 +69,8 @@ package gemara
 	remarks?: string
 }
 
-// Mapping represents a relationship between a source entry and one or more target entries
+// Mapping represents a relationship between a source entry and one or more target entries.
+// A mapping MUST include targets unless its relationship is no-match.
 #Mapping: {
 	// id allows this mapping to be referenced by other elements
 	id: string
