@@ -73,6 +73,8 @@ reviews:
         instructions: |
           Fail if the diff to any *.cue file adds a field and neither the PR
           description nor a linked issue says who reads the field and why.
+          Fields that only communicate information, such as a draft marker,
+          version, type or state, are exempt and need no stated reader.
           Pass otherwise.
 
 knowledge_base:
