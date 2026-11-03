@@ -1,0 +1,35 @@
+metadata:
+  id: TEST-DUPLICATE-AUDIT-RESULTS
+  type: AuditLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Audit log with duplicate result ids
+  author:
+    id: auditor
+    name: Lead Auditor
+    type: Human
+  mapping-references:
+    - id: osps-baseline
+      title: Open Source Project Security Baseline
+      version: 1.0.0
+      url: https://baseline.openssf.org
+criteria:
+  - reference-id: osps-baseline
+target:
+  id: target-service
+  name: Target Service
+  type: Software
+summary: All checks passed.
+results:
+  - id: RES-001
+    title: First Result
+    type: Strength
+    description: First result description
+    criteria-reference:
+      reference-id: osps-baseline
+  - id: RES-001
+    title: Duplicate Result
+    type: Strength
+    description: Duplicate result description
+    criteria-reference:
+      reference-id: osps-baseline

@@ -1,0 +1,25 @@
+metadata:
+  id: TEST-GUIDANCE-INVALID-GROUP
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example Guidance Catalog with invalid group reference
+  author:
+    id: governance-team
+    name: Governance Team
+    type: Human
+
+title: AI Governance Framework
+
+type: Framework
+
+groups:
+  - id: PREV
+    title: Preventive
+    description: Prevention and Risk Mitigation
+
+guidelines:
+  - id: AIR-PREV-001
+    group: nonexistent-group
+    title: Data Filtering From External Knowledge Bases
+    objective: Test objective
