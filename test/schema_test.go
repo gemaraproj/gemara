@@ -175,6 +175,10 @@ func TestSchemaValidation(t *testing.T) {
 
 		// GuidanceCatalog — negative (group validation)
 		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
+		{"guideline with invalid applicability", "./test-data/bad-guidance-invalid-applicability.yaml", "#GuidanceCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-native"]`},
+
+		// VectorCatalog — negative (applicability validation)
+		{"vector with invalid applicability", "./test-data/bad-vector-invalid-applicability.yaml", "#VectorCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]`},
 
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},
