@@ -1888,7 +1888,7 @@ components:
       required:
       - obligations
       type: object
-      x-status: experimental
+      x-status: stable
     RetentionAnchor:
       description: |-
         RetentionAnchor declares an event from which a retention duration is measured.
@@ -1992,7 +1992,7 @@ components:
       - obligation
       - effective
       type: object
-      x-status: experimental
+      x-status: stable
     Risk:
       description: A Risk represents the potential for negative impact resulting from one or more threats.
       properties:

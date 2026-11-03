@@ -135,21 +135,3 @@ import "list"
 	// required indicates whether this recommendation is a mandatory corrective action
 	required: *false | bool @gemara(default=false)
 }
-
-// Retention records the resolved policy obligations governing referenced evidence.
-// Each effective instant is a snapshot for this evidence at publication.
-// Conflicting obligations are recorded side by side rather than reconciled by the producer.
-#Retention: {
-	// obligations records each retention rule that applies to this evidence and
-	// the instant it resolves to
-	obligations: [#RetentionObligationRef, ...#RetentionObligationRef]
-}
-
-// RetentionObligationRef ties a resolved instant to the obligation that produced it.
-#RetentionObligationRef: {
-	// obligation references a retention-obligations entry in the governing Policy
-	obligation: #EntryMapping
-
-	// effective is the instant this obligation resolves to for this evidence
-	effective: #Datetime
-}

@@ -81,6 +81,24 @@ package gemara
 	remarks?: string
 }
 
+// Retention records the resolved policy obligations governing referenced evidence.
+// Each effective instant is a snapshot for this evidence at publication.
+// Conflicting obligations are recorded side by side rather than reconciled by the producer.
+#Retention: {
+	// obligations records each retention rule that applies to this evidence and
+	// the instant it resolves to
+	obligations: [#RetentionObligationRef, ...#RetentionObligationRef]
+}
+
+// RetentionObligationRef ties a resolved instant to the obligation that produced it.
+#RetentionObligationRef: {
+	// obligation references a retention-obligations entry in the governing Policy
+	obligation: #EntryMapping
+
+	// effective is the instant this obligation resolves to for this evidence
+	effective: #Datetime
+}
+
 // ---- Validation ------------------------------------------------------------
 // #_EvidenceStrict carries the rules one evidence item can check about itself. It
 // is hidden (@go(-), and never projected), so the structures above stay shape and
