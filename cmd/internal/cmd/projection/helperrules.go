@@ -202,6 +202,10 @@ func applyHelperRulesTyped(doc *openapi3.T, rules map[string][]helperRule, v cue
 	for _, base := range bases {
 		helpersPerBase[base]++
 	}
+	usedDirectly, err := basesUsedDirectly(doc, bases)
+	if err != nil {
+		return nil, err
+	}
 	var skipped []string
 	byBase := map[string][]helperRule{}
 	for helper, hr := range rules {
@@ -215,6 +219,10 @@ func applyHelperRulesTyped(doc *openapi3.T, rules map[string][]helperRule, v cue
 				// Every helper of a base collapses onto it, so a rule placed
 				// there would also bind the uses of the others.
 				reason = fmt.Sprintf("#%s is extended by more than one helper", base)
+			case usedDirectly[base]:
+				// A rule placed on the base would also bind that use, which
+				// the CUE leaves without the helper's rules.
+				reason = fmt.Sprintf("#%s is also used without #%s", base, helper)
 			default:
 				reason = unprojectableReason(doc.Components.Schemas, v, defaults, base, r)
 			}
@@ -231,6 +239,56 @@ func applyHelperRulesTyped(doc *openapi3.T, rules map[string][]helperRule, v cue
 		s.AllOf = append(s.AllOf, helperRuleBranches(hr)...)
 	}
 	return skipped, nil
+}
+
+// basesUsedDirectly returns each base in bases that a schema references other
+// than through one of its helpers. Where the encoder folds a field declared
+// with both into a reference to the base alone, the base counts as used
+// directly, so the rule is skipped and reported rather than over-applied.
+func basesUsedDirectly(doc *openapi3.T, bases map[string]string) (map[string]bool, error) {
+	helperBase := map[*openapi3.Schema]string{}
+	isBase := map[string]bool{}
+	for helper, base := range bases {
+		helperBase[doc.Components.Schemas[helper].Value] = base
+		isBase[base] = true
+	}
+	baseRef := func(ref *openapi3.SchemaRef) string {
+		if ref == nil || ref.Ref == "" || !isBase[strings.TrimPrefix(ref.Ref, refPrefix)] {
+			return ""
+		}
+		return strings.TrimPrefix(ref.Ref, refPrefix)
+	}
+	used := map[string]bool{}
+	err := walkOpenAPISchemas(doc, func(s *openapi3.Schema) error {
+		// A base is not used on its own where an allOf also holds one of its
+		// helpers: a helper extends its base that way, and a field declared
+		// with both, `f: [#B, ...#B]` beside `f: [#_BStrict, ...#_BStrict]`,
+		// is encoded that way too.
+		unified := map[string]bool{helperBase[s]: true}
+		for _, ref := range s.AllOf {
+			if ref.Ref != "" {
+				if base, ok := bases[strings.TrimPrefix(ref.Ref, refPrefix)]; ok {
+					unified[base] = true
+				}
+			}
+		}
+		for _, ref := range s.AllOf {
+			if base := baseRef(ref); base != "" && !unified[base] {
+				used[base] = true
+			}
+		}
+		others := append(append(openapi3.SchemaRefs{s.Items}, s.AnyOf...), s.OneOf...)
+		for _, p := range s.Properties {
+			others = append(others, p)
+		}
+		for _, ref := range others {
+			if base := baseRef(ref); base != "" {
+				used[base] = true
+			}
+		}
+		return nil
+	})
+	return used, err
 }
 
 // helperRuleBranches renders each rule as an allOf branch that passes when the

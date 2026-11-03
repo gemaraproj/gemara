@@ -185,10 +185,12 @@ func declaresField(decls []ast.Decl, name string) bool {
 	return false
 }
 
-// hiddenHelperName returns the name (without '#') of the hidden #_ helper the
-// cursor's struct is a conjunct of, as in `#_X: {@go(-)} & #Base & {...}`, or
-// "" when the struct is anywhere else: inside one of the helper's fields, a
-// let, a disjunction or a list.
+// hiddenHelperName returns the name (without '#') of the top-level hidden #_
+// helper the cursor's struct is a conjunct of, as in
+// `#_X: {@go(-)} & #Base & {...}`, or "" when the struct is anywhere else:
+// inside one of the helper's fields, a let, a disjunction or a list. A helper
+// nested in another definition doesn't count, since rules are keyed by bare
+// name and #Doc.#_X would share one with a top-level #_X.
 func hiddenHelperName(c astutil.Cursor) string {
 	for p := c.Parent(); p != nil; p = p.Parent() {
 		switch n := p.Node().(type) {
@@ -199,7 +201,9 @@ func hiddenHelperName(c astutil.Cursor) string {
 		case *ast.ParenExpr:
 		case *ast.Field:
 			if id, ok := n.Label.(*ast.Ident); ok && strings.HasPrefix(id.Name, "#_") {
-				return strings.TrimPrefix(id.Name, "#")
+				if _, top := p.Parent().Node().(*ast.File); top {
+					return strings.TrimPrefix(id.Name, "#")
+				}
 			}
 			return ""
 		default:

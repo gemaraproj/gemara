@@ -116,6 +116,32 @@ k: "outside"
 	}
 }
 
+// Only a struct that is itself one of a top-level helper's conjuncts holds the
+// helper's rules. The same conditional anywhere else under it is dropped.
+func TestPrepareDropsConditionalsNotInTheHelpersOwnConjuncts(t *testing.T) {
+	const cond = `{k: string, if k != "x" { f: #T }}`
+	tests := map[string]string{
+		"inside one of the helper's fields": `#_BStrict: {@go(-)} & #B & {k: string, sub: ` + cond + `}`,
+		"in a disjunction":                  `#_BStrict: {@go(-)} & #B & (` + cond + ` | {k: string})`,
+		"in a list":                         `#_BStrict: [` + cond + `]`,
+		"in a helper nested in a definition": `#Doc: {
+	#_BStrict: {@go(-)} & #B & ` + cond + `
+}`,
+	}
+	for name, helper := range tests {
+		t.Run(name, func(t *testing.T) {
+			_, info := mustPrepare(t, `package p
+#T: string
+#B: {k: string, f?: #T}
+`+helper+`
+`)
+			if len(info.HelperRules) != 0 || len(info.DroppedConditionals) != 1 {
+				t.Fatalf("rules = %+v, dropped = %v; want the conditional dropped", info.HelperRules, info.DroppedConditionals)
+			}
+		})
+	}
+}
+
 // Only a hidden helper's own conditionals are translated; the same shape in an
 // ordinary definition still has nowhere to go and is reported as dropped.
 func TestPrepareLeavesOrdinaryConditionalsDropped(t *testing.T) {
@@ -378,6 +404,34 @@ package p
 		if !strings.Contains(s, "#B is extended by more than one helper") {
 			t.Errorf("skipped %q for the wrong reason", s)
 		}
+	}
+	requireNoRules(t, src, "B")
+}
+
+// A rule on the base would also bind a field that uses the base without its
+// helper, and reject documents the CUE accepts there, so it is not projected.
+func TestHelperRulesSkipABaseAlsoUsedDirectly(t *testing.T) {
+	src := `@gemara(status="stable")
+
+package p
+
+#T: {id: string}
+#K: "x" | "y"
+#B: {k: #K, f?: #T}
+#_BStrict: {
+	@go(-)
+} & #B & {
+	k: #K
+	if k != "x" { f: #T }
+}
+#Doc: {
+	strict?: [#_BStrict, ...#_BStrict]
+	loose?: #B
+}
+`
+	skipped := skippedRules(t, src)
+	if len(skipped) != 1 || !strings.Contains(skipped[0], "#B is also used without #_BStrict") {
+		t.Fatalf("skipped = %q, want the rule skipped because #B is used directly", skipped)
 	}
 	requireNoRules(t, src, "B")
 }
