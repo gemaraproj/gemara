@@ -152,6 +152,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// CapabilityCatalog — negative
 		{"capability with invalid group", "./test-data/bad-capability-invalid-group.yaml", "#CapabilityCatalog", true, `_groupValidation."0": invalid value ["container-infrastructure"]`},
+		{"capability catalog with duplicate capability id", "./test-data/bad-capability-duplicate-id.yaml", "#CapabilityCatalog", true, `_uniqueCapabilityIds."CAP-001"`},
 
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
@@ -159,9 +160,11 @@ func TestSchemaValidation(t *testing.T) {
 
 		// VectorCatalog — negative
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
+		{"vector catalog with duplicate vector id", "./test-data/bad-vector-duplicate-id.yaml", "#VectorCatalog", true, `_uniqueVectorIds."VEC-001"`},
 
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
+		{"principle catalog with duplicate principle id", "./test-data/bad-principle-duplicate-id.yaml", "#PrincipleCatalog", true, `_uniquePrinciplesIds."PRIN-001"`},
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
