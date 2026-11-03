@@ -1,0 +1,141 @@
+metadata:
+  id: audit-log-retention-001
+  type: AuditLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Q1 2026 Gemara Audit"
+  author:
+    id: lead-auditor
+    name: "Jane Auditor"
+    type: Human
+  mapping-references:
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+    - id: OSPS
+      title: "Open Source Project Security Baseline"
+      version: "2025.1"
+      url: "https://baseline.openssf.org"
+    - id: eval-log
+      title: "PVTR Evaluation Log"
+      version: "2025-08-22"
+      url: "https://artifacts.example.com/eval-logs/pvtr-baseline-scan.yaml"
+    - id: enforcement-log
+      title: "Example Enforcement Log"
+      version: "2025-08-22"
+      url: "https://artifacts.example.com/enforcement-logs/enforcement-log-001.yaml"
+    - id: github-api
+      title: "GitHub Dependency Graph API"
+      version: "2026"
+      url: "https://docs.github.com/en/rest/dependency-graph"
+    - id: records-policy
+      title: "Evidence Retention Policy"
+      version: "1.0.0"
+    - id: hold-register
+      title: "Legal Hold Register"
+      version: "2026"
+      url: "https://legal.example.com/holds"
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+  uri: "https://github.com/gemaraproj/gemara"
+  environment: production
+  owner:
+    name: "Gemara Maintainers"
+    affiliation: "OpenSSF"
+
+owner:
+  responsible:
+    - name: "Jane Auditor"
+      affiliation: "External Audit Firm"
+  accountable:
+    - name: "Project Lead"
+      affiliation: "OpenSSF"
+
+summary: "Access control and quality controls are strong. Documentation controls have gaps requiring remediation."
+
+criteria:
+  - reference-id: security-policy
+    remarks: "Organizational policy establishing the audit's scope."
+  - reference-id: OSPS
+    remarks: "Baseline whose controls each result is scored against."
+
+results:
+  - id: AR-AC-01
+    title: "MFA enforcement verified"
+    type: Strength
+    description: "Multi-factor authentication is enforced at the organization level for all contributors."
+    criteria-reference:
+      reference-id: OSPS
+      entries:
+        - reference-id: OSPS-AC-01
+
+  - id: AR-DO-01
+    title: "User documentation missing"
+    type: Gap
+    description: "No user guide is published or referenced in the Security Insights data."
+    criteria-reference:
+      reference-id: OSPS
+      entries:
+        - reference-id: OSPS-DO-01
+    evidence:
+      - id: EV-DO-01
+        type: EvaluationLog
+        description: "PVTR evaluation results for documentation controls"
+        collected-at: "2025-08-22T16:02:00Z"
+        source:
+          reference-id: eval-log
+          entry-id: "assessment-do-01"
+          digest: "sha256:c4d5e6f7a8b9012cdef34567890abcdef1234567890abcdef1234567890abc123"
+        retention:
+          obligations:
+            - obligation:
+                reference-id: records-policy
+                entry-id: RET-AUDIT-7Y
+              effective: "2032-08-22T16:02:00Z"
+            - obligation:
+                reference-id: records-policy
+                entry-id: RET-PII-MAX
+    recommendations:
+      - id: REC-01
+        text: "Add user guide references to the Security Insights file and publish basic user documentation."
+        required: true
+
+  - id: AR-DO-02
+    title: "Vulnerability reporting channel not formalized"
+    type: Finding
+    description: "Private vulnerability reporting was not enabled prior to enforcement remediation."
+    criteria-reference:
+      reference-id: OSPS
+      entries:
+        - reference-id: OSPS-DO-02
+    evidence:
+      - id: EV-DO-02
+        type: EnforcementLog
+        description: "Enforcement actions taken for documentation failures"
+        collected-at: "2025-08-22T16:05:00Z"
+        source:
+          reference-id: enforcement-log
+    recommendations:
+      - id: REC-02
+        text: "Formalize the private vulnerability reporting process and document it in SECURITY.md."
+
+  - id: AR-QA-01
+    title: "Dependency manifests present"
+    type: Observation
+    description: "Repository includes dependency manifests and the dependency graph is accessible via GitHub API."
+    criteria-reference:
+      reference-id: OSPS
+      entries:
+        - reference-id: OSPS-QA-02
+    evidence:
+      - id: EV-QA-01
+        type: api-response
+        description: "Dependency manifests from the GitHub dependency graph SBOM endpoint"
+        collected-at: "2026-02-10T15:05:00Z"
+        source:
+          reference-id: github-api
+          coordinate: "/repos/gemaraproj/gemara/dependency-graph/sbom"
+          digest: "sha256:a1b2c3d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890"

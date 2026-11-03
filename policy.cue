@@ -4,6 +4,8 @@
 @gemara(status="experimental")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // Policy represents a policy document with metadata, contacts, scope, imports, implementation plan, risks, and adherence requirements.
@@ -96,12 +98,42 @@ package gemara
 	justification?: string
 }
 
-// Adherence defines evaluation methods, assessment plans, enforcement methods, and non-compliance notifications.
+// Adherence defines evaluation methods, assessment plans, enforcement methods, retention obligations, and non-compliance notifications.
 #Adherence: {
 	"evaluation-methods"?: [#AcceptedMethod & {type: #EvaluationMethodType}, ...#AcceptedMethod & {type: #EvaluationMethodType}] @go(EvaluationMethods)
 	"assessment-plans"?: [#AssessmentPlan, ...#AssessmentPlan] @go(AssessmentPlans)
 	"enforcement-methods"?: [#AcceptedMethod & {type: #EnforcementMethodType}, ...#AcceptedMethod & {type: #EnforcementMethodType}] @go(EnforcementMethods)
+
+	// retention-anchors declares the events, other than collected-at, from which retention obligations measure their duration
+	RA="retention-anchors"?: [#RetentionAnchor, ...#RetentionAnchor] @go(RetentionAnchors)
+
+	// retention-obligations lists the preservation and disposal requirements this policy adopts from external records schedules
+	RO="retention-obligations"?: [#RetentionObligation, ...#RetentionObligation] @go(RetentionObligations)
+
 	"non-compliance"?: string @go(NonCompliance)
+
+	if RA != _|_ {
+		// collected-at is pre-seeded so that a declaration shadowing it collides like a duplicate id
+		_uniqueRetentionAnchorIds: {(#CollectedAtAnchor): -1, for i, a in RA {(a.id): i}}
+	}
+
+	if RO != _|_ {
+		_uniqueRetentionObligationIds: {for i, o in RO {(o.id): i}}
+
+		let _declaredAnchors = [if RA != _|_ for a in RA {a.id}]
+		let _validAnchorIds = list.Concat([[#CollectedAtAnchor], _declaredAnchors])
+
+		// Unify the valid anchor list with a list.Contains constraint to require each obligation to measure from collected-at or a declared anchor
+		for i, o in RO {
+			_anchorValidation: "\(i)": _validAnchorIds & list.Contains(o.anchor)
+
+			// An obligation measured from collected-at must state its period; only a declared
+			// anchor may stand without one, meaning the obligation runs to the anchor itself
+			if o.anchor == #CollectedAtAnchor if o.duration == _|_ {
+				_collectedAtWithoutDuration: "\(o.id)": error("retention obligation \(o.id) is measured from collected-at and must state a duration")
+			}
+		}
+	}
 }
 
 // AssessmentPlan defines how a specific assessment requirement is evaluated.
@@ -179,3 +211,63 @@ package gemara
 
 // ModType defines the type of modification to the assessment requirement.
 #ModType: "Add" | "Modify" | "Remove" | "Replace" | "Override" @go(-)
+
+// RetentionDuration is a records-retention period: an ISO 8601 duration limited to date
+// components (e.g. P7Y, P18M, P1Y2M3W4D). Records schedules do not express retention below
+// day precision, so a sub-day period such as PT1H is rejected. Because of that it is not a
+// general-purpose duration, and frequency or freshness windows need a type of their own.
+#RetentionDuration: =~"^P(?:\\d+Y(?:\\d+M)?(?:\\d+W)?(?:\\d+D)?|\\d+M(?:\\d+W)?(?:\\d+D)?|\\d+W(?:\\d+D)?|\\d+D)$" @go(RetentionDuration)
+
+// CollectedAtAnchor is the retention anchor Gemara resolves from the evidence itself,
+// so it is understood without a declaration and a policy may not redeclare it.
+#CollectedAtAnchor: "collected-at" @go(-)
+
+// RetentionAnchor declares an event from which a retention duration is measured.
+// Policies declare the anchors they use rather than drawing on a fixed vocabulary,
+// because records schedules anchor to events Gemara cannot enumerate.
+#RetentionAnchor: {
+	// id is referenced by a retention obligation's anchor field; it must not be collected-at
+	id: string
+
+	// title names the anchoring event at a glance
+	title: string
+
+	// description explains when the event occurs and who determines it
+	description: string
+
+	// defined-by cites the schedule or record that defines the event
+	"defined-by"?: #EntryMapping @go(DefinedBy,optional=nillable)
+}
+
+// RetentionKind states whether an obligation sets a floor or a ceiling.
+#RetentionKind: "minimum" | "maximum" @go(-)
+
+// RetentionObligation is a typed preservation or disposal requirement adopted
+// from an external records schedule.
+#RetentionObligation: {
+	// id allows evidence citations to reference this obligation
+	id: string
+
+	// kind states whether this obligation sets a floor or a ceiling
+	kind: #RetentionKind
+
+	// implements cites the entry in the external schedule that this obligation puts into
+	// effect, in the sense the implements relationship has in a mapping document
+	implements: #EntryMapping
+
+	// anchor names the event from which duration is measured. collected-at is
+	// resolved by Gemara from the evidence itself; any other value must match a
+	// declared retention-anchors id, and duration is then advisory, with the
+	// citation's effective instant being authoritative.
+	anchor: #CollectedAtAnchor | string
+
+	// duration is the period measured from the anchor. Omit it when the obligation runs to
+	// the anchor itself, such as keeping records until a support period ends, rather than
+	// writing a zero period. A zero period stays valid, since a ceiling of P0D from
+	// collected-at means the evidence is disposed of when it is collected. An obligation
+	// measured from collected-at always states a duration.
+	duration?: #RetentionDuration
+
+	// applies-to optionally narrows this obligation to specific assessment requirements
+	"applies-to"?: [string, ...string] @go(AppliesTo)
+}

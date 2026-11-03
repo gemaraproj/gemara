@@ -19,17 +19,17 @@ PRs MUST meet the following criteria:
 
 ### Useful make tasks when making schema changes
 
-Make sure to update `schema-nav.yml` in the [website repository](https://github.com/gemaraproj/website), after making any changes to the schemas in the layer.cue files
-For instance:
-You have added a new schema 'newschema' in layerN.cue( where N is a number from 1 - 7), the website's `schema-nav.yml` should look like:
-```
-- title: "Layer N"
-    filename: "layer-N"
+Make sure to update `schema-nav.yml` in the [website repository](https://github.com/gemaraproj/website) after adding, renaming, or removing a schema definition in a `.cue` file.
+For instance, if you add a new `#NewSchema` definition to `controlcatalog.cue`, add it to the matching entry in the website's `schema-nav.yml`:
+```yaml
+  - title: "Control Catalog"
+    filename: "controlcatalog"
+    layer: 2
     schemas:
-      - "SchemaA"
-      - "SchemaB"
-      - "SchemaC"
-      - newschema //new schema added
+      - "ControlCatalog"
+      - "Control"
+      - "AssessmentRequirement"
+      - "NewSchema" # new schema added
 ```
 
 Use `cue fmt .` and `make cuefmtcheck` to ensure proper formatting and `make lintcue` to validate the syntax of your changes. If you forget to do this before opening a PR and your changes are invalid, the [CI workflow](.github/workflows/ci.yml) will fail and alert you.
@@ -40,9 +40,9 @@ Adding a new artifact type requires schema changes, test data, and documentation
 
 | **Step** | **Action**                                                                                    |
 |:---------|:----------------------------------------------------------------------------------------------|
-| 1        | Define the new `#YourArtifact` definition in the appropriate `layer-N.cue` file               |
-| 2        | Add `"YourArtifact"` to the `#ArtifactType` enum in `base.cue`                                |
-| 3        | Add new enum or alias types to `schema-nav.yml` in the [website repo](https://github.com/gemaraproj/website) under the correct layer |
+| 1        | Define the new `#YourArtifact` definition in its own `yourartifact.cue` file with a file-level `@gemara(status="…")` attribute (see [Projection directives](#projection-directives)) |
+| 2        | Add `"YourArtifact"` to the `#ArtifactType` enum in `metadata.cue`                            |
+| 3        | Add an entry for the new file to `schema-nav.yml` in the [website repo](https://github.com/gemaraproj/website), listing the artifact and every struct, enum, and alias it adds (unlisted definitions get no docs page), with a `layer:` value where applicable |
 | 4        | Create a valid test data file in `test/test-data/` (prefix with `good-`)                      |
 | 5        | Add positive and/or negative test cases to `test/schema_test.go`                              |
 | 6        | Run `cue vet -d '#YourArtifact' . test/test-data/good-your-artifact.yaml` to validate locally |

@@ -63,6 +63,9 @@ import "list"
 
 	// replaced-by references the control that supersedes this one when deprecated or retired
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
+
+	// remarks is prose recording context or reasoning for content maintainers; it is not intended to be presented to consumers
+	remarks?: string
 }
 
 // AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
@@ -84,6 +87,9 @@ import "list"
 
 	// replaced-by references the assessment requirement that supersedes this one when deprecated or retired
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
+
+	// remarks is prose recording context or reasoning for content maintainers; it is not intended to be presented to consumers
+	remarks?: string
 
 	// retired assessment requirements must not have a recommendation
 	if state == "Retired" {
