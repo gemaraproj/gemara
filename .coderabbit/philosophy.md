@@ -54,9 +54,12 @@ one below it, so a layer may reference lower layers but never the reverse.
 
 - Renaming a field, removing a field, or adding a required field is a breaking
   change.
-- Tightening a constraint is allowed within v1. Adding an optional field is not
-  breaking either. A stable replacement is added alongside the old field, which is
-  deprecated.
+- Tightening a constraint can trip the breaking-change gate (`make breaking-check`).
+  Within v1 it needs a reviewed `.oasdiff-allow` entry, or a `@v2` bump, as
+  CONTRIBUTING.md describes. The PR should say why the tightening is intended.
+- Adding an optional field is not breaking. A stable replacement is added alongside
+  the old field, which is deprecated.
 - Experimental definitions can change in a minor release.
 - If the existing doc comment already states the rule a change enforces, the change
-  is a patch, not a break.
+  is a patch, not a break. The gate cannot see doc comments, so it still needs the
+  allowlist entry, and the PR should point to the doc comment.
