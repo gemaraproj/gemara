@@ -27,12 +27,12 @@ package gemara
 		_uniqueGroupIds: {for i, g in groups {(g.id): i}}
 	}
 
-	// a catalog that extends others must declare metadata.mapping-references
+	// when extends is set, metadata.mapping-references is required
 	if extends != _|_ {
 		metadata: "mapping-references": [#MappingReference, ...#MappingReference]
 	}
 
-	// a catalog that imports others must declare metadata.mapping-references
+	// when imports are listed, metadata.mapping-references is required
 	if imports != _|_ {
 		metadata: "mapping-references": [#MappingReference, ...#MappingReference]
 	}

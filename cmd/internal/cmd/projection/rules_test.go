@@ -113,3 +113,54 @@ func TestApplyRuleList(t *testing.T) {
 		})
 	}
 }
+
+// The comment a rule is listed with: its own, joined into one line, even when
+// the enclosing hidden field has one too; never a trailing comment or the
+// comment of a regular field, which describes that field.
+func TestPrepareRuleDocSources(t *testing.T) {
+	_, info := mustPrepare(t, `package p
+#A: {
+	x?: string
+	// inner holds a nested value
+	inner: {
+		if x != _|_ {y: string}
+	}
+	// the first line
+	// and the second
+	if x != _|_ {z: string}
+	if x == _|_ {w: string} // a trailing note
+	// the field's comment
+	_h: {
+		// the rule's own comment
+		for i, v in [1] {(v): i}
+	}
+}
+`)
+	var got []string
+	for _, d := range info.DroppedConditionals {
+		got = append(got, d.doc)
+	}
+	// A struct's own rules are recorded before those of structs nested in it.
+	want := []string{"the first line and the second", "", "", "the rule's own comment"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("docs = %q, want %q", got, want)
+	}
+}
+
+// A new rule without a comment must stop generation of a real document, not
+// only make the unit fail.
+func TestUndescribedRuleFailsGeneration(t *testing.T) {
+	_, err := convertSource(t, `package p
+
+// A is a thing
+#A: {
+	x?: string
+	if x != _|_ {
+		y: string
+	}
+}
+`)
+	if err == nil || !strings.Contains(err.Error(), "schema.cue:6:2") || !strings.Contains(err.Error(), "describe it in a // comment") {
+		t.Fatalf("err = %v, want it to name schema.cue:6:2 and ask for a comment", err)
+	}
+}

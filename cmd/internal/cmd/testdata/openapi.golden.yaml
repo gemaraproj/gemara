@@ -562,8 +562,8 @@ components:
       type: object
       x-rules:
       - group ids must be unique
-      - a catalog that extends others must declare metadata.mapping-references
-      - a catalog that imports others must declare metadata.mapping-references
+      - when extends is set, metadata.mapping-references is required
+      - when imports are listed, metadata.mapping-references is required
       x-status: stable
     CatalogImport:
       description: CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
@@ -2126,7 +2126,7 @@ components:
           type: array
       type: object
       x-rules:
-      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared category id
+      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
       x-status: experimental
     RiskCategory:
       allOf:
