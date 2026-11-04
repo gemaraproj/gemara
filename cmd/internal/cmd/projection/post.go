@@ -22,6 +22,10 @@ func (c *Converter) Post() error {
 	if err := inclusiveRequiredDisjunctionsTyped(doc); err != nil {
 		return err
 	}
+	// Before the collapse, which deletes the helper schemas this reads.
+	if err := c.applyHelperRules(doc); err != nil {
+		return err
+	}
 	// Order matters from here: collapseHelperSchemas rewrites `$ref` in place,
 	// and restoreRefDescriptions moves a `$ref` inside an `allOf` where that
 	// rewrite no longer reaches it. Collapsing second would leave dangling
@@ -251,19 +255,9 @@ func stripExclusivity(branch *openapi3.SchemaRef) *openapi3.SchemaRef {
 // CUE CONVERTER WORKAROUND: collapseHelperSchemasTyped removes the hidden
 // helper schemas that schemaName must retain to prevent an encoder failure.
 func collapseHelperSchemasTyped(doc *openapi3.T) error {
-	base := map[string]string{}
-	for name, ref := range doc.Components.Schemas {
-		if !strings.HasPrefix(name, "_") {
-			continue
-		}
-		if ref.Value == nil {
-			return fmt.Errorf("helper schema %s has no value", name)
-		}
-		baseName, err := typedPassthroughBase(name, ref.Value, doc.Components.Schemas)
-		if err != nil {
-			return err
-		}
-		base[name] = baseName
+	base, err := helperBases(doc.Components.Schemas)
+	if err != nil {
+		return err
 	}
 	if len(base) == 0 {
 		return nil
@@ -282,6 +276,25 @@ func collapseHelperSchemasTyped(doc *openapi3.T) error {
 		deduplicateRefs(&s.AllOf)
 		return nil
 	})
+}
+
+// helperBases maps each hidden helper schema to the named schema it extends.
+func helperBases(schemas openapi3.Schemas) (map[string]string, error) {
+	base := map[string]string{}
+	for name, ref := range schemas {
+		if !strings.HasPrefix(name, "_") {
+			continue
+		}
+		if ref.Value == nil {
+			return nil, fmt.Errorf("helper schema %s has no value", name)
+		}
+		baseName, err := typedPassthroughBase(name, ref.Value, schemas)
+		if err != nil {
+			return nil, err
+		}
+		base[name] = baseName
+	}
+	return base, nil
 }
 
 func typedPassthroughBase(name string, helper *openapi3.Schema, schemas openapi3.Schemas) (string, error) {

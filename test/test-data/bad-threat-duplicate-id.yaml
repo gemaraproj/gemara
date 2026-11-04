@@ -1,0 +1,20 @@
+metadata:
+  id: TEST-DUPLICATE-THREAT-IDS
+  type: ThreatCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Threat catalog with duplicate threat ids
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+
+title: Duplicate Threat ID Test
+
+threats:
+  - id: THR-001
+    title: First Threat
+    description: Threat description 1
+  - id: THR-001
+    title: Second Threat
+    description: Threat description 2

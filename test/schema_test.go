@@ -97,6 +97,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"invalid YAML", "./test-data/bad.yaml", "#ControlCatalog", true, `conflicting values "shouldn't be a string"`},
 		{"invalid JSON", "./test-data/bad.json", "#ControlCatalog", true, "#ControlCatalog.this: field not allowed"},
 		{"controls without groups", "./test-data/bad-no-groups.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value [string] (does not satisfy list.Contains("missing-group"))`},
+		{"control catalog with duplicate control id", "./test-data/bad-control-catalog-duplicate-control-id.yaml", "#ControlCatalog", true, `_uniqueControlIds."TC-001"`},
 
 		// MappingDocument — positive
 		{"valid mapping document", "./test-data/good-mapping-document.yaml", "#MappingDocument", false, ""},
@@ -104,6 +105,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// MappingDocument — negative
 		{"invalid mapping document without mapping-references", "./test-data/bad-mapping-document.yaml", "#MappingDocument", true, `metadata."mapping-references".0.id: incomplete value string`},
+		{"mapping document with duplicate mapping id", "./test-data/bad-mapping-duplicate-id.yaml", "#MappingDocument", true, `_uniqueMappingIds."DUP-01"`},
 		{"mapping missing targets for non-no-match relationship", "./test-data/bad-mapping-no-target.yaml", "#MappingDocument", true, `targets.0."entry-id": incomplete value string`},
 
 		// Lexicon — positive
@@ -137,6 +139,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// AuditLog — negative
 		{"audit log missing summary criteria and results", "./test-data/bad-audit-log.yaml", "#AuditLog", true, "summary: incomplete value string"},
+		{"audit log with duplicate result id", "./test-data/bad-audit-log-duplicate-result-id.yaml", "#AuditLog", true, `_uniqueResultIds."RES-001"`},
 		{"audit log evidence source with invalid digest format", "./test-data/bad-audit-log-invalid-digest.yaml", "#AuditLog", true, `invalid value "SHA256:invalidbecauseuppercasealgorithm"`},
 		{"audit result referencing undeclared criteria", "./test-data/bad-audit-log-undeclared-criteria.yaml", "#AuditLog", true, `does not satisfy list.Contains("OSPS")`},
 		{"audit log evidence with neither payload nor source", "./test-data/bad-audit-log-evidence-neither.yaml", "#AuditLog", true, `evidence.0.source."reference-id": incomplete value string`},
@@ -149,19 +152,29 @@ func TestSchemaValidation(t *testing.T) {
 
 		// CapabilityCatalog — negative
 		{"capability with invalid group", "./test-data/bad-capability-invalid-group.yaml", "#CapabilityCatalog", true, `_groupValidation."0": invalid value ["container-infrastructure"]`},
+		{"capability catalog with duplicate capability id", "./test-data/bad-capability-duplicate-id.yaml", "#CapabilityCatalog", true, `_uniqueCapabilityIds."CAP-001"`},
 
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
+		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
 
 		// VectorCatalog — negative
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
+		{"vector catalog with duplicate vector id", "./test-data/bad-vector-duplicate-id.yaml", "#VectorCatalog", true, `_uniqueVectorIds."VEC-001"`},
 
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
+		{"principle catalog with duplicate principle id", "./test-data/bad-principle-duplicate-id.yaml", "#PrincipleCatalog", true, `_uniquePrinciplesIds."PRIN-001"`},
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
 		{"control with invalid applicability", "./test-data/bad-control-invalid-applicability.yaml", "#ControlCatalog", true, `_applicabilityValidation."0-0-0": invalid value ["production"]`},
+
+		// RiskCatalog — negative (group validation)
+		{"risk with invalid group", "./test-data/bad-risk-catalog-invalid-group.yaml", "#RiskCatalog", true, `_groupValidation."0": invalid value ["CAT-SECURITY"]`},
+
+		// GuidanceCatalog — negative (group validation)
+		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
 
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},

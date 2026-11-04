@@ -1,0 +1,45 @@
+metadata:
+  id: TEST-DUPLICATE-CONTROL-IDS
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Control catalog with duplicate control ids
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+  applicability-groups:
+    - id: production
+      title: Production
+      description: Production environments
+
+title: Duplicate Control ID Test
+
+groups:
+  - id: access-control
+    title: Access Control
+    description: Access control group
+
+controls:
+  - id: TC-001
+    group: access-control
+    title: First Control
+    objective: Objective 1
+    state: Active
+    assessment-requirements:
+      - id: TC-001.AR01
+        text: Requirement 1
+        state: Active
+        applicability:
+          - production
+  - id: TC-001
+    group: access-control
+    title: Duplicate Control
+    objective: Objective 2
+    state: Active
+    assessment-requirements:
+      - id: TC-001.AR02
+        text: Requirement 2
+        state: Active
+        applicability:
+          - production

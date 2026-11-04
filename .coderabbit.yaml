@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# SPDX-License-Identifier: Apache-2.0
+language: en-US
+tone_instructions: "Start every comment with 🤖. Casual, friendly, low-ego, and plain-spoken. Say clearly whether something is a bug, a suggestion or a nit. Be gentle in tone but never vague. Admit when unsure. Concise, light, positive."
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  poem: false
+  in_progress_fortune: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    base_branches:
+      - main
+
+  path_filters:
+    # Produced by `make` from the .cue schemas; review the schema, not the output.
+    - "!generated/**"
+    - "!**/go.sum"
+    - "!cue.mod/pkg/**"
+
+  path_instructions:
+    - path: "*.cue"
+      instructions: |
+        These files are the Gemara schema; apply .coderabbit/philosophy.md.
+        Design rationale lives in the doc comments on the definitions, so check
+        that a changed definition's comment still matches what it now does.
+        Prefer leaving a field out. Challenge anything derivable, any open
+        enum, and any property bag (free-form maps, `_`, open structs).
+    - path: "test/**"
+      instructions: |
+        Schema tests read the .cue files at runtime. Check that each new rule has
+        a passing fixture and a failing fixture with its expected error.
+    - path: "cmd/**"
+      instructions: |
+        Go code that converts the CUE schemas to OpenAPI. Check error handling and
+        that output stays deterministic, since generated/openapi.yaml is diffed
+        for breaking changes in CI.
+    - path: "examples/**"
+      instructions: |
+        Examples must validate against the current schema and stay minimal.
+    - path: ".github/workflows/**"
+      instructions: |
+        Actions must be pinned to a full commit SHA, workflows must declare
+        least-privilege `permissions`, and checkouts should set
+        `persist-credentials: false`.
+
+  pre_merge_checks:
+    custom_checks:
+      - name: No property bags or open extension points
+        mode: warning
+        instructions: |
+          Fail if the diff to any *.cue file adds a free-form map, an open
+          struct, a `[string]: _` pattern, or a `_` field that lets users attach
+          arbitrary data. Pass otherwise.
+      - name: Enums are closed
+        mode: warning
+        instructions: |
+          Fail if the diff to any *.cue file adds an enum-like field whose value
+          set is open (for example a bare `string` standing in for a known set of
+          values) without the PR description explaining why it cannot be closed.
+          Pass otherwise.
+      - name: No derivable or minted fields
+        mode: warning
+        instructions: |
+          Fail if the diff to any *.cue file adds a field whose value can be
+          computed from other fields or from its enclosing document, or adds a
+          UUID/GUID field. Pass otherwise.
+      - name: New fields state a use case
+        mode: warning
+        instructions: |
+          Fail if the diff to any *.cue file adds a field and neither the PR
+          description nor a linked issue says who reads the field and why.
+          Fields that only communicate information, such as a draft marker,
+          version, type or state, are exempt and need no stated reader.
+          Pass otherwise.
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - ".coderabbit/philosophy.md"
+      - "CONTRIBUTING.md"
+
+chat:
+  auto_reply: true
+  art: false
