@@ -91,23 +91,13 @@ import "list"
 
 // Party represents an individual, team, organization, or regulatory authority
 #Party: {
-	// id uniquely identifies this party within stakeholders
-	id: string
+	#Entity
 
-	// name is the display name of the party
-	name: string
-
-	// kind specifies the type of party
-	kind?: #PartyKind @go(Kind)
-
-	// description provides additional context about the party
-	description?: string @go(Description)
+	// kind specifies the classification of the party
+	kind: #PartyKind @go(Kind)
 
 	// contact provides optional contact details for reaching this party
 	contact?: #Contact @go(Contact)
-
-	// uri points to an external profile, registry, or authoritative record
-	uri?: =~"^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$" @go(URI)
 }
 
 // Role defines a governance, operational, or interest role that can be bound to parties

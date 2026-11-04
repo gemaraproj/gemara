@@ -21,15 +21,18 @@ stakeholders:
   parties:
     - id: ai-governance-office
       name: AI Governance Office
+      type: Human
       kind: Team
       contact:
         name: Chief AI Ethics Officer
         email: ethics@example.org
     - id: portfolio-managers
       name: Portfolio Managers
+      type: Human
       kind: Group
     - id: regulator-fca
       name: Financial Conduct Authority
+      type: Human
       kind: Regulator
       uri: https://www.fca.org.uk
   roles:
