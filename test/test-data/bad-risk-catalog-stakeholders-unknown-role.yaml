@@ -21,6 +21,8 @@ stakeholders:
   parties:
     - id: party-1
       name: Party One
+      type: Human
+      kind: Person
   roles:
     - id: accountable
       title: Accountable

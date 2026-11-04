@@ -1654,32 +1654,20 @@ components:
       type: object
       x-status: experimental
     Party:
+      allOf:
+      - $ref: "#/components/schemas/Entity"
+      - required:
+        - kind
       description: Party represents an individual, team, organization, or regulatory authority
       properties:
         contact:
           allOf:
           - $ref: "#/components/schemas/Contact"
           description: contact provides optional contact details for reaching this party
-        description:
-          description: description provides additional context about the party
-          type: string
-        id:
-          description: id uniquely identifies this party within stakeholders
-          type: string
         kind:
           allOf:
           - $ref: "#/components/schemas/PartyKind"
-          description: kind specifies the type of party
-        name:
-          description: name is the display name of the party
-          type: string
-        uri:
-          description: uri points to an external profile, registry, or authoritative record
-          pattern: "^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
-          type: string
-      required:
-      - id
-      - name
+          description: kind specifies the classification of the party
       type: object
       x-status: stable
     PartyKind:
