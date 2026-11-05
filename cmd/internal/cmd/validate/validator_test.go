@@ -270,3 +270,91 @@ func TestValidate_EvaluationLogEnforcementTolerance_Issue499(t *testing.T) {
 		t.Fatalf("expected EvaluationLog reference to be tolerated per #499, but got diagnostics: %+v", res.Diagnostics)
 	}
 }
+
+func TestValidate_MultiEntryMappingWithReferenceID(t *testing.T) {
+	root := repoRoot()
+	files := []string{
+		filepath.Join(root, "test", "test-data", "good-threat-catalog.yaml"),
+		filepath.Join(root, "test", "test-data", "good-capability-catalog.yaml"),
+	}
+
+	docs, err := LoadPaths(files)
+	if err != nil {
+		t.Fatalf("LoadPaths failed: %v", err)
+	}
+
+	// Verify that capabilities entries with reference-id are extracted into EntityUsages
+	var threatDoc *Document
+	for _, d := range docs {
+		if d.Type == "ThreatCatalog" {
+			threatDoc = d
+			break
+		}
+	}
+	if threatDoc == nil {
+		t.Fatalf("threat catalog document not found")
+	}
+
+	foundCap002 := false
+	for _, u := range threatDoc.EntityUsages {
+		if u.ReferenceID == "EXAMPLE-CAPABILITY-CATALOG" && u.EntryID == "CAP-002" {
+			foundCap002 = true
+			break
+		}
+	}
+	if !foundCap002 {
+		t.Errorf("expected CAP-002 from MultiEntryMapping entries to be extracted into EntityUsages")
+	}
+
+	res := Validate(docs, Options{Strict: false})
+	for _, d := range res.Diagnostics {
+		if d.Severity == SeverityError {
+			t.Errorf("unexpected error validating threat and capability catalogs: %s (%s)", d.Message, d.Code)
+		}
+	}
+}
+
+func TestValidate_PolicyNestedRiskMapping(t *testing.T) {
+	root := repoRoot()
+	riskCatalogPath := filepath.Join(root, "test", "test-data", "good-risk-catalog.yaml")
+
+	docs, err := LoadPaths([]string{riskCatalogPath})
+	if err != nil {
+		t.Fatalf("LoadPaths failed: %v", err)
+	}
+
+	policyDoc := &Document{
+		FilePath: "policy.yaml",
+		ID:       "TEST-POLICY",
+		Type:     "Policy",
+		MappingReferences: map[string]MappingReference{
+			"EXAMPLE-RISK-CATALOG": {
+				ID:    "EXAMPLE-RISK-CATALOG",
+				Title: "Example Risk Catalog",
+			},
+		},
+		ReferenceUsages: []ReferenceUsage{
+			{ReferenceID: "EXAMPLE-RISK-CATALOG", Context: "risks.mitigated"},
+		},
+		EntityUsages: []EntityUsage{
+			{ReferenceID: "EXAMPLE-RISK-CATALOG", EntryID: "NON-EXISTENT-RISK", Context: "risks.mitigated"},
+		},
+	}
+
+	allDocs := append(docs, policyDoc)
+	res := Validate(allDocs, Options{Strict: true})
+	if res.Passed {
+		t.Fatalf("expected validation failure for non-existent risk in policy")
+	}
+
+	found := false
+	for _, d := range res.Diagnostics {
+		if d.Code == "dangling-entry-reference" && d.Severity == SeverityError {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected dangling-entry-reference diagnostic for policy risk, got: %+v", res.Diagnostics)
+	}
+}

@@ -132,13 +132,13 @@ func extractDocumentContents(doc *Document, root map[string]any) {
 	case "ControlCatalog":
 		extractControlCatalog(doc, root)
 	case "RiskCatalog":
-		extractSimpleList(doc, root, "risks")
+		extractRiskCatalog(doc, root)
 	case "ThreatCatalog":
 		extractThreatCatalog(doc, root)
 	case "CapabilityCatalog":
 		extractSimpleList(doc, root, "capabilities")
 	case "GuidanceCatalog":
-		extractSimpleList(doc, root, "guidelines")
+		extractGuidanceCatalog(doc, root)
 	case "VectorCatalog":
 		extractSimpleList(doc, root, "vectors")
 	case "PrincipleCatalog":
@@ -214,6 +214,29 @@ func extractThreatCatalog(doc *Document, root map[string]any) {
 
 		extractMultiEntryMappings(doc, tMap["capabilities"], "threat.capabilities")
 		extractMultiEntryMappings(doc, tMap["vectors"], "threat.vectors")
+	}
+}
+
+func extractRiskCatalog(doc *Document, root map[string]any) {
+	extractSimpleList(doc, root, "risks")
+	if risks, ok := root["risks"].([]any); ok {
+		for _, r := range risks {
+			if rMap, ok := r.(map[string]any); ok {
+				extractMultiEntryMappings(doc, rMap["threats"], "risk.threats")
+			}
+		}
+	}
+}
+
+func extractGuidanceCatalog(doc *Document, root map[string]any) {
+	extractSimpleList(doc, root, "guidelines")
+	if guidelines, ok := root["guidelines"].([]any); ok {
+		for _, g := range guidelines {
+			if gMap, ok := g.(map[string]any); ok {
+				extractMultiEntryMappings(doc, gMap["principles"], "guideline.principles")
+				extractMultiEntryMappings(doc, gMap["vectors"], "guideline.vectors")
+			}
+		}
 	}
 }
 
@@ -322,6 +345,17 @@ func extractPolicy(doc *Document, root map[string]any) {
 						entryID, _ := rMap["entry-id"].(string)
 						if entryID == "" {
 							entryID, _ = rMap["risk-id"].(string)
+						}
+						// In Gemara schema (#MitigatedRisk, #AcceptedRisk), the reference is nested under risk: #EntryMapping
+						if riskMap, ok := rMap["risk"].(map[string]any); ok {
+							if nrID, ok := riskMap["reference-id"].(string); ok && nrID != "" {
+								rID = nrID
+							}
+							if nEntryID, ok := riskMap["entry-id"].(string); ok && nEntryID != "" {
+								entryID = nEntryID
+							} else if nRiskID, ok := riskMap["risk-id"].(string); ok && nRiskID != "" {
+								entryID = nRiskID
+							}
 						}
 						if rID != "" {
 							doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
@@ -504,13 +538,23 @@ func extractMultiEntryMappings(doc *Document, raw any, context string) {
 			if entries, ok := mMap["entries"].([]any); ok {
 				for _, e := range entries {
 					if eMap, ok := e.(map[string]any); ok {
-						if entryID, ok := eMap["entry-id"].(string); ok && entryID != "" {
+						entryID, _ := eMap["reference-id"].(string)
+						if entryID == "" {
+							entryID, _ = eMap["entry-id"].(string)
+						}
+						if entryID != "" {
 							doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
 								ReferenceID: rID,
 								EntryID:     entryID,
 								Context:     context,
 							})
 						}
+					} else if eStr, ok := e.(string); ok && eStr != "" {
+						doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
+							ReferenceID: rID,
+							EntryID:     eStr,
+							Context:     context,
+						})
 					}
 				}
 			}
