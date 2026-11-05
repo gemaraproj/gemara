@@ -23,6 +23,7 @@ evaluations:
   assessment-logs:
   # Passed assessments executed, so start is still required
   - requirement:
+      reference-id: OSPS-B
       entry-id: OSPS-AC-01.01
     description: Verify that multi-factor authentication is required.
     result: Passed

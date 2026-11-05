@@ -1,0 +1,27 @@
+metadata:
+  id: TEST-DUPLICATE-CAPABILITIES
+  type: CapabilityCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Capability catalog with duplicate capability ids
+  author:
+    id: architecture-team
+    name: Architecture Team
+    type: Human
+
+title: Duplicate Capability ID Test
+
+groups:
+  - id: runtime
+    title: Runtime Execution
+    description: Container and workload runtime capabilities
+
+capabilities:
+  - id: CAP-001
+    title: First Capability
+    description: Container runtime execution
+    group: runtime
+  - id: CAP-001
+    title: Duplicate Capability
+    description: Host volume mounting
+    group: runtime
