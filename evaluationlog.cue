@@ -22,7 +22,7 @@ package gemara
 		for j, other in evaluations if i < j {
 			if e.control."reference-id" == other.control."reference-id" &&
 				e.control."entry-id" == other.control."entry-id" {
-				evaluations: _|_
+				evaluations: error("duplicate control mapping in evaluations")
 			}
 		}
 	}
@@ -86,3 +86,6 @@ package gemara
 	evidence?: [#Evidence, ...#Evidence] @go(Evidence)
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
 }
+#AssessmentStep: string @go(-)
+
+#Result: "Not Run" | "Passed" | "Failed" | "Needs Review" | "Not Applicable" | "Unknown" @go(-)
