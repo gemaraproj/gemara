@@ -58,7 +58,7 @@ actions:
             entry-id: AP-DO-01
           log:
             reference-id: eval-log
-            entry-id: OSPS-DO-01
+            entry-id: '["OSPS-B","OSPS-DO-01"]'
 
   - disposition: Enforced
     method:
@@ -81,7 +81,7 @@ actions:
             entry-id: AP-DO-02
           log:
             reference-id: eval-log
-            entry-id: OSPS-DO-02
+            entry-id: '["OSPS-B","OSPS-DO-02"]'
 
   - disposition: Clear
     method:
@@ -99,7 +99,7 @@ actions:
             entry-id: AP-AC-01
           log:
             reference-id: eval-log
-            entry-id: OSPS-AC-01
+            entry-id: '["OSPS-B","OSPS-AC-01"]'
 
   - disposition: Tolerated
     method:
@@ -121,7 +121,7 @@ actions:
             entry-id: AP-QA-04
           log:
             reference-id: eval-log
-            entry-id: OSPS-QA-04
+            entry-id: '["OSPS-B","OSPS-QA-04"]'
       exceptions:
         - reference-id: exception-register
           remarks: "EXC-2025-042: Single-repository projects are exempt from the subproject listing requirement"
@@ -142,4 +142,4 @@ actions:
             entry-id: AP-DO-02
           log:
             reference-id: eval-log
-            entry-id: OSPS-DO-02
+            entry-id: '["OSPS-B","OSPS-DO-02"]'
