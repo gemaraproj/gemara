@@ -21,19 +21,16 @@ stakeholders:
   parties:
     - id: ai-governance-office
       name: AI Governance Office
-      type: Human
-      kind: Team
+      type: Group
       contact:
         name: Chief AI Ethics Officer
         email: ethics@example.org
     - id: portfolio-managers
       name: Portfolio Managers
-      type: Human
-      kind: Group
+      type: Group
     - id: regulator-fca
       name: Financial Conduct Authority
-      type: Human
-      kind: Regulator
+      type: Group
       uri: https://www.fca.org.uk
   roles:
     - id: accountable
@@ -45,9 +42,9 @@ stakeholders:
     - id: affected
       title: Affected
       description: Interested party impacted by model behavior or decisions
-    - id: escalation
-      title: Escalation
-      description: Authority notified when risks exceed thresholds
+    - id: regulator
+      title: Regulator
+      description: Supervisory body exercising regulatory oversight
   assignments:
     - role-id: accountable
       party-ids: [ai-governance-office]
@@ -55,7 +52,7 @@ stakeholders:
       party-ids: [ai-governance-office]
     - role-id: affected
       party-ids: [portfolio-managers]
-    - role-id: escalation
+    - role-id: regulator
       party-ids: [regulator-fca]
 
 risks:
@@ -67,5 +64,5 @@ risks:
     role-ids:
       - accountable
       - affected
-      - escalation
+      - regulator
     impact: Regulatory penalties, reputational damage, and unfair customer outcomes.
