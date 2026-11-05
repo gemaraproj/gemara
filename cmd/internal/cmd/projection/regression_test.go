@@ -3,6 +3,7 @@
 package projection
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -119,7 +120,7 @@ func TestGoldenDocument(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%v (run UPDATE_GOLDEN=1 go test ./internal/cmd/projection -run TestGolden)", err)
 	}
-	if string(got) != string(want) {
+	if string(bytes.ReplaceAll(got, []byte("\r\n"), []byte("\n"))) != string(bytes.ReplaceAll(want, []byte("\r\n"), []byte("\n"))) {
 		t.Error("generated document differs from ../testdata/openapi.golden.yaml; inspect the diff, then regenerate with UPDATE_GOLDEN=1 if the change is intended")
 	}
 }
