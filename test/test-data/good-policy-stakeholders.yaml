@@ -15,15 +15,13 @@ stakeholders:
   parties:
     - id: sec-ops
       name: Security Operations
-      type: Human
-      kind: Team
+      type: Group
       contact:
         name: SecOps Lead
         email: secops@company.com
     - id: ciso-office
       name: CISO Office
-      type: Human
-      kind: Team
+      type: Group
   roles:
     - id: accountable
       title: Accountable

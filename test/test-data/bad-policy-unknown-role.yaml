@@ -15,8 +15,7 @@ stakeholders:
   parties:
     - id: sec-ops
       name: Security Operations
-      type: Human
-      kind: Team
+      type: Group
   roles:
     - id: accountable
       title: Accountable

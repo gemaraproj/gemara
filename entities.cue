@@ -8,7 +8,7 @@ import "list"
 
 @go(gemara)
 
-// Entity represents a human or tool
+// Entity represents a human, group, or tool
 #Entity: {
 	// id uniquely identifies the entity and allows this entry to be referenced by other elements
 	id: string
@@ -51,7 +51,7 @@ import "list"
 }
 
 // EntityType specifies what entity is interacting in the workflow
-#EntityType: "Human" | "Software" | "Software Assisted" @go(-)
+#EntityType: "Human" | "Group" | "Software" | "Software Assisted" @go(-)
 
 // Contact is the contact information for a person or group
 #Contact: {
@@ -86,20 +86,6 @@ import "list"
 	informed?: [#Contact, ...#Contact]
 }
 
-// PartyKind specifies the classification of an interested party
-#PartyKind: "Person" | "Team" | "Group" | "Organization" | "Regulator" @go(-)
-
-// Party represents an individual, team, organization, or regulatory authority
-#Party: {
-	#Entity
-
-	// kind specifies the classification of the party
-	kind: #PartyKind @go(Kind)
-
-	// contact provides optional contact details for reaching this party
-	contact?: #Contact @go(Contact)
-}
-
 // Role defines a governance, operational, or interest role that can be bound to parties
 #Role: {
 	// id uniquely identifies this role
@@ -123,8 +109,8 @@ import "list"
 
 // Stakeholders defines the reusable parties, roles, and optional standing assignments
 #Stakeholders: {
-	// parties lists the individuals, groups, teams, or external organizations
-	parties: [#Party, ...#Party] @gemara(projectable=false) @go(Parties)
+	// parties lists the entities taking part by holding a stake
+	parties: [#Actor, ...#Actor] @gemara(projectable=false) @go(Parties)
 
 	// roles lists the roles defined for this context
 	roles: [#Role, ...#Role] @gemara(projectable=false) @go(Roles)
