@@ -12,7 +12,8 @@ package gemara
 	metadata: type: "EvaluationLog"
 	// result is the aggregate outcome across all evaluations in this log
 	result: #Result
-	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
+	// A control mapping may appear only once per log, keyed by reference-id and entry-id.
+	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @gemara(projectable=false) @go(Evaluations,type=[]*ControlEvaluation)
 
 	// Each control entry mapping must identify at most one evaluation in this log.
 	_uniqueControlMappings: {
