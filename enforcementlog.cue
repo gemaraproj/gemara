@@ -39,7 +39,7 @@ package gemara
 	// end is the timestamp when the enforcement action concluded
 	end?: #Datetime
 
-	// steps references the code paths or addresses that carried out this enforcement action
+	// steps references the code paths or addresses that carried out the enforcement action
 	steps: [#EnforcementStep, ...#EnforcementStep]
 
 	// justification links the action to its assessment findings and any applicable exceptions
@@ -69,8 +69,9 @@ package gemara
 	// plan maps to the Policy assessment plan that was executed
 	plan?: #EntryMapping @go(Plan)
 
-	// log references the EvaluationLog entry containing the finding; it identifies the
-	// ControlEvaluation rather than a nested AssessmentLog.
+	// log.reference-id identifies the EvaluationLog. log.entry-id selects its ControlEvaluation
+	// by encoding control.reference-id and control.entry-id as a compact JSON array, for example
+	// ["OSPS-B","OSPS-DO-01"]. It does not identify a nested AssessmentLog.
 	log: #EntryMapping @go(Log)
 }
 
