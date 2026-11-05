@@ -358,3 +358,85 @@ func TestValidate_PolicyNestedRiskMapping(t *testing.T) {
 		t.Errorf("expected dangling-entry-reference diagnostic for policy risk, got: %+v", res.Diagnostics)
 	}
 }
+
+func TestValidate_GuidanceCatalogExtendsReplacedByAndExemptions(t *testing.T) {
+	rootMap := map[string]any{
+		"metadata": map[string]any{
+			"id":             "GUIDANCE-01",
+			"type":           "GuidanceCatalog",
+			"gemara-version": "1.1.0",
+			"version":        "1.0.0",
+			"description":    "Guidance catalog test",
+			"mapping-references": []any{
+				map[string]any{"id": "BASE-GUIDE", "title": "Base Guidance"},
+				map[string]any{"id": "ALT-GUIDE", "title": "Alt Guidance"},
+			},
+		},
+		"title": "Guidance Catalog",
+		"guidelines": []any{
+			map[string]any{
+				"id":    "G-01",
+				"title": "First Guideline",
+				"extends": map[string]any{
+					"reference-id": "BASE-GUIDE",
+					"entry-id":     "BG-01",
+				},
+				"replaced-by": map[string]any{
+					"reference-id": "BASE-GUIDE",
+					"entry-id":     "BG-02",
+				},
+			},
+		},
+		"exemptions": []any{
+			map[string]any{
+				"id":     "EX-01",
+				"reason": "Temporary exemption",
+				"redirect": map[string]any{
+					"reference-id": "ALT-GUIDE",
+					"entries": []any{
+						map[string]any{"reference-id": "ALT-01"},
+					},
+				},
+			},
+		},
+	}
+
+	doc := &Document{
+		FilePath:          "guidance.yaml",
+		ID:                "GUIDANCE-01",
+		Type:              "GuidanceCatalog",
+		MappingReferences: map[string]MappingReference{
+			"BASE-GUIDE": {ID: "BASE-GUIDE", Title: "Base Guidance"},
+			"ALT-GUIDE":  {ID: "ALT-GUIDE", Title: "Alt Guidance"},
+		},
+		DeclaredEntities:  make(map[string]bool),
+		SubEntities:       make(map[string]map[string]bool),
+	}
+	extractDocumentContents(doc, rootMap)
+
+	// Check that extends and replaced-by were registered
+	hasExtends := false
+	hasReplacedBy := false
+	hasRedirect := false
+	for _, u := range doc.EntityUsages {
+		if u.ReferenceID == "BASE-GUIDE" && u.EntryID == "BG-01" {
+			hasExtends = true
+		}
+		if u.ReferenceID == "BASE-GUIDE" && u.EntryID == "BG-02" {
+			hasReplacedBy = true
+		}
+		if u.ReferenceID == "ALT-GUIDE" && u.EntryID == "ALT-01" {
+			hasRedirect = true
+		}
+	}
+
+	if !hasExtends {
+		t.Errorf("expected guideline extends entity usage to be extracted")
+	}
+	if !hasReplacedBy {
+		t.Errorf("expected guideline replaced-by entity usage to be extracted")
+	}
+	if !hasRedirect {
+		t.Errorf("expected exemption redirect entity usage to be extracted")
+	}
+}
