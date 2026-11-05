@@ -4,9 +4,11 @@
 @gemara(status="stable")
 package gemara
 
+import "list"
+
 @go(gemara)
 
-// Entity represents a human or tool
+// Entity represents a human, group, or tool
 #Entity: {
 	// id uniquely identifies the entity and allows this entry to be referenced by other elements
 	id: string
@@ -29,7 +31,7 @@ package gemara
 	uri?: =~"^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
 }
 
-// Actor represents an entity (human or tool) that performs actions in evaluations
+// Actor represents an entity (human, group, or tool) that performs actions in evaluations or participates as a stakeholder
 #Actor: {
 	#Entity
 
@@ -49,7 +51,7 @@ package gemara
 }
 
 // EntityType specifies what entity is interacting in the workflow
-#EntityType: "Human" | "Software" | "Software Assisted" @go(-)
+#EntityType: "Human" | "Group" | "Software" | "Software Assisted" @go(-)
 
 // Contact is the contact information for a person or group
 #Contact: {
@@ -82,4 +84,57 @@ package gemara
 
 	// informed identifies entities that should be notified about changes to the artifact status
 	informed?: [#Contact, ...#Contact]
+}
+
+// Role defines a governance, operational, or interest role that can be bound to parties
+#Role: {
+	// id uniquely identifies this role
+	id: string
+
+	// title is the human-readable name of the role
+	title: string
+
+	// description describes the responsibilities or nature of this role
+	description?: string @go(Description)
+}
+
+// RoleAssignment binds one or more parties to a specific role
+#RoleAssignment: {
+	// role-id identifies the role being assigned
+	"role-id": string @go(RoleID) @yaml("role-id")
+
+	// party-ids lists the parties assigned to this role
+	"party-ids": [string, ...string] @gemara(projectable=false) @go(PartyIDs) @yaml("party-ids")
+}
+
+// Stakeholders defines the reusable parties, roles, and optional standing assignments
+#Stakeholders: {
+	// parties lists the entities taking part by holding a stake
+	parties: [#Actor, ...#Actor] @gemara(projectable=false) @go(Parties)
+
+	// roles lists the roles defined for this context
+	roles: [#Role, ...#Role] @gemara(projectable=false) @go(Roles)
+
+	// assignments optionally declares standing party-to-role bindings
+	assignments?: [#RoleAssignment, ...#RoleAssignment] @gemara(projectable=false) @go(Assignments)
+
+	if parties != _|_ {
+		_uniquePartyIds: {for i, p in parties {(p.id): i}}
+	}
+
+	if roles != _|_ {
+		_uniqueRoleIds: {for i, r in roles {(r.id): i}}
+	}
+
+	if assignments != _|_ && roles != _|_ && parties != _|_ {
+		let _validRoleIds = [for r in roles {r.id}]
+		let _validPartyIds = [for p in parties {p.id}]
+
+		for i, a in assignments {
+			_roleValidation: "\(i)": _validRoleIds & list.Contains(a."role-id")
+			for j, pId in a."party-ids" {
+				_partyValidation: "\(i)_\(j)": _validPartyIds & list.Contains(pId)
+			}
+		}
+	}
 }

@@ -1,0 +1,36 @@
+metadata:
+  id: "bad-policy-unknown-role-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy with unknown role-ids"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+
+title: "Bad Policy Unknown Role"
+
+stakeholders:
+  parties:
+    - id: sec-ops
+      name: Security Operations
+      type: Group
+  roles:
+    - id: accountable
+      title: Accountable
+
+role-ids:
+  - unknown-role
+
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+
+imports:
+  catalogs:
+    - reference-id: "NIST-800-53"
+
+adherence:
+  non-compliance: "Non-compliant systems will be quarantined pending remediation"
