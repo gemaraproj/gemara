@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
+// Package devcheck provides a unified local verification command for developers
+// to validate CUE schemas, run positive/negative fixtures, check OpenAPI golden drift,
+// and execute internal CLI unit test suites.
 package devcheck
 
 import (
@@ -15,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// CheckResult represents the outcome and elapsed duration of an individual verification step.
 type CheckResult struct {
 	Name     string
 	Passed   bool
@@ -22,13 +26,14 @@ type CheckResult struct {
 	Message  string
 }
 
+// devCheckOptions holds configuration flags for dev-check execution.
 type devCheckOptions struct {
 	schemaDir    string
 	goldenPath   string
 	updateGolden bool
 }
 
-// NewDevCheckCmd returns a new dev-check command.
+// NewDevCheckCmd returns a new Cobra command for local developer verification.
 func NewDevCheckCmd() *cobra.Command {
 	opts := devCheckOptions{}
 
@@ -68,6 +73,7 @@ func detectSchemaDir() string {
 	return "."
 }
 
+// runDevCheck coordinates and runs each verification step in order.
 func runDevCheck(opts devCheckOptions) error {
 	startTime := time.Now()
 	var results []CheckResult
@@ -132,6 +138,7 @@ func runDevCheck(opts devCheckOptions) error {
 	return fmt.Errorf("local developer verification failed")
 }
 
+// printResult logs the pass/fail status and elapsed duration for a step.
 func printResult(r CheckResult) {
 	if r.Passed {
 		fmt.Printf("PASSED (%.2fs)\n", r.Duration.Seconds())
@@ -140,6 +147,7 @@ func printResult(r CheckResult) {
 	}
 }
 
+// checkCueModule asserts that cue.mod/module.cue and essential schema definitions exist.
 func checkCueModule(schemaDir string) CheckResult {
 	start := time.Now()
 	moduleFile := filepath.Join(schemaDir, "cue.mod", "module.cue")
@@ -173,6 +181,7 @@ func checkCueModule(schemaDir string) CheckResult {
 	}
 }
 
+// runGoPackageTests executes go test against a specified package directory.
 func runGoPackageTests(pkgDir string) CheckResult {
 	start := time.Now()
 	cmd := exec.Command("go", "test", "-count=1", "./...")
@@ -197,6 +206,7 @@ func normalizeLineEndings(b []byte) []byte {
 	return bytes.ReplaceAll(b, []byte("\r\n"), []byte("\n"))
 }
 
+// checkOpenAPIGolden compares freshly generated OpenAPI specification against openapi.golden.yaml.
 func checkOpenAPIGolden(opts devCheckOptions) CheckResult {
 	start := time.Now()
 	goldenFile := opts.goldenPath
