@@ -105,11 +105,20 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const consumers = ['website', 'gemara-python'];
+            const errors = [];
             for (const repo of consumers) {
-              await github.rest.repos.createDispatchEvent({
-                owner: context.repo.owner,
-                repo: repo,
-                event_type: 'gemara-release',
-                client_payload: { ref: process.env.TAG },
-              });
+              try {
+                await github.rest.repos.createDispatchEvent({
+                  owner: context.repo.owner,
+                  repo: repo,
+                  event_type: 'gemara-release',
+                  client_payload: { ref: process.env.TAG },
+                });
+              } catch (error) {
+                core.error(`Failed to dispatch gemara-release event to ${repo}: ${error.message || error}`);
+                errors.push({ repo, error });
+              }
+            }
+            if (errors.length > 0) {
+              core.setFailed(`Failed to dispatch release notification to ${errors.length} consumer(s): ${errors.map(e => e.repo).join(', ')}`);
             }

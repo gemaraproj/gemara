@@ -3,6 +3,7 @@
 package jsonschema
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -106,7 +107,7 @@ func (g *Generator) Generate() (map[string]any, error) {
 	defs := make(map[string]any)
 
 	for _, name := range names {
-		cmd := exec.Command(g.cueBin, "def", "-e", name, "--out", "jsonschema", ".")
+		cmd := exec.CommandContext(context.Background(), g.cueBin, "def", "-e", name, "--out", "jsonschema", ".")
 		cmd.Dir = absDir
 
 		out, err := cmd.CombinedOutput()
@@ -236,6 +237,7 @@ func (g *Generator) Write(outputPath string) error {
 }
 
 func stripRefEncoding(raw string) string {
+	raw = strings.ReplaceAll(raw, "#/$defs/#", "#/$defs/")
 	raw = strings.ReplaceAll(raw, "%23", "")
 	raw = strings.ReplaceAll(raw, "%22", "")
 	return raw

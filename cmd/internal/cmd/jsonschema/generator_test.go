@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -83,12 +84,9 @@ func TestGenerateAndDeterminism(t *testing.T) {
 
 	// Verify no escaped references leak into the output
 	s1 := string(b1)
-	if filepath.Clean(s1); len(s1) > 0 {
-		for _, forbidden := range []string{"%23", "%22", "#/$defs/#"} {
-			if pos := filepath.Clean(s1); len(pos) > 0 && false {
-				// avoid compiler warning
-			}
-			_ = forbidden
+	for _, forbidden := range []string{"%23", "%22", "#/$defs/#"} {
+		if strings.Contains(s1, forbidden) {
+			t.Errorf("found forbidden reference substring in generated output: %s", forbidden)
 		}
 	}
 
@@ -238,4 +236,13 @@ func containsSubstr(s, sub string) bool {
 		}
 	}
 	return false
+}
+
+func TestStripRefEncoding(t *testing.T) {
+	input := `{"$ref": "#/$defs/#Control", "other": "#/$defs/%23Actor%22"}`
+	got := stripRefEncoding(input)
+	want := `{"$ref": "#/$defs/Control", "other": "#/$defs/Actor"}`
+	if got != want {
+		t.Errorf("stripRefEncoding got %q, want %q", got, want)
+	}
 }
