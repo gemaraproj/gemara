@@ -31,7 +31,7 @@ import "list"
 	uri?: =~"^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
 }
 
-// Actor represents an entity (human or tool) that performs actions in evaluations
+// Actor represents an entity (human, group, or tool) that performs actions in evaluations or participates as a stakeholder
 #Actor: {
 	#Entity
 

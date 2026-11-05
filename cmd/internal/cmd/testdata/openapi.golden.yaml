@@ -93,7 +93,7 @@ components:
     Actor:
       allOf:
       - $ref: "#/components/schemas/Entity"
-      description: Actor represents an entity (human or tool) that performs actions in evaluations
+      description: Actor represents an entity (human, group, or tool) that performs actions in evaluations or participates as a stakeholder
       properties:
         contact:
           allOf:
