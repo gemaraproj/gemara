@@ -12,14 +12,17 @@ package gemara
 	metadata: type: "EvaluationLog"
 	// result is the aggregate outcome across all evaluations in this log
 	result: #Result
-	// A control mapping may appear only once per log, keyed by reference-id and entry-id.
+	// evaluations contains at most one result per control mapping, keyed by
+	// (reference-id, entry-id). AssessmentFinding.log.entry-id encodes this pair as a compact
+	// JSON array.
 	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @gemara(projectable=false) @go(Evaluations,type=[]*ControlEvaluation)
 
-	// Each control entry mapping must identify at most one evaluation in this log.
-	_uniqueControlMappings: {
-		for i, e in evaluations {
-			(e.control."reference-id"): {
-				(e.control."entry-id"): i
+	// A control mapping can identify at most one evaluation within this log.
+	for i, e in evaluations {
+		for j, other in evaluations if i < j {
+			if e.control."reference-id" == other.control."reference-id" &&
+				e.control."entry-id" == other.control."entry-id" {
+				evaluations: _|_
 			}
 		}
 	}
@@ -79,11 +82,7 @@ package gemara
 	recommendation?: string
 	// ConfidenceLevel indicates the evaluator's confidence level in this specific assessment result.
 	"confidence-level"?: #ConfidenceLevel @go(ConfidenceLevel)
-	// Evidence records the raw data cited to support this assessment's opinion.
+	// Evidence records the raw data cited to support an assessment's opinion.
 	evidence?: [#Evidence, ...#Evidence] @go(Evidence)
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
 }
-
-#AssessmentStep: string @go(-)
-
-#Result: "Not Run" | "Passed" | "Failed" | "Needs Review" | "Not Applicable" | "Unknown" @go(-)
