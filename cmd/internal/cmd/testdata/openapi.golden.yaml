@@ -936,6 +936,10 @@ components:
       description: EvaluationLog contains the results of evaluating a set of Layer 2 controls.
       properties:
         evaluations:
+          description: |-
+            A control mapping may appear only once per log, keyed by reference-id and entry-id.
+
+            (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             $ref: "#/components/schemas/ControlEvaluation"
           minItems: 1
