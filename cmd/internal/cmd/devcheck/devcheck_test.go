@@ -49,11 +49,21 @@ func TestNewDevCheckCmdStructure(t *testing.T) {
 		t.Errorf("expected command Use 'dev-check', got %q", cmd.Use)
 	}
 
-	flags := []string{"schema", "golden", "update-golden", "skip-slow"}
+	flags := []string{"schema", "golden", "update-golden"}
 	for _, flag := range flags {
 		if cmd.Flags().Lookup(flag) == nil {
 			t.Errorf("expected flag --%s to exist", flag)
 		}
+	}
+	if cmd.Flags().Lookup("skip-slow") != nil {
+		t.Errorf("expected inactive flag --skip-slow to not be registered")
+	}
+}
+
+func TestDetectSchemaDir(t *testing.T) {
+	dir := detectSchemaDir()
+	if dir != ".." && dir != "." {
+		t.Errorf("expected detectSchemaDir to return '..' or '.', got %q", dir)
 	}
 }
 
@@ -99,6 +109,6 @@ func TestCheckOpenAPIGoldenDriftAndAutoUpdate(t *testing.T) {
 	opts.updateGolden = false
 	resVerify := checkOpenAPIGolden(opts)
 	if !resVerify.Passed {
-		t.Fatalf("expected golden file to be in sync after update, got: %s", resVerify.Message)
+		t.Fatalf("expected verification to pass after auto-update, got: %s", resVerify.Message)
 	}
 }

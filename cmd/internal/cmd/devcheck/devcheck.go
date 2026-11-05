@@ -26,7 +26,6 @@ type devCheckOptions struct {
 	schemaDir    string
 	goldenPath   string
 	updateGolden bool
-	skipSlow     bool
 }
 
 // NewDevCheckCmd returns a new dev-check command.
@@ -40,20 +39,33 @@ func NewDevCheckCmd() *cobra.Command {
 It executes:
   1. CUE module and schema structure check
   2. Complete CUE schema validation test suite (positive and negative fixtures)
-  3. Internal cmd unit tests (projection, annotate, breaking change logic)
-  4. OpenAPI golden specification drift check (with automatic --update-golden support)
+  3. OpenAPI golden specification drift check (with automatic --update-golden support)
+  4. Internal cmd unit tests (projection, annotate, breaking change logic)
   5. Formatted execution summary table`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.SilenceUsage = true
 			return runDevCheck(opts)
 		},
 	}
 
-	cmd.Flags().StringVarP(&opts.schemaDir, "schema", "s", "..", "Path to root schema directory")
+	defaultSchemaDir := detectSchemaDir()
+
+	cmd.Flags().StringVarP(&opts.schemaDir, "schema", "s", defaultSchemaDir, "Path to root schema directory")
 	cmd.Flags().StringVar(&opts.goldenPath, "golden", "internal/cmd/testdata/openapi.golden.yaml", "Path to OpenAPI golden specification")
 	cmd.Flags().BoolVarP(&opts.updateGolden, "update-golden", "u", false, "Automatically update openapi.golden.yaml if drift is detected")
-	cmd.Flags().BoolVar(&opts.skipSlow, "skip-slow", false, "Skip long-running integration tests")
 
 	return cmd
+}
+
+// detectSchemaDir determines the default schema directory whether invoked from root or cmd subdirectory.
+func detectSchemaDir() string {
+	if _, err := os.Stat("cue.mod"); err == nil {
+		return "."
+	}
+	if _, err := os.Stat(filepath.Join("..", "cue.mod")); err == nil {
+		return ".."
+	}
+	return "."
 }
 
 func runDevCheck(opts devCheckOptions) error {
@@ -78,18 +90,18 @@ func runDevCheck(opts devCheckOptions) error {
 	results = append(results, resSchema)
 	printResult(resSchema)
 
-	// 3. Run cmd package tests
-	fmt.Print("⏳ [3/4] Running internal CLI & projection unit tests... ")
+	// 3. OpenAPI Golden Drift Check (executed before cmd unit tests so --update-golden syncs first)
+	fmt.Print("⏳ [3/4] Verifying OpenAPI golden projection sync... ")
+	resGolden := checkOpenAPIGolden(opts)
+	results = append(results, resGolden)
+	printResult(resGolden)
+
+	// 4. Run cmd package tests
+	fmt.Print("⏳ [4/4] Running internal CLI & projection unit tests... ")
 	resCmd := runGoPackageTests(filepath.Join(opts.schemaDir, "cmd"))
 	resCmd.Name = "CLI & Projection Logic (cmd/...)"
 	results = append(results, resCmd)
 	printResult(resCmd)
-
-	// 4. OpenAPI Golden Drift Check
-	fmt.Print("⏳ [4/4] Verifying OpenAPI golden projection sync... ")
-	resGolden := checkOpenAPIGolden(opts)
-	results = append(results, resGolden)
-	printResult(resGolden)
 
 	// Print Summary Table
 	fmt.Println()
@@ -131,12 +143,12 @@ func printResult(r CheckResult) {
 func checkCueModule(schemaDir string) CheckResult {
 	start := time.Now()
 	moduleFile := filepath.Join(schemaDir, "cue.mod", "module.cue")
-	if _, err := os.Stat(moduleFile); os.IsNotExist(err) {
+	if _, err := os.Stat(moduleFile); err != nil {
 		return CheckResult{
 			Name:     "CUE Module Structure",
 			Passed:   false,
 			Duration: time.Since(start),
-			Message:  fmt.Sprintf("cue.mod/module.cue not found at %s", moduleFile),
+			Message:  fmt.Sprintf("cannot access cue.mod/module.cue at %s: %v", moduleFile, err),
 		}
 	}
 
@@ -144,12 +156,12 @@ func checkCueModule(schemaDir string) CheckResult {
 	requiredSchemas := []string{"policy.cue", "controlcatalog.cue", "auditlog.cue", "collections.cue"}
 	for _, schema := range requiredSchemas {
 		p := filepath.Join(schemaDir, schema)
-		if _, err := os.Stat(p); os.IsNotExist(err) {
+		if _, err := os.Stat(p); err != nil {
 			return CheckResult{
 				Name:     "CUE Module Structure",
 				Passed:   false,
 				Duration: time.Since(start),
-				Message:  fmt.Sprintf("required schema file %s missing", schema),
+				Message:  fmt.Sprintf("cannot access required schema file %s at %s: %v", schema, p, err),
 			}
 		}
 	}
