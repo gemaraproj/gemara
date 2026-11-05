@@ -68,6 +68,7 @@ func TestAssessmentIdentity(t *testing.T) {
 				"entry-id: AP/AC-01\n" + ctx("security-policy", "X"),
 				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-review"),
 				"entry-id: AP\n" + ctx("security-policy", "AC-01/X"),
+				"id: platform-security", "id: pvtr-github-repo",
 			},
 		},
 		{
@@ -143,6 +144,7 @@ func TestAssessmentIdentity(t *testing.T) {
 			replacements: []string{
 				"reference-id: security-policy\n      entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-review"),
 				"reference-id: other-policy\n      entry-id: AP-AC-01\n" + ctx("other-policy", "EM-AC-01-probe"),
+				"id: platform-security", "id: pvtr-github-repo",
 			},
 		},
 	}

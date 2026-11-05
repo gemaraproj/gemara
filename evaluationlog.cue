@@ -25,14 +25,12 @@ import "strings"
 	// entry-id together: two policies may each have a plan, or a method, with the
 	// same entry-id. This is what lets a log hold several results for one
 	// requirement — a plan requiring an automated probe and a manual review
-	// produces two — and lets a citation name exactly one of them. Two records
-	// that agree on every part of the key are rejected.
+	// produces two. Two records that agree on every part of the key are rejected.
 	// The executor is part of the key because a plan's method may name the executor
 	// meant to run it, but the key uses the executor that did, and the two can
 	// differ: one requirement run by the same method on two instances is two results.
-	// A record with no plan is not keyed. It has no method for a citation to name,
-	// so nothing could tell a second record from the first, and a producer with no
-	// policy is not required to supply anything that would.
+	// A record with no plan is not keyed, so records that agree on everything else
+	// are accepted. Existing producers that cite no plan keep validating.
 
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
