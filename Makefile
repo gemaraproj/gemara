@@ -6,11 +6,12 @@ ifeq ($(OS),Windows_NT)
     # locate Git for Windows to provide a POSIX shell and core utilities
     # (rm, mkdir -p, curl, mktemp, etc.).
     ifeq ($(shell where sh.exe 2>nul),)
-        GIT_ROOT := $(shell for /f "delims=" %%i in ('where git.exe 2^>nul') do @for %%j in ("%%~dpi..") do @echo %%~sj)
+        GIT_ROOT := $(strip $(shell for /f "delims=" %%i in ('where git.exe 2^>nul') do @if exist "%%~dpi..\bin\sh.exe" for %%j in ("%%~dpi..") do @echo %%~sj & exit /b))
         ifeq ($(GIT_ROOT),)
-            GIT_ROOT := $(firstword $(wildcard C:/Progra~1/Git C:/Progra~2/Git $(LOCALAPPDATA)/Programs/Git))
+            GIT_ROOT := $(strip $(shell for %%i in ("%ProgramW6432%\Git" "%ProgramFiles%\Git" "%ProgramFiles(x86)%\Git" "%LOCALAPPDATA%\Programs\Git") do @if exist "%%~i\bin\sh.exe" for %%j in ("%%~i") do @echo %%~sj & exit /b))
         endif
         ifneq ($(GIT_ROOT),)
+            GIT_ROOT := $(subst \,/,$(GIT_ROOT))
             export PATH := $(GIT_ROOT)/usr/bin;$(GIT_ROOT)/bin;$(PATH)
             SHELL := $(GIT_ROOT)/bin/sh.exe
         endif
