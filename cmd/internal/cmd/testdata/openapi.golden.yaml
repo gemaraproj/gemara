@@ -862,7 +862,7 @@ components:
       type: string
       x-status: experimental
     Entity:
-      description: Entity represents a human or tool
+      description: Entity represents a human, group, or tool
       properties:
         description:
           description: description provides additional context about the entity
@@ -897,6 +897,7 @@ components:
       description: EntityType specifies what entity is interacting in the workflow
       enum:
       - Human
+      - Group
       - Software
       - Software Assisted
       type: string
@@ -1688,33 +1689,6 @@ components:
       - description
       type: object
       x-status: experimental
-    Party:
-      allOf:
-      - $ref: "#/components/schemas/Entity"
-      - required:
-        - kind
-      description: Party represents an individual, team, organization, or regulatory authority
-      properties:
-        contact:
-          allOf:
-          - $ref: "#/components/schemas/Contact"
-          description: contact provides optional contact details for reaching this party
-        kind:
-          allOf:
-          - $ref: "#/components/schemas/PartyKind"
-          description: kind specifies the classification of the party
-      type: object
-      x-status: stable
-    PartyKind:
-      description: PartyKind specifies the classification of an interested party
-      enum:
-      - Person
-      - Team
-      - Group
-      - Organization
-      - Regulator
-      type: string
-      x-status: stable
     Policy:
       description: Policy represents a policy document with metadata, contacts, scope, imports, implementation plan, risks, and adherence requirements.
       properties:
@@ -2252,11 +2226,11 @@ components:
           type: array
         parties:
           description: |-
-            parties lists the individuals, groups, teams, or external organizations
+            parties lists the entities taking part by holding a stake
             
             (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
-            $ref: "#/components/schemas/Party"
+            $ref: "#/components/schemas/Actor"
           minItems: 1
           type: array
         roles:
