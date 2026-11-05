@@ -43,4 +43,4 @@ actions:
             entry-id: AP-AC-01
           log:
             reference-id: eval-log
-            entry-id: OSPS-AC-01
+            entry-id: '["OSPS-B","OSPS-AC-01"]'
