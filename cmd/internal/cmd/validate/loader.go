@@ -193,7 +193,9 @@ func extractControlCatalog(doc *Document, root map[string]any) {
 		extractMultiEntryMappings(doc, cMap["guidelines"], "control.guidelines")
 		// Threats mapped from control
 		extractMultiEntryMappings(doc, cMap["threats"], "control.threats")
+		extractEntryMapping(doc, cMap["replaced-by"], "control.replaced-by")
 	}
+	extractCatalogCollections(doc, root)
 }
 
 func extractThreatCatalog(doc *Document, root map[string]any) {
@@ -215,10 +217,12 @@ func extractThreatCatalog(doc *Document, root map[string]any) {
 		extractMultiEntryMappings(doc, tMap["capabilities"], "threat.capabilities")
 		extractMultiEntryMappings(doc, tMap["vectors"], "threat.vectors")
 	}
+	extractCatalogCollections(doc, root)
 }
 
 func extractRiskCatalog(doc *Document, root map[string]any) {
 	extractSimpleList(doc, root, "risks")
+	extractCatalogCollections(doc, root)
 	if risks, ok := root["risks"].([]any); ok {
 		for _, r := range risks {
 			if rMap, ok := r.(map[string]any); ok {
@@ -230,11 +234,23 @@ func extractRiskCatalog(doc *Document, root map[string]any) {
 
 func extractGuidanceCatalog(doc *Document, root map[string]any) {
 	extractSimpleList(doc, root, "guidelines")
+	extractCatalogCollections(doc, root)
+
+	if exemptions, ok := root["exemptions"].([]any); ok {
+		for _, ex := range exemptions {
+			if exMap, ok := ex.(map[string]any); ok {
+				extractMultiEntryMappings(doc, exMap["redirect"], "guidance.exemptions.redirect")
+			}
+		}
+	}
+
 	if guidelines, ok := root["guidelines"].([]any); ok {
 		for _, g := range guidelines {
 			if gMap, ok := g.(map[string]any); ok {
 				extractMultiEntryMappings(doc, gMap["principles"], "guideline.principles")
 				extractMultiEntryMappings(doc, gMap["vectors"], "guideline.vectors")
+				extractEntryMapping(doc, gMap["extends"], "guideline.extends")
+				extractEntryMapping(doc, gMap["replaced-by"], "guideline.replaced-by")
 			}
 		}
 	}
@@ -519,9 +535,60 @@ func extractGenericArtifact(doc *Document, root map[string]any) {
 	}
 }
 
-func extractMultiEntryMappings(doc *Document, raw any, context string) {
-	mappings, ok := raw.([]any)
+func extractEntryMapping(doc *Document, raw any, context string) {
+	mMap, ok := raw.(map[string]any)
 	if !ok {
+		return
+	}
+	rID, _ := mMap["reference-id"].(string)
+	entryID, _ := mMap["entry-id"].(string)
+	if entryID == "" {
+		entryID, _ = mMap["risk-id"].(string)
+	}
+	if rID != "" {
+		doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+			ReferenceID: rID,
+			Context:     context,
+		})
+		if entryID != "" {
+			doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
+				ReferenceID: rID,
+				EntryID:     entryID,
+				Context:     context,
+			})
+		}
+	}
+}
+
+func extractCatalogCollections(doc *Document, root map[string]any) {
+	if exts, ok := root["extends"].([]any); ok {
+		for _, e := range exts {
+			if eMap, ok := e.(map[string]any); ok {
+				if rID, ok := eMap["reference-id"].(string); ok && rID != "" {
+					doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+						ReferenceID: rID,
+						Context:     "catalog.extends",
+					})
+				}
+			}
+		}
+	}
+	if imps := root["imports"]; imps != nil {
+		extractMultiEntryMappings(doc, imps, "catalog.imports")
+	}
+}
+
+func extractMultiEntryMappings(doc *Document, raw any, context string) {
+	if raw == nil {
+		return
+	}
+	var mappings []any
+	switch v := raw.(type) {
+	case []any:
+		mappings = v
+	case map[string]any:
+		mappings = []any{v}
+	default:
 		return
 	}
 	for _, m := range mappings {
