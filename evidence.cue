@@ -101,9 +101,10 @@ package gemara
 
 // ---- Validation ------------------------------------------------------------
 // #_EvidenceStrict carries the rules one evidence item can check about itself. It
-// is hidden (@go(-), and never projected), so the structures above stay shape and
-// documentation only. Rules across a log's evidence (one id per item, declared
-// sources) live on #EvaluationLog and #AuditLog.
+// is hidden from Go code generation (@go(-)), so the generated types stay shape
+// only; cue2openapi projects its payload-or-source rule onto Evidence. Rules
+// across a log's evidence (one id per item, declared sources) live on
+// #EvaluationLog and #AuditLog.
 
 // _EvidenceStrict layers the "at least one of payload or source" rule on top of #Evidence
 #_EvidenceStrict: {
