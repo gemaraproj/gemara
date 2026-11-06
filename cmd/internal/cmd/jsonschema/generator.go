@@ -137,7 +137,26 @@ func (g *Generator) Generate() (map[string]any, error) {
 		defs[normalizeDefName(name)] = body
 	}
 
-	applyHelperRules(defs)
+	// 1. Rewrite references to strict helpers to base definitions
+	fixHelperRefs(defs)
+
+	// 2. Drop hidden helper definitions (_*) from $defs
+	for k := range defs {
+		if strings.HasPrefix(k, "_") {
+			delete(defs, k)
+		}
+	}
+
+	// 3. Remove additionalProperties from base definitions that are extended
+	removeBaseAdditionalProperties(defs)
+
+	// 4. Rewrite additionalProperties: false to unevaluatedProperties: false on extending definitions
+	fixUnevaluatedProperties(defs)
+
+	// 5. Apply strict helper validation rules to base definitions
+	if err := applyHelperRules(defs); err != nil {
+		return nil, fmt.Errorf("applying helper rules: %w", err)
+	}
 
 	return map[string]any{
 		"$schema": schemaDialect,
@@ -145,11 +164,116 @@ func (g *Generator) Generate() (map[string]any, error) {
 	}, nil
 }
 
+// fixHelperRefs replaces any references to hidden strict helpers with their base definition.
+func fixHelperRefs(v any) {
+	switch node := v.(type) {
+	case map[string]any:
+		if ref, ok := node["$ref"].(string); ok {
+			switch ref {
+			case "#/$defs/_EvidenceStrict", "#/$defs/#_EvidenceStrict":
+				node["$ref"] = "#/$defs/Evidence"
+			case "#/$defs/_AssessmentLogStrict", "#/$defs/#_AssessmentLogStrict":
+				node["$ref"] = "#/$defs/AssessmentLog"
+			case "#/$defs/_MappingStrict", "#/$defs/#_MappingStrict":
+				node["$ref"] = "#/$defs/Mapping"
+			}
+		}
+		for _, child := range node {
+			fixHelperRefs(child)
+		}
+	case []any:
+		for _, item := range node {
+			fixHelperRefs(item)
+		}
+	}
+}
+
+// removeBaseAdditionalProperties finds all definitions that are referenced as base schemas
+// by other definitions (via $ref) and removes additionalProperties/unevaluatedProperties
+// so that extending schemas can compose additional properties without being rejected.
+func removeBaseAdditionalProperties(defs map[string]any) {
+	bases := make(map[string]bool)
+	var findBases func(v any)
+	findBases = func(v any) {
+		switch node := v.(type) {
+		case map[string]any:
+			if ref, ok := node["$ref"].(string); ok {
+				base := strings.TrimPrefix(ref, "#/$defs/")
+				bases[base] = true
+			}
+			for _, child := range node {
+				findBases(child)
+			}
+		case []any:
+			for _, item := range node {
+				findBases(item)
+			}
+		}
+	}
+	for _, def := range defs {
+		findBases(def)
+	}
+
+	for base := range bases {
+		if baseDef, ok := defs[base].(map[string]any); ok {
+			delete(baseDef, "additionalProperties")
+			delete(baseDef, "unevaluatedProperties")
+		}
+	}
+}
+
+// fixUnevaluatedProperties rewrites additionalProperties: false to unevaluatedProperties: false
+// where $ref is present (directly or in child elements), enabling Draft 2020-12 validators
+// to recognize properties evaluated by referenced schemas while rejecting undeclared properties.
+func fixUnevaluatedProperties(defs map[string]any) {
+	for _, def := range defs {
+		if defMap, ok := def.(map[string]any); ok {
+			if _, ok := defMap["$ref"].(string); ok {
+				if ap, ok := defMap["additionalProperties"].(bool); ok && !ap {
+					delete(defMap, "additionalProperties")
+					defMap["unevaluatedProperties"] = false
+				}
+				if props, ok := defMap["properties"].(map[string]any); ok {
+					for _, p := range props {
+						if pMap, ok := p.(map[string]any); ok {
+							delete(pMap, "additionalProperties")
+							delete(pMap, "unevaluatedProperties")
+						}
+					}
+				}
+			}
+		}
+	}
+
+	var fixNested func(v any)
+	fixNested = func(v any) {
+		switch node := v.(type) {
+		case map[string]any:
+			if _, hasRef := node["$ref"].(string); hasRef {
+				if ap, ok := node["additionalProperties"].(bool); ok && !ap {
+					delete(node, "additionalProperties")
+					node["unevaluatedProperties"] = false
+				}
+			}
+			for _, child := range node {
+				fixNested(child)
+			}
+		case []any:
+			for _, item := range node {
+				fixNested(item)
+			}
+		}
+	}
+	for _, def := range defs {
+		fixNested(def)
+	}
+}
+
 // applyHelperRules layers the strict validation rules from hidden helper definitions
 // (#_AssessmentLogStrict, #_EvidenceStrict, #_MappingStrict) onto their respective
 // base definitions (AssessmentLog, Evidence, Mapping). This ensures JSON Schema validation
 // stays aligned with CUE and OpenAPI (ref: #537).
-func applyHelperRules(defs map[string]any) {
+func applyHelperRules(defs map[string]any) error {
 	appendAllOf := func(target map[string]any, rule map[string]any) {
 		existing, ok := target["allOf"].([]any)
 		if !ok {
@@ -161,56 +285,64 @@ func applyHelperRules(defs map[string]any) {
 
 	// 1. #_AssessmentLogStrict: start required unless unexecuted
 	// If result != "Not Run" && result != "Unknown" && result != "Not Applicable" => start is required.
-	if al, ok := defs["AssessmentLog"].(map[string]any); ok {
-		appendAllOf(al, map[string]any{
-			"anyOf": []any{
-				map[string]any{
-					"properties": map[string]any{
-						"result": map[string]any{
-							"type": "string",
-							"enum": []any{"Not Run", "Unknown", "Not Applicable"},
-						},
+	al, ok := defs["AssessmentLog"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("required definition AssessmentLog missing from defs")
+	}
+	appendAllOf(al, map[string]any{
+		"anyOf": []any{
+			map[string]any{
+				"properties": map[string]any{
+					"result": map[string]any{
+						"type": "string",
+						"enum": []any{"Not Run", "Unknown", "Not Applicable"},
 					},
 				},
-				map[string]any{
-					"required": []any{"start"},
-				},
 			},
-		})
-	}
+			map[string]any{
+				"required": []any{"start"},
+			},
+		},
+	})
 
 	// 2. #_EvidenceStrict: at least one of payload or source MUST be present
-	if ev, ok := defs["Evidence"].(map[string]any); ok {
-		appendAllOf(ev, map[string]any{
-			"anyOf": []any{
-				map[string]any{
-					"required": []any{"payload"},
-				},
-				map[string]any{
-					"required": []any{"source"},
-				},
-			},
-		})
+	ev, ok := defs["Evidence"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("required definition Evidence missing from defs")
 	}
+	appendAllOf(ev, map[string]any{
+		"anyOf": []any{
+			map[string]any{
+				"required": []any{"payload"},
+			},
+			map[string]any{
+				"required": []any{"source"},
+			},
+		},
+	})
 
 	// 3. #_MappingStrict: targets required when relationship != "no-match"
-	if m, ok := defs["Mapping"].(map[string]any); ok {
-		appendAllOf(m, map[string]any{
-			"anyOf": []any{
-				map[string]any{
-					"properties": map[string]any{
-						"relationship": map[string]any{
-							"type": "string",
-							"enum": []any{"no-match"},
-						},
+	m, ok := defs["Mapping"].(map[string]any)
+	if !ok {
+		return fmt.Errorf("required definition Mapping missing from defs")
+	}
+	appendAllOf(m, map[string]any{
+		"anyOf": []any{
+			map[string]any{
+				"properties": map[string]any{
+					"relationship": map[string]any{
+						"type": "string",
+						"enum": []any{"no-match"},
 					},
 				},
-				map[string]any{
-					"required": []any{"targets"},
-				},
 			},
-		})
-	}
+			map[string]any{
+				"required": []any{"targets"},
+			},
+		},
+	})
+
+	return nil
 }
 
 // Write writes the canonical JSON Schema to outputPath.
@@ -240,6 +372,9 @@ func stripRefEncoding(raw string) string {
 	raw = strings.ReplaceAll(raw, "#/$defs/#", "#/$defs/")
 	raw = strings.ReplaceAll(raw, "%23", "")
 	raw = strings.ReplaceAll(raw, "%22", "")
+	raw = strings.ReplaceAll(raw, "#/$defs/_EvidenceStrict", "#/$defs/Evidence")
+	raw = strings.ReplaceAll(raw, "#/$defs/_AssessmentLogStrict", "#/$defs/AssessmentLog")
+	raw = strings.ReplaceAll(raw, "#/$defs/_MappingStrict", "#/$defs/Mapping")
 	return raw
 }
 
