@@ -240,9 +240,10 @@ func readHiddenFields(f *ast.File) map[string]bool {
 	return read
 }
 
-// fillsIndex reports whether c is a loop that only adds entries under computed
-// labels, as `for r in refs {(r.id): true}` does. That is what an index is
-// made of; anything else in one, such as an `if`, is a rule of its own.
+// fillsIndex reports whether c is a loop that only adds plain entries under
+// computed labels, as `for r in refs {(r.id): true}` does. That is what an
+// index is made of; anything else in one, such as an `if`, is a rule of its
+// own, and so is a loop whose entries check something.
 func fillsIndex(c *ast.Comprehension) bool {
 	if len(c.Clauses) == 0 {
 		return false
@@ -264,8 +265,30 @@ func fillsIndex(c *ast.Comprehension) bool {
 		default:
 			return false
 		}
+		if !plainEntry(f.Value) {
+			return false
+		}
 	}
 	return true
+}
+
+// plainEntry reports whether x only records values, as `true`, `r` or
+// `"\(i)": item` do, so that nothing in it can be a rule: no conditional, no
+// call such as error(), and no expression that could fail.
+func plainEntry(x ast.Expr) bool {
+	switch x := x.(type) {
+	case *ast.BasicLit, *ast.Ident, *ast.SelectorExpr, *ast.Interpolation:
+		return true
+	case *ast.StructLit:
+		for _, e := range x.Elts {
+			f, ok := e.(*ast.Field)
+			if !ok || !plainEntry(f.Value) {
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
 
 // docComment returns the text of n's doc comments, joined into one line.

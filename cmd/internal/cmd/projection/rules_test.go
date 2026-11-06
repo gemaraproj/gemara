@@ -162,8 +162,11 @@ func TestPrepareSkipsIndexesRulesRead(t *testing.T) {
 	// how the declared ids are collected, not a rule
 	_declared: {
 		for r in refs {(r.id): true}
+		for i, r in refs {(r.id): "\(i)": r}
 		// a rule inside an index is still a rule
 		if strict != _|_ {extra: true}
+		// so is a loop whose entries check something
+		for r in refs {(r.id): {if strict != _|_ {checked: true}}}
 	}
 	// each item's ref must be a declared id
 	for i, it in items {
@@ -186,6 +189,7 @@ func TestPrepareSkipsIndexesRulesRead(t *testing.T) {
 	want := []string{
 		"Log: each item's ref must be a declared id",
 		"Log: a rule inside an index is still a rule",
+		"Log: so is a loop whose entries check something",
 		"Log: item ids must be unique",
 		"Other: x ids must be unique",
 	}
