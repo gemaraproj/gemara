@@ -70,8 +70,11 @@ type droppedConditional struct {
 func prepare(f *ast.File) (*prepInfo, error) {
 	info := &prepInfo{HelperRules: map[string][]helperRule{}}
 	var err error
+	// Collected before anything is stripped: the rules reading an index are
+	// themselves comprehensions.
+	indexes := readHiddenFields(f)
 
-	f.Decls = stripComprehensions(f.Decls, info, "", "", "")
+	f.Decls = stripComprehensions(f.Decls, info, "", "", "", false)
 	astutil.Apply(f, func(c astutil.Cursor) bool {
 		if err != nil {
 			return false
@@ -85,7 +88,9 @@ func prepare(f *ast.File) (*prepInfo, error) {
 			// deliberate omission, recorded here rather than incidental.
 			// Conditionals in a hidden #_ helper are translated where
 			// their shape allows, so Post can restore them.
-			n.Elts = stripComprehensions(n.Elts, info, hiddenHelperName(c), owner, valueOfFieldDoc(c))
+			hidden, fieldDoc := valueOfHiddenField(c)
+			index := hidden != "" && indexes[owner+"."+hidden]
+			n.Elts = stripComprehensions(n.Elts, info, hiddenHelperName(c), owner, fieldDoc, index)
 		case *ast.Field:
 			// CUE CONVERTER WORKAROUND: X="name": the alias exists to be read by the comprehensions
 			// just removed. CUE rejects an unreferenced alias, so unwrap it
@@ -163,7 +168,9 @@ func prepare(f *ast.File) (*prepInfo, error) {
 // owner, the definition it is declared in, and its doc comment; fieldDoc is the
 // comment of the field decls are the value of, used when the conditional has
 // none of its own, as in `_uniqueTermIds: {for i, t in terms {(t.id): i}}`.
-func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string) []ast.Decl {
+// When decls are the value of an index (see readHiddenFields), nothing is
+// recorded: the rules that read the index are recorded instead.
+func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string, index bool) []ast.Decl {
 	out := decls[:0:0]
 	for _, d := range decls {
 		c, ok := d.(*ast.Comprehension)
@@ -181,6 +188,9 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldD
 				continue
 			}
 		}
+		if index {
+			continue
+		}
 		doc := docComment(c)
 		if doc == "" {
 			doc = fieldDoc
@@ -190,18 +200,44 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldD
 	return out
 }
 
-// valueOfFieldDoc returns the doc comment of the hidden field whose value is
-// the cursor's struct, or "". Only a hidden field: a definition's or regular
-// field's comment describes that whole value, not a rule inside it.
-func valueOfFieldDoc(c astutil.Cursor) string {
+// valueOfHiddenField returns the name and doc comment of the hidden field whose
+// value is the cursor's struct, or "" for both. Only a hidden field: a
+// definition's or regular field's comment describes that whole value, not a
+// rule inside it.
+func valueOfHiddenField(c astutil.Cursor) (name, doc string) {
 	if p := c.Parent(); p != nil {
 		if f, ok := p.Node().(*ast.Field); ok && f.Value == c.Node() {
 			if id, ok := f.Label.(*ast.Ident); ok && strings.HasPrefix(id.Name, "_") {
-				return docComment(f)
+				return id.Name, docComment(f)
 			}
 		}
 	}
-	return ""
+	return "", ""
+}
+
+// readHiddenFields returns, as "Definition._field", each hidden field that an
+// expression in its own definition reads, as in _declaredReferenceIDs[id].
+// Such a field is an index the reading rules look things up in, and those
+// rules are what the schema enforces. A hidden field nothing reads, such as
+// _uniqueRiskIds, exists only to make duplicate keys conflict, so it is a rule.
+func readHiddenFields(f *ast.File) map[string]bool {
+	read := map[string]bool{}
+	astutil.Apply(f, func(c astutil.Cursor) bool {
+		id, ok := c.Node().(*ast.Ident)
+		if !ok || len(id.Name) < 2 || id.Name[0] != '_' {
+			return true
+		}
+		if p := c.Parent(); p != nil {
+			if fld, ok := p.Node().(*ast.Field); ok && fld.Label == ast.Label(id) {
+				return true // declares the field rather than reading it
+			}
+		}
+		if owner, _, _, found := enclosingDefinition(c); found {
+			read[owner+"."+id.Name] = true
+		}
+		return true
+	}, nil)
+	return read
 }
 
 // docComment returns the text of n's doc comments, joined into one line.

@@ -147,6 +147,42 @@ func TestPrepareRuleDocSources(t *testing.T) {
 	}
 }
 
+// A hidden field that a rule in its definition reads is an index that rule
+// looks things up in, not a rule: the reading rule is recorded, the index is
+// not, so the index needs no comment and its comment is not listed. A hidden
+// field nothing reads, or one read only in another definition, is a rule.
+func TestPrepareSkipsIndexesRulesRead(t *testing.T) {
+	_, info := mustPrepare(t, `package p
+#Log: {
+	refs: [...{id: string}]
+	items: [...{id: string, ref: string}]
+
+	// how the declared ids are collected, not a rule
+	_declared: {for r in refs {(r.id): true}}
+	// each item's ref must be a declared id
+	for i, it in items {
+		_refDeclared: "\(i)": true & _declared[it.ref]
+	}
+
+	// item ids must be unique
+	_uniqueIds: {for i, it in items {(it.id): i}}
+}
+#Other: {
+	xs: [...{id: string}]
+	// x ids must be unique
+	_declared: {for i, x in xs {(x.id): i}}
+}
+`)
+	var got []string
+	for _, d := range info.DroppedConditionals {
+		got = append(got, d.owner+": "+d.doc)
+	}
+	want := []string{"Log: each item's ref must be a declared id", "Log: item ids must be unique", "Other: x ids must be unique"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("dropped = %q, want %q", got, want)
+	}
+}
+
 // A new rule without a comment must stop generation of a real document, not
 // only make the unit fail.
 func TestUndescribedRuleFailsGeneration(t *testing.T) {
