@@ -34,13 +34,25 @@ constructs an index of declared entities and mapping references, and verifies:
 	cmd.Flags().BoolVar(&opts.Strict, "strict", false, "Treat warnings (such as unresolvable external catalogs) as errors")
 	cmd.Flags().StringVar(&opts.Format, "format", "text", "Output format (text or json)")
 	cmd.Flags().BoolVarP(&opts.Quiet, "quiet", "q", false, "Suppress informational messages and only output errors")
+	cmd.Flags().StringVarP(&opts.SchemaDir, "schema", "s", "", "Path to the CUE schema directory (optional; discovers references via CUE AST walk)")
 
 	return cmd
 }
 
 // RunValidate executes document loading, validation, and diagnostic output.
 func RunValidate(stdout, stderr io.Writer, paths []string, opts Options) error {
-	docs, err := LoadPaths(paths)
+	var walker *SchemaWalker
+	var err error
+	if opts.SchemaDir != "" {
+		walker, err = NewSchemaWalker(opts.SchemaDir)
+		if err != nil {
+			return fmt.Errorf("failed to load CUE schema from %q: %w", opts.SchemaDir, err)
+		}
+	} else {
+		walker, _ = NewSchemaWalker("")
+	}
+
+	docs, err := LoadPaths(paths, walker)
 	if err != nil {
 		return fmt.Errorf("failed to load documents: %w", err)
 	}
