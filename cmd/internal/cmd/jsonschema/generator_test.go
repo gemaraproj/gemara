@@ -3,6 +3,7 @@
 package jsonschema
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -11,6 +12,12 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/cuecontext"
+	"cuelang.org/go/cue/load"
+	"github.com/goccy/go-yaml"
+	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
 func TestDiscoverDefinitions(t *testing.T) {
@@ -239,10 +246,271 @@ func containsSubstr(s, sub string) bool {
 }
 
 func TestStripRefEncoding(t *testing.T) {
-	input := `{"$ref": "#/$defs/#Control", "other": "#/$defs/%23Actor%22"}`
+	input := `{"$ref": "#/$defs/#Control", "other": "#/$defs/%23Actor%22", "ev": "#/$defs/_EvidenceStrict"}`
 	got := stripRefEncoding(input)
-	want := `{"$ref": "#/$defs/Control", "other": "#/$defs/Actor"}`
+	want := `{"$ref": "#/$defs/Control", "other": "#/$defs/Actor", "ev": "#/$defs/Evidence"}`
 	if got != want {
 		t.Errorf("stripRefEncoding got %q, want %q", got, want)
 	}
+}
+
+func TestHelperRulesCoverage(t *testing.T) {
+	schemaDir := filepath.Join("..", "..", "..", "..")
+	absDir, err := filepath.Abs(schemaDir)
+	if err != nil {
+		t.Fatalf("resolving schema directory: %v", err)
+	}
+
+	insts := load.Instances([]string{"."}, &load.Config{Dir: absDir})
+	if len(insts) == 0 || insts[0].Err != nil {
+		t.Fatalf("loading CUE instances in %s: %v", absDir, insts[0].Err)
+	}
+
+	ctx := cuecontext.New()
+	v := ctx.BuildInstance(insts[0])
+	if err := v.Err(); err != nil {
+		t.Fatalf("building CUE instance: %v", err)
+	}
+
+	it, err := v.Fields(cue.Definitions(true))
+	if err != nil {
+		t.Fatalf("enumerating CUE definitions: %v", err)
+	}
+
+	knownStrictHelpers := map[string]bool{
+		"#_AssessmentLogStrict": true,
+		"#_EvidenceStrict":      true,
+		"#_MappingStrict":       true,
+	}
+
+	var discoveredHelpers []string
+	for it.Next() {
+		sel := it.Selector().String()
+		if strings.HasPrefix(sel, "#_") {
+			discoveredHelpers = append(discoveredHelpers, sel)
+			if !knownStrictHelpers[sel] {
+				t.Errorf("unaccounted #_ helper in CUE schemas: %s (must be projected and dropped in jsonschema)", sel)
+			}
+		}
+	}
+
+	if len(discoveredHelpers) != len(knownStrictHelpers) {
+		t.Errorf("expected %d strict helpers in CUE schemas, found %d: %v", len(knownStrictHelpers), len(discoveredHelpers), discoveredHelpers)
+	}
+
+	gen := NewGenerator(schemaDir)
+	schema, err := gen.Generate()
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	defs, ok := schema["$defs"].(map[string]any)
+	if !ok {
+		t.Fatalf("missing $defs map")
+	}
+
+	// Assert no helper or private definitions starting with '_' exist in $defs
+	for k := range defs {
+		if strings.HasPrefix(k, "_") {
+			t.Errorf("helper definition leaked into $defs: %s", k)
+		}
+	}
+
+	// Assert no $ref in the entire schema points to any helper
+	var checkRefs func(v any)
+	checkRefs = func(v any) {
+		switch node := v.(type) {
+		case map[string]any:
+			if ref, ok := node["$ref"].(string); ok {
+				for h := range knownStrictHelpers {
+					unprefixed := strings.TrimPrefix(h, "#")
+					if strings.Contains(ref, unprefixed) {
+						t.Errorf("found dangling reference to helper %s in schema: %s", h, ref)
+					}
+				}
+			}
+			for _, child := range node {
+				checkRefs(child)
+			}
+		case []any:
+			for _, item := range node {
+				checkRefs(item)
+			}
+		}
+	}
+	checkRefs(defs)
+}
+
+func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
+	schemaDir := filepath.Join("..", "..", "..", "..")
+	gen := NewGenerator(schemaDir)
+	schema, err := gen.Generate()
+	if err != nil {
+		t.Fatalf("Generate failed: %v", err)
+	}
+
+	schemaBytes, err := json.Marshal(schema)
+	if err != nil {
+		t.Fatalf("marshal schema: %v", err)
+	}
+
+	doc, err := jsonschema.UnmarshalJSON(bytes.NewReader(schemaBytes))
+	if err != nil {
+		t.Fatalf("unmarshal schema doc: %v", err)
+	}
+
+	c := jsonschema.NewCompiler()
+	if err := c.AddResource("schema.json", doc); err != nil {
+		t.Fatalf("AddResource: %v", err)
+	}
+
+	fixtures := []struct {
+		file    string
+		defName string
+	}{
+		{"good-ccc.yaml", "ControlCatalog"},
+		{"good-threat-catalog.yaml", "ThreatCatalog"},
+		{"good-capability-catalog.yaml", "CapabilityCatalog"},
+		{"good-audit-log.yaml", "AuditLog"},
+		{"good-policy.yaml", "Policy"},
+		{"good-mapping-document.yaml", "MappingDocument"},
+		{"good-lexicon.yaml", "Lexicon"},
+		{"good-risk-catalog.yaml", "RiskCatalog"},
+	}
+
+	for _, tc := range fixtures {
+		t.Run(tc.file, func(t *testing.T) {
+			sch, err := c.Compile("schema.json#/$defs/" + tc.defName)
+			if err != nil {
+				t.Fatalf("Compile %s: %v", tc.defName, err)
+			}
+
+			fixturePath := filepath.Join(schemaDir, "test", "test-data", tc.file)
+			fixtureData, err := os.ReadFile(fixturePath)
+			if err != nil {
+				t.Fatalf("read fixture: %v", err)
+			}
+
+			var raw any
+			if err := yaml.Unmarshal(fixtureData, &raw); err != nil {
+				t.Fatalf("unmarshal yaml: %v", err)
+			}
+			rawJson, err := json.Marshal(raw)
+			if err != nil {
+				t.Fatalf("marshal json: %v", err)
+			}
+			valDoc, err := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+			if err != nil {
+				t.Fatalf("unmarshal fixture val: %v", err)
+			}
+
+			if err := sch.Validate(valDoc); err != nil {
+				t.Errorf("fixture %s failed validation: %v", tc.file, err)
+			}
+		})
+	}
+
+	// Verify Evidence rule: an AssessmentLog with only payload MUST pass
+	t.Run("EvidenceWithOnlyPayloadInAssessmentLog", func(t *testing.T) {
+		sch, err := c.Compile("schema.json#/$defs/AssessmentLog")
+		if err != nil {
+			t.Fatalf("Compile AssessmentLog: %v", err)
+		}
+
+		alData := map[string]any{
+			"id": "AL-1",
+			"requirement": map[string]any{
+				"reference-id": "REF-1",
+				"entry-id":     "REQ-1",
+			},
+			"result":        "Not Run",
+			"description":   "Verify procedure",
+			"message":       "Assessment not run",
+			"applicability": []any{"all"},
+			"steps":         []any{"step 1"},
+			"evidence": []any{
+				map[string]any{
+					"id":           "EV-1",
+					"type":         "document",
+					"collected-at": "2024-01-01T00:00:00Z",
+					"payload": map[string]any{
+						"info": "raw evidence data only, no source",
+					},
+				},
+			},
+		}
+
+		rawJson, err := json.Marshal(alData)
+		if err != nil {
+			t.Fatalf("marshal json: %v", err)
+		}
+		valDoc, err := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+		if err != nil {
+			t.Fatalf("unmarshal val: %v", err)
+		}
+
+		if err := sch.Validate(valDoc); err != nil {
+			t.Errorf("AssessmentLog with only payload failed validation: %v", err)
+		}
+	})
+
+	// Negative check: an AssessmentLog with neither payload nor source MUST fail
+	t.Run("EvidenceWithNeitherPayloadNorSourceFails", func(t *testing.T) {
+		sch, err := c.Compile("schema.json#/$defs/AssessmentLog")
+		if err != nil {
+			t.Fatalf("Compile AssessmentLog: %v", err)
+		}
+
+		alData := map[string]any{
+			"id": "AL-2",
+			"requirement": map[string]any{
+				"reference-id": "REF-1",
+				"entry-id":     "REQ-1",
+			},
+			"result":        "Not Run",
+			"description":   "Verify procedure",
+			"message":       "Assessment not run",
+			"applicability": []any{"all"},
+			"steps":         []any{"step 1"},
+			"evidence": []any{
+				map[string]any{
+					"id":           "EV-2",
+					"type":         "document",
+					"collected-at": "2024-01-01T00:00:00Z",
+				},
+			},
+		}
+
+		rawJson, _ := json.Marshal(alData)
+		valDoc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+		if err := sch.Validate(valDoc); err == nil {
+			t.Errorf("expected validation failure for evidence with neither payload nor source, but passed")
+		}
+	})
+
+	// Negative check: unevaluatedProperties: false rejects unknown properties on extended types
+	t.Run("UnevaluatedPropertiesRejectsUnknownFields", func(t *testing.T) {
+		sch, err := c.Compile("schema.json#/$defs/ControlCatalog")
+		if err != nil {
+			t.Fatalf("Compile ControlCatalog: %v", err)
+		}
+
+		fixturePath := filepath.Join(schemaDir, "test", "test-data", "good-ccc.yaml")
+		fixtureData, err := os.ReadFile(fixturePath)
+		if err != nil {
+			t.Fatalf("read fixture: %v", err)
+		}
+
+		var raw map[string]any
+		if err := yaml.Unmarshal(fixtureData, &raw); err != nil {
+			t.Fatalf("unmarshal yaml: %v", err)
+		}
+		raw["unexpected_extra_property"] = "bad"
+
+		rawJson, _ := json.Marshal(raw)
+		valDoc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+		if err := sch.Validate(valDoc); err == nil {
+			t.Errorf("expected validation failure for unknown property under unevaluatedProperties: false, but passed")
+		}
+	})
 }
