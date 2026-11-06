@@ -16,6 +16,7 @@ package gemara
 	actions: [#ActionResult, ...#ActionResult] @gemara(projectable=false) @go(Actions,type=[]*ActionResult)
 	// Enforce that Clear dispositions only contain Passed assessment results
 	actions: [...{
+		// when the log's disposition is Clear, every assessment cited in an action's justification must have result Passed
 		if disposition == "Clear" {
 			justification: assessments: [...{result: "Passed"}]
 		}

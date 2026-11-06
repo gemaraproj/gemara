@@ -59,9 +59,12 @@ import "time"
 	// lexicon is a URI pointing to a controlled vocabulary or glossary relevant to this artifact
 	lexicon?: #ArtifactMapping @go(Lexicon,optional=nillable)
 
+	// mapping-reference ids must be unique
 	if MR != _|_ {
 		_uniqueRefIds: {for i, r in MR {(r.id): i}}
 	}
+
+	// applicability group ids must be unique
 	if AG != _|_ {
 		_uniqueGroupsIds: {for i, c in AG {(c.id): i}}
 	}

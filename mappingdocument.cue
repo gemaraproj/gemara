@@ -25,6 +25,7 @@ package gemara
 	// mappings is one or more atomic relationships between entries in the referenced artifacts
 	mappings: [#_MappingStrict, ...#_MappingStrict] @go(Mappings,type=[]Mapping)
 
+	// mapping ids must be unique
 	_uniqueMappingIds: {for i, m in mappings {(m.id): i}}
 
 	// remarks is prose regarding this mapping document

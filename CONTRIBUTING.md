@@ -81,6 +81,10 @@ the CUE default so the validation and wire contracts cannot diverge. Keep CUE do
 source for descriptions and CUE constraints such as `time.Format` as the source for validation; these
 are projected only where the upstream encoder cannot represent them.
 
+A cross-field `if` or `for` that the encoder can't translate is listed under `x-rules` on its
+definition's schema, using the `//` comment directly above it (or above the hidden `_` field it is
+the value of). Generation fails if it has no such comment.
+
 ### Making an intentional breaking change
 
 Sometimes a breaking change is deliberate. There are exactly two sanctioned ways to introduce one:

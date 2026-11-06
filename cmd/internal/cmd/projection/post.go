@@ -22,8 +22,11 @@ func (c *Converter) Post() error {
 	if err := inclusiveRequiredDisjunctionsTyped(doc); err != nil {
 		return err
 	}
-	// Before the collapse, which deletes the helper schemas this reads.
+	// Before the collapse, which deletes the helper schemas these read.
 	if err := c.applyHelperRules(doc); err != nil {
+		return err
+	}
+	if err := applyRuleListTyped(doc, c.prep.DroppedConditionals); err != nil {
 		return err
 	}
 	// Order matters from here: collapseHelperSchemas rewrites `$ref` in place,
