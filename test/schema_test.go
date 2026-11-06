@@ -220,6 +220,7 @@ func TestSchemaValidation(t *testing.T) {
 	}
 }
 
+// TestAssessmentFindingLogEntryID verifies that finding references encode two JSON string identifiers.
 func TestAssessmentFindingLogEntryID(t *testing.T) {
 	definition := schemaValue.LookupPath(cue.ParsePath("#AssessmentFinding"))
 	if definition.Err() != nil {
