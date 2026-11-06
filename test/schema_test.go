@@ -3,6 +3,7 @@
 package schema_test
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -120,8 +121,10 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
+		{"same control entry id with different references", "./test-data/good-evaluation-log-same-entry-id-different-reference.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
+		{"duplicate control mapping in evaluation log", "./test-data/bad-evaluation-log-duplicate-control.yaml", "#EvaluationLog", true, `duplicate control mapping`},
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
 
 		// EnforcementLog — positive
@@ -212,6 +215,52 @@ func TestSchemaValidation(t *testing.T) {
 				if !strings.Contains(validationErr.Error(), tt.errContains) {
 					t.Errorf("error %q does not contain %q", validationErr.Error(), tt.errContains)
 				}
+			}
+		})
+	}
+}
+
+// TestAssessmentFindingLogEntryID verifies that finding references encode two JSON string identifiers.
+func TestAssessmentFindingLogEntryID(t *testing.T) {
+	definition := schemaValue.LookupPath(cue.ParsePath("#AssessmentFinding"))
+	if definition.Err() != nil {
+		t.Fatalf("lookup #AssessmentFinding: %v", definition.Err())
+	}
+
+	tests := []struct {
+		name    string
+		entryID string
+		wantErr bool
+	}{
+		{name: "compact pair", entryID: `["OSPS-B","OSPS-DO-01"]`},
+		{name: "empty strings", entryID: `["",""]`},
+		{name: "escaped quote", entryID: `["OSPS-B","OSPS-DO-\"01"]`},
+		{name: "escaped unicode", entryID: `["OSPS-B","OSPS-DO-\u0030\u0031"]`},
+		{name: "plain control ID", entryID: "OSPS-DO-01", wantErr: true},
+		{name: "one value", entryID: `["OSPS-DO-01"]`, wantErr: true},
+		{name: "non-string value", entryID: `["OSPS-B",1]`, wantErr: true},
+		{name: "whitespace between values", entryID: `["OSPS-B", "OSPS-DO-01"]`, wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := json.Marshal(map[string]any{
+				"result": "Failed",
+				"log": map[string]string{
+					"reference-id": "eval-log",
+					"entry-id":     tt.entryID,
+				},
+			})
+			if err != nil {
+				t.Fatalf("marshal finding: %v", err)
+			}
+
+			err = cuejson.Validate(data, definition)
+			if tt.wantErr && err == nil {
+				t.Error("expected validation error, got nil")
+			}
+			if !tt.wantErr && err != nil {
+				t.Errorf("unexpected validation error: %v", err)
 			}
 		})
 	}
