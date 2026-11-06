@@ -4,6 +4,7 @@ package devcheck
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 )
@@ -64,6 +65,17 @@ func TestDetectSchemaDir(t *testing.T) {
 	dir := detectSchemaDir()
 	if dir != ".." && dir != "." {
 		t.Errorf("expected detectSchemaDir to return '..' or '.', got %q", dir)
+	}
+}
+
+func TestCmdModuleDevCheckInvocation(t *testing.T) {
+	// Verify that 'go run . dev-check --help' succeeds from the cmd module directory
+	cmdDir := filepath.Join("..", "..", "..")
+	cmd := exec.Command("go", "run", ".", "dev-check", "--help")
+	cmd.Dir = cmdDir
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		t.Fatalf("expected 'go run . dev-check --help' from cmd to succeed, err: %v, out: %s", err, string(out))
 	}
 }
 
