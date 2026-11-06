@@ -83,7 +83,9 @@ are projected only where the upstream encoder cannot represent them.
 
 A cross-field `if` or `for` that the encoder can't translate is listed under `x-rules` on its
 definition's schema, using the `//` comment directly above it (or above the hidden `_` field it is
-the value of). Generation fails if it has no such comment.
+the value of). Generation fails if it has no such comment. A hidden field that another rule in the
+same definition reads is a lookup: the `for` loops that fill it aren't rules and need no comment,
+but anything else inside it is.
 
 ### Making an intentional breaking change
 

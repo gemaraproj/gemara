@@ -168,8 +168,8 @@ func prepare(f *ast.File) (*prepInfo, error) {
 // owner, the definition it is declared in, and its doc comment; fieldDoc is the
 // comment of the field decls are the value of, used when the conditional has
 // none of its own, as in `_uniqueTermIds: {for i, t in terms {(t.id): i}}`.
-// When decls are the value of an index (see readHiddenFields), nothing is
-// recorded: the rules that read the index are recorded instead.
+// When decls are the value of an index (see readHiddenFields), the loops that
+// fill it are not recorded: the rules that read the index are recorded instead.
 func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string, index bool) []ast.Decl {
 	out := decls[:0:0]
 	for _, d := range decls {
@@ -188,7 +188,7 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldD
 				continue
 			}
 		}
-		if index {
+		if index && fillsIndex(c) {
 			continue
 		}
 		doc := docComment(c)
@@ -238,6 +238,34 @@ func readHiddenFields(f *ast.File) map[string]bool {
 		return true
 	}, nil)
 	return read
+}
+
+// fillsIndex reports whether c is a loop that only adds entries under computed
+// labels, as `for r in refs {(r.id): true}` does. That is what an index is
+// made of; anything else in one, such as an `if`, is a rule of its own.
+func fillsIndex(c *ast.Comprehension) bool {
+	if len(c.Clauses) == 0 {
+		return false
+	}
+	if _, ok := c.Clauses[0].(*ast.ForClause); !ok {
+		return false
+	}
+	body, ok := c.Value.(*ast.StructLit)
+	if !ok || len(body.Elts) == 0 {
+		return false
+	}
+	for _, e := range body.Elts {
+		f, ok := e.(*ast.Field)
+		if !ok {
+			return false
+		}
+		switch f.Label.(type) {
+		case *ast.ParenExpr, *ast.Interpolation:
+		default:
+			return false
+		}
+	}
+	return true
 }
 
 // docComment returns the text of n's doc comments, joined into one line.

@@ -148,17 +148,23 @@ func TestPrepareRuleDocSources(t *testing.T) {
 }
 
 // A hidden field that a rule in its definition reads is an index that rule
-// looks things up in, not a rule: the reading rule is recorded, the index is
-// not, so the index needs no comment and its comment is not listed. A hidden
-// field nothing reads, or one read only in another definition, is a rule.
+// looks things up in, not a rule: the reading rule is recorded, the loops that
+// fill the index are not, so they need no comment and the index's comment is
+// not listed. Anything else inside the index is still a rule. A hidden field
+// nothing reads, or one read only in another definition, is a rule.
 func TestPrepareSkipsIndexesRulesRead(t *testing.T) {
 	_, info := mustPrepare(t, `package p
 #Log: {
 	refs: [...{id: string}]
 	items: [...{id: string, ref: string}]
+	strict?: bool
 
 	// how the declared ids are collected, not a rule
-	_declared: {for r in refs {(r.id): true}}
+	_declared: {
+		for r in refs {(r.id): true}
+		// a rule inside an index is still a rule
+		if strict != _|_ {extra: true}
+	}
 	// each item's ref must be a declared id
 	for i, it in items {
 		_refDeclared: "\(i)": true & _declared[it.ref]
@@ -177,9 +183,38 @@ func TestPrepareSkipsIndexesRulesRead(t *testing.T) {
 	for _, d := range info.DroppedConditionals {
 		got = append(got, d.owner+": "+d.doc)
 	}
-	want := []string{"Log: each item's ref must be a declared id", "Log: item ids must be unique", "Other: x ids must be unique"}
+	want := []string{
+		"Log: each item's ref must be a declared id",
+		"Log: a rule inside an index is still a rule",
+		"Log: item ids must be unique",
+		"Other: x ids must be unique",
+	}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("dropped = %q, want %q", got, want)
+	}
+}
+
+// A rule inside an index still needs a comment: only the loops that fill the
+// index are exempt.
+func TestUndescribedRuleInIndexFailsGeneration(t *testing.T) {
+	_, err := convertSource(t, `package p
+
+// A is a thing
+#A: {
+	refs: [...{id: string}]
+	x?: string
+	_declared: {
+		for r in refs {(r.id): true}
+		if x != _|_ {y: string}
+	}
+	// each ref names a declared id
+	for i, r in refs {
+		_ok: "\(i)": true & _declared[r.id]
+	}
+}
+`)
+	if err == nil || !strings.Contains(err.Error(), "schema.cue:9:3") || !strings.Contains(err.Error(), "describe it in a // comment") {
+		t.Fatalf("err = %v, want it to name schema.cue:9:3 and ask for a comment", err)
 	}
 }
 
