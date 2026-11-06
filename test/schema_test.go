@@ -120,6 +120,7 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
+		{"same control entry id with different references", "./test-data/good-evaluation-log-same-entry-id-different-reference.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
 		{"duplicate control mapping in evaluation log", "./test-data/bad-evaluation-log-duplicate-control.yaml", "#EvaluationLog", true, `duplicate control mapping`},

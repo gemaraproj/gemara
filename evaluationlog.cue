@@ -82,10 +82,11 @@ package gemara
 	recommendation?: string
 	// ConfidenceLevel indicates the evaluator's confidence level in this specific assessment result.
 	"confidence-level"?: #ConfidenceLevel @go(ConfidenceLevel)
-	// Evidence records the raw data cited to support an assessment's opinion.
+	// Evidence records the raw data cited to support this assessment's opinion.
 	evidence?: [#Evidence, ...#Evidence] @go(Evidence)
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
 }
+
 #AssessmentStep: string @go(-)
 
 #Result: "Not Run" | "Passed" | "Failed" | "Needs Review" | "Not Applicable" | "Unknown" @go(-)

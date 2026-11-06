@@ -39,7 +39,7 @@ package gemara
 	// end is the timestamp when the enforcement action concluded
 	end?: #Datetime
 
-	// steps references the code paths or addresses that carried out the enforcement action
+	// steps references the code paths or addresses that carried out this enforcement action
 	steps: [#EnforcementStep, ...#EnforcementStep]
 
 	// justification links the action to its assessment findings and any applicable exceptions
