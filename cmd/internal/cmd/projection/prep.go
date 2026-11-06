@@ -70,11 +70,8 @@ type droppedConditional struct {
 func prepare(f *ast.File) (*prepInfo, error) {
 	info := &prepInfo{HelperRules: map[string][]helperRule{}}
 	var err error
-	// Collected before anything is stripped: the rules reading an index are
-	// themselves comprehensions.
-	indexes := readHiddenFields(f)
 
-	f.Decls = stripComprehensions(f.Decls, info, "", "", "", false)
+	f.Decls = stripComprehensions(f.Decls, info, "", "", "")
 	astutil.Apply(f, func(c astutil.Cursor) bool {
 		if err != nil {
 			return false
@@ -88,9 +85,7 @@ func prepare(f *ast.File) (*prepInfo, error) {
 			// deliberate omission, recorded here rather than incidental.
 			// Conditionals in a hidden #_ helper are translated where
 			// their shape allows, so Post can restore them.
-			hidden, fieldDoc := valueOfHiddenField(c)
-			index := hidden != "" && indexes[owner+"."+hidden]
-			n.Elts = stripComprehensions(n.Elts, info, hiddenHelperName(c), owner, fieldDoc, index)
+			n.Elts = stripComprehensions(n.Elts, info, hiddenHelperName(c), owner, valueOfFieldDoc(c))
 		case *ast.Field:
 			// CUE CONVERTER WORKAROUND: X="name": the alias exists to be read by the comprehensions
 			// just removed. CUE rejects an unreferenced alias, so unwrap it
@@ -168,9 +163,7 @@ func prepare(f *ast.File) (*prepInfo, error) {
 // owner, the definition it is declared in, and its doc comment; fieldDoc is the
 // comment of the field decls are the value of, used when the conditional has
 // none of its own, as in `_uniqueTermIds: {for i, t in terms {(t.id): i}}`.
-// When decls are the value of an index (see readHiddenFields), the loops that
-// fill it are not recorded: the rules that read the index are recorded instead.
-func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string, index bool) []ast.Decl {
+func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string) []ast.Decl {
 	out := decls[:0:0]
 	for _, d := range decls {
 		c, ok := d.(*ast.Comprehension)
@@ -188,9 +181,6 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldD
 				continue
 			}
 		}
-		if index && fillsIndex(c) {
-			continue
-		}
 		doc := docComment(c)
 		if doc == "" {
 			doc = fieldDoc
@@ -200,95 +190,18 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldD
 	return out
 }
 
-// valueOfHiddenField returns the name and doc comment of the hidden field whose
-// value is the cursor's struct, or "" for both. Only a hidden field: a
-// definition's or regular field's comment describes that whole value, not a
-// rule inside it.
-func valueOfHiddenField(c astutil.Cursor) (name, doc string) {
+// valueOfFieldDoc returns the doc comment of the hidden field whose value is
+// the cursor's struct, or "". Only a hidden field: a definition's or regular
+// field's comment describes that whole value, not a rule inside it.
+func valueOfFieldDoc(c astutil.Cursor) string {
 	if p := c.Parent(); p != nil {
 		if f, ok := p.Node().(*ast.Field); ok && f.Value == c.Node() {
 			if id, ok := f.Label.(*ast.Ident); ok && strings.HasPrefix(id.Name, "_") {
-				return id.Name, docComment(f)
+				return docComment(f)
 			}
 		}
 	}
-	return "", ""
-}
-
-// readHiddenFields returns, as "Definition._field", each hidden field that an
-// expression in its own definition reads, as in _declaredReferenceIDs[id].
-// Such a field is an index the reading rules look things up in, and those
-// rules are what the schema enforces. A hidden field nothing reads, such as
-// _uniqueRiskIds, exists only to make duplicate keys conflict, so it is a rule.
-func readHiddenFields(f *ast.File) map[string]bool {
-	read := map[string]bool{}
-	astutil.Apply(f, func(c astutil.Cursor) bool {
-		id, ok := c.Node().(*ast.Ident)
-		if !ok || len(id.Name) < 2 || id.Name[0] != '_' {
-			return true
-		}
-		if p := c.Parent(); p != nil {
-			if fld, ok := p.Node().(*ast.Field); ok && fld.Label == ast.Label(id) {
-				return true // declares the field rather than reading it
-			}
-		}
-		if owner, _, _, found := enclosingDefinition(c); found {
-			read[owner+"."+id.Name] = true
-		}
-		return true
-	}, nil)
-	return read
-}
-
-// fillsIndex reports whether c is a loop that only adds plain entries under
-// computed labels, as `for r in refs {(r.id): true}` does. That is what an
-// index is made of; anything else in one, such as an `if`, is a rule of its
-// own, and so is a loop whose entries check something.
-func fillsIndex(c *ast.Comprehension) bool {
-	if len(c.Clauses) == 0 {
-		return false
-	}
-	if _, ok := c.Clauses[0].(*ast.ForClause); !ok {
-		return false
-	}
-	body, ok := c.Value.(*ast.StructLit)
-	if !ok || len(body.Elts) == 0 {
-		return false
-	}
-	for _, e := range body.Elts {
-		f, ok := e.(*ast.Field)
-		if !ok {
-			return false
-		}
-		switch f.Label.(type) {
-		case *ast.ParenExpr, *ast.Interpolation:
-		default:
-			return false
-		}
-		if !plainEntry(f.Value) {
-			return false
-		}
-	}
-	return true
-}
-
-// plainEntry reports whether x only records values, as `true`, `r` or
-// `"\(i)": item` do, so that nothing in it can be a rule: no conditional, no
-// call such as error(), and no expression that could fail.
-func plainEntry(x ast.Expr) bool {
-	switch x := x.(type) {
-	case *ast.BasicLit, *ast.Ident, *ast.SelectorExpr, *ast.Interpolation:
-		return true
-	case *ast.StructLit:
-		for _, e := range x.Elts {
-			f, ok := e.(*ast.Field)
-			if !ok || !plainEntry(f.Value) {
-				return false
-			}
-		}
-		return true
-	}
-	return false
+	return ""
 }
 
 // docComment returns the text of n's doc comments, joined into one line.
