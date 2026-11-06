@@ -402,15 +402,15 @@ func TestValidate_GuidanceCatalogExtendsReplacedByAndExemptions(t *testing.T) {
 	}
 
 	doc := &Document{
-		FilePath:          "guidance.yaml",
-		ID:                "GUIDANCE-01",
-		Type:              "GuidanceCatalog",
+		FilePath: "guidance.yaml",
+		ID:       "GUIDANCE-01",
+		Type:     "GuidanceCatalog",
 		MappingReferences: map[string]MappingReference{
 			"BASE-GUIDE": {ID: "BASE-GUIDE", Title: "Base Guidance"},
 			"ALT-GUIDE":  {ID: "ALT-GUIDE", Title: "Alt Guidance"},
 		},
-		DeclaredEntities:  make(map[string]bool),
-		SubEntities:       make(map[string]map[string]bool),
+		DeclaredEntities: make(map[string]bool),
+		SubEntities:      make(map[string]map[string]bool),
 	}
 	extractDocumentContents(doc, rootMap)
 

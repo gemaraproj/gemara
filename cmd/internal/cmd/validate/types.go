@@ -22,9 +22,10 @@ type Diagnostic struct {
 
 // Options configures the validator engine and output format.
 type Options struct {
-	Strict bool   // When true, warnings are treated as failures
-	Format string // "text" or "json"
-	Quiet  bool   // Suppress progress messages, output errors only
+	Strict    bool   // When true, warnings are treated as failures
+	Format    string // "text" or "json"
+	Quiet     bool   // Suppress progress messages, output errors only
+	SchemaDir string // Path to CUE schema directory (optional; enables AST walk discovery)
 }
 
 // MappingReference describes an external document cited in metadata.mapping-references.
@@ -84,6 +85,40 @@ type Document struct {
 
 	// Mappings contains mapping entries for MappingDocuments.
 	Mappings []MappingEntry
+}
+
+// AddReferenceUsage records a reference usage if not already present.
+func (doc *Document) AddReferenceUsage(refID, context string) {
+	if refID == "" {
+		return
+	}
+	for _, u := range doc.ReferenceUsages {
+		if u.ReferenceID == refID && u.Context == context {
+			return
+		}
+	}
+	doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+		ReferenceID: refID,
+		Context:     context,
+	})
+}
+
+// AddEntityUsage records an entity usage if not already present.
+func (doc *Document) AddEntityUsage(refID, entryID, subEntryID, context string) {
+	if refID == "" || (entryID == "" && subEntryID == "") {
+		return
+	}
+	for _, u := range doc.EntityUsages {
+		if u.ReferenceID == refID && u.EntryID == entryID && u.SubEntryID == subEntryID && u.Context == context {
+			return
+		}
+	}
+	doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
+		ReferenceID: refID,
+		EntryID:     entryID,
+		SubEntryID:  subEntryID,
+		Context:     context,
+	})
 }
 
 // ValidationResult summarizes the outcome of validating a document bundle.

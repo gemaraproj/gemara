@@ -12,7 +12,15 @@ import (
 )
 
 // LoadPaths resolves a list of file or directory paths and parses all Gemara YAML/JSON documents.
-func LoadPaths(paths []string) ([]*Document, error) {
+// An optional SchemaWalker can be passed for dynamic CUE AST reference discovery.
+func LoadPaths(paths []string, walkers ...*SchemaWalker) ([]*Document, error) {
+	var walker *SchemaWalker
+	if len(walkers) > 0 && walkers[0] != nil {
+		walker = walkers[0]
+	} else {
+		walker, _ = NewSchemaWalker("")
+	}
+
 	var docs []*Document
 
 	for _, p := range paths {
@@ -31,7 +39,7 @@ func LoadPaths(paths []string) ([]*Document, error) {
 				}
 				ext := strings.ToLower(filepath.Ext(path))
 				if ext == ".yaml" || ext == ".yml" || ext == ".json" {
-					doc, err := LoadDocument(path)
+					doc, err := LoadDocument(path, walker)
 					if err != nil {
 						// Skip files that aren't valid Gemara documents
 						return nil
@@ -46,7 +54,7 @@ func LoadPaths(paths []string) ([]*Document, error) {
 				return nil, fmt.Errorf("walk directory %q: %w", p, err)
 			}
 		} else {
-			doc, err := LoadDocument(p)
+			doc, err := LoadDocument(p, walker)
 			if err != nil {
 				return nil, err
 			}
@@ -60,7 +68,14 @@ func LoadPaths(paths []string) ([]*Document, error) {
 }
 
 // LoadDocument reads a single YAML/JSON file and parses its metadata, declared entities, and references.
-func LoadDocument(path string) (*Document, error) {
+// An optional SchemaWalker can be passed for dynamic CUE AST reference discovery.
+func LoadDocument(path string, walkers ...*SchemaWalker) (*Document, error) {
+	var walker *SchemaWalker
+	if len(walkers) > 0 && walkers[0] != nil {
+		walker = walkers[0]
+	} else {
+		walker, _ = NewSchemaWalker("")
+	}
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("read file %q: %w", path, err)
@@ -122,12 +137,144 @@ func LoadDocument(path string) (*Document, error) {
 	}
 
 	// Extract declared entities & references based on document type
-	extractDocumentContents(doc, root)
+	extractDocumentContents(doc, root, walker)
 
 	return doc, nil
 }
 
-func extractDocumentContents(doc *Document, root map[string]any) {
+func extractDocumentContents(doc *Document, root map[string]any, walkers ...*SchemaWalker) {
+	var walker *SchemaWalker
+	if len(walkers) > 0 {
+		walker = walkers[0]
+	}
+
+	// 1. Extract declared entities and sub-entities across catalogs
+	extractDeclaredEntities(doc, root)
+
+	// 2. Extract cross-document references:
+	// If schema walker is available and has paths for this artifact type, use dynamic CUE AST discovery!
+	if walker != nil && len(walker.RefPathsByArtifact[doc.Type]) > 0 {
+		walker.ExtractReferences(doc, root)
+	} else {
+		// Fallback to static extraction when CUE schema is not available
+		extractStaticReferences(doc, root)
+	}
+
+	// 3. Document types with specialized relational semantics:
+	switch doc.Type {
+	case "MappingDocument":
+		extractMappingDocument(doc, root)
+	case "EvaluationLog":
+		extractEvaluationRequirementInheritance(doc, root)
+	}
+}
+
+func extractDeclaredEntities(doc *Document, root map[string]any) {
+	switch doc.Type {
+	case "ControlCatalog":
+		extractControlEntities(doc, root)
+	case "ThreatCatalog":
+		extractSimpleList(doc, root, "threats")
+	case "RiskCatalog":
+		extractSimpleList(doc, root, "risks")
+	case "CapabilityCatalog":
+		extractSimpleList(doc, root, "capabilities")
+	case "GuidanceCatalog":
+		extractSimpleList(doc, root, "guidelines")
+	case "VectorCatalog":
+		extractSimpleList(doc, root, "vectors")
+	case "PrincipleCatalog":
+		extractSimpleList(doc, root, "principles")
+	case "MappingDocument":
+		if mappings, ok := root["mappings"].([]any); ok {
+			for _, m := range mappings {
+				if mMap, ok := m.(map[string]any); ok {
+					if mID, _ := mMap["id"].(string); mID != "" {
+						doc.DeclaredEntities[mID] = true
+					}
+				}
+			}
+		}
+	default:
+		extractGenericArtifact(doc, root)
+	}
+}
+
+func extractControlEntities(doc *Document, root map[string]any) {
+	controls, ok := root["controls"].([]any)
+	if !ok {
+		return
+	}
+	for _, c := range controls {
+		cMap, ok := c.(map[string]any)
+		if !ok {
+			continue
+		}
+		cID, ok := cMap["id"].(string)
+		if !ok || cID == "" {
+			continue
+		}
+		doc.DeclaredEntities[cID] = true
+
+		if arList, ok := cMap["assessment-requirements"].([]any); ok {
+			if doc.SubEntities[cID] == nil {
+				doc.SubEntities[cID] = make(map[string]bool)
+			}
+			for _, ar := range arList {
+				if arMap, ok := ar.(map[string]any); ok {
+					if arID, ok := arMap["id"].(string); ok && arID != "" {
+						doc.SubEntities[cID][arID] = true
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractEvaluationRequirementInheritance(doc *Document, root map[string]any) {
+	evals, ok := root["evaluations"].([]any)
+	if !ok {
+		return
+	}
+
+	for _, e := range evals {
+		eMap, ok := e.(map[string]any)
+		if !ok {
+			continue
+		}
+
+		var ctrlRef, ctrlID string
+		if ctrl, ok := eMap["control"].(map[string]any); ok {
+			ctrlRef, _ = ctrl["reference-id"].(string)
+			ctrlID, _ = ctrl["entry-id"].(string)
+			if ctrlID != "" {
+				// Index the evaluated control so downstream references (e.g. enforcement logs) resolve
+				doc.DeclaredEntities[ctrlID] = true
+			}
+		}
+
+		if aLogs, ok := eMap["assessment-logs"].([]any); ok {
+			for _, al := range aLogs {
+				alMap, ok := al.(map[string]any)
+				if !ok {
+					continue
+				}
+				if req, ok := alMap["requirement"].(map[string]any); ok {
+					reqRef, _ := req["reference-id"].(string)
+					reqID, _ := req["entry-id"].(string)
+					if reqRef == "" {
+						reqRef = ctrlRef // Inherited from control
+					}
+					if reqRef != "" && reqID != "" {
+						doc.AddEntityUsage(reqRef, ctrlID, reqID, "evaluations.assessment-logs.requirement")
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractStaticReferences(doc *Document, root map[string]any) {
 	switch doc.Type {
 	case "ControlCatalog":
 		extractControlCatalog(doc, root)
@@ -135,14 +282,8 @@ func extractDocumentContents(doc *Document, root map[string]any) {
 		extractRiskCatalog(doc, root)
 	case "ThreatCatalog":
 		extractThreatCatalog(doc, root)
-	case "CapabilityCatalog":
-		extractSimpleList(doc, root, "capabilities")
 	case "GuidanceCatalog":
 		extractGuidanceCatalog(doc, root)
-	case "VectorCatalog":
-		extractSimpleList(doc, root, "vectors")
-	case "PrincipleCatalog":
-		extractSimpleList(doc, root, "principles")
 	case "MappingDocument":
 		extractMappingDocument(doc, root)
 	case "Policy":
@@ -153,9 +294,6 @@ func extractDocumentContents(doc *Document, root map[string]any) {
 		extractEnforcementLog(doc, root)
 	case "AuditLog":
 		extractAuditLog(doc, root)
-	default:
-		// Generic extraction
-		extractGenericArtifact(doc, root)
 	}
 }
 
@@ -546,16 +684,9 @@ func extractEntryMapping(doc *Document, raw any, context string) {
 		entryID, _ = mMap["risk-id"].(string)
 	}
 	if rID != "" {
-		doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
-			ReferenceID: rID,
-			Context:     context,
-		})
+		doc.AddReferenceUsage(rID, context)
 		if entryID != "" {
-			doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
-				ReferenceID: rID,
-				EntryID:     entryID,
-				Context:     context,
-			})
+			doc.AddEntityUsage(rID, entryID, "", context)
 		}
 	}
 }
@@ -565,10 +696,7 @@ func extractCatalogCollections(doc *Document, root map[string]any) {
 		for _, e := range exts {
 			if eMap, ok := e.(map[string]any); ok {
 				if rID, ok := eMap["reference-id"].(string); ok && rID != "" {
-					doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
-						ReferenceID: rID,
-						Context:     "catalog.extends",
-					})
+					doc.AddReferenceUsage(rID, "catalog.extends")
 				}
 			}
 		}
@@ -598,10 +726,7 @@ func extractMultiEntryMappings(doc *Document, raw any, context string) {
 		}
 		rID, _ := mMap["reference-id"].(string)
 		if rID != "" {
-			doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
-				ReferenceID: rID,
-				Context:     context,
-			})
+			doc.AddReferenceUsage(rID, context)
 			if entries, ok := mMap["entries"].([]any); ok {
 				for _, e := range entries {
 					if eMap, ok := e.(map[string]any); ok {
@@ -610,18 +735,10 @@ func extractMultiEntryMappings(doc *Document, raw any, context string) {
 							entryID, _ = eMap["entry-id"].(string)
 						}
 						if entryID != "" {
-							doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
-								ReferenceID: rID,
-								EntryID:     entryID,
-								Context:     context,
-							})
+							doc.AddEntityUsage(rID, entryID, "", context)
 						}
 					} else if eStr, ok := e.(string); ok && eStr != "" {
-						doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
-							ReferenceID: rID,
-							EntryID:     eStr,
-							Context:     context,
-						})
+						doc.AddEntityUsage(rID, eStr, "", context)
 					}
 				}
 			}
