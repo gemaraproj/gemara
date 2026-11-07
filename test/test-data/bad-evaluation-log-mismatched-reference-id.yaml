@@ -1,0 +1,45 @@
+metadata:
+  id: BAD-EVALUATION-LOG-MISMATCHED-REFERENCE
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: EvaluationLog with mismatched reference-id between control and assessment requirement
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: control-catalog-ref
+      title: "Primary Control Catalog"
+      version: "1.0.0"
+      url: "https://example.com/controls"
+    - id: other-catalog-ref
+      title: "Different Catalog Reference"
+      version: "1.0.0"
+      url: "https://example.com/other"
+result: Failed
+target:
+  id: target-service
+  name: Target Service
+  type: Software
+evaluations:
+  - name: Access Control Evaluation
+    result: Failed
+    message: Control assessment requirement references a different catalog
+    control:
+      reference-id: control-catalog-ref
+      entry-id: AC-1
+    assessment-logs:
+      - requirement:
+          reference-id: other-catalog-ref
+          entry-id: AC-1.1
+        applicability:
+          - High
+        steps:
+          - verify-policy
+        description: Verify that access control policy is enforced.
+        result: Failed
+        message: Mismatched catalog reference
+        steps-executed: 1
+        start: 2026-10-31T12:00:00Z
+        end: 2026-10-31T12:05:00Z
