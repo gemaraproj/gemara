@@ -515,3 +515,85 @@ func TestValidate_GuidanceCatalogExtendsReplacedByAndExemptions(t *testing.T) {
 		t.Errorf("expected exemption redirect entity usage to be extracted")
 	}
 }
+
+func TestValidate_RequirementVsControlContextScoping(t *testing.T) {
+	targetCatalog := &Document{
+		FilePath: "controls.yaml",
+		ID:       "OSPS",
+		Type:     "ControlCatalog",
+		DeclaredEntities: map[string]bool{
+			"OSPS-DO-01": true,
+		},
+		SubEntities: map[string]map[string]bool{
+			"OSPS-DO-01": {
+				"OSPS-DO-01.01": true,
+			},
+		},
+	}
+
+	// 1. Pointing requirement at a control ID (OSPS-DO-01) instead of requirement ID (OSPS-DO-01.01) MUST FAIL
+	enfWithControlAsReq := &Document{
+		FilePath: "enf.yaml",
+		ID:       "ENF-01",
+		Type:     "EnforcementLog",
+		MappingReferences: map[string]MappingReference{
+			"OSPS": {ID: "OSPS", Title: "OSPS Baseline"},
+		},
+		EntityUsages: []EntityUsage{
+			{
+				ReferenceID: "OSPS",
+				EntryID:     "OSPS-DO-01", // control ID mistakenly used as requirement
+				Context:     "actions[0].justification.assessments[0].requirement",
+			},
+		},
+	}
+
+	res := Validate([]*Document{enfWithControlAsReq, targetCatalog}, Options{})
+	if res.Passed {
+		t.Fatalf("expected validation failure when control ID is used in requirement context, but passed")
+	}
+
+	// 2. Pointing requirement at valid requirement ID (OSPS-DO-01.01) MUST PASS
+	enfWithValidReq := &Document{
+		FilePath: "enf.yaml",
+		ID:       "ENF-01",
+		Type:     "EnforcementLog",
+		MappingReferences: map[string]MappingReference{
+			"OSPS": {ID: "OSPS", Title: "OSPS Baseline"},
+		},
+		EntityUsages: []EntityUsage{
+			{
+				ReferenceID: "OSPS",
+				EntryID:     "OSPS-DO-01.01",
+				Context:     "actions[0].justification.assessments[0].requirement",
+			},
+		},
+	}
+
+	resValid := Validate([]*Document{enfWithValidReq, targetCatalog}, Options{})
+	if !resValid.Passed {
+		t.Fatalf("expected validation success for valid requirement ID, got errors: %+v", resValid.Diagnostics)
+	}
+
+	// 3. Pointing control at requirement ID (OSPS-DO-01.01) instead of control ID (OSPS-DO-01) MUST FAIL
+	evalWithReqAsControl := &Document{
+		FilePath: "eval.yaml",
+		ID:       "EVAL-01",
+		Type:     "EvaluationLog",
+		MappingReferences: map[string]MappingReference{
+			"OSPS": {ID: "OSPS", Title: "OSPS Baseline"},
+		},
+		EntityUsages: []EntityUsage{
+			{
+				ReferenceID: "OSPS",
+				EntryID:     "OSPS-DO-01.01", // requirement ID mistakenly used as control
+				Context:     "evaluations.control",
+			},
+		},
+	}
+
+	resControlFail := Validate([]*Document{evalWithReqAsControl, targetCatalog}, Options{})
+	if resControlFail.Passed {
+		t.Fatalf("expected validation failure when requirement ID is used in control context, but passed")
+	}
+}

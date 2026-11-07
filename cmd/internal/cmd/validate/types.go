@@ -93,6 +93,17 @@ func (doc *Document) HasEntity(id string) bool {
 	if doc.DeclaredEntities[id] {
 		return true
 	}
+	return doc.HasSubEntity(id)
+}
+
+// HasTopLevelEntity checks whether an identifier is declared as a top-level entity.
+func (doc *Document) HasTopLevelEntity(id string) bool {
+	return doc.DeclaredEntities[id]
+}
+
+// HasSubEntity checks whether an identifier is declared as a nested sub-entity
+// (e.g. an assessment requirement).
+func (doc *Document) HasSubEntity(id string) bool {
 	for _, subs := range doc.SubEntities {
 		if subs[id] {
 			return true
