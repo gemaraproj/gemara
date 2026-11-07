@@ -87,6 +87,20 @@ type Document struct {
 	Mappings []MappingEntry
 }
 
+// HasEntity checks whether an identifier is declared in this document as either
+// a top-level entity or a nested sub-entity (e.g. an assessment requirement).
+func (doc *Document) HasEntity(id string) bool {
+	if doc.DeclaredEntities[id] {
+		return true
+	}
+	for _, subs := range doc.SubEntities {
+		if subs[id] {
+			return true
+		}
+	}
+	return false
+}
+
 // AddReferenceUsage records a reference usage if not already present.
 func (doc *Document) AddReferenceUsage(refID, context string) {
 	if refID == "" {
