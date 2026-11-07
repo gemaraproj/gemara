@@ -127,8 +127,8 @@ func TestLoadWrappedInvalidFile(t *testing.T) {
 	}
 }
 
-// TestFilterAllowedEdgeCases validates edge cases including empty allowlist, empty changes,
-// whitespace handling, and partial match boundaries.
+// TestFilterAllowedEdgeCases validates nil changes, nil and empty allowlists,
+// and case-sensitive matching.
 func TestFilterAllowedEdgeCases(t *testing.T) {
 	// Empty changes slice
 	if got := filterAllowed(nil, map[string]bool{"id schema": true}); len(got) != 0 {
@@ -145,6 +145,11 @@ func TestFilterAllowedEdgeCases(t *testing.T) {
 	}
 	if got := filterAllowed(changes, map[string]bool{}); len(got) != 2 {
 		t.Fatalf("expected all changes preserved with empty allowlist, got %+v", got)
+	}
+
+	// Positive control: exact matching entry successfully filters the target change
+	if got := filterAllowed(changes, map[string]bool{"err-1 Control": true}); len(got) != 1 || got[0].ID != "err-2" {
+		t.Fatalf("expected exact entry to filter err-1 and leave err-2, got %+v", got)
 	}
 
 	// Case sensitivity & boundary check
