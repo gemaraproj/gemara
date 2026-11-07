@@ -98,6 +98,12 @@ import "list"
 	// description explains what this evidence represents
 	description?: string
 
+	// method describes the evidence collection method
+	method?: string @go(Method)
+
+	// collector identifies the actor that gathered this evidence (defaults to metadata.author when absent)
+	collector?: #Actor @go(Collector)
+
 	// retention records the obligations governing how long this evidence must be kept
 	retention?: #Retention @go(Retention,optional=nillable)
 }
