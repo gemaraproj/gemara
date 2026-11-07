@@ -1,0 +1,28 @@
+metadata:
+  id: EXAMPLE-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example Capability Catalog
+  author:
+    id: security-team
+    name: "Security\rTeam"
+    type: Human
+
+title: Example Capability Catalog
+
+groups:
+  - id: container-infrastructure
+    title: Container Infrastructure
+    description: Capabilities related to the core container infrastructure, including runtimes and registries
+
+capabilities:
+  - id: CAP-001
+    title: Container Runtime
+    description: System's ability to run containerized applications, including image management and container lifecycle.
+    group: container-infrastructure
+
+  - id: CAP-002
+    title: Container Registry
+    description: System's ability to store and retrieve container images from registries.
+    group: container-infrastructure

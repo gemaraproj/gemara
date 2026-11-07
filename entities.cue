@@ -10,11 +10,11 @@ package gemara
 #Entity: {
 	// id uniquely identifies the entity and allows this entry to be referenced by other elements.
 	// It must be a single non-empty line with no leading or trailing whitespace.
-	id: =~"^\\S(.*\\S)?$"
+	id: =~"^\\S([^\\r\\n]*\\S)?$"
 
 	// name is the name of the entity.
 	// It must be a single non-empty line with no leading or trailing whitespace.
-	name: =~"^\\S(.*\\S)?$"
+	name: =~"^\\S([^\\r\\n]*\\S)?$"
 
 	// type specifies the type of entity interacting in the workflow
 	type: #EntityType
