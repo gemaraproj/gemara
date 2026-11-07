@@ -13,8 +13,11 @@ import (
 	"strings"
 
 	"cuelang.org/go/cue"
+	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/cuecontext"
+	"cuelang.org/go/cue/literal"
 	"cuelang.org/go/cue/load"
+	"cuelang.org/go/cue/token"
 )
 
 const schemaDialect = "https://json-schema.org/draft/2020-12/schema"
@@ -147,14 +150,15 @@ func (g *Generator) Generate() (map[string]any, error) {
 		}
 	}
 
-	// 3. Remove additionalProperties from base definitions that are extended
-	removeBaseAdditionalProperties(defs)
+	// 3. Narrow unevaluatedProperties on extended base definitions and schemas
+	narrowExtendedProperties(defs)
 
-	// 4. Rewrite additionalProperties: false to unevaluatedProperties: false on extending definitions
-	fixUnevaluatedProperties(defs)
+	// 4. Relax AssessmentLog.requirement to only require entry-id, as CUE derives reference-id
+	// from the enclosing control (evaluationlog.cue:27-29).
+	relaxAssessmentLogRequirement(defs)
 
 	// 5. Apply strict helper validation rules to base definitions
-	if err := applyHelperRules(defs); err != nil {
+	if err := g.applyHelperRules(defs, absDir); err != nil {
 		return nil, fmt.Errorf("applying helper rules: %w", err)
 	}
 
@@ -188,52 +192,31 @@ func fixHelperRefs(v any) {
 	}
 }
 
-// removeBaseAdditionalProperties finds all definitions that are referenced as base schemas
-// by other definitions (via $ref) and removes additionalProperties/unevaluatedProperties
-// so that extending schemas can compose additional properties without being rejected.
-func removeBaseAdditionalProperties(defs map[string]any) {
-	bases := make(map[string]bool)
-	var findBases func(v any)
-	findBases = func(v any) {
-		switch node := v.(type) {
-		case map[string]any:
-			if ref, ok := node["$ref"].(string); ok {
-				base := strings.TrimPrefix(ref, "#/$defs/")
-				bases[base] = true
-			}
-			for _, child := range node {
-				findBases(child)
-			}
-		case []any:
-			for _, item := range node {
-				findBases(item)
-			}
-		}
-	}
-	for _, def := range defs {
-		findBases(def)
-	}
-
-	for base := range bases {
-		if baseDef, ok := defs[base].(map[string]any); ok {
-			delete(baseDef, "additionalProperties")
-			delete(baseDef, "unevaluatedProperties")
-		}
+// convertAdditionalToUnevaluated replaces additionalProperties: false with unevaluatedProperties: false.
+func convertAdditionalToUnevaluated(schema map[string]any) {
+	if ap, ok := schema["additionalProperties"].(bool); ok && !ap {
+		delete(schema, "additionalProperties")
+		schema["unevaluatedProperties"] = false
 	}
 }
 
-// fixUnevaluatedProperties rewrites additionalProperties: false to unevaluatedProperties: false
-// where $ref is present (directly or in child elements), enabling Draft 2020-12 validators
-// to recognize properties evaluated by referenced schemas while rejecting undeclared properties.
-func fixUnevaluatedProperties(defs map[string]any) {
-	for _, def := range defs {
-		if defMap, ok := def.(map[string]any); ok {
-			if _, ok := defMap["$ref"].(string); ok {
-				if ap, ok := defMap["additionalProperties"].(bool); ok && !ap {
-					delete(defMap, "additionalProperties")
-					defMap["unevaluatedProperties"] = false
-				}
-				if props, ok := defMap["properties"].(map[string]any); ok {
+// narrowExtendedProperties finds base definitions that are extended by other schemas
+// (via $ref sitting next to sibling properties or inside an allOf) and converts their
+// additionalProperties: false to unevaluatedProperties: false, allowing extending schemas
+// to compose additional properties while rejecting undeclared nested properties.
+func narrowExtendedProperties(defs map[string]any) {
+	extendedBases := make(map[string]bool)
+
+	var findExtensions func(v any)
+	findExtensions = func(v any) {
+		switch node := v.(type) {
+		case map[string]any:
+			// Check if $ref sits next to sibling properties
+			if ref, ok := node["$ref"].(string); ok {
+				if props, ok := node["properties"].(map[string]any); ok && len(props) > 0 {
+					base := strings.TrimPrefix(ref, "#/$defs/")
+					extendedBases[base] = true
+					convertAdditionalToUnevaluated(node)
 					for _, p := range props {
 						if pMap, ok := p.(map[string]any); ok {
 							delete(pMap, "additionalProperties")
@@ -242,38 +225,182 @@ func fixUnevaluatedProperties(defs map[string]any) {
 					}
 				}
 			}
-		}
-	}
-
-	var fixNested func(v any)
-	fixNested = func(v any) {
-		switch node := v.(type) {
-		case map[string]any:
-			if _, hasRef := node["$ref"].(string); hasRef {
-				if ap, ok := node["additionalProperties"].(bool); ok && !ap {
-					delete(node, "additionalProperties")
-					node["unevaluatedProperties"] = false
+			// Check if $ref sits inside an allOf
+			if allOf, ok := node["allOf"].([]any); ok {
+				for _, item := range allOf {
+					if itemMap, ok := item.(map[string]any); ok {
+						if ref, ok := itemMap["$ref"].(string); ok {
+							base := strings.TrimPrefix(ref, "#/$defs/")
+							extendedBases[base] = true
+						}
+						convertAdditionalToUnevaluated(itemMap)
+					}
 				}
+				convertAdditionalToUnevaluated(node)
 			}
 			for _, child := range node {
-				fixNested(child)
+				findExtensions(child)
 			}
 		case []any:
 			for _, item := range node {
-				fixNested(item)
+				findExtensions(item)
 			}
 		}
 	}
+
 	for _, def := range defs {
-		fixNested(def)
+		findExtensions(def)
 	}
+
+	for base := range extendedBases {
+		if baseDef, ok := defs[base].(map[string]any); ok {
+			delete(baseDef, "additionalProperties")
+			delete(baseDef, "unevaluatedProperties")
+		}
+	}
+}
+
+// relaxAssessmentLogRequirement allows AssessmentLog.requirement to omit reference-id,
+// since CUE derives requirement."reference-id" from the parent control (evaluationlog.cue:27-29).
+// This allows serialized logs that omit the redundant reference-id to validate against JSON Schema.
+func relaxAssessmentLogRequirement(defs map[string]any) {
+	if al, ok := defs["AssessmentLog"].(map[string]any); ok {
+		if props, ok := al["properties"].(map[string]any); ok {
+			props["requirement"] = map[string]any{
+				"type":        "object",
+				"description": "Requirement should map to the assessment requirement for this assessment.",
+				"additionalProperties": false,
+				"properties": map[string]any{
+					"entry-id": map[string]any{
+						"type":        "string",
+						"description": "entry-id is the identifier being mapped to in the referenced artifact",
+					},
+					"reference-id": map[string]any{
+						"type":        "string",
+						"description": "reference-id is the id for a MappingReference entry in the artifact's metadata",
+					},
+					"remarks": map[string]any{
+						"type":        "string",
+						"description": "remarks is prose describing the mapping relationship",
+					},
+				},
+				"required": []any{"entry-id"},
+			}
+		}
+	}
+
+	// Also relax the cross-field requirement on ControlEvaluation.assessment-logs
+	if ce, ok := defs["ControlEvaluation"].(map[string]any); ok {
+		if props, ok := ce["properties"].(map[string]any); ok {
+			if alProp, ok := props["assessment-logs"].(map[string]any); ok {
+				if allOf, ok := alProp["allOf"].([]any); ok {
+					var filtered []any
+					for _, item := range allOf {
+						if itemMap, ok := item.(map[string]any); ok {
+							if desc, ok := itemMap["description"].(string); ok && strings.Contains(desc, "control reference and the assessments' references match") {
+								continue
+							}
+						}
+						filtered = append(filtered, item)
+					}
+					alProp["allOf"] = filtered
+				}
+			}
+		}
+	}
+}
+
+func excludedValues(e ast.Expr) (string, []string, bool) {
+	b, ok := e.(*ast.BinaryExpr)
+	if !ok {
+		return "", nil, false
+	}
+	if b.Op == token.LAND {
+		left, lv, lok := excludedValues(b.X)
+		right, rv, rok := excludedValues(b.Y)
+		if !lok || !rok || left != right {
+			return "", nil, false
+		}
+		return left, append(lv, rv...), true
+	}
+	if b.Op != token.NEQ {
+		return "", nil, false
+	}
+	id, isIdent := b.X.(*ast.Ident)
+	lit, isLit := b.Y.(*ast.BasicLit)
+	if !isIdent || !isLit || lit.Kind != token.STRING {
+		return "", nil, false
+	}
+	value, err := literal.Unquote(lit.Value)
+	if err != nil {
+		return "", nil, false
+	}
+	return id.Name, []string{value}, true
+}
+
+// extractHelperRules parses CUE source files in schemaDir to dynamically extract
+// the condition values from hidden helper definitions (#_AssessmentLogStrict, #_MappingStrict).
+func (g *Generator) extractHelperRules(absDir string) (unexecuted []string, noMatch []string) {
+	insts := load.Instances([]string{"."}, &load.Config{Dir: absDir})
+	if len(insts) == 0 || insts[0].Err != nil {
+		return []string{"Not Run", "Unknown", "Not Applicable"}, []string{"no-match"}
+	}
+
+	for _, f := range insts[0].Files {
+		for _, decl := range f.Decls {
+			field, ok := decl.(*ast.Field)
+			if !ok {
+				continue
+			}
+			labelName, _, err := ast.LabelName(field.Label)
+			if err != nil {
+				continue
+			}
+
+			var walkStruct func(ast.Node)
+			walkStruct = func(n ast.Node) {
+				switch x := n.(type) {
+				case *ast.BinaryExpr:
+					if x.Op == token.AND {
+						walkStruct(x.X)
+						walkStruct(x.Y)
+					}
+				case *ast.StructLit:
+					for _, elt := range x.Elts {
+						if comp, ok := elt.(*ast.Comprehension); ok {
+							for _, clause := range comp.Clauses {
+								if ifClause, ok := clause.(*ast.IfClause); ok {
+									if subject, vals, ok := excludedValues(ifClause.Condition); ok {
+										if labelName == "#_AssessmentLogStrict" && subject == "result" {
+											unexecuted = vals
+										} else if labelName == "#_MappingStrict" && subject == "relationship" {
+											noMatch = vals
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			walkStruct(field.Value)
+		}
+	}
+
+	if len(unexecuted) == 0 {
+		unexecuted = []string{"Not Run", "Unknown", "Not Applicable"}
+	}
+	if len(noMatch) == 0 {
+		noMatch = []string{"no-match"}
+	}
+	return unexecuted, noMatch
 }
 
 // applyHelperRules layers the strict validation rules from hidden helper definitions
 // (#_AssessmentLogStrict, #_EvidenceStrict, #_MappingStrict) onto their respective
 // base definitions (AssessmentLog, Evidence, Mapping). This ensures JSON Schema validation
 // stays aligned with CUE and OpenAPI (ref: #537).
-func applyHelperRules(defs map[string]any) error {
+func (g *Generator) applyHelperRules(defs map[string]any, absDir string) error {
 	appendAllOf := func(target map[string]any, rule map[string]any) {
 		existing, ok := target["allOf"].([]any)
 		if !ok {
@@ -283,8 +410,17 @@ func applyHelperRules(defs map[string]any) error {
 		target["allOf"] = append(existing, rule)
 	}
 
+	unexecutedResults, noMatchRelationship := g.extractHelperRules(absDir)
+	unexecutedEnum := make([]any, len(unexecutedResults))
+	for i, v := range unexecutedResults {
+		unexecutedEnum[i] = v
+	}
+	noMatchEnum := make([]any, len(noMatchRelationship))
+	for i, v := range noMatchRelationship {
+		noMatchEnum[i] = v
+	}
+
 	// 1. #_AssessmentLogStrict: start required unless unexecuted
-	// If result != "Not Run" && result != "Unknown" && result != "Not Applicable" => start is required.
 	al, ok := defs["AssessmentLog"].(map[string]any)
 	if !ok {
 		return fmt.Errorf("required definition AssessmentLog missing from defs")
@@ -295,7 +431,7 @@ func applyHelperRules(defs map[string]any) error {
 				"properties": map[string]any{
 					"result": map[string]any{
 						"type": "string",
-						"enum": []any{"Not Run", "Unknown", "Not Applicable"},
+						"enum": unexecutedEnum,
 					},
 				},
 			},
@@ -332,7 +468,7 @@ func applyHelperRules(defs map[string]any) error {
 				"properties": map[string]any{
 					"relationship": map[string]any{
 						"type": "string",
-						"enum": []any{"no-match"},
+						"enum": noMatchEnum,
 					},
 				},
 			},

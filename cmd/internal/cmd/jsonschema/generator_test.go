@@ -369,13 +369,30 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 		defName string
 	}{
 		{"good-ccc.yaml", "ControlCatalog"},
+		{"good-ccc.json", "ControlCatalog"},
+		{"good-osps.yml", "ControlCatalog"},
+		{"good-lifecycle.yaml", "ControlCatalog"},
+		{"nested-good-ccc.yaml", "ControlCatalog"},
+		{"good-aigf.yaml", "GuidanceCatalog"},
+		{"good-aigf-principles.yaml", "PrincipleCatalog"},
+		{"good-aigf-vectors.yaml", "VectorCatalog"},
 		{"good-threat-catalog.yaml", "ThreatCatalog"},
 		{"good-capability-catalog.yaml", "CapabilityCatalog"},
-		{"good-audit-log.yaml", "AuditLog"},
-		{"good-policy.yaml", "Policy"},
-		{"good-mapping-document.yaml", "MappingDocument"},
-		{"good-lexicon.yaml", "Lexicon"},
+		{"good-vector-owasp-mapping.yaml", "MappingDocument"},
 		{"good-risk-catalog.yaml", "RiskCatalog"},
+		{"good-policy.yaml", "Policy"},
+		{"good-security-policy.yml", "Policy"},
+		{"good-policy-retention.yaml", "Policy"},
+		{"good-mapping-document.yaml", "MappingDocument"},
+		{"good-aigf-nist-mapping.yaml", "MappingDocument"},
+		{"good-lexicon.yaml", "Lexicon"},
+		{"pvtr-baseline-scan.yaml", "EvaluationLog"},
+		{"good-evaluation-log-unstarted.yaml", "EvaluationLog"},
+		{"good-enforcement-log.yaml", "EnforcementLog"},
+		{"good-audit-log.yaml", "AuditLog"},
+		{"good-audit-log-coordinate-and-entry-id.yaml", "AuditLog"},
+		{"good-audit-log-retention.yaml", "AuditLog"},
+		{"nested-empty.yaml", "ControlCatalog"},
 	}
 
 	for _, tc := range fixtures {
@@ -392,8 +409,14 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 			}
 
 			var raw any
-			if err := yaml.Unmarshal(fixtureData, &raw); err != nil {
-				t.Fatalf("unmarshal yaml: %v", err)
+			if strings.HasSuffix(tc.file, ".json") {
+				if err := json.Unmarshal(fixtureData, &raw); err != nil {
+					t.Fatalf("unmarshal json: %v", err)
+				}
+			} else {
+				if err := yaml.Unmarshal(fixtureData, &raw); err != nil {
+					t.Fatalf("unmarshal yaml: %v", err)
+				}
 			}
 			rawJson, err := json.Marshal(raw)
 			if err != nil {
@@ -418,7 +441,6 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 		}
 
 		alData := map[string]any{
-			"id": "AL-1",
 			"requirement": map[string]any{
 				"reference-id": "REF-1",
 				"entry-id":     "REQ-1",
@@ -462,7 +484,6 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 		}
 
 		alData := map[string]any{
-			"id": "AL-2",
 			"requirement": map[string]any{
 				"reference-id": "REF-1",
 				"entry-id":     "REQ-1",
@@ -511,6 +532,171 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 		valDoc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
 		if err := sch.Validate(valDoc); err == nil {
 			t.Errorf("expected validation failure for unknown property under unevaluatedProperties: false, but passed")
+		}
+	})
+
+	// Negative check: unknown properties under nested definitions (results[0], evidence[0], criteria[0], controls[0])
+	// are strictly rejected.
+	t.Run("NestedUnknownPropertiesRejected", func(t *testing.T) {
+		nestedCases := []struct {
+			name    string
+			fixture string
+			defName string
+			inject  func(raw map[string]any)
+		}{
+			{
+				name:    "AuditLog results[0] unknown field",
+				fixture: "good-audit-log.yaml",
+				defName: "AuditLog",
+				inject: func(raw map[string]any) {
+					results := raw["results"].([]any)
+					r0 := results[0].(map[string]any)
+					r0["bogus"] = 1
+				},
+			},
+			{
+				name:    "AuditLog results[1].evidence[0] unknown field",
+				fixture: "good-audit-log.yaml",
+				defName: "AuditLog",
+				inject: func(raw map[string]any) {
+					results := raw["results"].([]any)
+					r1 := results[1].(map[string]any)
+					evidence := r1["evidence"].([]any)
+					ev0 := evidence[0].(map[string]any)
+					ev0["bogus"] = 1
+				},
+			},
+			{
+				name:    "AuditLog metadata.author unknown field",
+				fixture: "good-audit-log.yaml",
+				defName: "AuditLog",
+				inject: func(raw map[string]any) {
+					meta := raw["metadata"].(map[string]any)
+					author := meta["author"].(map[string]any)
+					author["bogus"] = 1
+				},
+			},
+			{
+				name:    "ControlCatalog controls[0] unknown field",
+				fixture: "good-ccc.yaml",
+				defName: "ControlCatalog",
+				inject: func(raw map[string]any) {
+					controls := raw["controls"].([]any)
+					ctrl0 := controls[0].(map[string]any)
+					ctrl0["bogus"] = 1
+				},
+			},
+			{
+				name:    "ControlCatalog metadata.author unknown field",
+				fixture: "good-ccc.yaml",
+				defName: "ControlCatalog",
+				inject: func(raw map[string]any) {
+					meta := raw["metadata"].(map[string]any)
+					author := meta["author"].(map[string]any)
+					author["bogus"] = 1
+				},
+			},
+		}
+
+		for _, tc := range nestedCases {
+			t.Run(tc.name, func(t *testing.T) {
+				sch, err := c.Compile("schema.json#/$defs/" + tc.defName)
+				if err != nil {
+					t.Fatalf("Compile %s: %v", tc.defName, err)
+				}
+				fixturePath := filepath.Join(schemaDir, "test", "test-data", tc.fixture)
+				data, err := os.ReadFile(fixturePath)
+				if err != nil {
+					t.Fatalf("read fixture: %v", err)
+				}
+				var raw map[string]any
+				if err := yaml.Unmarshal(data, &raw); err != nil {
+					t.Fatalf("unmarshal yaml: %v", err)
+				}
+				tc.inject(raw)
+				rawJson, _ := json.Marshal(raw)
+				valDoc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+				if err := sch.Validate(valDoc); err == nil {
+					t.Errorf("expected validation error for nested bogus field in %s, but passed", tc.name)
+				}
+			})
+		}
+	})
+
+	// Verify helper rule enforcement for AssessmentLog (start timing)
+	t.Run("AssessmentLogHelperRules", func(t *testing.T) {
+		sch, err := c.Compile("schema.json#/$defs/AssessmentLog")
+		if err != nil {
+			t.Fatalf("Compile AssessmentLog: %v", err)
+		}
+
+		baseLog := func(result string) map[string]any {
+			return map[string]any{
+				"requirement": map[string]any{
+					"entry-id": "REQ-1",
+				},
+				"result":        result,
+				"description":   "Test procedure",
+				"message":       "Test message",
+				"applicability": []any{"all"},
+				"steps":         []any{"step 1"},
+			}
+		}
+
+		// Results that allow omitting start
+		for _, r := range []string{"Not Run", "Unknown", "Not Applicable"} {
+			t.Run("AllowsOmittingStart_"+r, func(t *testing.T) {
+				data := baseLog(r)
+				rawJson, _ := json.Marshal(data)
+				valDoc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+				if err := sch.Validate(valDoc); err != nil {
+					t.Errorf("result %q without start failed validation: %v", r, err)
+				}
+			})
+		}
+
+		// Results that require start
+		for _, r := range []string{"Passed", "Failed", "Needs Review"} {
+			t.Run("RequiresStart_"+r, func(t *testing.T) {
+				data := baseLog(r)
+				rawJson, _ := json.Marshal(data)
+				valDoc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+				if err := sch.Validate(valDoc); err == nil {
+					t.Errorf("expected result %q without start to fail validation, but passed", r)
+				}
+			})
+		}
+	})
+
+	// Verify helper rule enforcement for Mapping (targets required when relationship != "no-match")
+	t.Run("MappingHelperRules", func(t *testing.T) {
+		sch, err := c.Compile("schema.json#/$defs/Mapping")
+		if err != nil {
+			t.Fatalf("Compile Mapping: %v", err)
+		}
+
+		// "no-match" allows omitting targets
+		noMatchData := map[string]any{
+			"id":           "MAP-1",
+			"relationship": "no-match",
+			"source":       "S-1",
+		}
+		rawJson, _ := json.Marshal(noMatchData)
+		valDoc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+		if err := sch.Validate(valDoc); err != nil {
+			t.Errorf("Mapping with relationship no-match and no targets failed: %v", err)
+		}
+
+		// Other relationships require targets
+		exactData := map[string]any{
+			"id":           "MAP-2",
+			"relationship": "exact",
+			"source":       "S-2",
+		}
+		rawJson, _ = json.Marshal(exactData)
+		valDoc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+		if err := sch.Validate(valDoc); err == nil {
+			t.Errorf("expected Mapping with relationship exact and no targets to fail, but passed")
 		}
 	})
 }
