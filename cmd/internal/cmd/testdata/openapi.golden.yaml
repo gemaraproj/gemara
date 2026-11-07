@@ -555,6 +555,15 @@ components:
     CatalogImport:
       description: CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
       properties:
+        applicability:
+          description: |-
+            applicability selects the applicability groups to adopt from this imported catalog. Each ID must match
+            an entry in the catalog's metadata."applicability-groups"; a resolver rejects an ID the catalog does not define.
+            A requirement is in play when any of its applicability IDs is selected. See the Requirements Resolution specification.
+          items:
+            type: string
+          minItems: 1
+          type: array
         assessment-requirement-modifications:
           items:
             $ref: "#/components/schemas/AssessmentRequirementModifier"
