@@ -47,6 +47,8 @@ package gemara
 	requirement: #EntryMapping
 	// Plan maps to the policy assessment plan being executed.
 	plan?: #EntryMapping @go(Plan,optional=nillable)
+	// Method references the specific evaluation method from the plan or policy that produced this result.
+	method?: #EntryMapping @go(Method,optional=nillable)
 	// Description provides a summary of the assessment procedure.
 	description: string
 	// Result is the overall outcome of the assessment procedure, matching the result of the last step that was run.

@@ -1,0 +1,46 @@
+metadata:
+  id: EVAL-WITH-METHOD
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: Evaluation log recording the verification method on assessment logs
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+  mapping-references:
+    - id: security-policy
+      title: Security Policy
+      version: "1.0.0"
+      url: https://example.com/policies/security-policy.yaml
+result: Passed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Passed
+  message: Access control verified via automated probe
+  assessment-logs:
+  - requirement:
+      entry-id: OSPS-AC-01.01
+    plan:
+      reference-id: security-policy
+      entry-id: AP-AC-01
+    method:
+      reference-id: security-policy
+      entry-id: EM-AUTO-SCAN-01
+    description: Verify that multi-factor authentication is required.
+    result: Passed
+    message: MFA requirement verified
+    applicability:
+    - Maturity Level 1
+    steps:
+    - github.com/revanite-io/pvtr-github-repo/evaluation_plans/osps/access_control.orgRequiresMFA
+    steps-executed: 1
+    start: 2025-08-22T16:02:00.000000000Z
+    end: 2025-08-22T16:02:00.000003708Z

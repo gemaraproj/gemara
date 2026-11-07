@@ -128,6 +128,7 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
+		{"assessment with verification method", "./test-data/good-evaluation-log-with-method.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},

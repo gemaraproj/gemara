@@ -248,6 +248,10 @@ components:
         message:
           description: Message provides additional context about the assessment result.
           type: string
+        method:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          description: Method references the specific evaluation method from the plan or policy that produced this result.
         plan:
           allOf:
           - $ref: "#/components/schemas/EntryMapping"
