@@ -1,0 +1,51 @@
+metadata:
+  id: "bad-policy-missing-groups-with-applicability"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy selecting an applicability group when none are declared in metadata"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "OSPS-Baseline"
+      title: "OpenSSF OSPS Baseline"
+      version: "1.0.0"
+      url: "https://github.com/ossf/osps-baseline"
+title: "Bad Policy with Missing Groups and Selected Applicability"
+contacts:
+  responsible:
+    - name: "Security Officer"
+      email: "security@example.com"
+  accountable:
+    - name: "CISO"
+      email: "ciso@example.com"
+  consulted:
+    - name: "Engineering Lead"
+      email: "eng-lead@example.com"
+  informed:
+    - name: "All Staff"
+scope:
+  in:
+    technologies:
+      - "Cloud Infrastructure"
+applicability:
+  - "maturity-level-1"
+imports:
+  catalogs:
+    - reference-id: "OSPS-Baseline"
+adherence:
+  evaluation-methods:
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
+      description: "Continuous automated scanning"
+  enforcement-methods:
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
+      required: true
+      description: "Deployment pipeline gate"
+  non-compliance: "Escalate to security committee"

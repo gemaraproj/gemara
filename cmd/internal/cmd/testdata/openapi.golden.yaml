@@ -555,6 +555,14 @@ components:
     CatalogImport:
       description: CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
       properties:
+        applicability:
+          description: |-
+            applicability selects the applicability group IDs to adopt for this imported catalog.
+            Interaction, precedence over policy-level applicability, and catalog-level validation are governed by the Requirements Resolution specification.
+          items:
+            type: string
+          minItems: 1
+          type: array
         assessment-requirement-modifications:
           items:
             $ref: "#/components/schemas/AssessmentRequirementModifier"
@@ -1685,6 +1693,14 @@ components:
       properties:
         adherence:
           $ref: "#/components/schemas/Adherence"
+        applicability:
+          description: |-
+            applicability selects the applicability group IDs this policy adopts.
+            When metadata."applicability-groups" is present, each selected ID must match a declared group ID; when absent, any selection is rejected.
+          items:
+            type: string
+          minItems: 1
+          type: array
         contacts:
           $ref: "#/components/schemas/RACI"
         implementation-plan:
