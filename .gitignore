@@ -44,3 +44,7 @@ generated/
 cmd/cue2openapi/cue2openapi
 cmd/cmd
 cmd/gemara-docs
+
+# Windows artifacts
+nul
+
