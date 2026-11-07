@@ -123,6 +123,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
+		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
@@ -168,12 +169,17 @@ func TestSchemaValidation(t *testing.T) {
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
+		{"control with invalid applicability", "./test-data/bad-control-invalid-applicability.yaml", "#ControlCatalog", true, `_applicabilityValidation."0-0-0": invalid value ["production"]`},
 
 		// RiskCatalog — negative (group validation)
 		{"risk with invalid group", "./test-data/bad-risk-catalog-invalid-group.yaml", "#RiskCatalog", true, `_groupValidation."0": invalid value ["CAT-SECURITY"]`},
 
 		// GuidanceCatalog — negative (group validation)
 		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
+		{"guideline with invalid applicability", "./test-data/bad-guidance-invalid-applicability.yaml", "#GuidanceCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-native"]`},
+
+		// VectorCatalog — negative (applicability validation)
+		{"vector with invalid applicability", "./test-data/bad-vector-invalid-applicability.yaml", "#VectorCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]`},
 
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},
