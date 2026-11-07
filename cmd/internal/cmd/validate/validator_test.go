@@ -3,7 +3,9 @@
 package validate
 
 import (
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -36,6 +38,79 @@ func TestValidate_GoodBundle(t *testing.T) {
 
 	if !res.Passed {
 		t.Errorf("expected bundle to pass validation, but failed")
+	}
+}
+
+func TestValidate_MakeValidateBundle(t *testing.T) {
+	root := repoRoot()
+	files := []string{
+		filepath.Join(root, "test", "test-data", "good-mapping-document.yaml"),
+		filepath.Join(root, "test", "test-data", "good-osps.yml"),
+		filepath.Join(root, "test", "test-data", "good-enforcement-log.yaml"),
+	}
+
+	docs, err := LoadPaths(files)
+	if err != nil {
+		t.Fatalf("LoadPaths failed: %v", err)
+	}
+
+	if len(docs) != 3 {
+		t.Fatalf("expected 3 documents loaded, got %d", len(docs))
+	}
+
+	res := Validate(docs, Options{Strict: false})
+	for _, diag := range res.Diagnostics {
+		if diag.Severity == SeverityError {
+			t.Errorf("unexpected validation error: %s (%s)", diag.Message, diag.Code)
+		}
+	}
+
+	if !res.Passed {
+		t.Errorf("expected make validate bundle to pass validation cleanly, but failed")
+	}
+}
+
+func TestValidate_MappingDocumentNoDuplicateUndeclaredError(t *testing.T) {
+	yamlData := `metadata:
+  id: MAP-TEST
+  type: MappingDocument
+  version: 1.0.0
+  mapping-references: []
+source-reference:
+  reference-id: UNDECLARED-SRC
+target-reference:
+  reference-id: UNDECLARED-TGT
+mappings: []
+`
+	tmpDir := t.TempDir()
+	mapFile := filepath.Join(tmpDir, "map.yaml")
+	if err := os.WriteFile(mapFile, []byte(yamlData), 0644); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+
+	doc, err := LoadDocument(mapFile)
+	if err != nil {
+		t.Fatalf("LoadDocument failed: %v", err)
+	}
+
+	res := Validate([]*Document{doc}, Options{Strict: false})
+	srcCount := 0
+	tgtCount := 0
+	for _, d := range res.Diagnostics {
+		if d.Code == "undeclared-mapping-reference" {
+			if strings.Contains(d.Message, "UNDECLARED-SRC") {
+				srcCount++
+			}
+			if strings.Contains(d.Message, "UNDECLARED-TGT") {
+				tgtCount++
+			}
+		}
+	}
+	if srcCount != 1 {
+		t.Errorf("expected UNDECLARED-SRC to be reported once, got %d", srcCount)
+	}
+	if tgtCount != 1 {
+		t.Errorf("expected UNDECLARED-TGT to be reported once, got %d", tgtCount)
 	}
 }
 

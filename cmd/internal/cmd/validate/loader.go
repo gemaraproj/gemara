@@ -284,8 +284,6 @@ func extractStaticReferences(doc *Document, root map[string]any) {
 		extractThreatCatalog(doc, root)
 	case "GuidanceCatalog":
 		extractGuidanceCatalog(doc, root)
-	case "MappingDocument":
-		extractMappingDocument(doc, root)
 	case "Policy":
 		extractPolicy(doc, root)
 	case "EvaluationLog":
@@ -414,20 +412,14 @@ func extractMappingDocument(doc *Document, root map[string]any) {
 	if src, ok := root["source-reference"].(map[string]any); ok {
 		if rID, ok := src["reference-id"].(string); ok && rID != "" {
 			srcRef = rID
-			doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
-				ReferenceID: rID,
-				Context:     "source-reference",
-			})
+			doc.AddReferenceUsage(rID, "source-reference")
 		}
 	}
 
 	if tgt, ok := root["target-reference"].(map[string]any); ok {
 		if rID, ok := tgt["reference-id"].(string); ok && rID != "" {
 			tgtRef = rID
-			doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
-				ReferenceID: rID,
-				Context:     "target-reference",
-			})
+			doc.AddReferenceUsage(rID, "target-reference")
 		}
 	}
 

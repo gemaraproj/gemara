@@ -22,29 +22,39 @@ var defaultArtifacts = []string{
 
 // SchemaWalker performs schema-driven discovery of cross-document reference paths
 // by walking the CUE AST for any struct containing a "reference-id" field.
+//
+// Based on the CUE AST reference walk discussed in
+// https://github.com/gemaraproj/gemara/issues/555.
 type SchemaWalker struct {
 	SchemaDir          string
 	RefPathsByArtifact map[string][]string
 }
 
-// FindSchemaDir searches candidate locations for the Gemara CUE schema root.
+// FindSchemaDir searches candidate locations for the Gemara CUE schema root by walking upwards.
 func FindSchemaDir(startDir string) string {
-	candidates := []string{}
+	var searchDirs []string
 	if startDir != "" {
-		candidates = append(candidates, startDir, filepath.Join(startDir, ".."), filepath.Join(startDir, "../.."))
+		searchDirs = append(searchDirs, startDir)
 	}
 	if wd, err := os.Getwd(); err == nil {
-		candidates = append(candidates, wd, filepath.Join(wd, ".."), filepath.Join(wd, "../.."), filepath.Join(wd, "../../.."))
+		searchDirs = append(searchDirs, wd)
 	}
 
-	for _, cand := range candidates {
-		abs, err := filepath.Abs(cand)
+	for _, dir := range searchDirs {
+		abs, err := filepath.Abs(dir)
 		if err != nil {
 			continue
 		}
-		cueMod := filepath.Join(abs, "cue.mod")
-		if fi, err := os.Stat(cueMod); err == nil && fi.IsDir() {
-			return abs
+		for {
+			cueMod := filepath.Join(abs, "cue.mod")
+			if fi, err := os.Stat(cueMod); err == nil && fi.IsDir() {
+				return abs
+			}
+			parent := filepath.Dir(abs)
+			if parent == abs {
+				break
+			}
+			abs = parent
 		}
 	}
 	return ""

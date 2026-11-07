@@ -70,8 +70,8 @@ func Validate(docs []*Document, opts Options) *ValidationResult {
 				continue
 			}
 
-			// Check top-level entity exists in target catalog
-			if len(targetDoc.DeclaredEntities) > 0 && !targetDoc.DeclaredEntities[entityUsage.EntryID] {
+			// Check if entity exists in target catalog (either as top-level entity or nested sub-entity/requirement)
+			if (len(targetDoc.DeclaredEntities) > 0 || len(targetDoc.SubEntities) > 0) && !targetDoc.HasEntity(entityUsage.EntryID) {
 				// Special handling for EvaluationLog targets (ref: Issue #499):
 				// In evaluationlog.cue, #ControlEvaluation entries currently don't define a top-level id.
 				// Avoid false-positive dangling reference errors on evaluation findings until stable IDs land.
