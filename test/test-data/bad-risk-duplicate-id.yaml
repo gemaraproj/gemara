@@ -1,0 +1,37 @@
+metadata:
+  id: BAD-RISK-CATALOG-DUP-ID
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — two risks use the same risk ID
+  author:
+    id: test
+    name: Test
+    type: Human
+  mapping-references:
+    - id: EXAMPLE-THREAT-CATALOG
+      title: Example
+      version: "1.0.0"
+      description: External threat catalog mapping reference
+
+title: Invalid duplicate risk id
+
+groups:
+  - id: CAT-SECURITY
+    title: Security
+    description: Security risk category
+    appetite: Low
+
+risks:
+  - id: RISK-001
+    title: Unsanitized External Knowledge Base Query
+    description: Prompt injection or prompt leaking via external knowledge query
+    group: CAT-SECURITY
+    severity: High
+    rank: 1
+  - id: RISK-001
+    title: Duplicate Risk
+    description: Model extraction risk
+    group: CAT-SECURITY
+    severity: Medium
+    rank: 2
