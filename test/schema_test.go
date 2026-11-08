@@ -132,6 +132,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
+		{"assessment method missing entry-id", "./test-data/bad-evaluation-log-missing-method-entry-id.yaml", "#EvaluationLog", true, `method."entry-id": incomplete value string`},
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 
 		// EnforcementLog — positive
