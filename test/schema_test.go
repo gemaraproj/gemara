@@ -124,6 +124,11 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
+		{"assessment with end timestamp before start", "./test-data/bad-evaluation-log-timestamp-order.yaml", "#EvaluationLog", true, `"assessment-logs".0.end: invalid value "2025-08-22T16:00:00Z"`},
+		{"evaluation log target uri with no scheme", "./test-data/bad-evaluation-log-uri-no-scheme.yaml", "#EvaluationLog", true, `target.uri: invalid value "github.com/gemaraproj/gemara"`},
+		{"evaluation log missing target", "./test-data/bad-evaluation-log-missing-target.yaml", "#EvaluationLog", true, `target.id: incomplete value string`},
+		{"evaluation log with unauthorized findings field", "./test-data/bad-evaluation-log-malformed-findings.yaml", "#EvaluationLog", true, `evaluations.0.findings: field not allowed`},
+		{"assessment log with invalid result", "./test-data/bad-evaluation-log-invalid-result.yaml", "#EvaluationLog", true, `"assessment-logs".0.result: 6 errors in empty disjunction`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},

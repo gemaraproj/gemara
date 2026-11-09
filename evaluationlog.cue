@@ -65,6 +65,11 @@ package gemara
 
 	// End is the timestamp when the assessment concluded.
 	end?: #Datetime
+
+	if start != _|_ if end != _|_ {
+		end: >=start
+	}
+
 	// Recommendation provides guidance on how to address a failed assessment.
 	recommendation?: string
 	// ConfidenceLevel indicates the evaluator's confidence level in this specific assessment result.
