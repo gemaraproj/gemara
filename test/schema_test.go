@@ -132,6 +132,13 @@ func TestSchemaValidation(t *testing.T) {
 		{"enforcement action with invalid disposition", "./test-data/bad-enforcement-log.yaml", "#EnforcementLog", true, "actions.0.disposition: 4 errors in empty disjunction"},
 		{"enforcement action missing log reference", "./test-data/bad-enforcement-missing-log.yaml", "#EnforcementLog", true, `log."reference-id": incomplete value string`},
 		{"clear disposition with failed assessment", "./test-data/bad-enforcement-clear-failed.yaml", "#EnforcementLog", true, `conflicting values "Passed" and "Failed"`},
+		{"enforcement log with empty actions list", "./test-data/bad-enforcement-empty-actions.yaml", "#EnforcementLog", true, "actions: incompatible list lengths"},
+		{"enforcement action with empty steps", "./test-data/bad-enforcement-empty-steps.yaml", "#EnforcementLog", true, "actions.0.steps: incompatible list lengths"},
+		{"enforcement action missing start time", "./test-data/bad-enforcement-missing-start.yaml", "#EnforcementLog", true, "actions.0.start: incomplete value"},
+		{"enforcement action with end timestamp before start", "./test-data/bad-enforcement-timestamp-order.yaml", "#EnforcementLog", true, `actions.0.end: invalid value "2025-08-22T16:04:00Z"`},
+		{"enforcement action with empty assessments in justification", "./test-data/bad-enforcement-empty-assessments.yaml", "#EnforcementLog", true, "actions.0.justification.assessments: incompatible list lengths"},
+		{"enforcement action missing justification", "./test-data/bad-enforcement-missing-justification.yaml", "#EnforcementLog", true, `actions.0.justification.assessments.0.result: incomplete value`},
+		{"enforcement action justification with unmapped exception reference", "./test-data/bad-enforcement-unmapped-exception.yaml", "#EnforcementLog", true, `actions.0.justification.exceptions.0."reference-id": incomplete value string`},
 
 		// AuditLog — positive
 		{"valid audit log", "./test-data/good-audit-log.yaml", "#AuditLog", false, ""},
