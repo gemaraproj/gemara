@@ -32,7 +32,11 @@ components:
           description: id allows this accepted risk entry to be referenced
           type: string
         justification:
-          description: justification explains why the risk is accepted
+          description: |-
+            justification explains why the risk is accepted; it is required because
+            accepting a risk without a recorded rationale obscures the decision for
+            future reviewers. The value must be a non-empty, non-whitespace-only string.
+          pattern: "[^[:space:]]"
           type: string
         risk:
           allOf:
@@ -48,6 +52,7 @@ components:
       required:
       - id
       - risk
+      - justification
       type: object
       x-status: experimental
     ActionResult:

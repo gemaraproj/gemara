@@ -77,6 +77,14 @@ imports:
   guidance:
     - reference-id: "ISO-27001"
 
+risks:
+  accepted:
+    - id: "AR-001"
+      risk:
+        reference-id: "NIST-800-53"
+        entry-id: "RA-3"
+      justification: "Risk accepted for legacy systems during migration period; compensating controls in place via NIST AC-17."
+
 adherence:
   evaluation-methods:
     - id: "EV-AUTO-01"

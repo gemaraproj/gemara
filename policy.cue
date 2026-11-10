@@ -94,8 +94,10 @@ import "list"
 	// scope defines where the risk acceptance applies
 	scope?: #Scope
 
-	// justification explains why the risk is accepted
-	justification?: string
+	// justification explains why the risk is accepted; it is required because
+	// accepting a risk without a recorded rationale obscures the decision for
+	// future reviewers. The value must be a non-empty, non-whitespace-only string.
+	justification: =~"[^[:space:]]"
 }
 
 // Adherence defines evaluation methods, assessment plans, enforcement methods, retention obligations, and non-compliance notifications.
