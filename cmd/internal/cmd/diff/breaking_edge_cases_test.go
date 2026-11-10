@@ -131,7 +131,7 @@ func TestLoadWrappedInvalidFile(t *testing.T) {
 // and case-sensitive matching.
 func TestFilterAllowedEdgeCases(t *testing.T) {
 	// Empty changes slice
-	if got := filterAllowed(nil, map[string]bool{"id schema": true}); len(got) != 0 {
+	if got, _ := filterAllowed(nil, map[string]bool{"id schema": true}); len(got) != 0 {
 		t.Fatalf("expected empty slice for nil changes, got %+v", got)
 	}
 
@@ -140,15 +140,15 @@ func TestFilterAllowedEdgeCases(t *testing.T) {
 		{ID: "err-1", Schema: "Control", Text: "text 1"},
 		{ID: "err-2", Schema: "Policy", Text: "text 2"},
 	}
-	if got := filterAllowed(changes, nil); len(got) != 2 {
+	if got, _ := filterAllowed(changes, nil); len(got) != 2 {
 		t.Fatalf("expected all changes preserved with nil allowlist, got %+v", got)
 	}
-	if got := filterAllowed(changes, map[string]bool{}); len(got) != 2 {
+	if got, _ := filterAllowed(changes, map[string]bool{}); len(got) != 2 {
 		t.Fatalf("expected all changes preserved with empty allowlist, got %+v", got)
 	}
 
 	// Positive control: exact matching entry successfully filters the target change
-	if got := filterAllowed(changes, map[string]bool{"err-1 Control": true}); len(got) != 1 || got[0].ID != "err-2" {
+	if got, unused := filterAllowed(changes, map[string]bool{"err-1 Control": true}); len(got) != 1 || got[0].ID != "err-2" || len(unused) != 0 {
 		t.Fatalf("expected exact entry to filter err-1 and leave err-2, got %+v", got)
 	}
 
@@ -158,7 +158,7 @@ func TestFilterAllowedEdgeCases(t *testing.T) {
 		"ERR-1 Control": true,
 		"err-1 control": true,
 	}
-	if got := filterAllowed(changes, strictAllow); len(got) != 2 {
+	if got, _ := filterAllowed(changes, strictAllow); len(got) != 2 {
 		t.Fatalf("expected exact case-sensitive matching, but changes were filtered: %+v", got)
 	}
 }

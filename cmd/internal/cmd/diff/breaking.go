@@ -38,16 +38,27 @@ func strictSchemaSeverityLevels() map[string]checker.Level {
 }
 
 // filterAllowed drops changes matched by the allowlist. An entry keyed
-// "<id> <schema>" drops only that change on that schema.
-func filterAllowed(changes []Change, allowed map[string]bool) []Change {
+// "<id> <schema>" drops only that change on that schema. It returns the
+// remaining unallowed changes along with the set of allowlist entries that
+// did not match any breaking change in changes.
+func filterAllowed(changes []Change, allowed map[string]bool) ([]Change, []string) {
 	var out []Change
+	matched := make(map[string]bool)
 	for _, c := range changes {
-		if allowed[c.ID+" "+c.Schema] {
+		key := c.ID + " " + c.Schema
+		if allowed[key] {
+			matched[key] = true
 			continue
 		}
 		out = append(out, c)
 	}
-	return out
+	var unused []string
+	for k := range allowed {
+		if !matched[k] {
+			unused = append(unused, k)
+		}
+	}
+	return out, unused
 }
 
 // loadAllowlist reads an allowlist file of oasdiff exceptions, one per line.
