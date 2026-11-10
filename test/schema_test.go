@@ -126,7 +126,7 @@ func TestSchemaValidation(t *testing.T) {
 		// negative fixture stands for one rule.
 		{"evidence that is addressed, carried, and reused by two assessments", "./test-data/good-evaluation-log-evidence.yaml", "#EvaluationLog", false, ""},
 		{"inline payload with a source digest", "./test-data/bad-evaluation-log-evidence-payload-with-digest.yaml", "#EvaluationLog", true, "inline payload cannot also have a source digest"},
-		{"one evidence id naming different items in two assessments", "./test-data/bad-evaluation-log-evidence-id-reused.yaml", "#EvaluationLog", true, "names two different evidence items"},
+		{"one evidence id naming different items in two assessments", "./test-data/bad-evaluation-log-evidence-id-reused.yaml", "#EvaluationLog", true, "names two different evidence items in this log: evaluations.0.assessment-logs.1.evidence.0 differs from evaluations.0.assessment-logs.0.evidence.0"},
 		{"one evidence item listed twice in one evidence list", "./test-data/bad-evaluation-log-evidence-id-repeated-in-list.yaml", "#EvaluationLog", true, "appears more than once in one evidence list"},
 		{"evidence source that is not declared", "./test-data/bad-evaluation-log-evidence-source-undeclared.yaml", "#EvaluationLog", true, "not declared in metadata.mapping-references"},
 		{"evidence with no id reported where the id is missing", "./test-data/bad-evaluation-log-evidence-missing-id.yaml", "#EvaluationLog", true, "evidence.0.id: incomplete value string"},
@@ -157,7 +157,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"audit result referencing undeclared criteria", "./test-data/bad-audit-log-undeclared-criteria.yaml", "#AuditLog", true, `does not satisfy list.Contains("OSPS")`},
 		{"audit log evidence with neither payload nor source", "./test-data/bad-audit-log-evidence-neither.yaml", "#AuditLog", true, `evidence.0.source."reference-id": incomplete value string`},
 		{"audit log evidence reused with an incomplete copy reports what is missing", "./test-data/bad-audit-log-evidence-id-reused-incomplete.yaml", "#AuditLog", true, "evidence.1.type: incomplete value"},
-		{"audit log evidence id naming different items in two results", "./test-data/bad-audit-log-evidence-id-reused.yaml", "#AuditLog", true, "names two different evidence items"},
+		{"audit log evidence id naming different items in two results", "./test-data/bad-audit-log-evidence-id-reused.yaml", "#AuditLog", true, "names two different evidence items in this log: results.3.evidence.1 differs from results.1.evidence.0"},
 		{"audit log evidence item listed twice in one evidence list", "./test-data/bad-audit-log-evidence-id-repeated-in-list.yaml", "#AuditLog", true, "appears more than once in one evidence list"},
 		{"audit log evidence source that is not declared", "./test-data/bad-audit-log-evidence-source-undeclared.yaml", "#AuditLog", true, "not declared in metadata.mapping-references"},
 		{"audit log mapping reference with no id reported where the id is missing", "./test-data/bad-audit-log-mapping-reference-missing-id.yaml", "#AuditLog", true, `metadata."mapping-references".4.id: incomplete value string`},

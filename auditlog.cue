@@ -61,14 +61,15 @@ import "list"
 			if r.evidence != _|_
 			for k, item in r.evidence
 			if item.id != _|_ {
-				(item.id): "\(i).\(k)": item
+				(item.id): "results.\(i).evidence.\(k)": item
 			}
 		}
 		for id, occurrences in _evidenceByID {
+			let at = [for o, _ in occurrences {o}]
 			let items = [for o in occurrences {o}]
 			for n, item in items
 			if n > 0 {
-				_evidenceIDReuse: "evidence id \(id) names two different evidence items in this log": true & (item == items[0])
+				_evidenceIDReuse: "evidence id \(id) names two different evidence items in this log: \(at[n]) differs from \(at[0])": true & (item == items[0])
 			}
 		}
 
