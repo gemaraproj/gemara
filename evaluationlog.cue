@@ -58,7 +58,7 @@ package gemara
 	// Steps are sequential actions taken as part of the assessment, which may halt the assessment if a failure occurs.
 	steps: [#AssessmentStep, ...#AssessmentStep]
 	// Steps-executed is the number of steps that were executed as part of the assessment.
-	"steps-executed"?: int @go(StepsExecuted)
+	"steps-executed"?: int & >=0 @go(StepsExecuted)
 	// Start is the timestamp when the assessment began.
 	// Assessments that never executed have no start time to record.
 	start?: #Datetime
