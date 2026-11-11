@@ -4,6 +4,8 @@
 @gemara(status="experimental")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // MappingDocument captures the user's intent for how entries in a source artifact relate to entries in a target artifact
@@ -17,15 +19,43 @@ package gemara
 	metadata: "mapping-references": [#MappingReference, ...#MappingReference]
 
 	// source-reference identifies the artifact being mapped from; must match a mapping-reference id
-	"source-reference": #TypedMapping @go(SourceReference)
+	SR="source-reference": #TypedMapping @go(SourceReference)
 
 	// target-reference identifies the artifact being mapped to; must match a mapping-reference id
-	"target-reference": #TypedMapping @go(TargetReference)
+	TR="target-reference": #TypedMapping @go(TargetReference)
 
 	// mappings is one or more atomic relationships between entries in the referenced artifacts
 	mappings: [#_MappingStrict, ...#_MappingStrict] @go(Mappings,type=[]Mapping)
 
 	_uniqueMappingIds: {for i, m in mappings {(m.id): i}}
+
+	if metadata."mapping-references" != _|_ {
+		let _validRefIds = [for r in metadata."mapping-references" {r.id}]
+
+		// Validate that source and target references match declared mapping-references in metadata,
+		// and ensure that source-reference and target-reference name distinct artifacts.
+		_sourceRefValidation: _validRefIds & list.Contains(SR."reference-id")
+		_targetRefValidation: _validRefIds & list.Contains(TR."reference-id")
+		_distinctReferences:  true & (SR."reference-id" != TR."reference-id")
+	}
+
+	if metadata."applicability-groups" != _|_ {
+		let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
+
+		// When metadata."applicability-groups" is declared, validate that target applicability
+		// entries match declared groups. Ensures semantic consistency without breaking OpenAPI projections.
+		for i, m in mappings {
+			if m.targets != _|_ {
+				for j, t in m.targets {
+					if t.applicability != _|_ {
+						for k, a in t.applicability {
+							_applicabilityValidation: "\(i)-\(j)-\(k)": _validApplicabilityIds & list.Contains(a)
+						}
+					}
+				}
+			}
+		}
+	}
 
 	// remarks is prose regarding this mapping document
 	remarks?: string
@@ -59,7 +89,7 @@ package gemara
 
 	"confidence-level"?: #ConfidenceLevel @go(ConfidenceLevel)
 
-	// applicability constrains the contexts in which this target mapping holds
+	// applicability constrains the contexts in which this target mapping holds; when metadata.applicability-groups is declared, each value must match a declared group id
 	applicability?: [string, ...string] @go(Applicability)
 
 	// rationale explains why this relationship exists for this target
