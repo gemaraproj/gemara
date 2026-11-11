@@ -10,8 +10,11 @@ metadata:
     type: Human
 
 title: "Bad Policy Missing Stakeholders"
-role-ids:
-  - accountable
+contacts:
+  responsible:
+    - accountable
+  accountable:
+    - accountable
 
 scope:
   in:

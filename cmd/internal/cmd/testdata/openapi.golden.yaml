@@ -527,10 +527,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/Metadata"
           description: metadata provides detailed data about this catalog
-        stakeholders:
-          allOf:
-          - $ref: "#/components/schemas/Stakeholders"
-          description: stakeholders defines the parties, roles, and standing role assignments for this catalog
         title:
           description: title describes the purpose of this catalog at a glance
           type: string
@@ -1719,11 +1715,6 @@ components:
           type: object
         risks:
           $ref: "#/components/schemas/Risks"
-        role-ids:
-          items:
-            type: string
-          minItems: 1
-          type: array
         scope:
           $ref: "#/components/schemas/Scope"
         stakeholders:
@@ -1733,6 +1724,8 @@ components:
       required:
       - title
       - metadata
+      - contacts
+      - stakeholders
       - scope
       - imports
       - adherence
@@ -1794,27 +1787,27 @@ components:
       description: RACI defines the roles responsible for managing an artifact
       properties:
         accountable:
-          description: accountable identifies the entity ultimately accountable for the outcome
+          description: accountable identifies the roles ultimately accountable for the outcome
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
         consulted:
-          description: consulted identifies entities whose input is required when assessing or responding to the artifact
+          description: consulted identifies roles whose input is required when assessing or responding to the artifact
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
         informed:
-          description: informed identifies entities that should be notified about changes to the artifact status
+          description: informed identifies roles that should be notified about changes to the artifact status
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
         responsible:
-          description: responsible identifies the entities responsible for executing work to manage or mitigate the artifact
+          description: responsible identifies the roles executing work to manage or mitigate the artifact
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
       required:
@@ -2050,12 +2043,6 @@ components:
             Lower values mean higher relative importance. Omitted when the four severity levels are enough.
             When set, each value must be unique among all risks in the catalog that specify rank.
           type: integer
-        role-ids:
-          description: role-ids references standing stakeholder roles from the catalog that apply to this risk
-          items:
-            type: string
-          minItems: 1
-          type: array
         severity:
           allOf:
           - $ref: "#/components/schemas/Severity"

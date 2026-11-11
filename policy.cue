@@ -13,21 +13,32 @@ import "list"
 	title:    string
 	metadata: #Metadata
 	metadata: type: "Policy"
-	contacts?:     #RACI         @go(Contacts,optional=nillable)
-	stakeholders?: #Stakeholders @go(Stakeholders,optional=nillable)
-	RIDS="role-ids"?: [string, ...string] @go(RoleIDs) @yaml("role-ids,omitempty")
+	contacts:               #RACI
+	stakeholders:           #Stakeholders @go(Stakeholders)
 	scope:                  #Scope
 	imports:                #Imports
 	"implementation-plan"?: #ImplementationPlan @go(ImplementationPlan)
 	risks?:                 #Risks
 	adherence:              #Adherence
 
-	if RIDS != _|_ {
-		stakeholders: #Stakeholders
+	if stakeholders != _|_ {
 		let _validRoleIds = [for r in stakeholders.roles {r.id}]
 
-		for j, roleId in RIDS {
-			_policyRoleValidation: "\(j)": _validRoleIds & list.Contains(roleId)
+		for j, roleId in contacts.responsible {
+			_policyRoleValidationResp: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+		for j, roleId in contacts.accountable {
+			_policyRoleValidationAcct: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+		if contacts.consulted != _|_ {
+			for j, roleId in contacts.consulted {
+				_policyRoleValidationCons: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
+		}
+		if contacts.informed != _|_ {
+			for j, roleId in contacts.informed {
+				_policyRoleValidationInfo: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
 		}
 	}
 }

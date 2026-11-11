@@ -20,8 +20,11 @@ stakeholders:
     - id: accountable
       title: Accountable
 
-role-ids:
-  - unknown-role
+contacts:
+  responsible:
+    - accountable
+  accountable:
+    - unknown-role
 
 scope:
   in:

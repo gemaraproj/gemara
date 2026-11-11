@@ -15,11 +15,30 @@ metadata:
       url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
 
 title: "Information Security Policy"
+stakeholders:
+  parties:
+    - id: it-director
+      name: IT Director
+      type: Human
+    - id: ciso
+      name: Chief Information Security Officer
+      type: Human
+  roles:
+    - id: it-director
+      title: IT Director
+    - id: ciso
+      title: Chief Information Security Officer
+  assignments:
+    - role-id: it-director
+      party-ids: [it-director]
+    - role-id: ciso
+      party-ids: [ciso]
+
 contacts:
   responsible:
-    - name: "IT Director"
+    - it-director
   accountable:
-    - name: "Chief Information Security Officer"
+    - ciso
 
 scope:
   in:
