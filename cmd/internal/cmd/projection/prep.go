@@ -163,6 +163,8 @@ func prepare(f *ast.File) (*prepInfo, error) {
 // owner, the definition it is declared in, and its doc comment; fieldDoc is the
 // comment of the field decls are the value of, used when the conditional has
 // none of its own, as in `_uniqueTermIds: {for i, t in terms {(t.id): i}}`.
+// A conditional nested inside a removed one goes with it and is not recorded
+// on its own: the outer one's comment describes it.
 func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string) []ast.Decl {
 	out := decls[:0:0]
 	for _, d := range decls {

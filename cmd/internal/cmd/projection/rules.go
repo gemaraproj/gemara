@@ -4,6 +4,7 @@ package projection
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -48,7 +49,12 @@ func applyRuleListTyped(doc *openapi3.T, dropped []droppedConditional) error {
 			s.Extensions = map[string]any{}
 		}
 		rules, _ := s.Extensions[rulesExtension].([]string)
-		s.Extensions[rulesExtension] = append(rules, d.doc)
+		// Each sentence is listed once per schema. Uncommented rules in one
+		// hidden field all take that field's comment, which is where
+		// repeats come from.
+		if !slices.Contains(rules, d.doc) {
+			s.Extensions[rulesExtension] = append(rules, d.doc)
+		}
 	}
 	return nil
 }

@@ -83,7 +83,9 @@ are projected only where the upstream encoder cannot represent them.
 
 A cross-field `if` or `for` that the encoder can't translate is listed under `x-rules` on its
 definition's schema, using the `//` comment directly above it (or above the hidden `_` field it is
-the value of). Generation fails if it has no such comment.
+the value of). Generation fails if an outermost `if` or `for` has no such comment. A rule nested
+inside one is covered by that comment and isn't listed on its own, so when you add a nested rule,
+extend the outer comment to describe it.
 
 ### Making an intentional breaking change
 

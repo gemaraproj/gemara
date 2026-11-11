@@ -80,6 +80,21 @@ func TestApplyRuleList(t *testing.T) {
 		}
 	})
 
+	t.Run("a sentence already listed is not repeated", func(t *testing.T) {
+		doc := newDoc()
+		err := applyRuleListTyped(doc, []droppedConditional{
+			{pos: "log.cue:4:3", owner: "Log", doc: "result ids must be unique"},
+			{pos: "log.cue:5:3", owner: "Log", doc: "result ids must be unique"},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := doc.Components.Schemas["Log"].Value.Extensions[rulesExtension]
+		if want := []string{"result ids must be unique"}; !reflect.DeepEqual(got, want) {
+			t.Errorf("%s = %v, want %v", rulesExtension, got, want)
+		}
+	})
+
 	t.Run("a hidden helper's rule goes on its base", func(t *testing.T) {
 		doc := newDoc()
 		err := applyRuleListTyped(doc, []droppedConditional{
@@ -144,6 +159,32 @@ func TestPrepareRuleDocSources(t *testing.T) {
 	want := []string{"the first line and the second", "", "", "the rule's own comment"}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("docs = %q, want %q", got, want)
+	}
+}
+
+// Two uncommented rules in one hidden field both fall back to the field's
+// comment; the generated document lists that sentence once.
+func TestHiddenFieldCommentListedOnce(t *testing.T) {
+	doc, err := convertSource(t, `@gemara(status="stable")
+package p
+
+// A is a thing
+#A: {
+	xs: [...{id: string, name: string}]
+
+	// ids and names must be unique
+	_unique: {
+		for i, x in xs {"id-\(x.id)": i}
+		for i, x in xs {"name-\(x.name)": i}
+	}
+}
+`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := doc.Components.Schemas["A"].Value.Extensions[rulesExtension]
+	if want := []string{"ids and names must be unique"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("%s = %v, want %v", rulesExtension, got, want)
 	}
 }
 
