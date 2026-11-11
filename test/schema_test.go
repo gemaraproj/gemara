@@ -86,7 +86,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
 
 		// Policy — negative (applicability)
-		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, `incompatible list lengths`},
+		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
 
 		// Policy — negative
 		{"policy with disallowed field directly under scope", "./test-data/bad-policy-invalid-scope.yaml", "#Policy", true, "scope.technologies: field not allowed"},
