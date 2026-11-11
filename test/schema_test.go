@@ -83,6 +83,18 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
+		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
+
+		// Policy — negative (applicability)
+		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
+
+		// Policy — negative
+		{"policy with disallowed field directly under scope", "./test-data/bad-policy-invalid-scope.yaml", "#Policy", true, "scope.technologies: field not allowed"},
+		{"policy with empty dimensions list", "./test-data/bad-policy-dimensions-empty.yaml", "#Policy", true, "scope.in.technologies: incompatible list lengths"},
+		{"policy implementation plan missing required timeline", "./test-data/bad-policy-plan-missing-timeline.yaml", "#Policy", true, `"implementation-plan"."enforcement-timeline".start: incomplete value`},
+		{"policy evaluation method with enforcement type", "./test-data/bad-policy-adherence-invalid-eval-method.yaml", "#Policy", true, `adherence."evaluation-methods".0.type: 2 errors in empty disjunction`},
+		{"policy enforcement method with evaluation type", "./test-data/bad-policy-adherence-invalid-enforce-method.yaml", "#Policy", true, `adherence."enforcement-methods".0.type: 2 errors in empty disjunction`},
+		{"policy adherence method with invalid mode", "./test-data/bad-policy-adherence-invalid-mode.yaml", "#Policy", true, `adherence."evaluation-methods".0.mode: 2 errors in empty disjunction`},
 
 		// Policy — negative (retention)
 		{"retention obligation measured from an undeclared anchor", "./test-data/bad-policy-retention-undeclared-anchor.yaml", "#Policy", true, `does not satisfy list.Contains("employee-separation")`},
