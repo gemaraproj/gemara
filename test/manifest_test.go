@@ -41,6 +41,8 @@ type fixture struct {
 	Reason string `json:"reason"`
 }
 
+// loadManifest reads fixtures.yaml, checks it against manifestSchema and
+// returns its rows.
 func loadManifest(t *testing.T) []fixture {
 	t.Helper()
 	data, err := os.ReadFile(manifestPath)
@@ -65,6 +67,9 @@ func loadManifest(t *testing.T) []fixture {
 	return m.Fixtures
 }
 
+// TestFixtureManifest validates each listed file against its definition and
+// checks the outcome its row records: valid, or invalid with an error that
+// contains the row's error substring.
 func TestFixtureManifest(t *testing.T) {
 	for _, f := range loadManifest(t) {
 		if len(f.Files) != 1 {
