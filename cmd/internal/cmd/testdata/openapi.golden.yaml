@@ -358,36 +358,6 @@ components:
       - applicability
       type: object
       x-status: stable
-    AssessmentRequirementModifier:
-      description: AssessmentRequirementModifier allows organizations to customize assessment requirements based on how an organization wants to gather evidence for the objective.
-      properties:
-        applicability:
-          description: The updated applicability of the assessment requirement
-          items:
-            type: string
-          minItems: 1
-          type: array
-        id:
-          type: string
-        modification-rationale:
-          type: string
-        modification-type:
-          $ref: "#/components/schemas/ModType"
-        recommendation:
-          description: The updated recommendation for the assessment requirement
-          type: string
-        target-id:
-          type: string
-        text:
-          description: The updated text of the assessment requirement
-          type: string
-      required:
-      - id
-      - target-id
-      - modification-type
-      - modification-rationale
-      type: object
-      x-status: experimental
     AssessmentStep:
       type: string
       x-status: stable
@@ -553,7 +523,7 @@ components:
       type: object
       x-status: stable
     CatalogImport:
-      description: CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
+      description: CatalogImport defines how to import control catalogs with optional exclusions and constraints.
       properties:
         applicability:
           description: |-
@@ -564,17 +534,13 @@ components:
             type: string
           minItems: 1
           type: array
-        assessment-requirement-modifications:
-          items:
-            $ref: "#/components/schemas/AssessmentRequirementModifier"
-          minItems: 1
-          type: array
         constraints:
           items:
             $ref: "#/components/schemas/Constraint"
           minItems: 1
           type: array
         exclusions:
+          description: exclusions lists the control and assessment requirement IDs from the imported catalog that this policy leaves out
           items:
             type: string
           minItems: 1
@@ -1637,16 +1603,6 @@ components:
       - id
       - risk
       type: object
-      x-status: experimental
-    ModType:
-      description: ModType defines the type of modification to the assessment requirement.
-      enum:
-      - Add
-      - Modify
-      - Remove
-      - Replace
-      - Override
-      type: string
       x-status: experimental
     ModeType:
       enum:
