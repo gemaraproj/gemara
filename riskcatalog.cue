@@ -37,16 +37,29 @@ import "list"
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(r.group)
 		}
 
-		for i, r in risks if r."role-ids" != _|_ {
+		for i, r in risks if r.owner != _|_ {
 			stakeholders: #Stakeholders
 		}
 
 		if stakeholders != _|_ {
 			let _validRoleIds = [for r in stakeholders.roles {r.id}]
 
-			for i, r in risks if r."role-ids" != _|_ {
-				for j, roleId in r."role-ids" {
-					_riskRoleValidation: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+			for i, r in risks if r.owner != _|_ {
+				for j, roleId in r.owner.responsible {
+					_riskOwnerValidationResp: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+				}
+				for j, roleId in r.owner.accountable {
+					_riskOwnerValidationAcct: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+				}
+				if r.owner.consulted != _|_ {
+					for j, roleId in r.owner.consulted {
+						_riskOwnerValidationCons: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+					}
+				}
+				if r.owner.informed != _|_ {
+					for j, roleId in r.owner.informed {
+						_riskOwnerValidationInfo: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+					}
 				}
 			}
 		}
@@ -111,9 +124,6 @@ import "list"
 
 	// owner defines the RACI roles responsible for managing this risk
 	owner?: #RACI @go(Owner)
-
-	// role-ids references standing stakeholder roles from the catalog that apply to this risk
-	"role-ids"?: [string, ...string] @go(RoleIDs) @yaml("role-ids,omitempty")
 
 	// impact describes the business or operational impact
 	impact?: string

@@ -23,5 +23,8 @@ risks:
     description: Risk description
     group: CAT-TEST
     severity: Low
-    role-ids:
-      - accountable
+    owner:
+      responsible:
+        - accountable
+      accountable:
+        - accountable

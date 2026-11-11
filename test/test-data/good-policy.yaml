@@ -25,25 +25,76 @@ metadata:
       url: "https://www.iso.org/standard/27001"
 
 title: "Information Security Policy"
+
+stakeholders:
+  parties:
+    - id: it-director
+      name: IT Director
+      type: Human
+      contact:
+        name: "IT Director"
+        affiliation: "Information Technology"
+        email: "it-director@company.com"
+    - id: compliance-officer
+      name: Compliance Officer
+      type: Human
+      contact:
+        name: "Compliance Officer"
+        affiliation: "Legal & Compliance"
+        email: "compliance@company.com"
+    - id: ciso
+      name: Chief Information Security Officer
+      type: Human
+      contact:
+        name: "Chief Information Security Officer"
+        affiliation: "Executive Team"
+        email: "ciso@company.com"
+    - id: legal-counsel
+      name: Legal Counsel
+      type: Human
+      contact:
+        name: "Legal Counsel"
+        affiliation: "Legal Department"
+        email: "legal@company.com"
+    - id: all-employees
+      name: All Employees
+      type: Group
+      contact:
+        name: "Employee Representative"
+        affiliation: "Company-wide"
+  roles:
+    - id: it-director
+      title: IT Director
+    - id: compliance-officer
+      title: Compliance Officer
+    - id: ciso
+      title: Chief Information Security Officer
+    - id: legal-counsel
+      title: Legal Counsel
+    - id: all-employees
+      title: All Employees
+  assignments:
+    - role-id: it-director
+      party-ids: [it-director]
+    - role-id: compliance-officer
+      party-ids: [compliance-officer]
+    - role-id: ciso
+      party-ids: [ciso]
+    - role-id: legal-counsel
+      party-ids: [legal-counsel]
+    - role-id: all-employees
+      party-ids: [all-employees]
+
 contacts:
   responsible:
-    - name: "IT Director"
-      affiliation: "Information Technology"
-      email: "it-director@company.com"
-    - name: "Compliance Officer"
-      affiliation: "Legal & Compliance"
-      email: "compliance@company.com"
+    - it-director
+    - compliance-officer
   accountable:
-    - name: "Chief Information Security Officer"
-      affiliation: "Executive Team"
-      email: "ciso@company.com"
+    - ciso
   consulted:
-    - name: "Legal Counsel"
-      affiliation: "Legal Department"
-      email: "legal@company.com"
+    - legal-counsel
   informed:
-    - name: "All Employees"
-      affiliation: "Company-wide"
+    - all-employees
 
 scope:
   in:

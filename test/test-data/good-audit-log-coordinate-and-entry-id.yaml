@@ -39,13 +39,36 @@ target:
     name: "Gemara Maintainers"
     affiliation: "OpenSSF"
 
+stakeholders:
+  parties:
+    - id: jane-auditor
+      name: Jane Auditor
+      type: Human
+      contact:
+        name: "Jane Auditor"
+        affiliation: External Audit Firm
+    - id: project-lead
+      name: Project Lead
+      type: Human
+      contact:
+        name: "Project Lead"
+        affiliation: OpenSSF
+  roles:
+    - id: auditor
+      title: Lead Auditor
+    - id: project-lead
+      title: Project Lead
+  assignments:
+    - role-id: auditor
+      party-ids: [jane-auditor]
+    - role-id: project-lead
+      party-ids: [project-lead]
+
 owner:
   responsible:
-    - name: "Jane Auditor"
-      affiliation: "External Audit Firm"
+    - auditor
   accountable:
-    - name: "Project Lead"
-      affiliation: "OpenSSF"
+    - project-lead
 
 summary: "Access control and quality controls are strong. Documentation controls have gaps requiring remediation."
 

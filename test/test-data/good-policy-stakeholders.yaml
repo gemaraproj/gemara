@@ -33,9 +33,11 @@ stakeholders:
     - role-id: responsible
       party-ids: [sec-ops]
 
-role-ids:
-  - accountable
-  - responsible
+contacts:
+  responsible:
+    - responsible
+  accountable:
+    - accountable
 
 scope:
   in:

@@ -61,8 +61,13 @@ risks:
     description: Model predictions systematically disfavor certain demographic segments.
     group: CAT-AI-ETHICS
     severity: High
-    role-ids:
-      - accountable
-      - affected
-      - regulator
+    owner:
+      responsible:
+        - responsible
+      accountable:
+        - accountable
+      consulted:
+        - affected
+      informed:
+        - regulator
     impact: Regulatory penalties, reputational damage, and unfair customer outcomes.

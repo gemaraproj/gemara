@@ -73,17 +73,17 @@ import "list"
 
 // RACI defines the roles responsible for managing an artifact
 #RACI: {
-	// responsible identifies the entities responsible for executing work to manage or mitigate the artifact
-	responsible: [#Contact, ...#Contact]
+	// responsible identifies the roles executing work to manage or mitigate the artifact
+	responsible: [string, ...string]
 
-	// accountable identifies the entity ultimately accountable for the outcome
-	accountable: [#Contact, ...#Contact]
+	// accountable identifies the roles ultimately accountable for the outcome
+	accountable: [string, ...string]
 
-	// consulted identifies entities whose input is required when assessing or responding to the artifact
-	consulted?: [#Contact, ...#Contact]
+	// consulted identifies roles whose input is required when assessing or responding to the artifact
+	consulted?: [string, ...string]
 
-	// informed identifies entities that should be notified about changes to the artifact status
-	informed?: [#Contact, ...#Contact]
+	// informed identifies roles that should be notified about changes to the artifact status
+	informed?: [string, ...string]
 }
 
 // Role defines a governance, operational, or interest role that can be bound to parties

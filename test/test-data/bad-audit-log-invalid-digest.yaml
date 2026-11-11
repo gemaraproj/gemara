@@ -21,14 +21,6 @@ target:
   uri: "https://github.com/gemaraproj/gemara"
   environment: production
 
-owner:
-  responsible:
-    - name: "Auditor"
-      affiliation: "External Audit Firm"
-  accountable:
-    - name: "Project Lead"
-      affiliation: "OpenSSF"
-
 summary: "Digest format validation test."
 
 criteria:

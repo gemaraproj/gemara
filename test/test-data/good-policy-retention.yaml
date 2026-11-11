@@ -23,11 +23,31 @@ metadata:
       url: "https://records.example.com/manual"
 
 title: "Evidence Retention Policy"
+
+stakeholders:
+  parties:
+    - id: records-manager
+      name: Records Manager
+      type: Human
+    - id: general-counsel
+      name: General Counsel
+      type: Human
+  roles:
+    - id: records-manager
+      title: Records Manager
+    - id: general-counsel
+      title: General Counsel
+  assignments:
+    - role-id: records-manager
+      party-ids: [records-manager]
+    - role-id: general-counsel
+      party-ids: [general-counsel]
+
 contacts:
   responsible:
-    - name: "Records Manager"
+    - records-manager
   accountable:
-    - name: "General Counsel"
+    - general-counsel
 
 scope:
   in:

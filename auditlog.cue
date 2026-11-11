@@ -37,6 +37,28 @@ import "list"
 			_criteriaValidation: "\(i)": _validCriteriaIds & list.Contains(r."criteria-reference"."reference-id")
 		}
 	}
+
+	if owner != _|_ {
+		stakeholders: #Stakeholders
+		let _validRoleIds = [for r in stakeholders.roles {r.id}]
+
+		for j, roleId in owner.responsible {
+			_auditOwnerValidationResp: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+		for j, roleId in owner.accountable {
+			_auditOwnerValidationAcct: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+		if owner.consulted != _|_ {
+			for j, roleId in owner.consulted {
+				_auditOwnerValidationCons: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
+		}
+		if owner.informed != _|_ {
+			for j, roleId in owner.informed {
+				_auditOwnerValidationInfo: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
+		}
+	}
 }
 
 // ResultType classifies the nature of an audit result
