@@ -134,6 +134,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
 
 		// EvaluationLog — negative
+		{"mismatched requirement reference-id", "./test-data/bad-evaluation-log-mismatched-requirement-reference.yaml", "#EvaluationLog", true, `requirement."reference-id": conflicting values "OSPS-B" and "MISMATCHED-REF"`},
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 

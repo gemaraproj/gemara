@@ -75,27 +75,8 @@ func jsonValue(t *testing.T, path string) any {
 }
 
 // knownFixtureGaps lists fixtures the generated document still rejects, with
-// the reason. These are NOT bugs in the projection — they are places where CUE
-// computes a value that OpenAPI has no way to express.
-//
-// evaluationlog.cue:27-29 supplies each assessment log's
-// requirement.reference-id from the enclosing control:
-//
-//	"assessment-logs": [...{requirement: "reference-id": (control."reference-id")}]
-//
-// so a serialized log legitimately omits it. #EntryMapping requires
-// reference-id, and relaxing that globally would weaken every other use of the
-// definition (MappingDocument, EvidenceMapping) where it really is required.
-// Expressing "required except when derived from an ancestor" needs a per-site
-// override the projection does not have.
-//
-// Whether to model this differently in CUE is a schema decision, not a
-// converter one. Until it is made, the gap is visible here rather than absent
-// from the gate.
-var knownFixtureGaps = map[string]string{
-	"test/test-data/pvtr-baseline-scan.yaml":            "requirement.reference-id is derived from the control",
-	"test/test-data/good-evaluation-log-unstarted.yaml": "requirement.reference-id is derived from the control",
-}
+// the reason. Any closed gap must be removed so the fixture validates directly.
+var knownFixtureGaps = map[string]string{}
 
 // TestRepoFixturesValidateAgainstTheDocument is the gate the projection did not
 // have: the coverage gates prove every CUE field reaches the document, but not
