@@ -3,9 +3,14 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   CI:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     permissions:
       contents: read
