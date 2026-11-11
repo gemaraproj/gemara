@@ -6,7 +6,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"testing"
 
@@ -73,7 +72,7 @@ func TestFixtureManifest(t *testing.T) {
 			continue
 		}
 		file := f.Files[0]
-		t.Run(file+"/"+f.Definition, func(t *testing.T) {
+		t.Run(strings.TrimPrefix(file, "test/test-data/")+" "+f.Definition, func(t *testing.T) {
 			data, err := os.ReadFile(filepath.Join("..", file))
 			if err != nil {
 				t.Fatalf("read: %v", err)
@@ -89,7 +88,7 @@ func TestFixtureManifest(t *testing.T) {
 			case ".yaml", ".yml":
 				verr = cueyaml.Validate(data, def)
 			default:
-				t.Fatalf("unsupported extension")
+				t.Fatalf("unsupported extension %q", filepath.Ext(file))
 			}
 			switch {
 			case f.Schema.Valid && verr != nil:
@@ -111,14 +110,21 @@ func TestFixtureManifest(t *testing.T) {
 	}
 }
 
-// TestFixtureManifestListsEveryFile fails when a file under test-data has no
-// row, so a fixture cannot be added without saying what it is for.
+// TestFixtureManifestListsEveryFile fails when a file under test-data or
+// examples has no row, so a fixture cannot be added without saying what it is
+// for.
 func TestFixtureManifestListsEveryFile(t *testing.T) {
 	fixtures := loadManifest(t)
 	listed := map[string]bool{}
+	rows := map[string]bool{}
 	var firsts []string
 	for _, f := range fixtures {
 		firsts = append(firsts, f.Files[0])
+		key := strings.Join(f.Files, " ") + " " + f.Definition
+		if rows[key] {
+			t.Errorf("%v %s is listed more than once", f.Files, f.Definition)
+		}
+		rows[key] = true
 		for _, file := range f.Files {
 			listed[file] = true
 			if _, err := os.Stat(filepath.Join("..", file)); err != nil {
@@ -126,22 +132,28 @@ func TestFixtureManifestListsEveryFile(t *testing.T) {
 			}
 		}
 	}
-	err := filepath.WalkDir("test-data", func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() || path == filepath.FromSlash(manifestPath) {
-			return err
+	for _, root := range []string{"test-data", filepath.Join("..", "examples")} {
+		err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+			if err != nil || d.IsDir() || path == filepath.FromSlash(manifestPath) {
+				return err
+			}
+			// Relative to the repository root, as in the manifest.
+			rel := filepath.ToSlash(filepath.Join("test", path))
+			if !listed[rel] {
+				t.Errorf("%s has no row in %s; add one, for example:\n%s", rel, manifestPath, rowTemplate(rel))
+			}
+			return nil
+		})
+		if err != nil {
+			t.Fatal(err)
 		}
-		rel := "test/" + filepath.ToSlash(path)
-		if !listed[rel] {
-			t.Errorf("%s has no row in %s; add one, for example:\n%s", rel, manifestPath, rowTemplate(rel))
-		}
-		return nil
-	})
-	if err != nil {
-		t.Fatal(err)
 	}
 	// Sorted rows put concurrent additions in different places in the file.
-	if !slices.IsSorted(firsts) {
-		t.Errorf("rows in %s are not sorted by their first file", manifestPath)
+	for i := 1; i < len(firsts); i++ {
+		if firsts[i] < firsts[i-1] {
+			t.Errorf("rows in %s are not sorted by their first file: %s comes after %s", manifestPath, firsts[i], firsts[i-1])
+			break
+		}
 	}
 }
 

@@ -1,9 +1,10 @@
 # What each fixture is for and how it should fare. test/manifest_test.go checks
-# every row against the CUE and fails if a file under test/test-data has no row.
-# Paths are relative to the repository root. Keep rows sorted by first file.
-# schema.error is a substring of one CUE error message for that file.
-# Each bad fixture should start from a valid one and break exactly one rule,
-# because CUE may report only some of several defects.
+# every row against the CUE and fails if a file under test/test-data or examples
+# has no row. Paths are relative to the repository root. Keep rows sorted by
+# first file. schema.error is a substring of one CUE error message for that file.
+# A new bad fixture should start from a valid one and break exactly one rule,
+# because CUE may report only some of several defects. A few older ones break
+# more than one.
 fixtures:
   - files: [examples/ai-agent/ai-agent-capability-catalog.yaml]
     definition: '#CapabilityCatalog'
@@ -220,6 +221,48 @@ fixtures:
       error: '_groupValidation."0": invalid value [string] (does not satisfy list.Contains("missing-group"))'
     reason: 'controls without groups'
 
+  - files: [test/test-data/bad-policy-adherence-invalid-enforce-method.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'adherence."enforcement-methods".0.type: 2 errors in empty disjunction'
+    reason: 'enforcement method with an evaluation method type'
+
+  - files: [test/test-data/bad-policy-adherence-invalid-eval-method.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'adherence."evaluation-methods".0.type: 2 errors in empty disjunction'
+    reason: 'evaluation method with an enforcement method type'
+
+  - files: [test/test-data/bad-policy-adherence-invalid-mode.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'adherence."evaluation-methods".0.mode: 2 errors in empty disjunction'
+    reason: 'adherence method with an invalid mode'
+
+  - files: [test/test-data/bad-policy-dimensions-empty.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'scope.in.technologies: incompatible list lengths'
+    reason: 'policy scope with an empty dimension list'
+
+  - files: [test/test-data/bad-policy-invalid-scope.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'scope.technologies: field not allowed'
+    reason: 'policy with a dimension directly under scope instead of in or out'
+
+  - files: [test/test-data/bad-policy-plan-missing-timeline.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '"implementation-plan"."enforcement-timeline".start: incomplete value'
+    reason: 'implementation plan missing the required enforcement timeline'
+
   - files: [test/test-data/bad-policy-retention-collected-at-without-duration.yaml]
     definition: '#Policy'
     schema:
@@ -337,14 +380,14 @@ fixtures:
     schema:
       valid: false
       error: '#ControlCatalog.this: field not allowed'
-    reason: 'invalid JSON'
+    reason: 'JSON document with fields a control catalog does not allow'
 
   - files: [test/test-data/bad.yaml]
     definition: '#ControlCatalog'
     schema:
       valid: false
       error: 'conflicting values "shouldn''t be a string"'
-    reason: 'invalid YAML'
+    reason: 'YAML document whose metadata is a string'
 
   - files: [test/test-data/good-aigf-nist-mapping.yaml]
     definition: '#MappingDocument'
