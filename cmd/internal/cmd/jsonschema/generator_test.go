@@ -545,6 +545,25 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 			inject  func(raw map[string]any)
 		}{
 			{
+				name:    "AuditLog metadata unknown field",
+				fixture: "good-audit-log.yaml",
+				defName: "AuditLog",
+				inject: func(raw map[string]any) {
+					meta := raw["metadata"].(map[string]any)
+					meta["bogus"] = 1
+				},
+			},
+			{
+				name:    "AuditLog criteria[0] unknown field",
+				fixture: "good-audit-log.yaml",
+				defName: "AuditLog",
+				inject: func(raw map[string]any) {
+					criteria := raw["criteria"].([]any)
+					c0 := criteria[0].(map[string]any)
+					c0["bogus"] = 1
+				},
+			},
+			{
 				name:    "AuditLog results[0] unknown field",
 				fixture: "good-audit-log.yaml",
 				defName: "AuditLog",
@@ -574,6 +593,25 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 					meta := raw["metadata"].(map[string]any)
 					author := meta["author"].(map[string]any)
 					author["bogus"] = 1
+				},
+			},
+			{
+				name:    "ControlCatalog metadata unknown field",
+				fixture: "good-ccc.yaml",
+				defName: "ControlCatalog",
+				inject: func(raw map[string]any) {
+					meta := raw["metadata"].(map[string]any)
+					meta["bogus"] = 1
+				},
+			},
+			{
+				name:    "ControlCatalog groups[0] unknown field",
+				fixture: "good-ccc.yaml",
+				defName: "ControlCatalog",
+				inject: func(raw map[string]any) {
+					groups := raw["groups"].([]any)
+					g0 := groups[0].(map[string]any)
+					g0["bogus"] = 1
 				},
 			},
 			{
