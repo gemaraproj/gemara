@@ -67,6 +67,21 @@ import "list"
 	mitigated?: [#MitigatedRisk, ...#MitigatedRisk]
 	// Accepted risks require rationale (justification) and may include scope. Controls addressing these risks are implicitly identified through threat mappings.
 	accepted?: [#AcceptedRisk, ...#AcceptedRisk]
+
+	if mitigated != _|_ {
+		_uniqueMitigatedRiskIds: {for i, m in mitigated {(m.id): i}}
+	}
+
+	if accepted != _|_ {
+		_uniqueAcceptedRiskIds: {for i, a in accepted {(a.id): i}}
+
+		let _validMitigatedIds = [if mitigated != _|_ for m in mitigated {m.id}]
+		for i, a in accepted {
+			if a."target-id" != _|_ {
+				_targetValidation: "\(i)": _validMitigatedIds & list.Contains(a."target-id")
+			}
+		}
+	}
 }
 
 // MitigatedRisk represents a risk addressed by the policy
