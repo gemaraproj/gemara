@@ -97,7 +97,10 @@ func (c *Converter) WriteManifest(manifestPath string) error {
 	if c.doc.Components == nil || c.doc.Components.Schemas == nil {
 		return fmt.Errorf("generated document has no components.schemas; cannot build the manifest")
 	}
-	files := schemaFiles(c.value)
+	files, err := schemaFiles(c.value)
+	if err != nil {
+		return err
+	}
 	for name := range files {
 		if _, ok := c.doc.Components.Schemas[name]; ok {
 			continue
