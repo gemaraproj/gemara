@@ -64,11 +64,23 @@ lintcue:
 #
 # SECURITY INSIGHTS VALIDATION
 #
+# Security Insights schema pinning (v2.1.0 commit 6656e711d284f9933c6695bd73a405fde8395089)
+SECURITY_INSIGHTS_SCHEMA_URL ?= https://raw.githubusercontent.com/ossf/security-insights-spec/6656e711d284f9933c6695bd73a405fde8395089/schema.cue
+SECURITY_INSIGHTS_SCHEMA_SHA256 := 201338e9f2903b7d2277f0b174b506562c4b8711284e598d8b86175bcbe7b67d
+
 lintinsights:
 	@echo "  >  Linting security-insights.yml ..."
-	@curl -O --silent https://raw.githubusercontent.com/ossf/security-insights-spec/refs/tags/v2.1.0/schema.cue
-	@cue vet -d '#SecurityInsights' security-insights.yml schema.cue
-	@rm schema.cue
+	@tmp=$$(mktemp -d); \
+	trap 'rm -rf "$$tmp"' EXIT; \
+	curl -fsSL "$(SECURITY_INSIGHTS_SCHEMA_URL)" -o "$$tmp/schema.cue" || { \
+		echo "  >  ERROR: failed to download Security Insights schema from $(SECURITY_INSIGHTS_SCHEMA_URL)" >&2; \
+		exit 1; \
+	}; \
+	echo "$(SECURITY_INSIGHTS_SCHEMA_SHA256) *$$tmp/schema.cue" | sha256sum -c - >/dev/null 2>&1 || { \
+		echo "  >  ERROR: Security Insights schema SHA-256 checksum mismatch" >&2; \
+		exit 1; \
+	}; \
+	cue vet -d '#SecurityInsights' security-insights.yml "$$tmp/schema.cue"
 	@echo "  >  Linting security-insights.yml complete."
 
 #
