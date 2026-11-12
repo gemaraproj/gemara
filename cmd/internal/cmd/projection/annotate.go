@@ -171,9 +171,12 @@ func fileStatuses(inst *build.Instance) (map[string]string, error) {
 
 // schemaFiles maps each definition's schema name to the base name of the file
 // it was declared in.
-func schemaFiles(v cue.Value) map[string]string {
+func schemaFiles(v cue.Value) (map[string]string, error) {
 	out := map[string]string{}
-	it, _ := v.Fields(cue.Definitions(true))
+	it, err := v.Fields(cue.Definitions(true))
+	if err != nil {
+		return nil, fmt.Errorf("enumerating CUE definitions for schema files: %w", err)
+	}
 	for it.Next() {
 		sel := it.Selector()
 		if !sel.IsDefinition() {
@@ -183,14 +186,17 @@ func schemaFiles(v cue.Value) map[string]string {
 			out[strings.TrimPrefix(sel.String(), "#")] = filepath.Base(fn)
 		}
 	}
-	return out
+	return out, nil
 }
 
 // schemaAbsFiles is schemaFiles keyed to the absolute path, for joining
 // against fileStatuses.
-func schemaAbsFiles(v cue.Value) map[string]string {
+func schemaAbsFiles(v cue.Value) (map[string]string, error) {
 	out := map[string]string{}
-	it, _ := v.Fields(cue.Definitions(true))
+	it, err := v.Fields(cue.Definitions(true))
+	if err != nil {
+		return nil, fmt.Errorf("enumerating CUE definitions for schema absolute files: %w", err)
+	}
 	for it.Next() {
 		sel := it.Selector()
 		if !sel.IsDefinition() {
@@ -200,7 +206,7 @@ func schemaAbsFiles(v cue.Value) map[string]string {
 			out[strings.TrimPrefix(sel.String(), "#")] = fn
 		}
 	}
-	return out
+	return out, nil
 }
 
 // applyStatus stamps x-status on each schema from its declaring file's

@@ -71,7 +71,11 @@ func (c *Converter) Post() error {
 	if err != nil {
 		return err
 	}
-	applyStatusTyped(doc, schemaAbsFiles(c.value), statuses)
+	absFiles, err := schemaAbsFiles(c.value)
+	if err != nil {
+		return err
+	}
+	applyStatusTyped(doc, absFiles, statuses)
 	return nil
 }
 
