@@ -277,6 +277,7 @@ components:
           type: array
         steps-executed:
           description: Steps-executed is the number of steps that were executed as part of the assessment.
+          minimum: 0.0
           type: integer
       required:
       - requirement
