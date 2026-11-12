@@ -139,3 +139,45 @@ func TestCue2OpenAPICmdInvalidSchema(t *testing.T) {
 		t.Fatalf("expected error when running cue2openapi on nonexistent schema dir, got nil")
 	}
 }
+
+func TestCue2OpenAPICmdCollidingOutputAndManifestPaths(t *testing.T) {
+	tests := []struct {
+		name     string
+		output   func(dir string) string
+		manifest func(dir string) string
+	}{
+		{
+			name:     "identical paths",
+			output:   func(dir string) string { return filepath.Join(dir, "out.json") },
+			manifest: func(dir string) string { return filepath.Join(dir, "out.json") },
+		},
+		{
+			name:     "equivalent relative and cleaned paths",
+			output:   func(dir string) string { return filepath.Join(dir, "sub", "..", "out.json") },
+			manifest: func(dir string) string { return filepath.Join(dir, "out.json") },
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+			cmd := NewCue2OpenAPICmd()
+			cmd.SetArgs([]string{
+				"--schema", "../../../..",
+				"--output", tc.output(tmpDir),
+				"--manifest", tc.manifest(tmpDir),
+			})
+			t.Cleanup(func() {
+				cmd.SetArgs(nil)
+			})
+
+			err := cmd.Execute()
+			if err == nil {
+				t.Fatalf("expected error when output and manifest paths collide, got nil")
+			}
+			if !strings.Contains(err.Error(), "must not refer to the same file") {
+				t.Fatalf("expected colliding path error message, got: %v", err)
+			}
+		})
+	}
+}
