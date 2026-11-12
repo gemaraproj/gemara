@@ -96,6 +96,10 @@ func TestSchemaValidation(t *testing.T) {
 		{"policy enforcement method with evaluation type", "./test-data/bad-policy-adherence-invalid-enforce-method.yaml", "#Policy", true, `adherence."enforcement-methods".0.type: 2 errors in empty disjunction`},
 		{"policy adherence method with invalid mode", "./test-data/bad-policy-adherence-invalid-mode.yaml", "#Policy", true, `adherence."evaluation-methods".0.mode: 2 errors in empty disjunction`},
 
+		// Policy — negative (accepted risk)
+		{"accepted risk missing justification", "./test-data/bad-policy-accepted-risk-no-justification.yaml", "#Policy", true, `risks.accepted.0.justification: incomplete value`},
+		{"accepted risk with whitespace-only justification", "./test-data/bad-policy-accepted-risk-whitespace-justification.yaml", "#Policy", true, `risks.accepted.0.justification: invalid value`},
+
 		// Policy — negative (retention)
 		{"retention obligation measured from an undeclared anchor", "./test-data/bad-policy-retention-undeclared-anchor.yaml", "#Policy", true, `does not satisfy list.Contains("employee-separation")`},
 		{"retention duration below day precision", "./test-data/bad-policy-retention-subday-duration.yaml", "#Policy", true, `invalid value "PT1H"`},
