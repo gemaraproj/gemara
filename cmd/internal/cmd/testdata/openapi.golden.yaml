@@ -1677,7 +1677,17 @@ components:
         scope:
           $ref: "#/components/schemas/Scope"
         stakeholders:
-          $ref: "#/components/schemas/Stakeholders"
+          allOf:
+          - $ref: "#/components/schemas/Stakeholders"
+          - required:
+            - assignments
+          properties:
+            assignments:
+              items:
+                $ref: "#/components/schemas/RoleAssignment"
+              minItems: 1
+              type: array
+          type: object
         title:
           type: string
       required:

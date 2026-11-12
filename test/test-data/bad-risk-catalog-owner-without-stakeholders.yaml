@@ -3,7 +3,7 @@ metadata:
   type: RiskCatalog
   gemara-version: "1.1.0"
   version: "1.0.0"
-  description: Invalid Risk Catalog with role-ids but no stakeholders defined
+  description: Invalid Risk Catalog with owner but no stakeholders defined
   author:
     id: test-author
     name: Tester

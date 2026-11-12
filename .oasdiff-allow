@@ -138,3 +138,12 @@ response-optional-property-removed Metadata
 response-optional-property-removed Resource
 response-optional-property-removed Threat
 response-optional-property-removed ThreatCatalog
+
+# #539: #RACI slots hold role ids instead of inline contacts. #RACI is used only by
+# experimental artifacts (Policy.contacts, Risk.owner, AuditLog.owner), so no stable
+# artifact changes shape. Remove with the rest of this file after the next v1 re-baseline.
+request-property-removed RACI
+request-property-type-changed RACI
+response-optional-property-removed RACI
+response-property-type-changed RACI
+response-required-property-removed RACI

@@ -84,7 +84,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"risk catalog with duplicate party id", "./test-data/bad-risk-catalog-stakeholders-duplicate-party.yaml", "#RiskCatalog", true, `_uniquePartyIds."party-1"`},
 		{"risk catalog with duplicate role id", "./test-data/bad-risk-catalog-stakeholders-duplicate-role.yaml", "#RiskCatalog", true, `_uniqueRoleIds.accountable`},
 		{"risk catalog with unknown role id on risk", "./test-data/bad-risk-catalog-risk-unknown-role.yaml", "#RiskCatalog", true, `does not satisfy list.Contains("unknown-role")`},
-		{"risk catalog with role-ids but missing stakeholders", "./test-data/bad-risk-catalog-role-ids-without-stakeholders.yaml", "#RiskCatalog", true, `does not satisfy list.Contains("accountable")`},
+		{"risk catalog with owner without stakeholders", "./test-data/bad-risk-catalog-owner-without-stakeholders.yaml", "#RiskCatalog", true, `does not satisfy list.Contains("accountable")`},
 
 		// Policy — positive
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
@@ -97,8 +97,9 @@ func TestSchemaValidation(t *testing.T) {
 		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
 
 		// Policy — negative
-		{"policy with role-ids but missing stakeholders", "./test-data/bad-policy-role-ids-without-stakeholders.yaml", "#Policy", true, `does not satisfy list.Contains("accountable")`},
+		{"policy with owner without stakeholders", "./test-data/bad-policy-owner-without-stakeholders.yaml", "#Policy", true, `does not satisfy list.Contains("accountable")`},
 		{"policy with unknown role id", "./test-data/bad-policy-unknown-role.yaml", "#Policy", true, `does not satisfy list.Contains("unknown-role")`},
+		{"policy with accountable role without assignment", "./test-data/bad-policy-accountable-without-assignment.yaml", "#Policy", true, `does not satisfy list.Contains("unassigned-accountable")`},
 		{"policy with disallowed field directly under scope", "./test-data/bad-policy-invalid-scope.yaml", "#Policy", true, "scope.technologies: field not allowed"},
 		{"policy with empty dimensions list", "./test-data/bad-policy-dimensions-empty.yaml", "#Policy", true, "scope.in.technologies: incompatible list lengths"},
 		{"policy implementation plan missing required timeline", "./test-data/bad-policy-plan-missing-timeline.yaml", "#Policy", true, `"implementation-plan"."enforcement-timeline".start: incomplete value`},
@@ -165,6 +166,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"audit log evidence with resolved conflicting retention obligations", "./test-data/good-audit-log-retention.yaml", "#AuditLog", false, ""},
 
 		// AuditLog — negative
+		{"audit log with unknown role id", "./test-data/bad-audit-log-unknown-role.yaml", "#AuditLog", true, `does not satisfy list.Contains("unknown-role")`},
+		{"audit log with owner without stakeholders", "./test-data/bad-audit-log-owner-without-stakeholders.yaml", "#AuditLog", true, `does not satisfy list.Contains("auditor")`},
 		{"audit log missing summary criteria and results", "./test-data/bad-audit-log.yaml", "#AuditLog", true, "summary: incomplete value string"},
 		{"audit log with duplicate result id", "./test-data/bad-audit-log-duplicate-result-id.yaml", "#AuditLog", true, `_uniqueResultIds."RES-001"`},
 		{"audit log evidence source with invalid digest format", "./test-data/bad-audit-log-invalid-digest.yaml", "#AuditLog", true, `invalid value "SHA256:invalidbecauseuppercasealgorithm"`},
