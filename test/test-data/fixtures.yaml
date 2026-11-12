@@ -109,6 +109,13 @@ fixtures:
       error: '_groupValidation."0": invalid value ["container-infrastructure"]'
     reason: 'capability with invalid group'
 
+  - files: [test/test-data/bad-catalog-duplicate-group-id.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_uniqueGroupIds."GRP-ACCESS"'
+    reason: 'control catalog with duplicate group id'
+
   - files: [test/test-data/bad-control-catalog-duplicate-control-id.yaml]
     definition: '#ControlCatalog'
     schema:
@@ -165,6 +172,13 @@ fixtures:
       error: '"assessment-logs".0.start: incomplete value'
     reason: 'executed assessment missing start'
 
+  - files: [test/test-data/bad-guidance-duplicate-id.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: '_uniqueGuidelineIds."AIR-PREV-001"'
+    reason: 'guidance catalog with duplicate guideline id'
+
   - files: [test/test-data/bad-guidance-invalid-applicability.yaml]
     definition: '#GuidanceCatalog'
     schema:
@@ -214,6 +228,20 @@ fixtures:
       error: 'targets.0."entry-id": incomplete value string'
     reason: 'mapping missing targets for non-no-match relationship'
 
+  - files: [test/test-data/bad-metadata-duplicate-applicability-group.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_uniqueGroupsIds."cloud-production"'
+    reason: 'control catalog with duplicate applicability group id'
+
+  - files: [test/test-data/bad-metadata-duplicate-mapping-reference.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: '_uniqueRefIds."NIST-800-53"'
+    reason: 'mapping document with duplicate mapping reference id'
+
   - files: [test/test-data/bad-no-groups.yaml]
     definition: '#ControlCatalog'
     schema:
@@ -248,6 +276,13 @@ fixtures:
       valid: false
       error: 'scope.in.technologies: incompatible list lengths'
     reason: 'policy scope with an empty dimension list'
+
+  - files: [test/test-data/bad-policy-empty-catalog-applicability.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'imports.catalogs.0.applicability: incompatible list lengths'
+    reason: 'catalog import with an empty applicability list'
 
   - files: [test/test-data/bad-policy-invalid-scope.yaml]
     definition: '#Policy'
@@ -339,6 +374,13 @@ fixtures:
       valid: false
       error: '_groupValidation."0": invalid value ["CAT-SECURITY"]'
     reason: 'risk with invalid group'
+
+  - files: [test/test-data/bad-risk-duplicate-id.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: '_uniqueRiskIds."RISK-001"'
+    reason: 'risk catalog with duplicate risk id'
 
   - files: [test/test-data/bad-threat-duplicate-id.yaml]
     definition: '#ThreatCatalog'
@@ -484,6 +526,12 @@ fixtures:
     schema:
       valid: true
     reason: 'valid OSPS baseline'
+
+  - files: [test/test-data/good-policy-applicability-groups.yaml]
+    definition: '#Policy'
+    schema:
+      valid: true
+    reason: 'policy adopting an applicability group from an imported catalog'
 
   - files: [test/test-data/good-policy-retention.yaml]
     definition: '#Policy'
