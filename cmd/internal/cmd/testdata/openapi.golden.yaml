@@ -29,7 +29,7 @@ components:
         residual risk after partial mitigation.
       properties:
         id:
-          description: id allows this accepted risk entry to be referenced
+          description: id uniquely identifies this accepted risk entry
           type: string
         justification:
           description: justification explains why the risk is accepted
@@ -43,7 +43,7 @@ components:
           - $ref: "#/components/schemas/Scope"
           description: scope defines where the risk acceptance applies
         target-id:
-          description: target-id optionally links this acceptance to a mitigated risk entry
+          description: target-id optionally links this acceptance to a mitigated risk entry; when set it must match the id of an entry in risks.mitigated
           type: string
       required:
       - id
@@ -1611,7 +1611,7 @@ components:
       description: MitigatedRisk represents a risk addressed by the policy
       properties:
         id:
-          description: id allows this mitigated risk entry to be referenced by accepted risks
+          description: id uniquely identifies this mitigated risk entry so it can be referenced by accepted risks
           type: string
         risk:
           allOf:
@@ -2111,6 +2111,9 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when mitigated risks are listed, each mitigated risk id must be unique
+      - when accepted risks are listed, each accepted risk id must be unique, and when target-id is set, it must match an entry in risks.mitigated
       x-status: experimental
     Scope:
       description: Scope defines what is included and excluded from policy applicability.
