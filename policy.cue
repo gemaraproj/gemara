@@ -179,12 +179,16 @@ import "list"
 	constraints?: [#Constraint, ...#Constraint]
 }
 
-// CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
+// CatalogImport defines how to import control catalogs with optional exclusions and constraints.
 #CatalogImport: {
 	"reference-id": string @go(ReferenceId)
+	// exclusions lists the control and assessment requirement IDs from the imported catalog that this policy leaves out
 	exclusions?: [string, ...string]
 	constraints?: [#Constraint, ...#Constraint]
-	"assessment-requirement-modifications"?: [#AssessmentRequirementModifier, ...#AssessmentRequirementModifier] @go(AssessmentRequirementModifications)
+	// applicability selects the applicability groups to adopt from this imported catalog. Each ID must match
+	// an entry in the catalog's metadata."applicability-groups"; a resolver rejects an ID the catalog does not define.
+	// A requirement is in play when any of its applicability IDs is selected. See the Requirements Resolution specification.
+	"applicability"?: [string, ...string] @go(Applicability)
 }
 
 // Constraint defines a prescriptive requirement that applies to a specific guidance or control.
@@ -196,23 +200,6 @@ import "list"
 	// The prescriptive requirement/constraint text
 	text: string
 }
-
-// AssessmentRequirementModifier allows organizations to customize assessment requirements based on how an organization wants to gather evidence for the objective.
-#AssessmentRequirementModifier: {
-	id:                       string
-	"target-id":              string   @go(TargetId)
-	"modification-type":      #ModType @go(ModificationType)
-	"modification-rationale": string   @go(ModificationRationale)
-	// The updated text of the assessment requirement
-	text?: string
-	// The updated applicability of the assessment requirement
-	applicability?: [string, ...string]
-	// The updated recommendation for the assessment requirement
-	recommendation?: string
-}
-
-// ModType defines the type of modification to the assessment requirement.
-#ModType: "Add" | "Modify" | "Remove" | "Replace" | "Override" @go(-)
 
 // RetentionDuration is a records-retention period: an ISO 8601 duration limited to date
 // components (e.g. P7Y, P18M, P1Y2M3W4D). Records schedules do not express retention below

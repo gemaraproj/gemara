@@ -1,0 +1,36 @@
+title: Duplicate Mapping Reference Test
+metadata:
+  id: BAD-METADATA-DUP-REF-ID
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — metadata defines duplicate mapping-references identifiers
+  author:
+    id: compliance-team
+    name: Compliance Team
+    type: Human
+  mapping-references:
+    - id: NIST-800-53
+      title: NIST SP 800-53 Rev. 5
+      version: "5.1.0"
+      url: https://example.com/nist
+    - id: NIST-800-53
+      title: Duplicate NIST Reference
+      version: "5.1.0"
+      url: https://example.com/nist-dup
+    - id: TARGET-CATALOG
+      title: Target Catalog
+      version: "1.0.0"
+      url: https://example.com/target
+source-reference:
+  reference-id: NIST-800-53
+  entry-type: Control
+target-reference:
+  reference-id: TARGET-CATALOG
+  entry-type: Control
+mappings:
+  - id: MAP-001
+    source: AC-1
+    relationship: relates-to
+    targets:
+      - entry-id: TC-001

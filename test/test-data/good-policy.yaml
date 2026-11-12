@@ -64,16 +64,6 @@ imports:
         - id: "nist-cloud-constraint"
           target-id: "AC-1"
           text: "Enhanced access control requirements for cloud environments"
-      assessment-requirement-modifications:
-        - id: "nist-ac1-mod"
-          target-id: "AC-1.1"
-          modification-type: "Modify"
-          modification-rationale: "Clarified assessment procedures for multi-cloud environments"
-          text: "Assessment procedures must include multi-cloud environment considerations"
-          applicability:
-            - "cloud"
-            - "multi-cloud"
-          recommendation: "Conduct quarterly assessments"
   guidance:
     - reference-id: "ISO-27001"
 
