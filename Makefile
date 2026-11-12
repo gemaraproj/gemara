@@ -97,6 +97,10 @@ REPO ?= gemaraproj/gemara
 
 # The tag filter matches the dot as [.] rather than \\. because on Windows,
 # Git Bash's sh drops one backslash from the recipe make hands it (see #527).
+# Set REQUIRE_BASELINE ?= true to fail when no baseline is found.
+# In CI or local verification, set REQUIRE_BASELINE=false to explicitly allow skipping.
+REQUIRE_BASELINE ?= true
+
 breaking-check:
 	@echo "  >  Checking for breaking schema changes ..."
 	@filter='.[] | select(.prerelease == false) | select(.tag_name | test("^v1[.]")) | select(any(.assets[]?; .name == "openapi.yaml")) | .tag_name'; \
@@ -104,8 +108,13 @@ breaking-check:
 		|| { echo "  >  ERROR: failed to query releases from $(REPO); aborting breaking-change check" >&2; exit 1; }; \
 	tag=$$(printf '%s\n' "$$tags" | sort -V | tail -n1); \
 	if [ -z "$$tag" ]; then \
-		echo "  >  No v1 baseline release with an openapi.yaml asset found; skipping breaking-change check"; \
-		exit 0; \
+		if [ "$(REQUIRE_BASELINE)" = "true" ]; then \
+			echo "  >  ERROR: no v1 baseline release with an openapi.yaml asset found in $(REPO)" >&2; \
+			exit 1; \
+		else \
+			echo "  >  WARNING: no v1 baseline release with an openapi.yaml asset found in $(REPO); skipping breaking-change check (REQUIRE_BASELINE=false)"; \
+			exit 0; \
+		fi; \
 	fi; \
 	echo "  >  Comparing against v1 baseline $$tag"; \
 	tmp=$$(mktemp -d); \
