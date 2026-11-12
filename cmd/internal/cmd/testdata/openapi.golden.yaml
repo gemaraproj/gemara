@@ -680,10 +680,7 @@ components:
       description: ControlCatalog describes a set of related controls and relevant metadata
       properties:
         controls:
-          description: |-
-            controls is a list of unique controls defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: controls is a list of unique controls defined by this catalog
           items:
             $ref: "#/components/schemas/Control"
           minItems: 1
@@ -706,7 +703,6 @@ components:
       description: ControlEvaluation contains the results of evaluating a single Layer 5 control.
       properties:
         assessment-logs:
-          description: (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             allOf:
             - $ref: "#/components/schemas/AssessmentLog"
@@ -810,8 +806,6 @@ components:
             
             
             Enforce that Clear dispositions only contain Passed assessment results
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             $ref: "#/components/schemas/ActionResult"
           minItems: 1
@@ -1101,10 +1095,7 @@ components:
           description: front-matter provides introductory text for the document to be used during rendering
           type: string
         guidelines:
-          description: |-
-            guidelines is a list of unique guidelines defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: guidelines is a list of unique guidelines defined by this catalog
           items:
             $ref: "#/components/schemas/Guideline"
           minItems: 1
@@ -1752,10 +1743,7 @@ components:
           - type
           type: object
         principles:
-          description: |-
-            principles is a list of unique principles defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: principles is a list of unique principles defined by this catalog
           items:
             $ref: "#/components/schemas/Principle"
           minItems: 1
@@ -2023,8 +2011,6 @@ components:
             rank optionally orders risks for the same catalog (e.g. when several share the same severity).
             Lower values mean higher relative importance. Omitted when the four severity levels are enough.
             When set, each value must be unique among all risks in the catalog that specify rank.
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           type: integer
         severity:
           allOf:

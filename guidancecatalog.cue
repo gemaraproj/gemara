@@ -20,7 +20,7 @@ import "list"
 	"front-matter"?: string @go(FrontMatter) @yaml("front-matter,omitempty")
 
 	// guidelines is a list of unique guidelines defined by this catalog
-	guidelines?: [#Guideline, ...#Guideline] @gemara(projectable=false) @go(Guidelines)
+	guidelines?: [#Guideline, ...#Guideline] @go(Guidelines)
 
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [#Exemption, ...#Exemption] @go(Exemptions)

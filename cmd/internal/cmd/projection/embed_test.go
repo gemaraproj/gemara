@@ -5,7 +5,6 @@ package projection
 import (
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -51,7 +50,6 @@ func TestFieldDirectivesOnEmbeddedDefinition(t *testing.T) {
 package p
 
 #Base: {
-	target: string @gemara(projectable=false)
 	enabled: *false | bool @gemara(default=false)
 }
 
@@ -64,12 +62,6 @@ package p
 		t.Fatal(err)
 	}
 	base := doc.Components.Schemas["Base"].Value
-	if got := base.Properties["target"].Value.Description; !strings.Contains(got, unenforcedCaveat) {
-		t.Errorf("Base.target description = %q, want the unenforced caveat", got)
-	}
-	if strings.Count(base.Properties["target"].Value.Description, unenforcedCaveat) != 1 {
-		t.Errorf("Base.target caveat repeated: %q", base.Properties["target"].Value.Description)
-	}
 	if got := base.Properties["enabled"].Value.Default; got != false {
 		t.Errorf("Base.enabled default = %v, want false", got)
 	}

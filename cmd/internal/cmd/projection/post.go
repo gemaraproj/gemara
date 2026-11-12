@@ -48,15 +48,6 @@ func (c *Converter) Post() error {
 	if err := restoreRefDescriptionsTyped(doc, docs, deprecations); err != nil {
 		return err
 	}
-	unprojectable, err := unprojectableFields(c.value)
-	if err != nil {
-		return err
-	}
-	// Must run after descriptions are in their final form: it appends to
-	// text restoreRefDescriptionsTyped may have just set.
-	if err := appendUnenforcedCaveatsTyped(doc, unprojectable); err != nil {
-		return err
-	}
 	formats, err := definitionFormats(c.value)
 	if err != nil {
 		return err
@@ -513,7 +504,7 @@ func applyDefaultsTyped(doc *openapi3.T, defaults map[string]any) error {
 // embedded definition on every definition that embeds it, but the encoder
 // emits the field only on the embedded schema, so a directive keyed to the
 // embedding definition must be applied there. The embedded definition's own
-// key applies it too; both appliers are idempotent.
+// key applies it too, which is harmless: applyDefaultsTyped is idempotent.
 func declaringSchema(schemas openapi3.Schemas, name, property string) *openapi3.Schema {
 	ref := schemas[name]
 	if ref == nil || ref.Value == nil {
@@ -545,46 +536,6 @@ func declaringSchema(schemas openapi3.Schemas, name, property string) *openapi3.
 		return nil
 	}
 	return find(ref.Value)
-}
-
-// CUE CONVERTER WORKAROUND: unenforcedCaveat is appended to a description that still asserts a
-// cross-field/conditional CUE rule the generated OpenAPI schema does not
-// (and, given the current upstream CUE OpenAPI encoder, cannot) enforce.
-// Without it, the projection would keep making a promise its consumers
-// cannot verify from the schema alone.
-const unenforcedCaveat = "(Enforced by the CUE schema; not by this OpenAPI projection.)"
-
-// appendUnenforcedCaveatsTyped appends unenforcedCaveat to every field marked
-// @gemara(projectable=false) in the CUE source. An annotated field missing
-// from the generated document is an error: continuing would hide a drift
-// between the source declaration and its projection.
-func appendUnenforcedCaveatsTyped(doc *openapi3.T, unprojectable map[string]bool) error {
-	for key := range unprojectable {
-		name, property, ok := strings.Cut(key, ".")
-		if !ok {
-			return fmt.Errorf("malformed unprojectable field key %q", key)
-		}
-		schema := doc.Components.Schemas[name]
-		if schema == nil || schema.Value == nil {
-			return fmt.Errorf("unprojectable field %s names schema %s, which is not in the generated document", key, name)
-		}
-		var field *openapi3.SchemaRef
-		if holder := declaringSchema(doc.Components.Schemas, name, property); holder != nil {
-			field = holder.Properties[property]
-		}
-		if field == nil || field.Value == nil {
-			return fmt.Errorf("unprojectable field %s is not a property of %s in the generated document", key, name)
-		}
-		if strings.Contains(field.Value.Description, unenforcedCaveat) {
-			continue
-		}
-		if field.Value.Description == "" {
-			field.Value.Description = unenforcedCaveat
-			continue
-		}
-		field.Value.Description += "\n\n" + unenforcedCaveat
-	}
-	return nil
 }
 
 func applyStatusTyped(doc *openapi3.T, absFiles, statuses map[string]string) {

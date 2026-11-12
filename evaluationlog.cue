@@ -21,7 +21,7 @@ package gemara
 	result:  #Result
 	message: string
 	control: #EntryMapping
-	"assessment-logs": [#AssessmentLog, ...#AssessmentLog] @gemara(projectable=false) @go(AssessmentLogs,type=[]*AssessmentLog)
+	"assessment-logs": [#AssessmentLog, ...#AssessmentLog] @go(AssessmentLogs,type=[]*AssessmentLog)
 	"assessment-logs": [...{
 		// each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
 		requirement: "reference-id": (control."reference-id")

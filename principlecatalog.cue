@@ -14,7 +14,7 @@ import "list"
 	metadata: type: "PrincipleCatalog"
 
 	// principles is a list of unique principles defined by this catalog
-	principles?: [#Principle, ...#Principle] @gemara(projectable=false) @go(Principles)
+	principles?: [#Principle, ...#Principle] @go(Principles)
 
 	// when principles are listed, groups is required, principle ids must be unique, and each principle's group must be a declared group id
 	if principles != _|_ {

@@ -13,7 +13,7 @@ package gemara
 	// disposition is the aggregate enforcement disposition across all actions in this log
 	disposition: #Disposition
 	// actions is the list of enforcement actions performed
-	actions: [#ActionResult, ...#ActionResult] @gemara(projectable=false) @go(Actions,type=[]*ActionResult)
+	actions: [#ActionResult, ...#ActionResult] @go(Actions,type=[]*ActionResult)
 	// Enforce that Clear dispositions only contain Passed assessment results
 	actions: [...{
 		// when the log's disposition is Clear, every assessment cited in an action's justification must have result Passed

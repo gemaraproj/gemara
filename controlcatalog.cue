@@ -14,7 +14,7 @@ import "list"
 	metadata: type: "ControlCatalog"
 
 	// controls is a list of unique controls defined by this catalog
-	controls?: [#Control, ...#Control] @gemara(projectable=false) @go(Controls)
+	controls?: [#Control, ...#Control] @go(Controls)
 
 	// when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, and each assessment requirement's applicability must name declared applicability groups
 	if controls != _|_ {
