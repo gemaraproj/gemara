@@ -60,10 +60,11 @@ func readVersion(schemaDir string) string {
 // rootDescription returns the doc comment of the named definition, which
 // becomes info.description. An empty name leaves the default in place.
 //
-// A --root naming a definition that does not exist must be an error: the lookup
-// yields an error value whose Doc() is nil, docText returns "", and the default
-// description is silently kept — so `--root '#Metdata'` would produce a
-// plausible, wrong document rather than a complaint about the typo.
+// A --root naming a definition that does not exist or has no documentation
+// comment is an error: an unknown path or undocumented definition would
+// silently keep the default description, so `--root '#Metdata'` or an
+// unannotated root would produce a plausible, wrong document rather than a
+// complaint.
 func rootDescription(v cue.Value, root string) (string, error) {
 	if root == "" {
 		return "", nil
@@ -72,5 +73,9 @@ func rootDescription(v cue.Value, root string) (string, error) {
 	if err := rv.Err(); err != nil {
 		return "", fmt.Errorf("--root %q does not resolve in the CUE package: %w", root, err)
 	}
-	return docText(rv), nil
+	desc := strings.TrimSpace(docText(rv))
+	if desc == "" {
+		return "", fmt.Errorf("--root %q has no documentation comment", root)
+	}
+	return desc, nil
 }
