@@ -175,6 +175,8 @@ func TestSchemaValidation(t *testing.T) {
 		// VectorCatalog — negative
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
 		{"vector catalog with duplicate vector id", "./test-data/bad-vector-duplicate-id.yaml", "#VectorCatalog", true, `_uniqueVectorIds."VEC-001"`},
+		{"vector missing id", "./test-data/bad-vector-missing-id.yaml", "#VectorCatalog", true, "vectors.0.id: incomplete value string"},
+		{"vector catalog with empty vectors list", "./test-data/bad-vector-empty-list.yaml", "#VectorCatalog", true, "vectors: incompatible list lengths"},
 
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
