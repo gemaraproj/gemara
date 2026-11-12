@@ -13,6 +13,13 @@ reviews:
   # labels listed here; release-drafter's auto-labeler applies the rest.
   suggested_labels: true
   auto_apply_labels: true
+  # A PR carries exactly one issue label, so linking an issue after the first
+  # review moves it from needs-issue to has-issue instead of adding both.
+  mutually_exclusive_groups:
+    issue-linkage:
+      - has-issue
+      - needs-issue
+      - no-issue-needed
   labeling_instructions:
     - label: has-issue
       instructions: |
