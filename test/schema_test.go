@@ -95,6 +95,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"policy evaluation method with enforcement type", "./test-data/bad-policy-adherence-invalid-eval-method.yaml", "#Policy", true, `adherence."evaluation-methods".0.type: 2 errors in empty disjunction`},
 		{"policy enforcement method with evaluation type", "./test-data/bad-policy-adherence-invalid-enforce-method.yaml", "#Policy", true, `adherence."enforcement-methods".0.type: 2 errors in empty disjunction`},
 		{"policy adherence method with invalid mode", "./test-data/bad-policy-adherence-invalid-mode.yaml", "#Policy", true, `adherence."evaluation-methods".0.mode: 2 errors in empty disjunction`},
+		{"policy parameter with duplicate accepted values", "./test-data/bad-policy-duplicate-parameter-values.yaml", "#Policy", true, `_uniqueAcceptedValues."15"`},
 
 		// Policy — negative (retention)
 		{"retention obligation measured from an undeclared anchor", "./test-data/bad-policy-retention-undeclared-anchor.yaml", "#Policy", true, `does not satisfy list.Contains("employee-separation")`},
