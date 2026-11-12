@@ -1,0 +1,43 @@
+metadata:
+  id: GOOD-GUIDANCE-EXTENDS-REPLACED-BY
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Valid — guideline extends, replaced-by, and exemption redirect with valid aliases
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+  mapping-references:
+    - id: NIST-800-53
+      title: NIST SP 800-53
+      version: "Rev 5"
+
+title: Valid Guidance Catalog
+type: Framework
+
+groups:
+  - id: GRP-01
+    title: Group 1
+    description: Group 1 description
+
+exemptions:
+  - description: Public systems are exempt
+    reason: Covered by alternative regulation
+    redirect:
+      reference-id: NIST-800-53
+      entries:
+        - reference-id: AC-1
+
+guidelines:
+  - id: GL-001
+    group: GRP-01
+    title: Guideline 1
+    objective: Objective 1
+    state: Retired
+    extends:
+      reference-id: GOOD-GUIDANCE-EXTENDS-REPLACED-BY
+      entry-id: GL-BASE
+    replaced-by:
+      reference-id: NIST-800-53
+      entry-id: AC-2

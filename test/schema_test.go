@@ -57,9 +57,12 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid OSPS baseline", "./test-data/good-osps.yml", "#ControlCatalog", false, ""},
 		{"valid lifecycle catalog", "./test-data/good-lifecycle.yaml", "#ControlCatalog", false, ""},
 		{"valid nested control catalog", "./test-data/nested-good-ccc.yaml", "#ControlCatalog", false, ""},
+		{"valid catalog with extends and imports", "./test-data/good-catalog-extends-imports.yaml", "#ControlCatalog", false, ""},
+		{"valid threat catalog with self-reference", "./test-data/good-threat-self-reference.yaml", "#ThreatCatalog", false, ""},
 
 		// GuidanceCatalog — positive
 		{"valid AI governance framework", "./test-data/good-aigf.yaml", "#GuidanceCatalog", false, ""},
+		{"valid guidance catalog with extends, replaced-by, and exemption redirect", "./test-data/good-guidance-extends-replaced-by.yaml", "#GuidanceCatalog", false, ""},
 		// PrinciplesCatalog — positive
 		{"valid AIGF principles catalog", "./test-data/good-aigf-principles.yaml", "#PrincipleCatalog", false, ""},
 
@@ -171,6 +174,8 @@ func TestSchemaValidation(t *testing.T) {
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
+		{"threat with undeclared capability reference", "./test-data/bad-threat-undeclared-capability-reference.yaml", "#ThreatCatalog", true, `_capabilityRefValidation."0-0"`},
+		{"threat with undeclared vector reference", "./test-data/bad-threat-undeclared-vector-reference.yaml", "#ThreatCatalog", true, `_vectorRefValidation."0-0"`},
 
 		// VectorCatalog — negative
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
@@ -180,22 +185,34 @@ func TestSchemaValidation(t *testing.T) {
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
 		{"principle catalog with duplicate principle id", "./test-data/bad-principle-duplicate-id.yaml", "#PrincipleCatalog", true, `_uniquePrinciplesIds."PRIN-001"`},
 
-		// ControlCatalog — negative (group validation)
+		// ControlCatalog — negative
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
 		{"control with invalid applicability", "./test-data/bad-control-invalid-applicability.yaml", "#ControlCatalog", true, `_applicabilityValidation."0-0-0": invalid value ["production"]`},
+		{"control with undeclared guideline reference", "./test-data/bad-control-undeclared-guideline-reference.yaml", "#ControlCatalog", true, `_guidelineRefValidation."0-0"`},
+		{"control with undeclared threat reference", "./test-data/bad-control-undeclared-threat-reference.yaml", "#ControlCatalog", true, `_threatRefValidation."0-0"`},
+		{"control with undeclared replaced-by reference", "./test-data/bad-control-undeclared-control-replaced-by.yaml", "#ControlCatalog", true, `_controlReplacedByRefValidation."0"`},
+		{"assessment requirement with undeclared replaced-by reference", "./test-data/bad-control-undeclared-ar-replaced-by.yaml", "#ControlCatalog", true, `_arReplacedByRefValidation."0-0"`},
 
-		// RiskCatalog — negative (group validation)
+		// RiskCatalog — negative
 		{"risk with invalid group", "./test-data/bad-risk-catalog-invalid-group.yaml", "#RiskCatalog", true, `_groupValidation."0": invalid value ["CAT-SECURITY"]`},
 		{"risk catalog with duplicate risk id", "./test-data/bad-risk-duplicate-id.yaml", "#RiskCatalog", true, `_uniqueRiskIds."RISK-001"`},
+		{"risk with undeclared threat reference", "./test-data/bad-risk-undeclared-threat-reference.yaml", "#RiskCatalog", true, `_threatRefValidation."0-0"`},
 
 		// Catalog & Metadata collection uniqueness — negative
 		{"catalog with duplicate group id", "./test-data/bad-catalog-duplicate-group-id.yaml", "#ControlCatalog", true, `_uniqueGroupIds."GRP-ACCESS"`},
 		{"metadata with duplicate mapping reference id", "./test-data/bad-metadata-duplicate-mapping-reference.yaml", "#MappingDocument", true, `_uniqueRefIds."NIST-800-53"`},
 		{"metadata with duplicate applicability group id", "./test-data/bad-metadata-duplicate-applicability-group.yaml", "#ControlCatalog", true, `_uniqueGroupsIds."cloud-production"`},
+		{"catalog with undeclared extends reference", "./test-data/bad-catalog-undeclared-extends-reference.yaml", "#ThreatCatalog", true, `_extendsRefValidation."0"`},
+		{"catalog with undeclared imports reference", "./test-data/bad-catalog-undeclared-imports-reference.yaml", "#ThreatCatalog", true, `_importsRefValidation."0"`},
 
-		// GuidanceCatalog — negative (group validation)
+		// GuidanceCatalog — negative
 		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
 		{"guideline with invalid applicability", "./test-data/bad-guidance-invalid-applicability.yaml", "#GuidanceCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-native"]`},
+		{"guideline with undeclared principle reference", "./test-data/bad-guidance-undeclared-principle-reference.yaml", "#GuidanceCatalog", true, `_principleRefValidation."0-0"`},
+		{"guideline with undeclared vector reference", "./test-data/bad-guidance-undeclared-vector-reference.yaml", "#GuidanceCatalog", true, `_vectorRefValidation."0-0"`},
+		{"guidance with undeclared exemption redirect reference", "./test-data/bad-guidance-undeclared-exemption-redirect.yaml", "#GuidanceCatalog", true, `_exemptionRedirectRefValidation."0"`},
+		{"guideline with undeclared extends reference", "./test-data/bad-guidance-undeclared-extends.yaml", "#GuidanceCatalog", true, `_guidelineExtendsRefValidation."0"`},
+		{"guideline with undeclared replaced-by reference", "./test-data/bad-guidance-undeclared-replaced-by.yaml", "#GuidanceCatalog", true, `_guidelineReplacedByRefValidation."0"`},
 
 		// VectorCatalog — negative (applicability validation)
 		{"vector with invalid applicability", "./test-data/bad-vector-invalid-applicability.yaml", "#VectorCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]`},

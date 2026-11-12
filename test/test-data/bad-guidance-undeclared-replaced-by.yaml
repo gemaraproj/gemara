@@ -1,0 +1,29 @@
+metadata:
+  id: BAD-GUIDANCE-UNDECLARED-REPLACED-BY
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — guideline replaced-by references undeclared alias
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+  mapping-references:
+    - id: NIST-800-53
+      title: NIST SP 800-53
+      version: "Rev 5"
+
+title: Invalid Guidance Catalog
+
+groups:
+  - id: GRP-01
+    title: Group 1
+
+guidelines:
+  - id: GL-001
+    group: GRP-01
+    title: Guideline 1
+    objective: Objective 1
+    replaced-by:
+      reference-id: UNDECLARED-ALIAS
+      entry-id: ENTRY-001

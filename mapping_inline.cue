@@ -28,7 +28,7 @@ package gemara
 
 // ArtifactMapping represents a mapping to an external artifact or artifact entry
 #ArtifactMapping: {
-	// reference-id identifies an element from a MappingReference in the artifact's metadata
+	// reference-id identifies an element from a MappingReference in the artifact's metadata or the artifact's own metadata.id
 	"reference-id": string @go(ReferenceId)
 
 	// remarks is prose regarding the mapped artifact or the mapping relationship

@@ -22,13 +22,33 @@ import "list"
 		metadata: "applicability-groups": [#Group, ...#Group]
 		let _validGroupIds = [for g in groups {g.id}]
 		let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
+		let _validRefIds = list.Concat([
+			[metadata.id],
+			[if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r.id}],
+		])
 
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, c in controls {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(c.group)
+			if c."replaced-by" != _|_ {
+				_controlReplacedByRefValidation: "\(i)": _validRefIds & list.Contains(c."replaced-by"."reference-id")
+			}
 			for j, ar in c."assessment-requirements" {
 				for k, a in ar.applicability {
 					_applicabilityValidation: "\(i)-\(j)-\(k)": _validApplicabilityIds & list.Contains(a)
+				}
+				if ar."replaced-by" != _|_ {
+					_arReplacedByRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(ar."replaced-by"."reference-id")
+				}
+			}
+			if c.guidelines != _|_ {
+				for j, g in c.guidelines {
+					_guidelineRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(g."reference-id")
+				}
+			}
+			if c.threats != _|_ {
+				for j, th in c.threats {
+					_threatRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(th."reference-id")
 				}
 			}
 		}

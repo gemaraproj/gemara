@@ -20,10 +20,25 @@ import "list"
 		_uniqueThreatIds: {for i, t in threats {(t.id): i}}
 		groups: [#Group, ...#Group]
 		let _validGroupIds = [for g in groups {g.id}]
+		let _validRefIds = list.Concat([
+			[metadata.id],
+			[if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r.id}],
+		])
 
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, t in threats {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(t.group)
+		}
+
+		for i, t in threats {
+			for j, c in t.capabilities {
+				_capabilityRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(c."reference-id")
+			}
+			if t.vectors != _|_ {
+				for j, v in t.vectors {
+					_vectorRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(v."reference-id")
+				}
+			}
 		}
 	}
 }

@@ -1,0 +1,48 @@
+metadata:
+  id: EXAMPLE-EXTENDS-IMPORTS-CATALOG
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example Control Catalog testing extends and imports
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: BASE-CATALOG
+      title: Base Control Catalog
+      version: "1.0.0"
+    - id: IMPORTED-CATALOG
+      title: Imported Control Catalog
+      version: "1.0.0"
+  applicability-groups:
+    - id: production
+      title: Production
+      description: Production environment
+
+title: Example Extends and Imports Catalog
+
+groups:
+  - id: access-control
+    title: Access Control
+    description: Access control mechanisms
+
+extends:
+  - reference-id: BASE-CATALOG
+  - reference-id: EXAMPLE-EXTENDS-IMPORTS-CATALOG
+
+imports:
+  - reference-id: IMPORTED-CATALOG
+    entries:
+      - reference-id: CTRL-EXT-001
+
+controls:
+  - id: CTRL-001
+    group: access-control
+    title: Restrict Access
+    objective: Restrict access to authorized users
+    assessment-requirements:
+      - id: CTRL-001.AR01
+        text: Verify access controls
+        applicability:
+          - production
