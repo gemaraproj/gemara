@@ -35,6 +35,7 @@ func loadPrepared(schemaDir string) (cue.Value, *prepInfo, *build.Instance, erro
 			return cue.Value{}, nil, nil, fmt.Errorf("preparing %s: %w", f.Filename, err)
 		}
 		info.DroppedConditionals = append(info.DroppedConditionals, fileInfo.DroppedConditionals...)
+		info.FieldReferences = append(info.FieldReferences, fileInfo.FieldReferences...)
 		for helper, rules := range fileInfo.HelperRules {
 			info.HelperRules[helper] = append(info.HelperRules[helper], rules...)
 		}

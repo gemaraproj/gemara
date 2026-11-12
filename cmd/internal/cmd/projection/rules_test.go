@@ -205,3 +205,106 @@ func TestUndescribedRuleFailsGeneration(t *testing.T) {
 		t.Fatalf("err = %v, want it to name schema.cue:6:2 and ask for a comment", err)
 	}
 }
+
+// A field whose value refers to another field of its definition ties the two
+// values together, which OpenAPI cannot express, so the comment directly above
+// that field is listed under x-rules on the definition's schema.
+func TestFieldReferenceListedUnderRules(t *testing.T) {
+	doc, err := convertSource(t, `@gemara(status="stable")
+package p
+
+#Entry: {
+	"reference-id": string
+}
+
+// Evaluation is one evaluation
+#Evaluation: {
+	control: #Entry
+	// logs is the list of logs
+	logs: [...{
+		// each log's reference-id must match the control's
+		requirement: "reference-id": (control."reference-id")
+	}]
+}
+`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := doc.Components.Schemas["Evaluation"].Value.Extensions[rulesExtension]
+	if want := []string{"each log's reference-id must match the control's"}; !reflect.DeepEqual(got, want) {
+		t.Errorf("%s = %v, want %v", rulesExtension, got, want)
+	}
+}
+
+// A reference with no comment directly above its field must stop generation,
+// as an undescribed conditional does. The comment on the field around it
+// describes that field, so it doesn't count.
+func TestUndescribedFieldReferenceFailsGeneration(t *testing.T) {
+	_, err := convertSource(t, `@gemara(status="stable")
+package p
+
+#Entry: {
+	"reference-id": string
+}
+
+// Evaluation is one evaluation
+#Evaluation: {
+	control: #Entry
+	// logs is the list of logs
+	logs: [...{
+		requirement: "reference-id": (control."reference-id")
+	}]
+}
+`)
+	if err == nil || !strings.Contains(err.Error(), "schema.cue:13:33") || !strings.Contains(err.Error(), "describe it in a // comment") {
+		t.Fatalf("err = %v, want it to name schema.cue:13:33 and ask for a comment", err)
+	}
+}
+
+// Only a reference to a regular field of the same definition ties two values
+// of a document together. A definition, a hidden field, a let, an import, a
+// builtin, a comprehension variable and a field outside the definition are
+// reused as types, which OpenAPI can express.
+func TestPrepareRecordsOnlyFieldReferences(t *testing.T) {
+	_, info := mustPrepare(t, `package p
+
+import "strings"
+
+version: "v1"
+
+_top: {
+	a: string
+	b: a
+}
+
+#Entry: {
+	id:    string
+	name?: strings.MinRunes(1)
+}
+
+#Outer: {
+	#Kind: "a" | "b"
+	_tag:  string
+	let n = 3
+	kind:    #Kind
+	entry:   #Entry
+	id:      #Entry.id
+	tag:     _tag
+	count:   int & <=n
+	release: version
+	labels: [for l in ["x", "y"] {l}]
+	#Inner: {
+		other: kind
+	}
+	// copy must equal kind
+	copy: kind
+}
+`)
+	var got []droppedConditional
+	for _, d := range info.FieldReferences {
+		got = append(got, droppedConditional{owner: d.owner, doc: d.doc})
+	}
+	if want := []droppedConditional{{owner: "Outer", doc: "copy must equal kind"}}; !reflect.DeepEqual(got, want) {
+		t.Errorf("references = %+v, want %+v", got, want)
+	}
+}

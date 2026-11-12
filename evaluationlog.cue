@@ -22,9 +22,8 @@ package gemara
 	message: string
 	control: #EntryMapping
 	"assessment-logs": [#AssessmentLog, ...#AssessmentLog] @gemara(projectable=false) @go(AssessmentLogs,type=[]*AssessmentLog)
-	// Enforce that control reference and the assessments' references match
-	// This formulation uses the control's reference if the assessment doesn't include a reference
 	"assessment-logs": [...{
+		// each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
 		requirement: "reference-id": (control."reference-id")
 	}]
 	"assessment-logs": [#_AssessmentLogStrict, ...#_AssessmentLogStrict]

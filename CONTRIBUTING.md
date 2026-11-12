@@ -87,6 +87,13 @@ the value of). Generation fails if an outermost `if` or `for` has no such commen
 inside one is covered by that comment and isn't listed on its own, so when you add a nested rule,
 extend the outer comment to describe it.
 
+A field whose value refers to another regular field of the same definition, such as
+`requirement: "reference-id": (control."reference-id")`, ties the two values together, which
+OpenAPI can't express: the reference is projected as the other field's type only. It is listed
+under `x-rules` the same way, using the `//` comment directly above the field that holds it (for
+`a: b: c`, above `a`), and generation fails without one. That comment is also the field's
+description.
+
 ### Making an intentional breaking change
 
 Sometimes a breaking change is deliberate. There are exactly two sanctioned ways to introduce one:

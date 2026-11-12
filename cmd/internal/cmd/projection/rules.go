@@ -14,13 +14,14 @@ import (
 // resolve to a declared entry.
 const rulesExtension = "x-rules"
 
-// applyRuleListTyped lists each conditional prep had to drop under x-rules on
-// the schema of the definition that declares it. A rule declared in a hidden
-// #_ helper goes on the helper's base, which every use of the helper is
-// collapsed onto, so this must run before collapseHelperSchemasTyped.
+// applyRuleListTyped lists each rule prep recorded, a conditional it had to
+// drop or a reference from one field to another, under x-rules on the schema
+// of the definition that declares it. A rule declared in a hidden #_ helper
+// goes on the helper's base, which every use of the helper is collapsed onto,
+// so this must run before collapseHelperSchemasTyped.
 //
-// A dropped rule with no comment fails generation: the list is the only place
-// the document still states it.
+// A rule with no comment fails generation: the list is the only place the
+// document still states it.
 func applyRuleListTyped(doc *openapi3.T, dropped []droppedConditional) error {
 	if len(dropped) == 0 {
 		return nil

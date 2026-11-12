@@ -5,6 +5,7 @@ package projection
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -26,7 +27,7 @@ func (c *Converter) Post() error {
 	if err := c.applyHelperRules(doc); err != nil {
 		return err
 	}
-	if err := applyRuleListTyped(doc, c.prep.DroppedConditionals); err != nil {
+	if err := applyRuleListTyped(doc, slices.Concat(c.prep.DroppedConditionals, c.prep.FieldReferences)); err != nil {
 		return err
 	}
 	// Order matters from here: collapseHelperSchemas rewrites `$ref` in place,

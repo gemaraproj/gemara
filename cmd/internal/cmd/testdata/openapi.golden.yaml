@@ -706,11 +706,7 @@ components:
       description: ControlEvaluation contains the results of evaluating a single Layer 5 control.
       properties:
         assessment-logs:
-          description: |-
-            Enforce that control reference and the assessments' references match
-            This formulation uses the control's reference if the assessment doesn't include a reference
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             allOf:
             - $ref: "#/components/schemas/AssessmentLog"
@@ -720,6 +716,7 @@ components:
               requirement:
                 properties:
                   reference-id:
+                    description: each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
                     type: string
                 required:
                 - reference-id
@@ -742,6 +739,8 @@ components:
       - control
       - assessment-logs
       type: object
+      x-rules:
+      - each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
       x-status: stable
     Datetime:
       description: Datetime represents an ISO 8601 formatted datetime string
