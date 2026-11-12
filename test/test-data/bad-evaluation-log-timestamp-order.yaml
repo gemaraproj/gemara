@@ -1,0 +1,35 @@
+metadata:
+  id: EVAL-TIME-ORDER
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: Evaluation log with end before start
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+result: Passed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Passed
+  message: Multi-factor authentication is required
+  assessment-logs:
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.01
+    description: Verify MFA
+    result: Passed
+    message: Two-factor authentication configured
+    applicability:
+    - Maturity Level 1
+    steps:
+    - step1
+    start: "2025-08-22T17:00:00Z"
+    end: "2025-08-22T16:00:00Z"

@@ -1,0 +1,34 @@
+metadata:
+  id: EVAL-INVALID-RESULT
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: Evaluation log with invalid assessment result
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+result: Failed
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: access control
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Failed
+  message: Access control failure
+  assessment-logs:
+  - requirement:
+      reference-id: OSPS-B
+      entry-id: OSPS-AC-01.01
+    description: Verify MFA
+    result: NonCompliant
+    message: Two-factor authentication not configured
+    applicability:
+    - Maturity Level 1
+    steps:
+    - step1
+    start: "2025-08-22T16:00:00Z"
