@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -119,7 +120,10 @@ func TestGoldenDocument(t *testing.T) {
 	if err != nil {
 		t.Fatalf("%v (run UPDATE_GOLDEN=1 go test ./internal/cmd/projection -run TestGolden)", err)
 	}
-	if string(got) != string(want) {
+	normalize := func(b []byte) string {
+		return strings.ReplaceAll(string(b), "\r\n", "\n")
+	}
+	if normalize(got) != normalize(want) {
 		t.Error("generated document differs from ../testdata/openapi.golden.yaml; inspect the diff, then regenerate with UPDATE_GOLDEN=1 if the change is intended")
 	}
 }
