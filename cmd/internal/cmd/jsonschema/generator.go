@@ -150,8 +150,8 @@ func (g *Generator) Generate() (map[string]any, error) {
 		}
 	}
 
-	// 3. Narrow unevaluatedProperties on extended base definitions and schemas
-	narrowExtendedProperties(defs)
+	// 3. Merge extended base definition properties into extending schemas, keeping base definitions closed
+	mergeExtendedProperties(defs)
 
 	// 4. Relax AssessmentLog.requirement to only require entry-id, as CUE derives reference-id
 	// from the enclosing control (evaluationlog.cue:27-29).
@@ -192,71 +192,162 @@ func fixHelperRefs(v any) {
 	}
 }
 
-// convertAdditionalToUnevaluated replaces additionalProperties: false with unevaluatedProperties: false.
-func convertAdditionalToUnevaluated(schema map[string]any) {
-	if ap, ok := schema["additionalProperties"].(bool); ok && !ap {
-		delete(schema, "additionalProperties")
-		schema["unevaluatedProperties"] = false
+func clone(v any) any {
+	switch val := v.(type) {
+	case map[string]any:
+		res := make(map[string]any, len(val))
+		for k, item := range val {
+			res[k] = clone(item)
+		}
+		return res
+	case []any:
+		res := make([]any, len(val))
+		for i, item := range val {
+			res[i] = clone(item)
+		}
+		return res
+	default:
+		return val
 	}
 }
 
-// narrowExtendedProperties finds base definitions that are extended by other schemas
-// (via $ref sitting next to sibling properties or inside an allOf) and converts their
-// additionalProperties: false to unevaluatedProperties: false, allowing extending schemas
-// to compose additional properties while rejecting undeclared nested properties.
-func narrowExtendedProperties(defs map[string]any) {
-	extendedBases := make(map[string]bool)
+// mergeExtendedProperties keeps all base definitions closed (additionalProperties: false)
+// and merges base definition properties and requirements directly into extending schemas,
+// ensuring strict unknown-field validation across both base and extending structures.
+func mergeExtendedProperties(defs map[string]any) {
+	resolved := make(map[string]bool)
 
-	var findExtensions func(v any)
-	findExtensions = func(v any) {
+	var resolveDefinition func(name string)
+	var mergeBaseIntoExtending func(extending map[string]any, base map[string]any)
+
+	mergeBaseIntoExtending = func(extending map[string]any, base map[string]any) {
+		extProps, _ := extending["properties"].(map[string]any)
+		if extProps == nil {
+			extProps = make(map[string]any)
+			extending["properties"] = extProps
+		}
+
+		baseProps, _ := base["properties"].(map[string]any)
+		for propName, baseVal := range baseProps {
+			extVal, exists := extProps[propName]
+			if !exists {
+				extProps[propName] = clone(baseVal)
+			} else {
+				// Property exists in both (e.g. extending schema refines "metadata")
+				extValObj, extIsObj := extVal.(map[string]any)
+				baseValObj, baseIsObj := baseVal.(map[string]any)
+				if extIsObj && baseIsObj {
+					if nestedRef, ok := baseValObj["$ref"].(string); ok && strings.HasPrefix(nestedRef, "#/$defs/") {
+						nestedBaseName := strings.TrimPrefix(nestedRef, "#/$defs/")
+						resolveDefinition(nestedBaseName)
+						if nestedBaseDef, ok := defs[nestedBaseName].(map[string]any); ok {
+							mergeBaseIntoExtending(extValObj, nestedBaseDef)
+						}
+					} else {
+						mergeBaseIntoExtending(extValObj, baseValObj)
+					}
+				}
+			}
+		}
+
+		// Merge required fields
+		baseReq, _ := base["required"].([]any)
+		extReq, _ := extending["required"].([]any)
+		seen := make(map[string]bool)
+		var mergedReq []any
+		for _, r := range extReq {
+			if s, ok := r.(string); ok && !seen[s] {
+				seen[s] = true
+				mergedReq = append(mergedReq, r)
+			}
+		}
+		for _, r := range baseReq {
+			if s, ok := r.(string); ok && !seen[s] {
+				seen[s] = true
+				mergedReq = append(mergedReq, r)
+			}
+		}
+		if len(mergedReq) > 0 {
+			extending["required"] = mergedReq
+		}
+
+		delete(extending, "$ref")
+		extending["additionalProperties"] = false
+		delete(extending, "unevaluatedProperties")
+	}
+
+	resolveDefinition = func(name string) {
+		if resolved[name] {
+			return
+		}
+		resolved[name] = true
+
+		defMap, ok := defs[name].(map[string]any)
+		if !ok {
+			return
+		}
+
+		// If this definition extends a base definition via $ref
+		if ref, ok := defMap["$ref"].(string); ok && strings.HasPrefix(ref, "#/$defs/") {
+			baseName := strings.TrimPrefix(ref, "#/$defs/")
+			resolveDefinition(baseName)
+			if baseDef, ok := defs[baseName].(map[string]any); ok {
+				mergeBaseIntoExtending(defMap, baseDef)
+			}
+		}
+	}
+
+	for name := range defs {
+		resolveDefinition(name)
+	}
+
+	// Also recursively traverse all schemas in defs to inline any nested $ref next to properties or inside allOf
+	var walkNested func(v any)
+	walkNested = func(v any) {
 		switch node := v.(type) {
 		case map[string]any:
-			// Check if $ref sits next to sibling properties
-			if ref, ok := node["$ref"].(string); ok {
+			if ref, ok := node["$ref"].(string); ok && strings.HasPrefix(ref, "#/$defs/") {
 				if props, ok := node["properties"].(map[string]any); ok && len(props) > 0 {
-					base := strings.TrimPrefix(ref, "#/$defs/")
-					extendedBases[base] = true
-					convertAdditionalToUnevaluated(node)
-					for _, p := range props {
-						if pMap, ok := p.(map[string]any); ok {
-							delete(pMap, "additionalProperties")
-							delete(pMap, "unevaluatedProperties")
-						}
+					baseName := strings.TrimPrefix(ref, "#/$defs/")
+					resolveDefinition(baseName)
+					if baseDef, ok := defs[baseName].(map[string]any); ok {
+						mergeBaseIntoExtending(node, baseDef)
 					}
 				}
 			}
-			// Check if $ref sits inside an allOf
 			if allOf, ok := node["allOf"].([]any); ok {
+				var newAllOf []any
 				for _, item := range allOf {
 					if itemMap, ok := item.(map[string]any); ok {
-						if ref, ok := itemMap["$ref"].(string); ok {
-							base := strings.TrimPrefix(ref, "#/$defs/")
-							extendedBases[base] = true
+						if ref, ok := itemMap["$ref"].(string); ok && strings.HasPrefix(ref, "#/$defs/") {
+							baseName := strings.TrimPrefix(ref, "#/$defs/")
+							resolveDefinition(baseName)
+							if baseDef, ok := defs[baseName].(map[string]any); ok {
+								mergeBaseIntoExtending(node, baseDef)
+								continue
+							}
 						}
-						convertAdditionalToUnevaluated(itemMap)
 					}
+					newAllOf = append(newAllOf, item)
 				}
-				convertAdditionalToUnevaluated(node)
+				if len(newAllOf) == 0 {
+					delete(node, "allOf")
+				} else {
+					node["allOf"] = newAllOf
+				}
 			}
 			for _, child := range node {
-				findExtensions(child)
+				walkNested(child)
 			}
 		case []any:
 			for _, item := range node {
-				findExtensions(item)
+				walkNested(item)
 			}
 		}
 	}
 
 	for _, def := range defs {
-		findExtensions(def)
-	}
-
-	for base := range extendedBases {
-		if baseDef, ok := defs[base].(map[string]any); ok {
-			delete(baseDef, "additionalProperties")
-			delete(baseDef, "unevaluatedProperties")
-		}
+		walkNested(def)
 	}
 }
 

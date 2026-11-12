@@ -5,7 +5,7 @@ inputs:
   cue-version:
     description: 'CUE version to use'
     required: false
-    default: 'v0.17.1'
+    default: 'v0.15.1'
 
 runs:
   using: 'composite'
