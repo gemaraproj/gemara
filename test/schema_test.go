@@ -83,6 +83,10 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
+		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
+
+		// Policy — negative (applicability)
+		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
 
 		// Policy — negative
 		{"policy with disallowed field directly under scope", "./test-data/bad-policy-invalid-scope.yaml", "#Policy", true, "scope.technologies: field not allowed"},
@@ -124,6 +128,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// GuidanceCatalog — negative
 		{"retired guideline with recommendations", "./test-data/bad-lifecycle.yaml", "#GuidanceCatalog", true, "#GuidanceCatalog: explicit error"},
+		{"guidance catalog with duplicate guideline id", "./test-data/bad-guidance-duplicate-id.yaml", "#GuidanceCatalog", true, `_uniqueGuidelineIds."AIR-PREV-001"`},
 
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
@@ -181,6 +186,12 @@ func TestSchemaValidation(t *testing.T) {
 
 		// RiskCatalog — negative (group validation)
 		{"risk with invalid group", "./test-data/bad-risk-catalog-invalid-group.yaml", "#RiskCatalog", true, `_groupValidation."0": invalid value ["CAT-SECURITY"]`},
+		{"risk catalog with duplicate risk id", "./test-data/bad-risk-duplicate-id.yaml", "#RiskCatalog", true, `_uniqueRiskIds."RISK-001"`},
+
+		// Catalog & Metadata collection uniqueness — negative
+		{"catalog with duplicate group id", "./test-data/bad-catalog-duplicate-group-id.yaml", "#ControlCatalog", true, `_uniqueGroupIds."GRP-ACCESS"`},
+		{"metadata with duplicate mapping reference id", "./test-data/bad-metadata-duplicate-mapping-reference.yaml", "#MappingDocument", true, `_uniqueRefIds."NIST-800-53"`},
+		{"metadata with duplicate applicability group id", "./test-data/bad-metadata-duplicate-applicability-group.yaml", "#ControlCatalog", true, `_uniqueGroupsIds."cloud-production"`},
 
 		// GuidanceCatalog — negative (group validation)
 		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
