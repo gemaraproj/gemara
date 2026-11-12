@@ -1,0 +1,2 @@
+# Ensure golden files always use LF line endings
+cmd/internal/cmd/testdata/*.yaml text eol=lf
