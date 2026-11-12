@@ -81,6 +81,26 @@ func (c *Converter) Convert(schemaDir string, options ...ConvertOption) error {
 	return nil
 }
 
+// InputFiles returns the paths of all input files read during conversion:
+// all CUE source files in the loaded package and the VERSION file if present.
+func (c *Converter) InputFiles() []string {
+	var inputs []string
+	if c.instance != nil {
+		for _, f := range c.instance.Files {
+			if f.Filename != "" {
+				inputs = append(inputs, f.Filename)
+			}
+		}
+	}
+	if c.schemaDir != "" {
+		versionPath := filepath.Join(c.schemaDir, "VERSION")
+		if _, err := os.Stat(versionPath); err == nil {
+			inputs = append(inputs, versionPath)
+		}
+	}
+	return inputs
+}
+
 // WriteOpenAPI writes the fully converted and postprocessed document.
 func (c *Converter) WriteOpenAPI(outputPath string) error {
 	if c.doc == nil {
