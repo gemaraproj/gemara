@@ -166,7 +166,11 @@ import "list"
 	id:          string
 	label:       string
 	description: string
-	"accepted-values"?: [string, ...string] @go(AcceptedValues)
+	AV="accepted-values"?: [string, ...string] @go(AcceptedValues)
+
+	if AV != _|_ {
+		_uniqueAcceptedValues: {for i, v in AV {(v): i}}
+	}
 }
 
 // GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
