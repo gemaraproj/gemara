@@ -2,7 +2,7 @@ metadata:
   id: "bad-policy-unknown-role-001"
   type: Policy
   gemara-version: "1.1.0"
-  description: "Policy with unknown role-ids"
+  description: "Policy with unknown role in contacts"
   version: "1.0.0"
   author:
     id: security-team
@@ -19,6 +19,10 @@ stakeholders:
   roles:
     - id: accountable
       title: Accountable
+  assignments:
+    - role-id: accountable
+      party-ids:
+        - sec-ops
 
 contacts:
   responsible:
