@@ -739,30 +739,30 @@ components:
         geopolitical:
           description: geopolitical is an optional list of geopolitical regions
           items:
-            type: string
+            $ref: "#/components/schemas/NonBlankSelector"
           minItems: 1
           type: array
         groups:
           items:
-            type: string
+            $ref: "#/components/schemas/NonBlankSelector"
           minItems: 1
           type: array
         sensitivity:
           description: sensitivity is an optional list of data classification levels
           items:
-            type: string
+            $ref: "#/components/schemas/NonBlankSelector"
           minItems: 1
           type: array
         technologies:
           description: technologies is an optional list of technology categories or services
           items:
-            type: string
+            $ref: "#/components/schemas/NonBlankSelector"
           minItems: 1
           type: array
         users:
           description: users is an optional list of user roles
           items:
-            type: string
+            $ref: "#/components/schemas/NonBlankSelector"
           minItems: 1
           type: array
       type: object
@@ -1625,6 +1625,11 @@ components:
           type: array
       type: object
       x-status: stable
+    NonBlankSelector:
+      description: NonBlankSelector defines a non-empty, non-whitespace-only string for scope selectors.
+      pattern: "[^[:space:]]"
+      type: string
+      x-status: experimental
     Parameter:
       description: Parameter defines a configurable parameter for assessment or enforcement activities.
       properties:

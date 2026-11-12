@@ -27,17 +27,20 @@ import "list"
 	out?: #Dimensions
 }
 
+// NonBlankSelector defines a non-empty, non-whitespace-only string for scope selectors.
+#NonBlankSelector: =~"[^[:space:]]" @go(NonBlankSelector)
+
 // Dimensions specify the applicability criteria for a policy
 #Dimensions: {
 	// technologies is an optional list of technology categories or services
-	technologies?: [string, ...string]
+	technologies?: [#NonBlankSelector, ...#NonBlankSelector]
 	// geopolitical is an optional list of geopolitical regions
-	geopolitical?: [string, ...string]
+	geopolitical?: [#NonBlankSelector, ...#NonBlankSelector]
 	// sensitivity is an optional list of data classification levels
-	sensitivity?: [string, ...string]
+	sensitivity?: [#NonBlankSelector, ...#NonBlankSelector]
 	// users is an optional list of user roles
-	users?: [string, ...string]
-	groups?: [string, ...string]
+	users?: [#NonBlankSelector, ...#NonBlankSelector]
+	groups?: [#NonBlankSelector, ...#NonBlankSelector]
 }
 
 // Imports defines external policies, controls, and guidelines required by this policy.
