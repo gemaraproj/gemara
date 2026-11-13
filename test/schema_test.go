@@ -167,6 +167,9 @@ func TestSchemaValidation(t *testing.T) {
 		// CapabilityCatalog — negative
 		{"capability with invalid group", "./test-data/bad-capability-invalid-group.yaml", "#CapabilityCatalog", true, `_groupValidation."0": invalid value ["container-infrastructure"]`},
 		{"capability catalog with duplicate capability id", "./test-data/bad-capability-duplicate-id.yaml", "#CapabilityCatalog", true, `_uniqueCapabilityIds."CAP-001"`},
+		{"capability missing required id", "./test-data/bad-capability-missing-id.yaml", "#CapabilityCatalog", true, "capabilities.0.id: incomplete value string"},
+		{"capability missing required description", "./test-data/bad-capability-missing-description.yaml", "#CapabilityCatalog", true, "capabilities.0.description: incomplete value string"},
+		{"capability catalog with empty capabilities list", "./test-data/bad-capability-empty-capabilities.yaml", "#CapabilityCatalog", true, "capabilities: incompatible list lengths"},
 
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
