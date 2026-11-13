@@ -29,10 +29,16 @@ import "list"
 		_uniqueGuidelineIds: {for i, g in guidelines {(g.id): i}}
 		groups: [#Group, ...#Group]
 		let _validGroupIds = [for g in groups {g.id}]
+		let _validGuidelineIds = [for g in guidelines {g.id}]
 
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, g in guidelines {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(g.group)
+		}
+		for i, g in guidelines if g."see-also" != _|_ {
+			for j, sa in g."see-also" {
+				_seeAlsoValidation: "\(i)-\(j)": _validGuidelineIds & list.Contains(sa)
+			}
 		}
 		if metadata."applicability-groups" != _|_ {
 			let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
