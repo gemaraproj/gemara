@@ -24,6 +24,7 @@ import "list"
 	risks?:                 #Risks
 	adherence:              #Adherence
 
+	// every role named in a RACI slot must be declared in stakeholders.roles, and every accountable role must have an assignment
 	if len(stakeholders.roles) > 0 {
 		let _validRoleIds = [for r in stakeholders.roles {r.id}]
 		let _assignedRoleIds = [for a in stakeholders.assignments {a."role-id"}]

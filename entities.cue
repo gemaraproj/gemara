@@ -118,14 +118,17 @@ import "list"
 	// assignments optionally declares standing party-to-role bindings
 	assignments?: [#RoleAssignment, ...#RoleAssignment] @gemara(projectable=false) @go(Assignments)
 
+	// party ids must be unique
 	if parties != _|_ {
 		_uniquePartyIds: {for i, p in parties {(p.id): i}}
 	}
 
+	// role ids must be unique
 	if roles != _|_ {
 		_uniqueRoleIds: {for i, r in roles {(r.id): i}}
 	}
 
+	// every role and party referenced in an assignment must be declared in stakeholders.roles and stakeholders.parties
 	if assignments != _|_ && roles != _|_ && parties != _|_ {
 		let _validRoleIds = [for r in roles {r.id}]
 		let _validPartyIds = [for p in parties {p.id}]
