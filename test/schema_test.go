@@ -84,6 +84,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
 		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
+		{"valid policy with mitigated and accepted risks", "./test-data/good-policy-risks.yaml", "#Policy", false, ""},
 
 		// Policy — negative (applicability)
 		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
@@ -104,6 +105,10 @@ func TestSchemaValidation(t *testing.T) {
 		{"duplicate retention obligation id", "./test-data/bad-policy-retention-duplicate-obligation-id.yaml", "#Policy", true, `_uniqueRetentionObligationIds."RET-AUDIT-7Y"`},
 		{"duplicate retention anchor id", "./test-data/bad-policy-retention-duplicate-anchor-id.yaml", "#Policy", true, `_uniqueRetentionAnchorIds."matter-closed"`},
 		{"retention anchor redeclaring collected-at", "./test-data/bad-policy-retention-redeclared-collected-at.yaml", "#Policy", true, `_uniqueRetentionAnchorIds."collected-at"`},
+		{"policy accepted risk with dangling target-id", "./test-data/bad-policy-accepted-risk-dangling-target.yaml", "#Policy", true, `_targetValidation."0": invalid value ["MIT-ACCESS-01"] (does not satisfy list.Contains("NONEXISTENT-MITIGATION"))`},
+		{"policy accepted risk with target-id but no mitigated risks", "./test-data/bad-policy-accepted-risk-target-without-mitigated.yaml", "#Policy", true, `_targetValidation."0": invalid value [] (does not satisfy list.Contains("MIT-ACCESS-01"))`},
+		{"policy with duplicate mitigated risk id", "./test-data/bad-policy-duplicate-mitigated-risk-id.yaml", "#Policy", true, `_uniqueMitigatedRiskIds."MIT-ACCESS-01"`},
+		{"policy with duplicate accepted risk id", "./test-data/bad-policy-duplicate-accepted-risk-id.yaml", "#Policy", true, `_uniqueAcceptedRiskIds."ACC-RESIDUAL-01"`},
 
 		// ControlCatalog — negative
 		{"invalid YAML", "./test-data/bad.yaml", "#ControlCatalog", true, `conflicting values "shouldn't be a string"`},
