@@ -39,6 +39,10 @@ package gemara
 	// end is the timestamp when the enforcement action concluded
 	end?: #Datetime
 
+	if end != _|_ {
+		end: >=start
+	}
+
 	// steps references the code paths or addresses that carried out this enforcement action
 	steps: [#EnforcementStep, ...#EnforcementStep]
 
