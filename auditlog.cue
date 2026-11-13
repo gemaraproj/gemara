@@ -98,6 +98,10 @@ import "list"
 	// description explains what this evidence represents
 	description?: string
 
+	// collector identifies the actor that gathered this evidence.
+	// When absent, consumers may fall back to the enclosing artifact's metadata.author.
+	collector?: #Actor @go(Collector,optional=nillable)
+
 	// retention records the obligations governing how long this evidence must be kept
 	retention?: #Retention @go(Retention,optional=nillable)
 }
