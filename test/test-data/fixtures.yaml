@@ -102,12 +102,33 @@ fixtures:
       error: '_uniqueCapabilityIds."CAP-001"'
     reason: 'capability catalog with duplicate capability id'
 
+  - files: [test/test-data/bad-capability-empty-capabilities.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: false
+      error: 'capabilities: incompatible list lengths'
+    reason: 'capability catalog with empty capabilities list'
+
   - files: [test/test-data/bad-capability-invalid-group.yaml]
     definition: '#CapabilityCatalog'
     schema:
       valid: false
       error: '_groupValidation."0": invalid value ["container-infrastructure"]'
     reason: 'capability with invalid group'
+
+  - files: [test/test-data/bad-capability-missing-description.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: false
+      error: 'capabilities.0.description: incomplete value string'
+    reason: 'capability missing required description'
+
+  - files: [test/test-data/bad-capability-missing-id.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: false
+      error: 'capabilities.0.id: incomplete value string'
+    reason: 'capability missing required id'
 
   - files: [test/test-data/bad-catalog-duplicate-group-id.yaml]
     definition: '#ControlCatalog'
@@ -179,6 +200,20 @@ fixtures:
       error: '_uniqueGuidelineIds."AIR-PREV-001"'
     reason: 'guidance catalog with duplicate guideline id'
 
+  - files: [test/test-data/bad-guidance-empty-list.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: 'guidelines: incompatible list lengths'
+    reason: 'guidance catalog with empty guidelines list'
+
+  - files: [test/test-data/bad-guidance-empty-recommendations.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: 'guidelines.0.recommendations: incompatible list lengths'
+    reason: 'guideline with empty recommendations list'
+
   - files: [test/test-data/bad-guidance-invalid-applicability.yaml]
     definition: '#GuidanceCatalog'
     schema:
@@ -192,6 +227,13 @@ fixtures:
       valid: false
       error: '_groupValidation."0": invalid value ["PREV"]'
     reason: 'guideline with invalid group'
+
+  - files: [test/test-data/bad-guidance-missing-title.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: 'guidelines.0.title: incomplete value string'
+    reason: 'guideline missing required title'
 
   - files: [test/test-data/bad-lexicon-duplicate-term-id.yaml]
     definition: '#Lexicon'
@@ -354,12 +396,26 @@ fixtures:
       error: '_uniquePrinciplesIds."PRIN-001"'
     reason: 'principle catalog with duplicate principle id'
 
+  - files: [test/test-data/bad-principle-empty-list.yaml]
+    definition: '#PrincipleCatalog'
+    schema:
+      valid: false
+      error: 'principles: incompatible list lengths'
+    reason: 'principle catalog with empty principles list'
+
   - files: [test/test-data/bad-principle-invalid-group.yaml]
     definition: '#PrincipleCatalog'
     schema:
       valid: false
       error: '_groupValidation."0": invalid value ["data-protection"]'
     reason: 'principle with invalid group'
+
+  - files: [test/test-data/bad-principle-missing-description.yaml]
+    definition: '#PrincipleCatalog'
+    schema:
+      valid: false
+      error: 'principles.0.description: incomplete value string'
+    reason: 'principle missing description'
 
   - files: [test/test-data/bad-risk-catalog-duplicate-rank.yaml]
     definition: '#RiskCatalog'
