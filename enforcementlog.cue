@@ -69,8 +69,12 @@ package gemara
 	// plan maps to the Policy assessment plan that was executed
 	plan?: #EntryMapping @go(Plan)
 
-	// log maps to the EvaluationLog entry containing the finding
-	log: #EntryMapping @go(Log)
+	// log.reference-id identifies the EvaluationLog. log.entry-id selects its ControlEvaluation
+	// by encoding control.reference-id and control.entry-id as a compact JSON array, for example
+	// ["OSPS-B","OSPS-DO-01"]. It does not identify a nested AssessmentLog.
+	log: #EntryMapping & {
+		"entry-id": =~"^\\[\"(?:[^\"\\\\\\x00-\\x1F]|\\\\(?:[\"\\\\/bfnrt]|u[0-9A-Fa-f]{4}))*\",\"(?:[^\"\\\\\\x00-\\x1F]|\\\\(?:[\"\\\\/bfnrt]|u[0-9A-Fa-f]{4}))*\"\\]$"
+	} @go(Log)
 }
 
 // Disposition enumerates the possible enforcement outcomes.

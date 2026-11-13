@@ -12,7 +12,20 @@ package gemara
 	metadata: type: "EvaluationLog"
 	// result is the aggregate outcome across all evaluations in this log
 	result: #Result
-	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
+	// evaluations contains at most one result per control mapping, keyed by
+	// (reference-id, entry-id). AssessmentFinding.log.entry-id encodes this pair as a compact
+	// JSON array.
+	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @gemara(projectable=false) @go(Evaluations,type=[]*ControlEvaluation)
+
+	// A control mapping can identify at most one evaluation within this log.
+	for i, e in evaluations {
+		for j, other in evaluations if i < j {
+			if e.control."reference-id" == other.control."reference-id" &&
+				e.control."entry-id" == other.control."entry-id" {
+				evaluations: error("duplicate control mapping in evaluations")
+			}
+		}
+	}
 }
 
 // ControlEvaluation contains the results of evaluating a single Layer 5 control.
