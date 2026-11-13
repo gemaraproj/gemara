@@ -96,12 +96,27 @@ func runCue2OpenAPI(opts cue2OpenAPIOpts) error {
 	if err := c.Post(); err != nil {
 		return err
 	}
-	if err := c.WriteOpenAPI(opts.outputPath); err != nil {
+
+	openAPIData, err := c.EncodeOpenAPI()
+	if err != nil {
 		return err
 	}
+
+	var manifestData []byte
 	if opts.manifestPath != "" {
-		if err := c.WriteManifest(opts.manifestPath); err != nil {
+		manifestData, err = c.EncodeManifest()
+		if err != nil {
 			return err
+		}
+	}
+
+	if err := os.WriteFile(opts.outputPath, openAPIData, 0644); err != nil {
+		return fmt.Errorf("writing OpenAPI output: %w", err)
+	}
+
+	if opts.manifestPath != "" {
+		if err := os.WriteFile(opts.manifestPath, manifestData, 0644); err != nil {
+			return fmt.Errorf("writing manifest output: %w", err)
 		}
 	}
 
