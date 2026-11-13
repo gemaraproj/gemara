@@ -65,9 +65,7 @@ guidelines:
         - "Compliance with Internal Data Governance: Supports adherence to internal data classification and handling policies within AI contexts."
         - "Mitigation of Insider Risk: Reduces the risk of sensitive information being accessed by unauthorized internal users through AI interfaces."
     see-also:
-      - AIR-DET-001
-      - AIR-PREV-006
-      - AIR-DET-016
+      - AIR-PREV-003
     statements:
       - id: AIR-PREV-002.1
         title: Rigorous Data Cleansing and Anonymization at Ingestion
@@ -186,9 +184,7 @@ guidelines:
         - "User Input to AI Model: Detect and block malicious or abusive user inputs such as Prompt Injection attacks"
         - "AI Model Output: Detect excessively long responses, format deviations, evasion patterns, data leakage, and inappropriate content"
     see-also:
-      - AIR-PREV-017
-      - AIR-PREV-008
-      - AIR-DET-015
+      - AIR-PREV-002
     statements:
       - id: AIR-PREV-003.1
         title: RAG Data Ingestion Filtering
