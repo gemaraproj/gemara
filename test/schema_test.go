@@ -116,9 +116,13 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid AIGF NIST 800-53 mapping", "./test-data/good-aigf-nist-mapping.yaml", "#MappingDocument", false, ""},
 
 		// MappingDocument — negative
-		{"invalid mapping document without mapping-references", "./test-data/bad-mapping-document.yaml", "#MappingDocument", true, `metadata."mapping-references".0.id: incomplete value string`},
+		{"invalid mapping document without mapping-references", "./test-data/bad-mapping-document.yaml", "#MappingDocument", true, `does not satisfy list.Contains("SOURCE")`},
 		{"mapping document with duplicate mapping id", "./test-data/bad-mapping-duplicate-id.yaml", "#MappingDocument", true, `_uniqueMappingIds."DUP-01"`},
 		{"mapping missing targets for non-no-match relationship", "./test-data/bad-mapping-no-target.yaml", "#MappingDocument", true, `targets.0."entry-id": incomplete value string`},
+		{"mapping document with undeclared source mapping-reference", "./test-data/bad-mapping-undeclared-source-reference.yaml", "#MappingDocument", true, `does not satisfy list.Contains("UNDECLARED-SOURCE")`},
+		{"mapping document with undeclared target mapping-reference", "./test-data/bad-mapping-undeclared-target-reference.yaml", "#MappingDocument", true, `does not satisfy list.Contains("UNDECLARED-TARGET")`},
+		{"mapping document with identical source and target references", "./test-data/bad-mapping-identical-references.yaml", "#MappingDocument", true, `_distinctReferences: conflicting values false and true`},
+		{"mapping target with undeclared applicability group", "./test-data/bad-mapping-invalid-applicability.yaml", "#MappingDocument", true, `does not satisfy list.Contains("nonexistent-applicability")`},
 
 		// Lexicon — positive
 		{"valid lexicon", "./test-data/good-lexicon.yaml", "#Lexicon", false, ""},

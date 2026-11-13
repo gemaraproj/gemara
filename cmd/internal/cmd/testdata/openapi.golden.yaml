@@ -1502,7 +1502,7 @@ components:
       description: MappingTarget identifies a target entry with optional per-target metadata
       properties:
         applicability:
-          description: applicability constrains the contexts in which this target mapping holds
+          description: applicability constrains the contexts in which this target mapping holds; when metadata.applicability-groups is declared, each value must match a declared group id
           items:
             type: string
           minItems: 1

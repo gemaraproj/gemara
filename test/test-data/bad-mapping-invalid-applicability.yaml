@@ -1,0 +1,40 @@
+title: Mapping Document with Invalid Target Applicability
+metadata:
+  id: BAD-MAP-INVALID-APPLICABILITY
+  version: "1.0.0"
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  description: Mapping document target referencing undeclared applicability group
+  author:
+    id: gemara-test
+    name: Gemara Test Author
+    type: Human
+  applicability-groups:
+    - id: manufacturer
+      title: Manufacturer
+      description: Entity placing a product on the market
+  mapping-references:
+    - id: OSPS
+      title: Open Source Project Security Baseline
+      version: "2025.03.03"
+      url: "https://baseline.openssf.org/"
+    - id: CRA
+      title: EU Cyber Resilience Act - Annex I
+      version: "2024/2847"
+      url: "https://eur-lex.europa.eu/eli/reg/2024/2847/oj"
+
+source-reference:
+  reference-id: OSPS
+  entry-type: Control
+target-reference:
+  reference-id: CRA
+  entry-type: Guideline
+
+mappings:
+  - id: MAP-01
+    source: OSPS-QA-02
+    relationship: relates-to
+    targets:
+      - entry-id: "2.1"
+        applicability:
+          - nonexistent-applicability
