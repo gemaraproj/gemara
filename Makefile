@@ -118,6 +118,14 @@ breaking-check:
 	@echo "  >  Backward compatibility check complete."
 
 #
+# SEMANTIC REFERENCE & FOREIGN-KEY VALIDATION
+#
+validate:
+	@echo "  >  Validating semantic references and foreign-key integrity across fixtures ..."
+	@( cd cmd && go run . validate ../test/test-data/good-mapping-document.yaml ../test/test-data/good-osps.yml ../test/test-data/good-enforcement-log.yaml )
+	@echo "  >  Semantic reference validation complete."
+
+#
 # REMOVE GENERATED FILES
 #
 
@@ -126,4 +134,4 @@ cleanup:
 	@rm -rf $(GENERATED_DIR)
 	@echo "  >  Cleanup complete!"
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights test breaking-check cleanup genopenapi
+.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights test breaking-check cleanup genopenapi validate
