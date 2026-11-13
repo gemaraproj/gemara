@@ -34,6 +34,10 @@ For instance, if you add a new `#NewSchema` definition to `controlcatalog.cue`, 
 
 Use `cue fmt .` and `make cuefmtcheck` to ensure proper formatting and `make lintcue` to validate the syntax of your changes. If you forget to do this before opening a PR and your changes are invalid, the [CI workflow](.github/workflows/ci.yml) will fail and alert you.
 
+### Adding a test fixture
+
+Each file under `test/test-data/` or `examples/` needs a row in `test/test-data/fixtures.yaml`, kept sorted by file path. Until the case table in `test/schema_test.go` moves into the manifest, add a case there too. Base a new `bad-` file on a valid one and break exactly one rule. If a file has no row, `make test` fails and prints a draft row to fill in.
+
 ### Adding a new artifact type
 
 Adding a new artifact type requires schema changes, test data, and documentation updates. Follow the checklist below.
@@ -44,7 +48,7 @@ Adding a new artifact type requires schema changes, test data, and documentation
 | 2        | Add `"YourArtifact"` to the `#ArtifactType` enum in `metadata.cue`                            |
 | 3        | Add an entry for the new file to `schema-nav.yml` in the [website repo](https://github.com/gemaraproj/website), listing the artifact and every struct, enum, and alias it adds (unlisted definitions get no docs page), with a `layer:` value where applicable |
 | 4        | Create a valid test data file in `test/test-data/` (prefix with `good-`)                      |
-| 5        | Add a row for each new file to `test/test-data/fixtures.yaml` and, until the table moves there, a case to `test/schema_test.go`. Base each `bad-` file on a valid one and break exactly one rule |
+| 5        | Add a row and a test case for each new file (see [Adding a test fixture](#adding-a-test-fixture)) |
 | 6        | Run `cue vet -d '#YourArtifact' . test/test-data/good-your-artifact.yaml` to validate locally |
 | 7        | Run `cue fmt .` and `make cuefmtcheck` to verify formatting                                   |
 | 8        | Run `make lintcue` and `make test` to confirm all checks pass                                 |
