@@ -1,0 +1,22 @@
+metadata:
+  id: EXAMPLE-CAPABILITY-CATALOG
+  type: CapabilityCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example Capability Catalog with missing capability ID
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+
+title: Example Capability Catalog
+
+groups:
+  - id: container-infrastructure
+    title: Container Infrastructure
+    description: Capabilities related to the core container infrastructure
+
+capabilities:
+  - title: Container Runtime
+    description: System's ability to run containerized applications.
+    group: container-infrastructure

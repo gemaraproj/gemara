@@ -74,3 +74,8 @@ autolabeler:
   - label: "revert"
     title:
       - "/^(revert).*/i"
+  # Matches on changed files rather than the title: the schema lives in the
+  # root-level .cue files, and any change to them needs a design review.
+  - label: "schema"
+    files:
+      - "*.cue"

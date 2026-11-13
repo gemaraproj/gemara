@@ -1,0 +1,18 @@
+title: AI Governance Framework Principles
+metadata:
+  id: AIR-PRIN
+  type: PrincipleCatalog
+  gemara-version: "1.1.0"
+  description: Core principles underpinning the FINOS AI Governance Framework.
+  version: 0.1.0
+  author:
+    id: finos
+    name: FINOS
+    type: Human
+
+groups:
+  - id: data-protection
+    title: Data Protection
+    description: Principles governing the handling of sensitive data within AI systems.
+
+principles: []
