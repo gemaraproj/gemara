@@ -119,6 +119,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"invalid mapping document without mapping-references", "./test-data/bad-mapping-document.yaml", "#MappingDocument", true, `metadata."mapping-references".0.id: incomplete value string`},
 		{"mapping document with duplicate mapping id", "./test-data/bad-mapping-duplicate-id.yaml", "#MappingDocument", true, `_uniqueMappingIds."DUP-01"`},
 		{"mapping missing targets for non-no-match relationship", "./test-data/bad-mapping-no-target.yaml", "#MappingDocument", true, `targets.0."entry-id": incomplete value string`},
+		{"no-match mapping with targets", "./test-data/bad-mapping-nomatch-with-targets.yaml", "#MappingDocument", true, "#MappingDocument: explicit error"},
 
 		// Lexicon — positive
 		{"valid lexicon", "./test-data/good-lexicon.yaml", "#Lexicon", false, ""},

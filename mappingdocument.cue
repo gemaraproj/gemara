@@ -39,13 +39,16 @@ package gemara
 	"entry-type": #EntryType @go(EntryType)
 }
 
-// _MappingStrict layers the "targets required when not no-match" rule on top of #Mapping
+// _MappingStrict layers the "targets required when not no-match, forbidden when no-match" rule on top of #Mapping
 #_MappingStrict: {
 	@go(-)
 } & #Mapping & {
 	relationship: #RelationshipType
 	if relationship != "no-match" {
 		targets: [#MappingTarget, ...#MappingTarget]
+	}
+	if relationship == "no-match" {
+		targets?: _|_
 	}
 }
 
