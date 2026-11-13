@@ -1,0 +1,23 @@
+metadata:
+  id: TEST-GUIDANCE-MISSING-TITLE
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Guideline missing required title
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+
+title: AI Governance Framework
+type: Framework
+
+groups:
+  - id: PREV
+    title: Preventive
+    description: Prevention and Risk Mitigation
+
+guidelines:
+  - id: AIR-PREV-001
+    group: PREV
+    objective: Objective without a title
