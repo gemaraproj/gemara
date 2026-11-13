@@ -19,6 +19,12 @@ package gemara
 	terms: [#LexiconTerm, ...#LexiconTerm] @go(Terms)
 
 	_uniqueTermIds: {for i, t in terms {(t.id): i}}
+	_uniqueSynonyms: {
+		for i, t in terms if t.synonyms != _|_
+		for j, s in t.synonyms {
+			(s): i*1000 + j
+		}
+	}
 }
 
 // LexiconTerm is a single definition within a lexicon

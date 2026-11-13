@@ -125,6 +125,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// Lexicon — negative
 		{"lexicon with duplicate term ids", "./test-data/bad-lexicon-duplicate-term-id.yaml", "#Lexicon", true, `_uniqueTermIds."same-id"`},
+		{"lexicon with duplicate synonyms across terms", "./test-data/bad-lexicon-duplicate-synonym.yaml", "#Lexicon", true, `_uniqueSynonyms."shared-synonym"`},
 
 		// GuidanceCatalog — negative
 		{"retired guideline with recommendations", "./test-data/bad-lifecycle.yaml", "#GuidanceCatalog", true, "#GuidanceCatalog: explicit error"},
