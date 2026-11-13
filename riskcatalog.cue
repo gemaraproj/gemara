@@ -24,6 +24,7 @@ import "list"
 	// stakeholders defines the parties, roles, and standing role assignments for this catalog
 	stakeholders?: #Stakeholders @go(Stakeholders,optional=nillable)
 
+	// when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, each risk's group must be a declared group id, and any risk owner roles must be declared in stakeholders.roles
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
 		// Each distinct rank value may appear at most once among risks that set rank (partial ranking allowed).

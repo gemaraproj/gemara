@@ -38,6 +38,7 @@ import "list"
 		}
 	}
 
+	// when an owner is declared, stakeholders must be defined and every role named in owner must be declared in stakeholders.roles
 	if owner != _|_ {
 		stakeholders: #Stakeholders
 		let _validRoleIds = [for r in stakeholders.roles {r.id}]
