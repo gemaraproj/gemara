@@ -78,6 +78,11 @@ func TestSchemaValidation(t *testing.T) {
 
 		// RiskCatalog — negative
 		{"risk catalog with duplicate rank", "./test-data/bad-risk-catalog-duplicate-rank.yaml", "#RiskCatalog", true, `_uniqueRiskRanks."1"`},
+		{"risk catalog with empty risks list", "./test-data/bad-risk-empty-risks.yaml", "#RiskCatalog", true, "risks: incompatible list lengths"},
+		{"risk missing required title", "./test-data/bad-risk-missing-title.yaml", "#RiskCatalog", true, "risks.0.title: incomplete value string"},
+		{"risk missing required description", "./test-data/bad-risk-missing-description.yaml", "#RiskCatalog", true, "risks.0.description: incomplete value string"},
+		{"risk with invalid severity", "./test-data/bad-risk-invalid-severity.yaml", "#RiskCatalog", true, `risks.0.severity: 4 errors in empty disjunction`},
+		{"risk category with invalid appetite", "./test-data/bad-risk-category-invalid-appetite.yaml", "#RiskCatalog", true, `groups.0.appetite: 4 errors in empty disjunction`},
 
 		// Policy — positive
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
