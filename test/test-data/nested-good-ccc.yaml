@@ -9,6 +9,22 @@ metadata:
     id: finos
     name: FINOS
     type: Human
+  mapping-references:
+    - id: CCC
+      title: FINOS Common Cloud Controls Threats
+      version: "2024.1"
+    - id: CSF
+      title: NIST Cybersecurity Framework
+      version: "2.0"
+    - id: CCM
+      title: Cloud Security Alliance Cloud Controls Matrix
+      version: "4.0"
+    - id: ISO-27001
+      title: ISO/IEC 27001
+      version: "2013"
+    - id: NIST-800-53
+      title: NIST Special Publication 800-53
+      version: "Rev. 5"
   applicability-groups:
     - id: tlp_clear
       title: TLP:Clear

@@ -153,7 +153,7 @@ components:
       description: ArtifactMapping represents a mapping to an external artifact or artifact entry
       properties:
         reference-id:
-          description: reference-id identifies an element from a MappingReference in the artifact's metadata
+          description: reference-id identifies an element from a MappingReference in the artifact's metadata or the artifact's own metadata.id
           type: string
         remarks:
           description: remarks is prose regarding the mapped artifact or the mapping relationship
@@ -495,7 +495,7 @@ components:
       description: Catalog describes a set of topically-associated entries
       properties:
         extends:
-          description: extends references catalogs that this catalog builds upon
+          description: extends references catalogs that this catalog builds upon; each reference-id must be declared in metadata.mapping-references or match metadata.id
           items:
             $ref: "#/components/schemas/ArtifactMapping"
           type: array
@@ -506,6 +506,7 @@ components:
           minItems: 1
           type: array
         imports:
+          description: imports incorporates entries from external catalogs; each outer reference-id must be declared in metadata.mapping-references or match metadata.id
           items:
             $ref: "#/components/schemas/MultiEntryMapping"
           minItems: 1

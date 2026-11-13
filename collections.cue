@@ -4,6 +4,8 @@
 @gemara(status="stable")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // Catalog describes a set of topically-associated entries
@@ -17,21 +19,32 @@ package gemara
 	// groups contains a list of groups that can be referenced by entries in this catalog
 	groups?: [#Group, ...#Group]
 
-	// extends references catalogs that this catalog builds upon
+	// extends references catalogs that this catalog builds upon; each reference-id must be declared in metadata.mapping-references or match metadata.id
 	extends?: [...#ArtifactMapping] @go(Extends)
 
+	// imports incorporates entries from external catalogs; each outer reference-id must be declared in metadata.mapping-references or match metadata.id
 	imports?: [#MultiEntryMapping, ...#MultiEntryMapping]
 
 	if groups != _|_ {
 		_uniqueGroupIds: {for i, g in groups {(g.id): i}}
 	}
 
-	if extends != _|_ {
+	if extends != _|_ || imports != _|_ {
 		metadata: "mapping-references": [#MappingReference, ...#MappingReference]
-	}
-
-	if imports != _|_ {
-		metadata: "mapping-references": [#MappingReference, ...#MappingReference]
+		let _validRefIds = list.Concat([
+			[metadata.id],
+			[for r in metadata."mapping-references" {r.id}],
+		])
+		if extends != _|_ {
+			for i, e in extends {
+				_extendsRefValidation: "\(i)": _validRefIds & list.Contains(e."reference-id")
+			}
+		}
+		if imports != _|_ {
+			for i, imp in imports {
+				_importsRefValidation: "\(i)": _validRefIds & list.Contains(imp."reference-id")
+			}
+		}
 	}
 }
 

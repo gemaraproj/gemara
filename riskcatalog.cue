@@ -28,10 +28,19 @@ import "list"
 		_uniqueRiskRanks: {for i, r in risks if r.rank != _|_ {"\(r.rank)": i}}
 		groups: [#RiskCategory, ...#RiskCategory]
 		let _validGroupIds = [for g in groups {g.id}]
+		let _validRefIds = list.Concat([
+			[metadata.id],
+			[if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r.id}],
+		])
 
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, r in risks {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(r.group)
+			if r.threats != _|_ {
+				for j, th in r.threats {
+					_threatRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(th."reference-id")
+				}
+			}
 		}
 	}
 }

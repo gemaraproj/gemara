@@ -1,0 +1,40 @@
+metadata:
+  id: TEST-CONTROL-CATALOG
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Control catalog with undeclared threat reference
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: VALID-MAPPING
+      title: Valid Mapping
+      version: "1.0.0"
+  applicability-groups:
+    - id: production
+      title: Production
+      description: Production environment
+
+title: Test Control Catalog
+
+groups:
+  - id: access-control
+    title: Access Control
+    description: Access control mechanisms
+
+controls:
+  - id: CTRL-001
+    group: access-control
+    title: Restrict Access
+    objective: Restrict access to authorized users
+    assessment-requirements:
+      - id: CTRL-001.AR01
+        text: Verify access controls
+        applicability:
+          - production
+    threats:
+      - reference-id: UNDECLARED-THREAT
+        entries:
+          - reference-id: THR-001

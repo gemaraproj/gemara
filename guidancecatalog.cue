@@ -25,14 +25,44 @@ import "list"
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [#Exemption, ...#Exemption] @go(Exemptions)
 
+	if exemptions != _|_ {
+		let _validRefIds = list.Concat([
+			[metadata.id],
+			[if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r.id}],
+		])
+		for i, ex in exemptions if ex.redirect != _|_ {
+			_exemptionRedirectRefValidation: "\(i)": _validRefIds & list.Contains(ex.redirect."reference-id")
+		}
+	}
+
 	if guidelines != _|_ {
 		_uniqueGuidelineIds: {for i, g in guidelines {(g.id): i}}
 		groups: [#Group, ...#Group]
 		let _validGroupIds = [for g in groups {g.id}]
+		let _validRefIds = list.Concat([
+			[metadata.id],
+			[if metadata."mapping-references" != _|_ for r in metadata."mapping-references" {r.id}],
+		])
 
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, g in guidelines {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(g.group)
+			if g.extends != _|_ {
+				_guidelineExtendsRefValidation: "\(i)": _validRefIds & list.Contains(g.extends."reference-id")
+			}
+			if g."replaced-by" != _|_ {
+				_guidelineReplacedByRefValidation: "\(i)": _validRefIds & list.Contains(g."replaced-by"."reference-id")
+			}
+			if g.principles != _|_ {
+				for j, p in g.principles {
+					_principleRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(p."reference-id")
+				}
+			}
+			if g.vectors != _|_ {
+				for j, v in g.vectors {
+					_vectorRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(v."reference-id")
+				}
+			}
 		}
 		if metadata."applicability-groups" != _|_ {
 			let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
