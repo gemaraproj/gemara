@@ -21,6 +21,10 @@ import "list"
 	// risks is a list of risks defined by this catalog
 	risks?: [#Risk, ...#Risk] @go(Risks)
 
+	// stakeholders defines the parties, roles, and standing role assignments for this catalog
+	stakeholders?: #Stakeholders @go(Stakeholders,optional=nillable)
+
+	// when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, each risk's group must be a declared group id, and any risk owner roles must be declared in stakeholders.roles
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
 		// Each distinct rank value may appear at most once among risks that set rank (partial ranking allowed).
@@ -32,6 +36,33 @@ import "list"
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, r in risks {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(r.group)
+		}
+
+		for i, r in risks if r.owner != _|_ {
+			stakeholders: #Stakeholders
+		}
+
+		if stakeholders != _|_ {
+			let _validRoleIds = [for r in stakeholders.roles {r.id}]
+
+			for i, r in risks if r.owner != _|_ {
+				for j, roleId in r.owner.responsible {
+					_riskOwnerValidationResp: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+				}
+				for j, roleId in r.owner.accountable {
+					_riskOwnerValidationAcct: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+				}
+				if r.owner.consulted != _|_ {
+					for j, roleId in r.owner.consulted {
+						_riskOwnerValidationCons: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+					}
+				}
+				if r.owner.informed != _|_ {
+					for j, roleId in r.owner.informed {
+						_riskOwnerValidationInfo: "\(i)_\(j)": _validRoleIds & list.Contains(roleId)
+					}
+				}
+			}
 		}
 	}
 }

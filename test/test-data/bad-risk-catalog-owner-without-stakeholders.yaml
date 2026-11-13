@@ -1,0 +1,30 @@
+metadata:
+  id: BAD-RISK-CATALOG-NO-STAKEHOLDERS
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid Risk Catalog with owner but no stakeholders defined
+  author:
+    id: test-author
+    name: Tester
+    type: Human
+
+title: Bad Risk Catalog Missing Stakeholders
+
+groups:
+  - id: CAT-TEST
+    title: Test
+    description: Test
+    appetite: Low
+
+risks:
+  - id: RISK-001
+    title: Risk One
+    description: Risk description
+    group: CAT-TEST
+    severity: Low
+    owner:
+      responsible:
+        - accountable
+      accountable:
+        - accountable

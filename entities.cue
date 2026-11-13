@@ -4,9 +4,11 @@
 @gemara(status="stable")
 package gemara
 
+import "list"
+
 @go(gemara)
 
-// Entity represents a human or tool
+// Entity represents a human, group, or tool
 #Entity: {
 	// id uniquely identifies the entity and allows this entry to be referenced by other elements
 	id: string
@@ -29,7 +31,7 @@ package gemara
 	uri?: =~"^[a-zA-Z][a-zA-Z0-9+.-]*:[^\\s]+$"
 }
 
-// Actor represents an entity (human or tool) that performs actions in evaluations
+// Actor represents an entity (human, group, or tool) that performs actions in evaluations or participates as a stakeholder
 #Actor: {
 	#Entity
 
@@ -49,7 +51,7 @@ package gemara
 }
 
 // EntityType specifies what entity is interacting in the workflow
-#EntityType: "Human" | "Software" | "Software Assisted" @go(-)
+#EntityType: "Human" | "Group" | "Software" | "Software Assisted" @go(-)
 
 // Contact is the contact information for a person or group
 #Contact: {
@@ -71,15 +73,71 @@ package gemara
 
 // RACI defines the roles responsible for managing an artifact
 #RACI: {
-	// responsible identifies the entities responsible for executing work to manage or mitigate the artifact
-	responsible: [#Contact, ...#Contact]
+	// responsible identifies the roles executing work to manage or mitigate the artifact
+	responsible: [string, ...string]
 
-	// accountable identifies the entity ultimately accountable for the outcome
-	accountable: [#Contact, ...#Contact]
+	// accountable identifies the roles ultimately accountable for the outcome
+	accountable: [string, ...string]
 
-	// consulted identifies entities whose input is required when assessing or responding to the artifact
-	consulted?: [#Contact, ...#Contact]
+	// consulted identifies roles whose input is required when assessing or responding to the artifact
+	consulted?: [string, ...string]
 
-	// informed identifies entities that should be notified about changes to the artifact status
-	informed?: [#Contact, ...#Contact]
+	// informed identifies roles that should be notified about changes to the artifact status
+	informed?: [string, ...string]
+}
+
+// Role defines a governance, operational, or interest role that can be bound to parties
+#Role: {
+	// id uniquely identifies this role
+	id: string
+
+	// title is the human-readable name of the role
+	title: string
+
+	// description describes the responsibilities or nature of this role
+	description?: string @go(Description)
+}
+
+// RoleAssignment binds one or more parties to a specific role
+#RoleAssignment: {
+	// role-id identifies the role being assigned
+	"role-id": string @go(RoleID) @yaml("role-id")
+
+	// party-ids lists the parties assigned to this role
+	"party-ids": [string, ...string] @gemara(projectable=false) @go(PartyIDs) @yaml("party-ids")
+}
+
+// Stakeholders defines the reusable parties, roles, and optional standing assignments
+#Stakeholders: {
+	// parties lists the entities taking part by holding a stake
+	parties: [#Actor, ...#Actor] @gemara(projectable=false) @go(Parties)
+
+	// roles lists the roles defined for this context
+	roles: [#Role, ...#Role] @gemara(projectable=false) @go(Roles)
+
+	// assignments optionally declares standing party-to-role bindings
+	assignments?: [#RoleAssignment, ...#RoleAssignment] @gemara(projectable=false) @go(Assignments)
+
+	// party ids must be unique
+	if parties != _|_ {
+		_uniquePartyIds: {for i, p in parties {(p.id): i}}
+	}
+
+	// role ids must be unique
+	if roles != _|_ {
+		_uniqueRoleIds: {for i, r in roles {(r.id): i}}
+	}
+
+	// every role and party referenced in an assignment must be declared in stakeholders.roles and stakeholders.parties
+	if assignments != _|_ && roles != _|_ && parties != _|_ {
+		let _validRoleIds = [for r in roles {r.id}]
+		let _validPartyIds = [for p in parties {p.id}]
+
+		for i, a in assignments {
+			_roleValidation: "\(i)": _validRoleIds & list.Contains(a."role-id")
+			for j, pId in a."party-ids" {
+				_partyValidation: "\(i)_\(j)": _validPartyIds & list.Contains(pId)
+			}
+		}
+	}
 }

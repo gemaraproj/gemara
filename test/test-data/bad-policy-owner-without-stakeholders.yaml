@@ -1,0 +1,29 @@
+metadata:
+  id: "bad-policy-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy with owner but no stakeholders"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+
+title: "Bad Policy Missing Stakeholders"
+contacts:
+  responsible:
+    - accountable
+  accountable:
+    - accountable
+
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+
+imports:
+  catalogs:
+    - reference-id: "NIST-800-53"
+
+adherence:
+  non-compliance: "Non-compliant systems will be quarantined pending remediation"
