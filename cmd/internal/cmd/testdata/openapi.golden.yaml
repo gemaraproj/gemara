@@ -1131,7 +1131,7 @@ components:
           description: type categorizes this document based on the intent of its contents
       type: object
       x-rules:
-      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
+      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
       x-status: experimental
     GuidanceImport:
       description: GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
