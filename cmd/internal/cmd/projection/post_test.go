@@ -313,3 +313,106 @@ func TestTypedPassthroughBaseAcceptsRequirementFromBaseInlineAllOf(t *testing.T)
 		t.Errorf("base = %q, want Base", got)
 	}
 }
+
+// TestRestoreRefDescriptionsAppliesDeprecations verifies that @deprecated attributes
+// (both bare and with reasons) reach the projected OpenAPI schema properties,
+// for both inline properties and wrapped $ref properties.
+func TestRestoreRefDescriptionsAppliesDeprecations(t *testing.T) {
+	doc := &openapi3.T{
+		Components: &openapi3.Components{
+			Schemas: openapi3.Schemas{
+				"Widget": val(&openapi3.Schema{
+					Properties: openapi3.Schemas{
+						"inlineBare": val(&openapi3.Schema{
+							Type:        &openapi3.Types{"string"},
+							Description: "Original description",
+						}),
+						"inlineWithReason": val(&openapi3.Schema{
+							Type:        &openapi3.Types{"string"},
+							Description: "Original description",
+						}),
+						"refBare":       ref("OtherSchema"),
+						"refWithReason": ref("OtherSchema"),
+						"notDeprecated": val(&openapi3.Schema{
+							Type:        &openapi3.Types{"string"},
+							Description: "Active field",
+						}),
+					},
+				}),
+			},
+		},
+	}
+
+	docs := map[string]string{
+		"Widget.inlineBare":       "Original description",
+		"Widget.inlineWithReason": "Original description",
+		"Widget.refBare":          "Doc comment for refBare",
+		"Widget.refWithReason":    "Doc comment for refWithReason",
+	}
+
+	deprecations := map[string]string{
+		"Widget.inlineBare":       "",
+		"Widget.inlineWithReason": "use newField instead",
+		"Widget.refBare":          "",
+		"Widget.refWithReason":    "use otherRef instead",
+	}
+
+	if err := restoreRefDescriptionsTyped(doc, docs, deprecations); err != nil {
+		t.Fatalf("restoreRefDescriptionsTyped failed: %v", err)
+	}
+
+	widgetProps := doc.Components.Schemas["Widget"].Value.Properties
+
+	// 1. Inline bare deprecation
+	inlineBare := widgetProps["inlineBare"]
+	if !inlineBare.Value.Deprecated {
+		t.Errorf("inlineBare.Deprecated = false, want true")
+	}
+	if inlineBare.Value.Description != "Original description" {
+		t.Errorf("inlineBare.Description = %q, want %q", inlineBare.Value.Description, "Original description")
+	}
+
+	// 2. Inline deprecation with reason
+	inlineReason := widgetProps["inlineWithReason"]
+	if !inlineReason.Value.Deprecated {
+		t.Errorf("inlineWithReason.Deprecated = false, want true")
+	}
+	wantInlineDesc := "Original description\n\nDeprecated: use newField instead"
+	if inlineReason.Value.Description != wantInlineDesc {
+		t.Errorf("inlineWithReason.Description = %q, want %q", inlineReason.Value.Description, wantInlineDesc)
+	}
+
+	// 3. Wrapped $ref bare deprecation
+	refBare := widgetProps["refBare"]
+	if !refBare.Value.Deprecated {
+		t.Errorf("refBare.Deprecated = false, want true")
+	}
+	if refBare.Value.Description != "Doc comment for refBare" {
+		t.Errorf("refBare.Description = %q, want %q", refBare.Value.Description, "Doc comment for refBare")
+	}
+	if len(refBare.Value.AllOf) != 1 || refBare.Value.AllOf[0].Ref != refPrefix+"OtherSchema" {
+		t.Errorf("refBare.AllOf = %v, want allOf with ref OtherSchema", refBare.Value.AllOf)
+	}
+
+	// 4. Wrapped $ref deprecation with reason
+	refReason := widgetProps["refWithReason"]
+	if !refReason.Value.Deprecated {
+		t.Errorf("refWithReason.Deprecated = false, want true")
+	}
+	wantRefDesc := "Doc comment for refWithReason\n\nDeprecated: use otherRef instead"
+	if refReason.Value.Description != wantRefDesc {
+		t.Errorf("refWithReason.Description = %q, want %q", refReason.Value.Description, wantRefDesc)
+	}
+	if len(refReason.Value.AllOf) != 1 || refReason.Value.AllOf[0].Ref != refPrefix+"OtherSchema" {
+		t.Errorf("refWithReason.AllOf = %v, want allOf with ref OtherSchema", refReason.Value.AllOf)
+	}
+
+	// 5. Not deprecated field
+	notDep := widgetProps["notDeprecated"]
+	if notDep.Value.Deprecated {
+		t.Errorf("notDeprecated.Deprecated = true, want false")
+	}
+	if notDep.Value.Description != "Active field" {
+		t.Errorf("notDeprecated.Description = %q, want %q", notDep.Value.Description, "Active field")
+	}
+}
