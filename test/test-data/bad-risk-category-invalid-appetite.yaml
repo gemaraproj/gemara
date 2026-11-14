@@ -1,0 +1,25 @@
+metadata:
+  id: BAD-RISK-CATEGORY-INVALID-APPETITE
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — risk category specifies an unrecognized appetite level
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Invalid risk category appetite
+
+groups:
+  - id: CAT-SECURITY
+    title: Security
+    description: Security risk category
+    appetite: ZeroTolerance
+
+risks:
+  - id: RISK-001
+    title: Risk with valid fields
+    description: Valid risk but enclosing category has an invalid appetite
+    group: CAT-SECURITY
+    severity: High
