@@ -44,7 +44,7 @@ Adding a new artifact type requires schema changes, test data, and documentation
 | 2        | Add `"YourArtifact"` to the `#ArtifactType` enum in `metadata.cue`                            |
 | 3        | Add an entry for the new file to `schema-nav.yml` in the [website repo](https://github.com/gemaraproj/website), listing the artifact and every struct, enum, and alias it adds (unlisted definitions get no docs page), with a `layer:` value where applicable |
 | 4        | Create a valid test data file in `test/test-data/` (prefix with `good-`)                      |
-| 5        | Add positive and/or negative test cases to `test/schema_test.go`                              |
+| 5        | Add a row for each new file to `test/test-data/fixtures.yaml` and, until the table moves there, a case to `test/schema_test.go`. Base each `bad-` file on a valid one and break exactly one rule |
 | 6        | Run `cue vet -d '#YourArtifact' . test/test-data/good-your-artifact.yaml` to validate locally |
 | 7        | Run `cue fmt .` and `make cuefmtcheck` to verify formatting                                   |
 | 8        | Run `make lintcue` and `make test` to confirm all checks pass                                 |

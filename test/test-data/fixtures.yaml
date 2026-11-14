@@ -1,0 +1,588 @@
+# What each fixture is for and how it should fare. test/manifest_test.go checks
+# every row against the CUE and fails if a file under test/test-data or examples
+# has no row. Paths are relative to the repository root. Keep rows sorted by
+# first file. schema.error is a substring of one CUE error message for that file.
+# A new bad fixture should start from a valid one and break exactly one rule,
+# because CUE may report only some of several defects. A few older ones break
+# more than one.
+fixtures:
+  - files: [examples/ai-agent/ai-agent-capability-catalog.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: true
+    reason: 'valid AI agent capability catalog'
+
+  - files: [examples/ai-agent/atr-categories-to-capabilities-mapping.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: true
+    reason: 'valid ATR categories to capabilities mapping'
+
+  - files: [test/test-data/bad-audit-log-duplicate-result-id.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: '_uniqueResultIds."RES-001"'
+    reason: 'audit log with duplicate result id'
+
+  - files: [test/test-data/bad-audit-log-evidence-neither.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'evidence.0.source."reference-id": incomplete value string'
+    reason: 'audit log evidence with neither payload nor source'
+
+  - files: [test/test-data/bad-audit-log-invalid-digest.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'invalid value "SHA256:invalidbecauseuppercasealgorithm"'
+    reason: 'audit log evidence source with invalid digest format'
+
+  - files: [test/test-data/bad-audit-log-retention-empty.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'obligations'
+    reason: 'retention block with no obligations'
+
+  - files: [test/test-data/bad-audit-log-retention-holds.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'holds: field not allowed'
+    reason: 'mutable preservation holds excluded from retention snapshots'
+
+  - files: [test/test-data/bad-audit-log-retention-missing-effective.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'obligations.1.effective'
+    reason: 'retention obligation reference without an effective instant'
+
+  - files: [test/test-data/bad-audit-log-undeclared-criteria.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'does not satisfy list.Contains("OSPS")'
+    reason: 'audit result referencing undeclared criteria'
+
+  - files: [test/test-data/bad-audit-log-uri-no-scheme.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'target.uri: invalid value "github.com/gemaraproj/gemara"'
+    reason: 'audit log target uri with no scheme'
+
+  - files: [test/test-data/bad-audit-log-url-invalid-scheme.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'metadata."mapping-references".1.url: invalid value "2oci://baseline.openssf.org"'
+    reason: 'audit log mapping reference url with a non-alphabetic scheme'
+
+  - files: [test/test-data/bad-audit-log-url-no-scheme.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'metadata."mapping-references".1.url: invalid value "baseline.openssf.org"'
+    reason: 'audit log mapping reference url with no scheme'
+
+  - files: [test/test-data/bad-audit-log.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'summary: incomplete value string'
+    reason: 'audit log missing summary criteria and results'
+
+  - files: [test/test-data/bad-capability-duplicate-id.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: false
+      error: '_uniqueCapabilityIds."CAP-001"'
+    reason: 'capability catalog with duplicate capability id'
+
+  - files: [test/test-data/bad-capability-invalid-group.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value ["container-infrastructure"]'
+    reason: 'capability with invalid group'
+
+  - files: [test/test-data/bad-catalog-duplicate-group-id.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_uniqueGroupIds."GRP-ACCESS"'
+    reason: 'control catalog with duplicate group id'
+
+  - files: [test/test-data/bad-control-catalog-duplicate-control-id.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_uniqueControlIds."TC-001"'
+    reason: 'control catalog with duplicate control id'
+
+  - files: [test/test-data/bad-control-invalid-applicability.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_applicabilityValidation."0-0-0": invalid value ["production"]'
+    reason: 'control with invalid applicability'
+
+  - files: [test/test-data/bad-control-invalid-group.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value ["access-control"]'
+    reason: 'control with invalid group'
+
+  - files: [test/test-data/bad-enforcement-clear-failed.yaml]
+    definition: '#EnforcementLog'
+    schema:
+      valid: false
+      error: 'conflicting values "Passed" and "Failed"'
+    reason: 'clear disposition with failed assessment'
+
+  - files: [test/test-data/bad-enforcement-log.yaml]
+    definition: '#EnforcementLog'
+    schema:
+      valid: false
+      error: 'actions.0.disposition: 4 errors in empty disjunction'
+    reason: 'enforcement action with invalid disposition'
+
+  - files: [test/test-data/bad-enforcement-missing-log.yaml]
+    definition: '#EnforcementLog'
+    schema:
+      valid: false
+      error: 'log."reference-id": incomplete value string'
+    reason: 'enforcement action missing log reference'
+
+  - files: [test/test-data/bad-evaluation-log-mismatched-reference-id.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: '"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"'
+    reason: 'assessment requirement with mismatched reference-id'
+
+  - files: [test/test-data/bad-evaluation-log-missing-start.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: '"assessment-logs".0.start: incomplete value'
+    reason: 'executed assessment missing start'
+
+  - files: [test/test-data/bad-guidance-duplicate-id.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: '_uniqueGuidelineIds."AIR-PREV-001"'
+    reason: 'guidance catalog with duplicate guideline id'
+
+  - files: [test/test-data/bad-guidance-invalid-applicability.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: '_applicabilityValidation."0-0": invalid value ["cloud-native"]'
+    reason: 'guideline with invalid applicability'
+
+  - files: [test/test-data/bad-guidance-invalid-group.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value ["PREV"]'
+    reason: 'guideline with invalid group'
+
+  - files: [test/test-data/bad-lexicon-duplicate-term-id.yaml]
+    definition: '#Lexicon'
+    schema:
+      valid: false
+      error: '_uniqueTermIds."same-id"'
+    reason: 'lexicon with duplicate term ids'
+
+  - files: [test/test-data/bad-lifecycle.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: '#GuidanceCatalog: explicit error'
+    reason: 'retired guideline with recommendations'
+
+  - files: [test/test-data/bad-mapping-document.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: 'metadata."mapping-references".0.id: incomplete value string'
+    reason: 'invalid mapping document without mapping-references'
+
+  - files: [test/test-data/bad-mapping-duplicate-id.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: '_uniqueMappingIds."DUP-01"'
+    reason: 'mapping document with duplicate mapping id'
+
+  - files: [test/test-data/bad-mapping-no-target.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: 'targets.0."entry-id": incomplete value string'
+    reason: 'mapping missing targets for non-no-match relationship'
+
+  - files: [test/test-data/bad-metadata-duplicate-applicability-group.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_uniqueGroupsIds."cloud-production"'
+    reason: 'control catalog with duplicate applicability group id'
+
+  - files: [test/test-data/bad-metadata-duplicate-mapping-reference.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: '_uniqueRefIds."NIST-800-53"'
+    reason: 'mapping document with duplicate mapping reference id'
+
+  - files: [test/test-data/bad-no-groups.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value [string] (does not satisfy list.Contains("missing-group"))'
+    reason: 'controls without groups'
+
+  - files: [test/test-data/bad-policy-adherence-invalid-enforce-method.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'adherence."enforcement-methods".0.type: 2 errors in empty disjunction'
+    reason: 'enforcement method with an evaluation method type'
+
+  - files: [test/test-data/bad-policy-adherence-invalid-eval-method.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'adherence."evaluation-methods".0.type: 2 errors in empty disjunction'
+    reason: 'evaluation method with an enforcement method type'
+
+  - files: [test/test-data/bad-policy-adherence-invalid-mode.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'adherence."evaluation-methods".0.mode: 2 errors in empty disjunction'
+    reason: 'adherence method with an invalid mode'
+
+  - files: [test/test-data/bad-policy-dimensions-empty.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'scope.in.technologies: incompatible list lengths'
+    reason: 'policy scope with an empty dimension list'
+
+  - files: [test/test-data/bad-policy-empty-catalog-applicability.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'imports.catalogs.0.applicability: incompatible list lengths'
+    reason: 'catalog import with an empty applicability list'
+
+  - files: [test/test-data/bad-policy-invalid-scope.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'scope.technologies: field not allowed'
+    reason: 'policy with a dimension directly under scope instead of in or out'
+
+  - files: [test/test-data/bad-policy-plan-missing-timeline.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '"implementation-plan"."enforcement-timeline".start: incomplete value'
+    reason: 'implementation plan missing the required enforcement timeline'
+
+  - files: [test/test-data/bad-policy-retention-collected-at-without-duration.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'retention obligation RET-PII-MAX is measured from collected-at and must state a duration'
+    reason: 'retention obligation measured from collected-at with no duration'
+
+  - files: [test/test-data/bad-policy-retention-duplicate-anchor-id.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '_uniqueRetentionAnchorIds."matter-closed"'
+    reason: 'duplicate retention anchor id'
+
+  - files: [test/test-data/bad-policy-retention-duplicate-obligation-id.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '_uniqueRetentionObligationIds."RET-AUDIT-7Y"'
+    reason: 'duplicate retention obligation id'
+
+  - files: [test/test-data/bad-policy-retention-empty-duration.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'invalid value "P"'
+    reason: 'retention duration with no components'
+
+  - files: [test/test-data/bad-policy-retention-redeclared-collected-at.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '_uniqueRetentionAnchorIds."collected-at"'
+    reason: 'retention anchor redeclaring collected-at'
+
+  - files: [test/test-data/bad-policy-retention-subday-duration.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'invalid value "PT1H"'
+    reason: 'retention duration below day precision'
+
+  - files: [test/test-data/bad-policy-retention-undeclared-anchor.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: 'does not satisfy list.Contains("employee-separation")'
+    reason: 'retention obligation measured from an undeclared anchor'
+
+  - files: [test/test-data/bad-principle-duplicate-id.yaml]
+    definition: '#PrincipleCatalog'
+    schema:
+      valid: false
+      error: '_uniquePrinciplesIds."PRIN-001"'
+    reason: 'principle catalog with duplicate principle id'
+
+  - files: [test/test-data/bad-principle-invalid-group.yaml]
+    definition: '#PrincipleCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value ["data-protection"]'
+    reason: 'principle with invalid group'
+
+  - files: [test/test-data/bad-risk-catalog-duplicate-rank.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: '_uniqueRiskRanks."1"'
+    reason: 'risk catalog with duplicate rank'
+
+  - files: [test/test-data/bad-risk-catalog-invalid-group.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value ["CAT-SECURITY"]'
+    reason: 'risk with invalid group'
+
+  - files: [test/test-data/bad-risk-duplicate-id.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: '_uniqueRiskIds."RISK-001"'
+    reason: 'risk catalog with duplicate risk id'
+
+  - files: [test/test-data/bad-threat-duplicate-id.yaml]
+    definition: '#ThreatCatalog'
+    schema:
+      valid: false
+      error: '_uniqueThreatIds."THR-001"'
+    reason: 'threat catalog with duplicate threat id'
+
+  - files: [test/test-data/bad-threat-invalid-group.yaml]
+    definition: '#ThreatCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value ["stride-s"]'
+    reason: 'threat with invalid group'
+
+  - files: [test/test-data/bad-vector-duplicate-id.yaml]
+    definition: '#VectorCatalog'
+    schema:
+      valid: false
+      error: '_uniqueVectorIds."VEC-001"'
+    reason: 'vector catalog with duplicate vector id'
+
+  - files: [test/test-data/bad-vector-invalid-applicability.yaml]
+    definition: '#VectorCatalog'
+    schema:
+      valid: false
+      error: '_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]'
+    reason: 'vector with invalid applicability'
+
+  - files: [test/test-data/bad-vector-invalid-group.yaml]
+    definition: '#VectorCatalog'
+    schema:
+      valid: false
+      error: '_groupValidation."0": invalid value ["prompt-injection"]'
+    reason: 'vector with invalid group'
+
+  - files: [test/test-data/bad.json]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: '#ControlCatalog.this: field not allowed'
+    reason: 'JSON document with fields a control catalog does not allow'
+
+  - files: [test/test-data/bad.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: false
+      error: 'conflicting values "shouldn''t be a string"'
+    reason: 'YAML document whose metadata is a string'
+
+  - files: [test/test-data/good-aigf-nist-mapping.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: true
+    reason: 'valid AIGF NIST 800-53 mapping'
+
+  - files: [test/test-data/good-aigf-principles.yaml]
+    definition: '#PrincipleCatalog'
+    schema:
+      valid: true
+    reason: 'valid AIGF principles catalog'
+
+  - files: [test/test-data/good-aigf-vectors.yaml]
+    definition: '#VectorCatalog'
+    schema:
+      valid: true
+    reason: 'valid AIGF vector catalog'
+
+  - files: [test/test-data/good-aigf.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: true
+    reason: 'valid AI governance framework'
+
+  - files: [test/test-data/good-audit-log-coordinate-and-entry-id.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: true
+    reason: 'audit log evidence mapping with both coordinate and entry-id'
+
+  - files: [test/test-data/good-audit-log-retention.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: true
+    reason: 'audit log evidence with resolved conflicting retention obligations'
+
+  - files: [test/test-data/good-audit-log.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: true
+    reason: 'valid audit log'
+
+  - files: [test/test-data/good-capability-catalog.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: true
+    reason: 'valid capability catalog'
+
+  - files: [test/test-data/good-ccc.json]
+    definition: '#ControlCatalog'
+    schema:
+      valid: true
+    reason: 'valid control catalog JSON'
+
+  - files: [test/test-data/good-ccc.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: true
+    reason: 'valid control catalog YAML'
+
+  - files: [test/test-data/good-enforcement-log.yaml]
+    definition: '#EnforcementLog'
+    schema:
+      valid: true
+    reason: 'valid enforcement log'
+
+  - files: [test/test-data/good-evaluation-log-unstarted.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: true
+    reason: 'assessments that never ran omit start'
+
+  - files: [test/test-data/good-lexicon.yaml]
+    definition: '#Lexicon'
+    schema:
+      valid: true
+    reason: 'valid lexicon'
+
+  - files: [test/test-data/good-lifecycle.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: true
+    reason: 'valid lifecycle catalog'
+
+  - files: [test/test-data/good-mapping-document.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: true
+    reason: 'valid mapping document'
+
+  - files: [test/test-data/good-osps.yml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: true
+    reason: 'valid OSPS baseline'
+
+  - files: [test/test-data/good-policy-applicability-groups.yaml]
+    definition: '#Policy'
+    schema:
+      valid: true
+    reason: 'policy adopting an applicability group from an imported catalog'
+
+  - files: [test/test-data/good-policy-retention.yaml]
+    definition: '#Policy'
+    schema:
+      valid: true
+    reason: 'policy with retention floor, ceiling and declared anchor'
+
+  - files: [test/test-data/good-policy.yaml]
+    definition: '#Policy'
+    schema:
+      valid: true
+    reason: 'valid policy'
+
+  - files: [test/test-data/good-risk-catalog.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: true
+    reason: 'valid risk catalog'
+
+  - files: [test/test-data/good-security-policy.yml]
+    definition: '#Policy'
+    schema:
+      valid: true
+    reason: 'valid security policy'
+
+  - files: [test/test-data/good-threat-catalog.yaml]
+    definition: '#ThreatCatalog'
+    schema:
+      valid: true
+    reason: 'threats with vectors'
+
+  - files: [test/test-data/good-vector-owasp-mapping.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: true
+    reason: 'vector mapping'
+
+  - files: [test/test-data/nested-empty.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: true
+    reason: 'empty nested catalog'
+
+  - files: [test/test-data/nested-good-ccc.yaml]
+    definition: '#ControlCatalog'
+    schema:
+      valid: true
+    reason: 'valid nested control catalog'
+
+  - files: [test/test-data/pvtr-baseline-scan.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: true
+    reason: 'valid PVTR baseline scan'
