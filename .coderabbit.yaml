@@ -147,9 +147,9 @@ reviews:
         instructions: |
           Each *.cue file declares its lifecycle with a file-level
           `@gemara(status="...")` attribute. Fail if this PR leaves a file
-          marked stable referencing a definition (`#Name` or `#_Name`) declared
-          in a file not marked stable: by adding the reference, by moving the
-          definition, or by changing either file's status. The schema
+          marked stable referencing a definition (`#Name`, `#_Name` or `_#Name`)
+          declared in a file not marked stable: by adding the reference, by
+          moving the definition, or by changing either file's status. The schema
           versioning policy says stable schemas may only reference other stable
           types (https://gemara.openssf.org/schema/). Ignore references inside
           comments, and do not fail for a violation that predates this PR and
