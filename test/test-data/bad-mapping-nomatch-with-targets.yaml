@@ -1,0 +1,31 @@
+title: Test No-Match Mapping With Targets
+metadata:
+  id: TEST-MAP-NOMATCH-TARGETS
+  version: "1.0.0"
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  description: A no-match relationship with targets must fail validation.
+  author:
+    id: test
+    name: Test Author
+    type: Human
+  mapping-references:
+    - id: SRC
+      title: Source
+      version: "1.0"
+    - id: TGT
+      title: Target
+      version: "1.0"
+source-reference:
+  reference-id: SRC
+  entry-type: Control
+target-reference:
+  reference-id: TGT
+  entry-type: Guideline
+mappings:
+  - id: m1
+    source: S1
+    relationship: no-match
+    targets:
+      - entry-id: T1
+    remarks: This should fail because no-match relationships cannot have targets.
