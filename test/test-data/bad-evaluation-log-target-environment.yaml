@@ -10,17 +10,15 @@ metadata:
     type: Software
     version: 1.5.0
     uri: oci://registry.example.com/pvtr-github-repo:1.5.0
-    execution-environment:
-      digests:
-      - sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
+    digests:
+    - sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
 result: Needs Review
 target:
   id: github-repo
   name: GitHub Repository
   type: Software
-  execution-environment:
-    digests:
-    - sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
+  digests:
+  - sha256:3b6a07d0d404fab4e23b6d34bc6696a6a312dd92821332385e5af7c01c421351
 evaluations:
 - name: access control
   control:

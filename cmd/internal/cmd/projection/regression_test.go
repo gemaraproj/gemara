@@ -80,9 +80,9 @@ func TestRegexConstraintsReachTheDocument(t *testing.T) {
 	}
 
 	// A list of digests references it from its items.
-	items, _ := propOf(t, schemas, "ExecutionEnvironment", "digests")["items"].(map[string]any)
+	items, _ := propOf(t, schemas, "Actor", "digests")["items"].(map[string]any)
 	if items["$ref"] != "#/components/schemas/Digest" {
-		t.Errorf("ExecutionEnvironment.digests items do not reference Digest: %v", items)
+		t.Errorf("Actor.digests items do not reference Digest: %v", items)
 	}
 }
 

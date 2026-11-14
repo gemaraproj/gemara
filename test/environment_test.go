@@ -12,15 +12,10 @@ import (
 	cueyaml "cuelang.org/go/encoding/yaml"
 )
 
-// executionEnvironment mirrors #ExecutionEnvironment for comparison in tests.
-type executionEnvironment struct {
-	Digests []string `json:"digests"`
-}
-
 // actorEnvironment holds the parts of an #Actor that identify where it ran.
 type actorEnvironment struct {
-	ID          string                `json:"id"`
-	Environment *executionEnvironment `json:"execution-environment"`
+	ID      string   `json:"id"`
+	Digests []string `json:"digests"`
 }
 
 // planParameter mirrors #Parameter. A parameter with accepted values is pinned by the
@@ -128,14 +123,7 @@ func environmentMismatches(accepted, recorded actorEnvironment) []string {
 	if accepted.ID != recorded.ID {
 		fields = append(fields, "id")
 	}
-	a, r := accepted.Environment, recorded.Environment
-	if a == nil || r == nil {
-		if a != r {
-			fields = append(fields, "execution-environment")
-		}
-		return fields
-	}
-	if !slices.Equal(a.Digests, r.Digests) {
+	if !slices.Equal(accepted.Digests, recorded.Digests) {
 		fields = append(fields, "digests")
 	}
 	return fields

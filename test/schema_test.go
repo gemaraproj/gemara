@@ -183,7 +183,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
-		{"policy executor with an execution environment", "./test-data/good-policy-executor-environment.yaml", "#Policy", false, ""},
+		{"policy executor pinned by digests", "./test-data/good-policy-executor-environment.yaml", "#Policy", false, ""},
 
 		// Policy — negative (execution environment)
 		{"executor environment digest without an algorithm", "./test-data/bad-policy-executor-environment-digest.yaml", "#Policy", true, `digests.0: invalid value "9f86d081`},
@@ -230,7 +230,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, ""},
 		{"evidence naming an undefined observation vantage", "./test-data/bad-evaluation-log-evidence-vantage.yaml", "#EvaluationLog", true, `"observation-vantage"`},
 		{"parameter input that is not a string", "./test-data/bad-evaluation-log-parameter-input-type.yaml", "#EvaluationLog", true, `"parameter-inputs"."token-scope"`},
-		{"execution environment on the evaluated target", "./test-data/bad-evaluation-log-target-environment.yaml", "#EvaluationLog", true, `target."execution-environment": field not allowed`},
+		{"actor digests on the evaluated target", "./test-data/bad-evaluation-log-target-environment.yaml", "#EvaluationLog", true, `target.digests: field not allowed`},
 		{"two assessments nothing tells apart", "./test-data/bad-evaluation-log-duplicate-assessment.yaml", "#EvaluationLog", true, "_uniqueAssessments"},
 		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".\"method-id\""},
 

@@ -113,7 +113,7 @@ import "list"
 // supervision, a platform API's report of its own settings, a hypervisor's read of guest
 // state) or rests on output the resource produced or could influence (artifact: a file
 // the project writes about itself). A result drawing on both is artifact.
-// Values follow observation_vantage in https://github.com/probityai/agent-evidence-vocabulary
+// Values follow observation_vantage in https://github.com/probityai/agent-evidence-vectors/tree/main/packages/vocabulary
 #ObservationVantage: "substrate" | "artifact" @go(-)
 
 // _EvidenceStrict layers the "at least one of payload or source" rule on top of #Evidence
