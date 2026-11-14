@@ -78,7 +78,7 @@ func jsonValue(t *testing.T, path string) any {
 // the reason. These are NOT bugs in the projection — they are places where CUE
 // computes a value that OpenAPI has no way to express.
 //
-// evaluationlog.cue:27-29 supplies each assessment log's
+// evaluationlog.cue:25-28 supplies each assessment log's
 // requirement.reference-id from the enclosing control:
 //
 //	"assessment-logs": [...{requirement: "reference-id": (control."reference-id")}]

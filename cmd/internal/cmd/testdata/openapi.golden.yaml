@@ -148,6 +148,9 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - retention anchor ids must be unique, and none may redeclare collected-at
+      - retention obligation ids must be unique, each obligation's anchor must be collected-at or a declared retention anchor, and an obligation measured from collected-at must state a duration
       x-status: experimental
     ArtifactMapping:
       description: ArtifactMapping represents a mapping to an external artifact or artifact entry
@@ -357,6 +360,8 @@ components:
       - text
       - applicability
       type: object
+      x-rules:
+      - retired assessment requirements must not have a recommendation
       x-status: stable
     AssessmentStep:
       type: string
@@ -401,6 +406,8 @@ components:
           description: summary provides the high-level conclusion
           type: string
       type: object
+      x-rules:
+      - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
       x-status: experimental
     AuditResult:
       description: AuditResult records a single result with supporting evidence and recommendations.
@@ -490,6 +497,8 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when capabilities are listed, groups is required, capability ids must be unique, and each capability's group must be a declared group id
       x-status: stable
     Catalog:
       description: Catalog describes a set of topically-associated entries
@@ -521,6 +530,10 @@ components:
       - title
       - metadata
       type: object
+      x-rules:
+      - group ids must be unique
+      - when extends is set, metadata.mapping-references is required
+      - when imports are listed, metadata.mapping-references is required
       x-status: stable
     CatalogImport:
       description: CatalogImport defines how to import control catalogs with optional exclusions and constraints.
@@ -667,10 +680,7 @@ components:
       description: ControlCatalog describes a set of related controls and relevant metadata
       properties:
         controls:
-          description: |-
-            controls is a list of unique controls defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: controls is a list of unique controls defined by this catalog
           items:
             $ref: "#/components/schemas/Control"
           minItems: 1
@@ -686,16 +696,13 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, and each assessment requirement's applicability must name declared applicability groups
       x-status: stable
     ControlEvaluation:
       description: ControlEvaluation contains the results of evaluating a single Layer 5 control.
       properties:
         assessment-logs:
-          description: |-
-            Enforce that control reference and the assessments' references match
-            This formulation uses the control's reference if the assessment doesn't include a reference
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             allOf:
             - $ref: "#/components/schemas/AssessmentLog"
@@ -705,6 +712,7 @@ components:
               requirement:
                 properties:
                   reference-id:
+                    description: each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
                     type: string
                 required:
                 - reference-id
@@ -727,6 +735,8 @@ components:
       - control
       - assessment-logs
       type: object
+      x-rules:
+      - each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
       x-status: stable
     Datetime:
       description: Datetime represents an ISO 8601 formatted datetime string
@@ -796,8 +806,6 @@ components:
             
             
             Enforce that Clear dispositions only contain Passed assessment results
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             $ref: "#/components/schemas/ActionResult"
           minItems: 1
@@ -817,6 +825,8 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when the log's disposition is Clear, every assessment cited in an action's justification must have result Passed
       x-status: experimental
     EnforcementMethodType:
       enum:
@@ -1085,10 +1095,7 @@ components:
           description: front-matter provides introductory text for the document to be used during rendering
           type: string
         guidelines:
-          description: |-
-            guidelines is a list of unique guidelines defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: guidelines is a list of unique guidelines defined by this catalog
           items:
             $ref: "#/components/schemas/Guideline"
           minItems: 1
@@ -1108,6 +1115,8 @@ components:
           - $ref: "#/components/schemas/GuidanceType"
           description: type categorizes this document based on the intent of its contents
       type: object
+      x-rules:
+      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
       x-status: experimental
     GuidanceImport:
       description: GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
@@ -1212,6 +1221,8 @@ components:
       - objective
       - group
       type: object
+      x-rules:
+      - retired guidelines must not have recommendations
       x-status: experimental
     ImplementationDetails:
       description: ImplementationDetails specifies the timeline for policy implementation.
@@ -1309,6 +1320,8 @@ components:
       - metadata
       - terms
       type: object
+      x-rules:
+      - term ids must be unique
       x-status: experimental
     LexiconReference:
       description: LexiconReference cites a source supporting a lexicon definition
@@ -1467,6 +1480,8 @@ components:
       - target-reference
       - mappings
       type: object
+      x-rules:
+      - mapping ids must be unique
       x-status: experimental
     MappingReference:
       description: MappingReference represents a reference to an external document with full metadata.
@@ -1580,6 +1595,9 @@ components:
       - description
       - author
       type: object
+      x-rules:
+      - mapping-reference ids must be unique
+      - applicability group ids must be unique
       x-status: stable
     MethodType:
       enum:
@@ -1725,15 +1743,14 @@ components:
           - type
           type: object
         principles:
-          description: |-
-            principles is a list of unique principles defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: principles is a list of unique principles defined by this catalog
           items:
             $ref: "#/components/schemas/Principle"
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when principles are listed, groups is required, principle ids must be unique, and each principle's group must be a declared group id
       x-status: experimental
     RACI:
       description: RACI defines the roles responsible for managing an artifact
@@ -1994,8 +2011,6 @@ components:
             rank optionally orders risks for the same catalog (e.g. when several share the same severity).
             Lower values mean higher relative importance. Omitted when the four severity levels are enough.
             When set, each value must be unique among all risks in the catalog that specify rank.
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           type: integer
         severity:
           allOf:
@@ -2060,6 +2075,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
       x-status: experimental
     RiskCategory:
       allOf:
@@ -2205,6 +2222,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when threats are listed, groups is required, threat ids must be unique, and each threat's group must be a declared group id
       x-status: stable
     TypedMapping:
       allOf:
@@ -2270,6 +2289,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, and when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups
       x-status: experimental
 info:
   description: Gemara schema definitions

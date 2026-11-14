@@ -21,6 +21,7 @@ import "list"
 	// risks is a list of risks defined by this catalog
 	risks?: [#Risk, ...#Risk] @go(Risks)
 
+	// when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
 		// Each distinct rank value may appear at most once among risks that set rank (partial ranking allowed).
@@ -90,7 +91,7 @@ import "list"
 	// rank optionally orders risks for the same catalog (e.g. when several share the same severity).
 	// Lower values mean higher relative importance. Omitted when the four severity levels are enough.
 	// When set, each value must be unique among all risks in the catalog that specify rank.
-	rank?: int @gemara(projectable=false) @go(Rank) @yaml("rank,omitempty")
+	rank?: int @go(Rank) @yaml("rank,omitempty")
 
 	// owner defines the RACI roles responsible for managing this risk
 	owner?: #RACI @go(Owner)

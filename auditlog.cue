@@ -25,6 +25,7 @@ import "list"
 	// results records audit results against the criteria
 	results: [#AuditResult, ...#AuditResult] @go(Results,type=[]*AuditResult)
 
+	// result ids must be unique, and each result's criteria-reference must name one of the declared criteria
 	if results != _|_ {
 		_uniqueResultIds: {for i, r in results {(r.id): i}}
 		let _validCriteriaIds = [for c in criteria {c."reference-id"}]

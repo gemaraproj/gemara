@@ -192,67 +192,6 @@ func TestInclusiveRequiredDisjunctionsTypedLeavesPlainOneOfAlone(t *testing.T) {
 	}
 }
 
-// caveatFixture builds a document with one annotated field and one ordinary
-// field to prove only CUE-discovered unprojectable fields receive a caveat.
-func caveatFixture() *openapi3.T {
-	schemas := openapi3.Schemas{
-		"Widget": val(&openapi3.Schema{
-			Properties: openapi3.Schemas{
-				"complete": val(&openapi3.Schema{Description: "fully projected"}),
-				"partial":  val(&openapi3.Schema{Description: "partially projected"}),
-			},
-		}),
-	}
-	return &openapi3.T{Components: &openapi3.Components{Schemas: schemas}}
-}
-
-func TestAppendUnenforcedCaveatsTypedAppendsToUnprojectableField(t *testing.T) {
-	doc := caveatFixture()
-	if err := appendUnenforcedCaveatsTyped(doc, map[string]bool{"Widget.partial": true}); err != nil {
-		t.Fatal(err)
-	}
-	got := doc.Components.Schemas["Widget"].Value.Properties["partial"].Value.Description
-	if !strings.Contains(got, unenforcedCaveat) {
-		t.Errorf("description = %q, want it to contain %q", got, unenforcedCaveat)
-	}
-}
-
-func TestAppendUnenforcedCaveatsTypedLeavesProjectableFieldsAlone(t *testing.T) {
-	doc := caveatFixture()
-	want := doc.Components.Schemas["Widget"].Value.Properties["complete"].Value.Description
-	if err := appendUnenforcedCaveatsTyped(doc, map[string]bool{"Widget.partial": true}); err != nil {
-		t.Fatal(err)
-	}
-	got := doc.Components.Schemas["Widget"].Value.Properties["complete"].Value.Description
-	if got != want {
-		t.Errorf("description = %q, want unchanged %q", got, want)
-	}
-}
-
-func TestAppendUnenforcedCaveatsTypedIsIdempotent(t *testing.T) {
-	doc := caveatFixture()
-	unprojectable := map[string]bool{"Widget.partial": true}
-	if err := appendUnenforcedCaveatsTyped(doc, unprojectable); err != nil {
-		t.Fatal(err)
-	}
-	if err := appendUnenforcedCaveatsTyped(doc, unprojectable); err != nil {
-		t.Fatal(err)
-	}
-	got := doc.Components.Schemas["Widget"].Value.Properties["partial"].Value.Description
-	if n := strings.Count(got, unenforcedCaveat); n != 1 {
-		t.Errorf("caveat appears %d times, want 1: %q", n, got)
-	}
-}
-
-// An annotation naming a field absent from the generated document must fail
-// loudly rather than silently caveating nothing.
-func TestAppendUnenforcedCaveatsTypedErrorsOnMissingSchema(t *testing.T) {
-	doc := docWithSchema("SomethingElse", &openapi3.Schema{})
-	if err := appendUnenforcedCaveatsTyped(doc, map[string]bool{"Widget.partial": true}); err == nil {
-		t.Error("expected an error for an unprojectable field with no matching schema, got nil")
-	}
-}
-
 func slicesContainString(xs []string, want string) bool {
 	for _, x := range xs {
 		if x == want {

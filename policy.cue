@@ -112,11 +112,13 @@ import "list"
 
 	"non-compliance"?: string @go(NonCompliance)
 
+	// retention anchor ids must be unique, and none may redeclare collected-at
 	if RA != _|_ {
 		// collected-at is pre-seeded so that a declaration shadowing it collides like a duplicate id
 		_uniqueRetentionAnchorIds: {(#CollectedAtAnchor): -1, for i, a in RA {(a.id): i}}
 	}
 
+	// retention obligation ids must be unique, each obligation's anchor must be collected-at or a declared retention anchor, and an obligation measured from collected-at must state a duration
 	if RO != _|_ {
 		_uniqueRetentionObligationIds: {for i, o in RO {(o.id): i}}
 
