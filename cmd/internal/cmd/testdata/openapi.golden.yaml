@@ -99,14 +99,12 @@ components:
           allOf:
           - $ref: "#/components/schemas/Contact"
           description: contact is contact information for the actor
-        execution-environment:
-          allOf:
-          - $ref: "#/components/schemas/ExecutionEnvironment"
-          description: |-
-            execution-environment describes where this actor runs. When the actor is the
-            executor a Policy names on an AcceptedMethod, it states the environment the
-            policy accepts that method's results from; when the actor is a log's author or
-            an assessment's executor, it records the environment the result was produced in.
+        digests:
+          description: "digests pins the content this actor runs, one entry per component such as an image\nmanifest or a plugin binary; the actor's uri and version name that content. When the\nactor is the executor a Policy names on an AcceptedMethod, they state the content the\npolicy accepts that method's results from; when the actor is a log's author or an\nassessment's executor, they record the content the result was produced by. They hold\nonly what a policy author can know before any run: content that does not change from\none target to the next. Values that differ per target, such as the organisation or\nrepository a scan is pointed at, are parameters of the plan (#Parameter), recorded by\na log in its assessments' execution-context parameter-inputs. Where an observation\nwas made from is a property of the evidence, not of the actor (#Evidence\nobservation-vantage)."
+          items:
+            $ref: "#/components/schemas/Digest"
+          minItems: 1
+          type: array
       type: object
       x-status: stable
     Adherence:
@@ -1083,19 +1081,6 @@ components:
           type: object
       type: object
       x-status: stable
-    ExecutionEnvironment:
-      description: "ExecutionEnvironment identifies the environment an actor runs in, so that a log's\nauthor can be compared with the executor its policy accepts. It describes the\nactor, never the resources the actor evaluates, and it holds only what a policy\nauthor can know before any run: content that does not change from one target to\nthe next. Values that differ per target, such as the organisation or repository a\nscan is pointed at, are parameters of the plan (#Parameter), recorded by a log in\nits assessments' execution-context parameter-inputs. Where an observation was made\nfrom is a property of the evidence, not of the actor (#Evidence observation-vantage)."
-      properties:
-        digests:
-          description: |-
-            digests pins the content the actor runs, one entry per component such as an
-            image manifest or a plugin binary; the actor's uri and version name it
-          items:
-            $ref: "#/components/schemas/Digest"
-          minItems: 1
-          type: array
-      type: object
-      x-status: stable
     Exemption:
       description: Exemption describes a single scenario where the catalog is not applicable
       properties:
@@ -1690,7 +1675,7 @@ components:
       type: object
       x-status: stable
     ObservationVantage:
-      description: "ObservationVantage states whether an input was obtained at a vantage the evaluated\nresource could neither forge nor suppress (substrate: a network boundary, syscall\nsupervision, a platform API's report of its own settings, a hypervisor's read of guest\nstate) or rests on output the resource produced or could influence (artifact: a file\nthe project writes about itself). A result drawing on both is artifact.\nValues follow observation_vantage in https://github.com/probityai/agent-evidence-vocabulary"
+      description: "ObservationVantage states whether an input was obtained at a vantage the evaluated\nresource could neither forge nor suppress (substrate: a network boundary, syscall\nsupervision, a platform API's report of its own settings, a hypervisor's read of guest\nstate) or rests on output the resource produced or could influence (artifact: a file\nthe project writes about itself). A result drawing on both is artifact.\nValues follow observation_vantage in https://github.com/probityai/agent-evidence-vectors/tree/main/packages/vocabulary"
       enum:
       - substrate
       - artifact
