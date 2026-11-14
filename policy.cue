@@ -186,8 +186,8 @@ import "list"
 	exclusions?: [string, ...string]
 	constraints?: [#Constraint, ...#Constraint]
 	// applicability selects the applicability groups to adopt from this imported catalog. Each ID must match
-	// an entry in the catalog's metadata."applicability-groups"; a resolver rejects an ID the catalog does not define.
-	// A requirement is in play when any of its applicability IDs is selected. See the Requirements Resolution specification.
+	// an entry in the catalog's metadata."applicability-groups". A requirement is in play when any of its
+	// applicability IDs is selected.
 	"applicability"?: [string, ...string] @go(Applicability)
 }
 
