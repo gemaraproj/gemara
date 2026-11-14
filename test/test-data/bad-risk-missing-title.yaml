@@ -1,0 +1,24 @@
+metadata:
+  id: BAD-RISK-MISSING-TITLE
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — risk is missing required title
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Invalid risk missing title
+
+groups:
+  - id: CAT-SECURITY
+    title: Security
+    description: Security risk category
+    appetite: Low
+
+risks:
+  - id: RISK-001
+    description: Risk description present but title omitted
+    group: CAT-SECURITY
+    severity: High

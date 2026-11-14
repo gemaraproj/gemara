@@ -1,0 +1,20 @@
+metadata:
+  id: BAD-RISK-CATALOG-EMPTY-RISKS
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — risks list is empty when declared
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Invalid empty risks list
+
+groups:
+  - id: CAT-SECURITY
+    title: Security
+    description: Security risk category
+    appetite: Low
+
+risks: []
