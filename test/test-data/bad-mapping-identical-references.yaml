@@ -1,0 +1,30 @@
+title: Mapping Document with Identical Source and Target References
+metadata:
+  id: MAP-IDENTICAL-REFS-001
+  version: "1.0.0"
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  description: Invalid mapping document where source-reference and target-reference share the same reference-id.
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+  mapping-references:
+    - id: OSPS
+      title: Open Source Project Security Baseline
+      version: "2025.03.03"
+      url: "https://baseline.openssf.org/"
+
+source-reference:
+  reference-id: OSPS
+  entry-type: Control
+target-reference:
+  reference-id: OSPS
+  entry-type: Control
+
+mappings:
+  - id: QA02-QA02
+    source: OSPS-QA-02
+    relationship: equivalent
+    targets:
+      - entry-id: OSPS-QA-02
