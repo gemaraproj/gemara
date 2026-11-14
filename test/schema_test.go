@@ -166,6 +166,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"retention obligation reference without an effective instant", "./test-data/bad-audit-log-retention-missing-effective.yaml", "#AuditLog", true, "obligations.1.effective"},
 		{"mutable preservation holds excluded from retention snapshots", "./test-data/bad-audit-log-retention-holds.yaml", "#AuditLog", true, "holds: field not allowed"},
 		{"retention block with no obligations", "./test-data/bad-audit-log-retention-empty.yaml", "#AuditLog", true, "obligations"},
+		{"audit log evidence with invalid collector missing name", "./test-data/bad-audit-log-invalid-collector.yaml", "#AuditLog", true, "results.0.evidence.0.collector.name: incomplete value string"},
 
 		// CapabilityCatalog — negative
 		{"capability with invalid group", "./test-data/bad-capability-invalid-group.yaml", "#CapabilityCatalog", true, `_groupValidation."0": invalid value ["container-infrastructure"]`},
