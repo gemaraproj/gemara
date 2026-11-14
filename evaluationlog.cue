@@ -87,8 +87,8 @@ import "strings"
 	}
 
 	// ---- Validation --------------------------------------------------------
-	// Comments in validation sections stay detached (blank line after), so they
-	// are never published as a field's API description.
+	// A comment directly above a rule is listed under x-rules in the OpenAPI
+	// projection.
 
 	// Under a cited plan an AssessmentLog is one method's execution against one
 	// requirement, so (this control evaluation, requirement, plan, method, executor)
@@ -102,7 +102,6 @@ import "strings"
 	// differ: one requirement run by the same method on two instances is two results.
 	// A record with no plan is not keyed, so records that agree on everything else
 	// are accepted. Existing producers that cite no plan keep validating.
-
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
 			for j, a in e."assessment-logs"
@@ -197,22 +196,23 @@ import "strings"
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
 
 	// ---- Validation --------------------------------------------------------
-	// Comments in validation sections stay detached (blank line after), so they
-	// are never published as a field's API description.
+	// A comment directly above a rule is listed under x-rules in the OpenAPI
+	// projection.
 
-	// A cited plan obliges a method of that plan: the plan lists the methods it accepts,
-	// and a record of running under it that does not say which one ran leaves two
-	// results against the same plan indistinguishable. The method's reference-id is
-	// the plan's, the way a requirement's is its control's. It is compared with
-	// `==`, not unified: unifying would fill an omitted reference-id in from the plan,
-	// so the document a producer wrote would lack a field every non-CUE consumer requires.
-	// Stated on the field it requires — forbidding a field instead puts bottom in that
-	// field's type, and the Go projection degrades it to an unusable `any`.
-	//
-	// There is no rule the other way. A method without a plan is the ordinary case for
-	// a producer running the policy's fallback method, and a producer that knows of no
-	// policy omits it.
+	// The rule compares the method's reference-id with `==` rather than unifying
+	// it: unifying would fill an omitted reference-id in from the plan, so the
+	// document a producer wrote would lack a field every non-CUE consumer
+	// requires. It is stated on the field it requires: forbidding a field instead
+	// puts bottom in that field's type, and the Go projection degrades it to an
+	// unusable `any`.
 
+	// A cited plan obliges a method of that plan: the plan lists the methods it
+	// accepts, and a record of running under it that does not say which one ran
+	// leaves two results against the same plan indistinguishable. The method's
+	// reference-id is the plan's, the way a requirement's is its control's. There
+	// is no rule the other way: a method without a plan is the ordinary case for a
+	// producer running the policy's fallback method, and a producer that knows of
+	// no policy omits it.
 	if plan != _|_ {"execution-context": method: {"reference-id": ==plan."reference-id", "entry-id": string}}
 
 }

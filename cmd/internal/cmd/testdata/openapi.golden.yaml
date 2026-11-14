@@ -297,6 +297,8 @@ components:
       - applicability
       - steps
       type: object
+      x-rules:
+      - "A cited plan obliges a method of that plan: the plan lists the methods it accepts, and a record of running under it that does not say which one ran leaves two results against the same plan indistinguishable. The method's reference-id is the plan's, the way a requirement's is its control's. There is no rule the other way: a method without a plan is the ordinary case for a producer running the policy's fallback method, and a producer that knows of no policy omits it."
       x-status: stable
     AssessmentPlan:
       description: AssessmentPlan defines how a specific assessment requirement is evaluated.
@@ -950,6 +952,7 @@ components:
       - "Within one evidence list an id appears once: listing an item twice in the same place says nothing. Every rule here skips an item with no id, which the schema already reports where the id is missing."
       - Across the log an evidence id names exactly one evidence item. The same item may appear under its id in another assessment's evidence, which is how one artifact supports several results; two different items may not share an id.
       - An evidence source names where the evidence came from, so its reference-id must be a mapping reference declared in this log's metadata.
+      - "Under a cited plan an AssessmentLog is one method's execution against one requirement, so (this control evaluation, requirement, plan, method, executor) is its key, where the plan and the method are each their reference-id and entry-id together: two policies may each have a plan, or a method, with the same entry-id. This is what lets a log hold several results for one requirement — a plan requiring an automated probe and a manual review produces two. Two records that agree on every part of the key are rejected. The executor is part of the key because a plan's method may name the executor meant to run it, but the key uses the executor that did, and the two can differ: one requirement run by the same method on two instances is two results. A record with no plan is not keyed, so records that agree on everything else are accepted. Existing producers that cite no plan keep validating."
       - The mapping-reference ids declared in this log's metadata, which an evidence source's reference-id must name.
       x-status: stable
     EvaluationMethodType:
