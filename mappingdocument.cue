@@ -30,21 +30,19 @@ import "list"
 	// mapping ids must be unique
 	_uniqueMappingIds: {for i, m in mappings {(m.id): i}}
 
+	// when metadata.mapping-references is declared, source-reference and target-reference must match declared mapping-references and must name distinct artifacts
 	if metadata."mapping-references" != _|_ {
 		let _validRefIds = [for r in metadata."mapping-references" {r.id}]
 
-		// Validate that source and target references match declared mapping-references in metadata,
-		// and ensure that source-reference and target-reference name distinct artifacts.
 		_sourceRefValidation: _validRefIds & list.Contains(SR."reference-id")
 		_targetRefValidation: _validRefIds & list.Contains(TR."reference-id")
 		_distinctReferences:  true & (SR."reference-id" != TR."reference-id")
 	}
 
+	// when metadata.applicability-groups is declared, each target's applicability must name declared applicability groups
 	if metadata."applicability-groups" != _|_ {
 		let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]
 
-		// When metadata."applicability-groups" is declared, validate that target applicability
-		// entries match declared groups. Ensures semantic consistency without breaking OpenAPI projections.
 		for i, m in mappings {
 			if m.targets != _|_ {
 				for j, t in m.targets {
