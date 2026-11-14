@@ -315,6 +315,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 		{"two assessments nothing tells apart", "./test-data/bad-evaluation-log-duplicate-assessment.yaml", "#EvaluationLog", true, "_uniqueAssessments"},
 		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".method"},
+		{"a cited plan's method that leaves out reference-id", "./test-data/bad-evaluation-log-plan-method-missing-reference-id.yaml", "#EvaluationLog", true, `"execution-context".method."reference-id": incomplete value`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},

@@ -203,15 +203,17 @@ import "strings"
 	// A cited plan obliges a method of that plan: the plan lists the methods it accepts,
 	// and a record of running under it that does not say which one ran leaves two
 	// results against the same plan indistinguishable. The method's reference-id is
-	// the plan's, the way a requirement's is its control's. Stated on the field it
-	// requires — forbidding a field instead puts bottom in that field's type, and the
-	// Go projection degrades it to an unusable `any`.
+	// the plan's, the way a requirement's is its control's. It is compared with
+	// `==`, not unified: unifying would fill an omitted reference-id in from the plan,
+	// so the document a producer wrote would lack a field every non-CUE consumer requires.
+	// Stated on the field it requires — forbidding a field instead puts bottom in that
+	// field's type, and the Go projection degrades it to an unusable `any`.
 	//
 	// There is no rule the other way. A method without a plan is the ordinary case for
 	// a producer running the policy's fallback method, and a producer that knows of no
 	// policy omits it.
 
-	if plan != _|_ {"execution-context": method: {"reference-id": plan."reference-id", "entry-id": string}}
+	if plan != _|_ {"execution-context": method: {"reference-id": ==plan."reference-id", "entry-id": string}}
 
 }
 
