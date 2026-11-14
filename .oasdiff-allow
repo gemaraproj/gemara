@@ -138,3 +138,11 @@ response-optional-property-removed Metadata
 response-optional-property-removed Resource
 response-optional-property-removed Threat
 response-optional-property-removed ThreatCatalog
+
+# Not part of the transition above. #563 gives Entity.id and Entity.name the
+# OSCAL string rule, written as ^\S([^\r\n]*\S)?$, so an empty, blank, padded
+# or multi-line id or name no longer validates. Such a value never identified
+# anything, and OSCAL rejects it too (go-gemara#156). Keep this entry if the
+# transition entries above are removed; drop it once a v1 release carries the
+# pattern.
+request-property-pattern-added Entity

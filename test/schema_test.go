@@ -208,6 +208,12 @@ func TestSchemaValidation(t *testing.T) {
 		// VectorCatalog — negative (applicability validation)
 		{"vector with invalid applicability", "./test-data/bad-vector-invalid-applicability.yaml", "#VectorCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]`},
 
+		// Entity — negative (reached through #Actor and #Resource)
+		{"author with an empty id", "./test-data/bad-capability-empty-author-id.yaml", "#CapabilityCatalog", true, `metadata.author.id: invalid value ""`},
+		{"author with a blank name", "./test-data/bad-capability-blank-author-name.yaml", "#CapabilityCatalog", true, `metadata.author.name: invalid value " "`},
+		{"author name with an embedded carriage return", "./test-data/bad-capability-cr-in-author-name.yaml", "#CapabilityCatalog", true, `metadata.author.name: invalid value "Security\rTeam"`},
+		{"target name with trailing whitespace", "./test-data/bad-evaluation-log-padded-target-name.yaml", "#EvaluationLog", true, `target.name: invalid value "GitHub Repository "`},
+
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},
 	}

@@ -845,10 +845,16 @@ components:
           description: description provides additional context about the entity
           type: string
         id:
-          description: id uniquely identifies the entity and allows this entry to be referenced by other elements
+          description: |-
+            id uniquely identifies the entity and allows this entry to be referenced by other elements.
+            It must be a single non-empty line with no leading or trailing whitespace.
+          pattern: "^\\S([^\\r\\n]*\\S)?$"
           type: string
         name:
-          description: name is the name of the entity
+          description: |-
+            name is the name of the entity.
+            It must be a single non-empty line with no leading or trailing whitespace.
+          pattern: "^\\S([^\\r\\n]*\\S)?$"
           type: string
         type:
           allOf:
