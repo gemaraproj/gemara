@@ -104,19 +104,19 @@ import "list"
 	"role-id": string @go(RoleID) @yaml("role-id")
 
 	// party-ids lists the parties assigned to this role
-	"party-ids": [string, ...string] @gemara(projectable=false) @go(PartyIDs) @yaml("party-ids")
+	"party-ids": [string, ...string] @go(PartyIDs) @yaml("party-ids")
 }
 
 // Stakeholders defines the reusable parties, roles, and optional standing assignments
 #Stakeholders: {
 	// parties lists the entities taking part by holding a stake
-	parties: [#Actor, ...#Actor] @gemara(projectable=false) @go(Parties)
+	parties: [#Actor, ...#Actor] @go(Parties)
 
 	// roles lists the roles defined for this context
-	roles: [#Role, ...#Role] @gemara(projectable=false) @go(Roles)
+	roles: [#Role, ...#Role] @go(Roles)
 
 	// assignments optionally declares standing party-to-role bindings
-	assignments?: [#RoleAssignment, ...#RoleAssignment] @gemara(projectable=false) @go(Assignments)
+	assignments?: [#RoleAssignment, ...#RoleAssignment] @go(Assignments)
 
 	// party ids must be unique
 	if parties != _|_ {

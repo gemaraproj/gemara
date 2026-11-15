@@ -412,6 +412,7 @@ components:
       type: object
       x-rules:
       - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
+      - when an owner is declared, stakeholders must be defined and every role named in owner must be declared in stakeholders.roles
       x-status: experimental
     AuditResult:
       description: AuditResult records a single result with supporting evidence and recommendations.
@@ -1740,6 +1741,8 @@ components:
       - imports
       - adherence
       type: object
+      x-rules:
+      - every role named in a RACI slot must be declared in stakeholders.roles, and every accountable role must have an assignment
       x-status: experimental
     Principle:
       description: Principle represents a foundational value or tenet that guides governance, design, and operational decisions
@@ -2121,7 +2124,7 @@ components:
           description: stakeholders defines the parties, roles, and standing role assignments for this catalog
       type: object
       x-rules:
-      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
+      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, each risk's group must be a declared group id, and any risk owner roles must be declared in stakeholders.roles
       x-status: experimental
     RiskCategory:
       allOf:
@@ -2181,10 +2184,7 @@ components:
       description: RoleAssignment binds one or more parties to a specific role
       properties:
         party-ids:
-          description: |-
-            party-ids lists the parties assigned to this role
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: party-ids lists the parties assigned to this role
           items:
             type: string
           minItems: 1
@@ -2221,28 +2221,19 @@ components:
       description: Stakeholders defines the reusable parties, roles, and optional standing assignments
       properties:
         assignments:
-          description: |-
-            assignments optionally declares standing party-to-role bindings
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: assignments optionally declares standing party-to-role bindings
           items:
             $ref: "#/components/schemas/RoleAssignment"
           minItems: 1
           type: array
         parties:
-          description: |-
-            parties lists the entities taking part by holding a stake
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: parties lists the entities taking part by holding a stake
           items:
             $ref: "#/components/schemas/Actor"
           minItems: 1
           type: array
         roles:
-          description: |-
-            roles lists the roles defined for this context
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: roles lists the roles defined for this context
           items:
             $ref: "#/components/schemas/Role"
           minItems: 1
@@ -2251,6 +2242,10 @@ components:
       - parties
       - roles
       type: object
+      x-rules:
+      - party ids must be unique
+      - role ids must be unique
+      - every role and party referenced in an assignment must be declared in stakeholders.roles and stakeholders.parties
       x-status: stable
     Statement:
       description: |-
