@@ -207,7 +207,9 @@ import "list"
 // resolved. Methods conflict when their assessment logs for the requirement carry different
 // results. Only executed results take part: a log whose result is "Not Run", "Unknown" or
 // "Not Applicable" (the results that need no start time) is recorded but does not decide.
-// Under every option, methods that agree resolve to the result they agree on.
+// Under every option, methods that agree resolve to the result they agree on, and when no
+// method that decides has an executed result (for unanimous, no required method), the
+// resolved result is "Needs Review", so missing evidence is never read as a pass.
 //
 //   - highest-rank: the result from the method with the lowest rank wins. Every method on
 //     the plan must carry a rank, and ranks are unique.
