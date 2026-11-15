@@ -337,6 +337,7 @@ components:
       - evaluation-methods
       type: object
       x-rules:
+      - A plan with more than one evaluation method must state conflict-resolution.
       - highest-rank needs a total order, so every method on the plan must carry a rank. The list names any method that does not.
       - unanimous is decided by the required methods, so the plan must mark at least one. Unanimity over no methods would pass every requirement without evidence.
       - Method ranks within one assessment plan must be unique, so that a rank-based conflict resolution has a total order to work with.

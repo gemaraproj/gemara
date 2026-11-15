@@ -161,6 +161,7 @@ import "list"
 	// every implementer picks differently.
 	CR="conflict-resolution"?: #ConflictResolution @go(ConflictResolution)
 
+	// A plan with more than one evaluation method must state conflict-resolution.
 	matchN(>=1, [
 		{"conflict-resolution"!: #ConflictResolution},
 		{"evaluation-methods": [_]},
