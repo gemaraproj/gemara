@@ -76,7 +76,8 @@ lintinsights:
 		echo "  >  ERROR: failed to download Security Insights schema from $(SECURITY_INSIGHTS_SCHEMA_URL)" >&2; \
 		exit 1; \
 	}; \
-	echo "$(SECURITY_INSIGHTS_SCHEMA_SHA256) *$$tmp/schema.cue" | sha256sum -c - >/dev/null 2>&1 || { \
+	if command -v sha256sum >/dev/null 2>&1; then checksum='sha256sum'; else checksum='shasum -a 256'; fi; \
+	echo "$(SECURITY_INSIGHTS_SCHEMA_SHA256) *$$tmp/schema.cue" | $$checksum -c - >/dev/null 2>&1 || { \
 		echo "  >  ERROR: Security Insights schema SHA-256 checksum mismatch" >&2; \
 		exit 1; \
 	}; \
