@@ -200,7 +200,11 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldD
 		// vanished from the document. Drop them here and list their comments
 		// under x-rules, as for a cross-field conditional.
 		if call, ok := embeddedValidator(d); ok {
-			info.DroppedConditionals = append(info.DroppedConditionals, droppedConditional{pos: call.Pos().String(), owner: owner, doc: docComment(d)})
+			doc := docComment(d)
+			if doc == "" {
+				doc = fieldDoc
+			}
+			info.DroppedConditionals = append(info.DroppedConditionals, droppedConditional{pos: call.Pos().String(), owner: owner, doc: doc})
 			continue
 		}
 		c, ok := d.(*ast.Comprehension)

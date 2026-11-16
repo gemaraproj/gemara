@@ -183,8 +183,9 @@ import "list"
 	// conflict resolution has a total order to work with.
 	_uniqueRanks: {for i, m in EM if m.rank != _|_ {"\(m.rank)": i}}
 
-	// An assessment log names the method that produced it by id, so a method id must
-	// name one method within its plan.
+	// A log that names the method that produced it does so by id (an assessment log has
+	// no such field yet, see gemaraproj/gemara#485), so a method id must name one method
+	// within its plan.
 	_uniqueMethodIds: {for i, m in EM {"\(m.id)": i}}
 }
 
@@ -210,6 +211,13 @@ import "list"
 // Under every option, methods that agree resolve to the result they agree on, and when no
 // method that decides has an executed result (for unanimous, no required method), the
 // resolved result is "Needs Review", so missing evidence is never read as a pass.
+//
+// highest-rank and unanimous decide by method, so each method counts once, by its own
+// result: the result of its executed log with the latest start, or "Needs Review" when
+// its two latest logs share that start and disagree. Both strategies need an assessment
+// log to say which method produced it. A log has no such field yet (see
+// gemaraproj/gemara#485), so these two cannot be applied from log data alone until it
+// has; most-recent and escalate do not depend on it.
 //
 //   - highest-rank: the result from the method with the lowest rank wins. Every method on
 //     the plan must carry a rank, and ranks are unique.
