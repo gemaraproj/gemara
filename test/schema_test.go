@@ -165,6 +165,9 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
+		{"evaluation log target uri with no scheme", "./test-data/bad-evaluation-log-uri-no-scheme.yaml", "#EvaluationLog", true, `target.uri: invalid value "github.com/gemaraproj/gemara"`},
+		{"evaluation log missing target", "./test-data/bad-evaluation-log-missing-target.yaml", "#EvaluationLog", true, `target.id: incomplete value`},
+		{"assessment log with invalid result", "./test-data/bad-evaluation-log-invalid-result.yaml", "#EvaluationLog", true, `"assessment-logs".0.result`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
