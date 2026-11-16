@@ -95,12 +95,12 @@ genopenapi:
 # Repo whose releases hold the v1 baseline OpenAPI asset.
 REPO ?= gemaraproj/gemara
 
-# The tag filter matches the dot as [.] rather than \\. because on Windows,
-# Git Bash's sh drops one backslash from the recipe make hands it (see #527).
-# Set REQUIRE_BASELINE ?= true to fail when no baseline is found.
-# In CI or local verification, set REQUIRE_BASELINE=false to explicitly allow skipping.
+# REQUIRE_BASELINE (default true) makes breaking-check fail when no v1 baseline release is found.
+# Set REQUIRE_BASELINE=false only for a first release or a fork with no v1 releases; CI must keep the default.
 REQUIRE_BASELINE ?= true
 
+# The tag filter matches the dot as [.] rather than \\. because on Windows,
+# Git Bash's sh drops one backslash from the recipe make hands it (see #527).
 breaking-check:
 	@echo "  >  Checking for breaking schema changes ..."
 	@filter='.[] | select(.prerelease == false) | select(.tag_name | test("^v1[.]")) | select(any(.assets[]?; .name == "openapi.yaml")) | .tag_name'; \
@@ -111,9 +111,12 @@ breaking-check:
 		if [ "$(REQUIRE_BASELINE)" = "true" ]; then \
 			echo "  >  ERROR: no v1 baseline release with an openapi.yaml asset found in $(REPO)" >&2; \
 			exit 1; \
-		else \
+		elif [ "$(REQUIRE_BASELINE)" = "false" ]; then \
 			echo "  >  WARNING: no v1 baseline release with an openapi.yaml asset found in $(REPO); skipping breaking-change check (REQUIRE_BASELINE=false)"; \
 			exit 0; \
+		else \
+			echo "  >  ERROR: invalid REQUIRE_BASELINE='$(REQUIRE_BASELINE)'; expected 'true' or 'false'" >&2; \
+			exit 1; \
 		fi; \
 	fi; \
 	echo "  >  Comparing against v1 baseline $$tag"; \

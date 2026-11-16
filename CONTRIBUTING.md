@@ -64,7 +64,10 @@ make breaking-check
 ```
 
 This generates the OpenAPI projection, fetches the latest `v1` release as the baseline, and reports
-any breaking changes with their [oasdiff](https://github.com/oasdiff/oasdiff) check IDs.
+any breaking changes with their [oasdiff](https://github.com/oasdiff/oasdiff) check IDs. The check fails
+when no `v1` baseline release with an `openapi.yaml` asset is found in `REPO` (default `gemaraproj/gemara`).
+For a first release or a fork with no v1 releases only, `make breaking-check REQUIRE_BASELINE=false` skips it
+with a warning.
 
 ### Projection directives
 
