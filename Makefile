@@ -1,5 +1,26 @@
 # SPDX-License-Identifier: Apache-2.0
 
+ifeq ($(OS),Windows_NT)
+    # On Windows, GNU Make defaults to cmd.exe unless sh.exe is on PATH.
+    # When running outside Git Bash / MSYS2 (e.g. native cmd.exe or PowerShell),
+    # locate Git for Windows to provide a POSIX shell and core utilities
+    # (rm, mkdir -p, curl, mktemp, etc.).
+    ifeq ($(shell where sh.exe 2>nul),)
+        GIT_ROOT := $(strip $(shell for /f "delims=" %%i in ('where git.exe 2^>nul') do @if exist "%%~dpi..\bin\sh.exe" (for %%j in ("%%~dpi..") do @echo %%~sj & exit /b)))
+        ifeq ($(GIT_ROOT),)
+            GIT_ROOT := $(strip $(shell for %%i in ("%ProgramW6432%\Git" "%ProgramFiles%\Git" "%ProgramFiles(x86)%\Git" "%LOCALAPPDATA%\Programs\Git") do @if exist "%%~i\bin\sh.exe" (echo %%~si & exit /b)))
+        endif
+        ifneq ($(GIT_ROOT),)
+            GIT_ROOT := $(subst \,/,$(GIT_ROOT))
+            ifneq ($(word 2,$(GIT_ROOT)),)
+                $(warning Git path '$(GIT_ROOT)' contains spaces and lacks an 8.3 short name; recipes may fail. Set SHELL to a short path manually if needed.)
+            endif
+            export PATH := $(GIT_ROOT)/usr/bin;$(GIT_ROOT)/bin;$(PATH)
+            SHELL := $(GIT_ROOT)/bin/sh.exe
+        endif
+    endif
+endif
+
 all: tidy cuefmtcheck lintcue lintinsights test
 
 #

@@ -192,67 +192,6 @@ func TestInclusiveRequiredDisjunctionsTypedLeavesPlainOneOfAlone(t *testing.T) {
 	}
 }
 
-// caveatFixture builds a document with one annotated field and one ordinary
-// field to prove only CUE-discovered unprojectable fields receive a caveat.
-func caveatFixture() *openapi3.T {
-	schemas := openapi3.Schemas{
-		"Widget": val(&openapi3.Schema{
-			Properties: openapi3.Schemas{
-				"complete": val(&openapi3.Schema{Description: "fully projected"}),
-				"partial":  val(&openapi3.Schema{Description: "partially projected"}),
-			},
-		}),
-	}
-	return &openapi3.T{Components: &openapi3.Components{Schemas: schemas}}
-}
-
-func TestAppendUnenforcedCaveatsTypedAppendsToUnprojectableField(t *testing.T) {
-	doc := caveatFixture()
-	if err := appendUnenforcedCaveatsTyped(doc, map[string]bool{"Widget.partial": true}); err != nil {
-		t.Fatal(err)
-	}
-	got := doc.Components.Schemas["Widget"].Value.Properties["partial"].Value.Description
-	if !strings.Contains(got, unenforcedCaveat) {
-		t.Errorf("description = %q, want it to contain %q", got, unenforcedCaveat)
-	}
-}
-
-func TestAppendUnenforcedCaveatsTypedLeavesProjectableFieldsAlone(t *testing.T) {
-	doc := caveatFixture()
-	want := doc.Components.Schemas["Widget"].Value.Properties["complete"].Value.Description
-	if err := appendUnenforcedCaveatsTyped(doc, map[string]bool{"Widget.partial": true}); err != nil {
-		t.Fatal(err)
-	}
-	got := doc.Components.Schemas["Widget"].Value.Properties["complete"].Value.Description
-	if got != want {
-		t.Errorf("description = %q, want unchanged %q", got, want)
-	}
-}
-
-func TestAppendUnenforcedCaveatsTypedIsIdempotent(t *testing.T) {
-	doc := caveatFixture()
-	unprojectable := map[string]bool{"Widget.partial": true}
-	if err := appendUnenforcedCaveatsTyped(doc, unprojectable); err != nil {
-		t.Fatal(err)
-	}
-	if err := appendUnenforcedCaveatsTyped(doc, unprojectable); err != nil {
-		t.Fatal(err)
-	}
-	got := doc.Components.Schemas["Widget"].Value.Properties["partial"].Value.Description
-	if n := strings.Count(got, unenforcedCaveat); n != 1 {
-		t.Errorf("caveat appears %d times, want 1: %q", n, got)
-	}
-}
-
-// An annotation naming a field absent from the generated document must fail
-// loudly rather than silently caveating nothing.
-func TestAppendUnenforcedCaveatsTypedErrorsOnMissingSchema(t *testing.T) {
-	doc := docWithSchema("SomethingElse", &openapi3.Schema{})
-	if err := appendUnenforcedCaveatsTyped(doc, map[string]bool{"Widget.partial": true}); err == nil {
-		t.Error("expected an error for an unprojectable field with no matching schema, got nil")
-	}
-}
-
 func slicesContainString(xs []string, want string) bool {
 	for _, x := range xs {
 		if x == want {
@@ -311,5 +250,108 @@ func TestTypedPassthroughBaseAcceptsRequirementFromBaseInlineAllOf(t *testing.T)
 	}
 	if got != "Base" {
 		t.Errorf("base = %q, want Base", got)
+	}
+}
+
+// TestRestoreRefDescriptionsAppliesDeprecations verifies that @deprecated attributes
+// (both bare and with reasons) reach the projected OpenAPI schema properties,
+// for both inline properties and wrapped $ref properties.
+func TestRestoreRefDescriptionsAppliesDeprecations(t *testing.T) {
+	doc := &openapi3.T{
+		Components: &openapi3.Components{
+			Schemas: openapi3.Schemas{
+				"Widget": val(&openapi3.Schema{
+					Properties: openapi3.Schemas{
+						"inlineBare": val(&openapi3.Schema{
+							Type:        &openapi3.Types{"string"},
+							Description: "Original description",
+						}),
+						"inlineWithReason": val(&openapi3.Schema{
+							Type:        &openapi3.Types{"string"},
+							Description: "Original description",
+						}),
+						"refBare":       ref("OtherSchema"),
+						"refWithReason": ref("OtherSchema"),
+						"notDeprecated": val(&openapi3.Schema{
+							Type:        &openapi3.Types{"string"},
+							Description: "Active field",
+						}),
+					},
+				}),
+			},
+		},
+	}
+
+	docs := map[string]string{
+		"Widget.inlineBare":       "Original description",
+		"Widget.inlineWithReason": "Original description",
+		"Widget.refBare":          "Doc comment for refBare",
+		"Widget.refWithReason":    "Doc comment for refWithReason",
+	}
+
+	deprecations := map[string]string{
+		"Widget.inlineBare":       "",
+		"Widget.inlineWithReason": "use newField instead",
+		"Widget.refBare":          "",
+		"Widget.refWithReason":    "use otherRef instead",
+	}
+
+	if err := restoreRefDescriptionsTyped(doc, docs, deprecations); err != nil {
+		t.Fatalf("restoreRefDescriptionsTyped failed: %v", err)
+	}
+
+	widgetProps := doc.Components.Schemas["Widget"].Value.Properties
+
+	// 1. Inline bare deprecation
+	inlineBare := widgetProps["inlineBare"]
+	if !inlineBare.Value.Deprecated {
+		t.Errorf("inlineBare.Deprecated = false, want true")
+	}
+	if inlineBare.Value.Description != "Original description" {
+		t.Errorf("inlineBare.Description = %q, want %q", inlineBare.Value.Description, "Original description")
+	}
+
+	// 2. Inline deprecation with reason
+	inlineReason := widgetProps["inlineWithReason"]
+	if !inlineReason.Value.Deprecated {
+		t.Errorf("inlineWithReason.Deprecated = false, want true")
+	}
+	wantInlineDesc := "Original description\n\nDeprecated: use newField instead"
+	if inlineReason.Value.Description != wantInlineDesc {
+		t.Errorf("inlineWithReason.Description = %q, want %q", inlineReason.Value.Description, wantInlineDesc)
+	}
+
+	// 3. Wrapped $ref bare deprecation
+	refBare := widgetProps["refBare"]
+	if !refBare.Value.Deprecated {
+		t.Errorf("refBare.Deprecated = false, want true")
+	}
+	if refBare.Value.Description != "Doc comment for refBare" {
+		t.Errorf("refBare.Description = %q, want %q", refBare.Value.Description, "Doc comment for refBare")
+	}
+	if len(refBare.Value.AllOf) != 1 || refBare.Value.AllOf[0].Ref != refPrefix+"OtherSchema" {
+		t.Errorf("refBare.AllOf = %v, want allOf with ref OtherSchema", refBare.Value.AllOf)
+	}
+
+	// 4. Wrapped $ref deprecation with reason
+	refReason := widgetProps["refWithReason"]
+	if !refReason.Value.Deprecated {
+		t.Errorf("refWithReason.Deprecated = false, want true")
+	}
+	wantRefDesc := "Doc comment for refWithReason\n\nDeprecated: use otherRef instead"
+	if refReason.Value.Description != wantRefDesc {
+		t.Errorf("refWithReason.Description = %q, want %q", refReason.Value.Description, wantRefDesc)
+	}
+	if len(refReason.Value.AllOf) != 1 || refReason.Value.AllOf[0].Ref != refPrefix+"OtherSchema" {
+		t.Errorf("refWithReason.AllOf = %v, want allOf with ref OtherSchema", refReason.Value.AllOf)
+	}
+
+	// 5. Not deprecated field
+	notDep := widgetProps["notDeprecated"]
+	if notDep.Value.Deprecated {
+		t.Errorf("notDeprecated.Deprecated = true, want false")
+	}
+	if notDep.Value.Description != "Active field" {
+		t.Errorf("notDeprecated.Description = %q, want %q", notDep.Value.Description, "Active field")
 	}
 }

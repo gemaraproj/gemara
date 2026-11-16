@@ -1,0 +1,25 @@
+metadata:
+  id: BAD-RISK-INVALID-SEVERITY
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — risk specifies an unrecognized severity level
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Invalid risk severity level
+
+groups:
+  - id: CAT-SECURITY
+    title: Security
+    description: Security risk category
+    appetite: Low
+
+risks:
+  - id: RISK-001
+    title: Unrecognized Severity
+    description: Severity value is not one of Low, Medium, High, or Critical
+    group: CAT-SECURITY
+    severity: Extreme

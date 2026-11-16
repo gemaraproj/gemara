@@ -3,7 +3,10 @@
 package projection
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -39,7 +42,43 @@ that can be used for API documentation and validation.`,
 	return cmd
 }
 
+func samePath(p1, p2 string) (bool, error) {
+	if p1 == p2 {
+		return true, nil
+	}
+
+	clean1 := filepath.Clean(p1)
+	clean2 := filepath.Clean(p2)
+	if clean1 == clean2 {
+		return true, nil
+	}
+
+	abs1, err1 := filepath.Abs(p1)
+	abs2, err2 := filepath.Abs(p2)
+	if err1 == nil && err2 == nil && abs1 == abs2 {
+		return true, nil
+	}
+
+	fi1, statErr1 := os.Stat(p1)
+	fi2, statErr2 := os.Stat(p2)
+	if statErr1 == nil && statErr2 == nil && os.SameFile(fi1, fi2) {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 func runCue2OpenAPI(opts cue2OpenAPIOpts) error {
+	if opts.manifestPath != "" {
+		same, err := samePath(opts.outputPath, opts.manifestPath)
+		if err != nil {
+			return fmt.Errorf("comparing output and manifest paths: %w", err)
+		}
+		if same {
+			return errors.New("output and manifest paths must not refer to the same file")
+		}
+	}
+
 	c := NewConverter(opts.manifestPath, opts.root)
 	if err := c.Load(opts.schemaDir); err != nil {
 		return err

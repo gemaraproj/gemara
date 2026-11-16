@@ -1,0 +1,31 @@
+metadata:
+  id: TEST-GUIDANCE-INVALID-APPLICABILITY
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example Guidance Catalog with invalid applicability group reference
+  author:
+    id: governance-team
+    name: Governance Team
+    type: Human
+  applicability-groups:
+    - id: cloud-native
+      title: Cloud Native
+      description: Cloud native environments
+
+title: AI Governance Framework Guidance
+
+type: Framework
+
+groups:
+  - id: PREV
+    title: Preventive
+    description: Prevention and Risk Mitigation
+
+guidelines:
+  - id: AIR-PREV-001
+    group: PREV
+    title: Data Filtering From External Knowledge Bases
+    objective: Test objective
+    applicability:
+      - nonexistent-applicability

@@ -250,31 +250,3 @@ func TestDefinitionFormatsFromGemaraAttributes(t *testing.T) {
 		t.Error("Plain has no @gemara(format=...), but a format was recorded")
 	}
 }
-
-func TestUnprojectableFieldsFromGemaraAttributes(t *testing.T) {
-	v := mustValue(t, `package p
-#Widget: {
-	complete: string @gemara(projectable=true)
-	partial: string @gemara(projectable=false)
-}
-`)
-	got, err := unprojectableFields(v)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, ok := got["Widget.complete"]; ok {
-		t.Error("Widget.complete is projectable, but was recorded as unprojectable")
-	}
-	if _, ok := got["Widget.partial"]; !ok {
-		t.Error("Widget.partial has projectable=false, but was not recorded")
-	}
-}
-
-func TestUnprojectableFieldsRejectInvalidProjectableValue(t *testing.T) {
-	v := mustValue(t, `package p
-#Widget: { partial: string @gemara(projectable="sometimes") }
-`)
-	if _, err := unprojectableFields(v); err == nil {
-		t.Error("expected projectable=sometimes to be rejected")
-	}
-}

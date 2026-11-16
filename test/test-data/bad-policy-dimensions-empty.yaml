@@ -1,0 +1,33 @@
+metadata:
+  id: "security-policy-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Establish comprehensive information security controls and procedures to protect organizational assets"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "NIST-800-53"
+      title: "NIST Special Publication 800-53"
+      version: "Rev. 5"
+      url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+
+title: "Information Security Policy"
+contacts:
+  responsible:
+    - name: "IT Director"
+  accountable:
+    - name: "Chief Information Security Officer"
+
+scope:
+  in:
+    technologies: []
+
+imports:
+  catalogs:
+    - reference-id: "NIST-800-53"
+
+adherence:
+  non-compliance: "Non-compliant systems will be quarantined pending remediation"

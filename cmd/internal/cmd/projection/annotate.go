@@ -277,41 +277,6 @@ func fieldDefaults(v cue.Value) (map[string]any, error) {
 	return out, nil
 }
 
-// unprojectableFields returns fields explicitly marked @gemara(projectable=false).
-// They carry CUE constraints the OpenAPI projection cannot faithfully represent.
-func unprojectableFields(v cue.Value) (map[string]bool, error) {
-	out := map[string]bool{}
-	defs, err := v.Fields(cue.Definitions(true))
-	if err != nil {
-		return nil, fmt.Errorf("enumerating definitions for projectability: %w", err)
-	}
-	for defs.Next() {
-		sel := defs.Selector()
-		if !sel.IsDefinition() || defs.Value().IncompleteKind() != cue.StructKind {
-			continue
-		}
-		schema := strings.TrimPrefix(sel.String(), "#")
-		fields, err := defs.Value().Fields(cue.Optional(true))
-		if err != nil {
-			return nil, fmt.Errorf("enumerating the fields of #%s for projectability: %w", schema, err)
-		}
-		for fields.Next() {
-			attr := fields.Value().Attribute("gemara")
-			if attr.Err() != nil {
-				continue
-			}
-			directive, err := parseGemaraDirective(attr)
-			if err != nil {
-				return nil, fmt.Errorf("#%s.%s: malformed @gemara attribute: %w", schema, fields.Selector().Unquoted(), err)
-			}
-			if directive.projectable != nil && !*directive.projectable {
-				out[schema+"."+fields.Selector().Unquoted()] = true
-			}
-		}
-	}
-	return out, nil
-}
-
 func definitionFormats(v cue.Value) (map[string]string, error) {
 	out := map[string]string{}
 	defs, err := v.Fields(cue.Definitions(true))
@@ -342,7 +307,6 @@ type gemaraDirective struct {
 	status       string
 	format       *string
 	defaultValue *string
-	projectable  *bool
 }
 
 // parseGemaraDirective validates the closed projection-directive contract using
@@ -373,20 +337,6 @@ func parseGemaraDirective(attr cue.Attribute) (gemaraDirective, error) {
 				return gemaraDirective{}, fmt.Errorf("duplicate \"default\" argument")
 			}
 			directive.defaultValue = &value
-		case "projectable":
-			if directive.projectable != nil {
-				return gemaraDirective{}, fmt.Errorf("duplicate \"projectable\" argument")
-			}
-			switch value {
-			case "true":
-				projectable := true
-				directive.projectable = &projectable
-			case "false":
-				projectable := false
-				directive.projectable = &projectable
-			default:
-				return gemaraDirective{}, fmt.Errorf("\"projectable\" must be true or false, got %q", value)
-			}
 		default:
 			return gemaraDirective{}, fmt.Errorf("unknown argument %q", key)
 		}

@@ -16,6 +16,7 @@ import "list"
 	// threats is a list of threats defined by this catalog
 	threats?: [#Threat, ...#Threat] @go(Threats)
 
+	// when threats are listed, groups is required, threat ids must be unique, and each threat's group must be a declared group id
 	if threats != _|_ {
 		_uniqueThreatIds: {for i, t in threats {(t.id): i}}
 		groups: [#Group, ...#Group]

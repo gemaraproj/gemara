@@ -14,7 +14,8 @@ import (
 )
 
 // Prep loads the package and applies required upstream-generator
-// workarounds while recording every omitted cross-field conditional.
+// workarounds while recording every omitted cross-field conditional and every
+// reference from one field to another field of the same definition.
 func (c *Converter) Prep() error {
 	if c.schemaDir == "" {
 		return fmt.Errorf("load a CUE package before preprocessing")
@@ -25,9 +26,15 @@ func (c *Converter) Prep() error {
 	}
 	c.value, c.prep, c.instance = v, prep, inst
 	if len(prep.DroppedConditionals) > 0 {
-		fmt.Fprintf(os.Stderr, "cue2openapi: %d cross-field conditional(s) were omitted because the CUE OpenAPI projector cannot translate them:\n", len(prep.DroppedConditionals))
-		for _, pos := range prep.DroppedConditionals {
-			fmt.Fprintf(os.Stderr, "  %s\n", pos)
+		fmt.Fprintf(os.Stderr, "cue2openapi: %d cross-field conditional(s) were omitted because the CUE OpenAPI projector cannot translate them; each is described under %s on its schema:\n", len(prep.DroppedConditionals), rulesExtension)
+		for _, d := range prep.DroppedConditionals {
+			fmt.Fprintf(os.Stderr, "  %s\n", d.pos)
+		}
+	}
+	if len(prep.FieldReferences) > 0 {
+		fmt.Fprintf(os.Stderr, "cue2openapi: %d reference(s) to another field were projected as that field's type, because OpenAPI cannot tie one value to another; each is described under %s on its schema:\n", len(prep.FieldReferences), rulesExtension)
+		for _, d := range prep.FieldReferences {
+			fmt.Fprintf(os.Stderr, "  %s\n", d.pos)
 		}
 	}
 	return nil
@@ -36,12 +43,21 @@ func (c *Converter) Prep() error {
 // prepInfo records what prepare rewrote, so the post-pass can restore the
 // information in a form OpenAPI can express.
 type prepInfo struct {
-	// CUE CONVERTER WORKAROUND: DroppedConditionals records the source position
-	// of every cross-field conditional removed by stripComprehensions. The
-	// current CUE OpenAPI projector cannot translate these, so the caller reports their omission
-	// so a newly added conditional announces that it will not reach the
-	// generated document, rather than vanishing silently.
-	DroppedConditionals []string
+	// CUE CONVERTER WORKAROUND: DroppedConditionals records every cross-field
+	// conditional removed by stripComprehensions. The current CUE OpenAPI
+	// projector cannot translate these, so the caller reports their omission
+	// and Post lists each one's description under x-rules, so a newly added
+	// conditional is still stated in the generated document rather than
+	// vanishing silently.
+	DroppedConditionals []droppedConditional
+
+	// FieldReferences records every reference from one field to another
+	// regular field of the same definition, as in
+	// `requirement: "reference-id": (control."reference-id")`. It ties the two
+	// values together, which OpenAPI cannot express: the encoder projects the
+	// reference as the other field's type alone. Post lists each one's
+	// description under x-rules, as it does for DroppedConditionals.
+	FieldReferences []droppedConditional
 
 	// CUE CONVERTER WORKAROUND: HelperRules holds the conditionals of hidden #_
 	// helpers (such as #_AssessmentLogStrict) that stripComprehensions
@@ -49,6 +65,16 @@ type prepInfo struct {
 	// '#'. Post attaches each rule to the base schema the helper extends, which
 	// every use of the helper is collapsed onto.
 	HelperRules map[string][]helperRule
+}
+
+// droppedConditional is a cross-field conditional stripComprehensions removed,
+// or a reference recorded in FieldReferences. Post lists its description under
+// x-rules on the owner's schema, so the rule is still stated in the document
+// even though OpenAPI cannot check it.
+type droppedConditional struct {
+	pos   string // source position, for reports
+	owner string // definition it is declared in, without the leading '#'
+	doc   string // the // comment above it, or above the field it is the value of
 }
 
 // prepare rewrites a CUE file into the subset cuelang.org/go/encoding/openapi
@@ -61,20 +87,21 @@ func prepare(f *ast.File) (*prepInfo, error) {
 	info := &prepInfo{HelperRules: map[string][]helperRule{}}
 	var err error
 
-	f.Decls = stripComprehensions(f.Decls, info, "")
+	f.Decls = stripComprehensions(f.Decls, info, "", "", "")
 	astutil.Apply(f, func(c astutil.Cursor) bool {
 		if err != nil {
 			return false
 		}
 		switch n := c.Node().(type) {
 		case *ast.StructLit:
+			owner, _, _, _ := enclosingDefinition(c)
 			// CUE CONVERTER WORKAROUND: The current CUE OpenAPI projector cannot
 			// translate a cross-field conditional and errors rather than guessing. The walker this replaces
 			// ignored these too, so no fidelity is lost — but it is a
 			// deliberate omission, recorded here rather than incidental.
 			// Conditionals in a hidden #_ helper are translated where
 			// their shape allows, so Post can restore them.
-			n.Elts = stripComprehensions(n.Elts, info, hiddenHelperName(c))
+			n.Elts = stripComprehensions(n.Elts, info, hiddenHelperName(c), owner, valueOfFieldDoc(c))
 		case *ast.Field:
 			// CUE CONVERTER WORKAROUND: X="name": the alias exists to be read by the comprehensions
 			// just removed. CUE rejects an unreferenced alias, so unwrap it
@@ -84,6 +111,16 @@ func prepare(f *ast.File) (*prepInfo, error) {
 			if al, ok := n.Label.(*ast.Alias); ok {
 				if lbl, ok := al.Expr.(ast.Label); ok {
 					n.Label = lbl
+				}
+			}
+		case *ast.Ident:
+			// A reference to another field of the same definition ties the
+			// two values together, which OpenAPI cannot express. Record it so
+			// Post lists its comment under x-rules. Outside a definition
+			// there is no schema to list it on, and nothing is projected.
+			if referencesField(c, n) {
+				if owner, _, _, found := enclosingDefinition(c); found {
+					info.FieldReferences = append(info.FieldReferences, droppedConditional{pos: n.Pos().String(), owner: owner, doc: referenceDoc(c)})
 				}
 			}
 		case *ast.CallExpr:
@@ -148,8 +185,13 @@ func prepare(f *ast.File) (*prepInfo, error) {
 // list. astutil's Cursor.Delete does not support this position, so the slice
 // is rebuilt directly. Inside a hidden helper (helper is non-empty), a
 // conditional that translateHelperConditional recognises is recorded as a
-// helper rule instead of as dropped.
-func stripComprehensions(decls []ast.Decl, info *prepInfo, helper string) []ast.Decl {
+// helper rule instead of as dropped. A dropped conditional is recorded with
+// owner, the definition it is declared in, and its doc comment; fieldDoc is the
+// comment of the field decls are the value of, used when the conditional has
+// none of its own, as in `_uniqueTermIds: {for i, t in terms {(t.id): i}}`.
+// A conditional nested inside a removed one goes with it and is not recorded
+// on its own: the outer one's comment describes it.
+func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string) []ast.Decl {
 	out := decls[:0:0]
 	for _, d := range decls {
 		c, ok := d.(*ast.Comprehension)
@@ -167,9 +209,43 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper string) []ast.
 				continue
 			}
 		}
-		info.DroppedConditionals = append(info.DroppedConditionals, d.Pos().String())
+		doc := docComment(c)
+		if doc == "" {
+			doc = fieldDoc
+		}
+		info.DroppedConditionals = append(info.DroppedConditionals, droppedConditional{pos: d.Pos().String(), owner: owner, doc: doc})
 	}
 	return out
+}
+
+// valueOfFieldDoc returns the doc comment of the hidden field whose value is
+// the cursor's struct, or "". Only a hidden field: a definition's or regular
+// field's comment describes that whole value, not a rule inside it.
+func valueOfFieldDoc(c astutil.Cursor) string {
+	if p := c.Parent(); p != nil {
+		if f, ok := p.Node().(*ast.Field); ok && f.Value == c.Node() {
+			if id, ok := f.Label.(*ast.Ident); ok && strings.HasPrefix(id.Name, "_") {
+				return docComment(f)
+			}
+		}
+	}
+	return ""
+}
+
+// docComment returns the text of n's doc comments, joined into one line.
+func docComment(n ast.Node) string {
+	var lines []string
+	for _, cg := range ast.Comments(n) {
+		if !cg.Doc {
+			continue
+		}
+		for _, line := range strings.Split(cg.Text(), "\n") {
+			if line = strings.TrimSpace(line); line != "" {
+				lines = append(lines, line)
+			}
+		}
+	}
+	return strings.Join(lines, " ")
 }
 
 // declaresField reports whether decls declares a field that an unquoted
@@ -183,6 +259,56 @@ func declaresField(decls []ast.Decl, name string) bool {
 		}
 	}
 	return false
+}
+
+// referencesField reports whether id refers to a regular field of the
+// definition it is used in, as `control` does in
+// `requirement: "reference-id": (control."reference-id")`. A definition, a
+// hidden field, a let, a comprehension variable, an import, a builtin and a
+// field outside the definition are not values of the same document, so a
+// reference to one ties nothing together.
+func referencesField(c astutil.Cursor, id *ast.Ident) bool {
+	// The parser binds a reference to the struct that declares its target. A
+	// label, a selector and a builtin such as string are not bound.
+	scope, ok := id.Scope.(*ast.StructLit)
+	if !ok || strings.HasPrefix(id.Name, "#") || strings.HasPrefix(id.Name, "_") || !declaresField(scope.Elts, id.Name) {
+		return false
+	}
+	for p := c.Parent(); p != nil; p = p.Parent() {
+		if p.Node() == scope {
+			return true
+		}
+		if f, ok := p.Node().(*ast.Field); ok {
+			if lbl, ok := f.Label.(*ast.Ident); ok && strings.HasPrefix(lbl.Name, "#") {
+				return false
+			}
+		}
+	}
+	return false
+}
+
+// referenceDoc returns the doc comment of the field whose value holds the
+// cursor's reference, where `a: b: c` counts as one field with its comment
+// above a. As with a conditional, the comment of a field further out
+// describes that field, not the reference, so it is not used.
+func referenceDoc(c astutil.Cursor) string {
+	for p := c.Parent(); p != nil; p = p.Parent() {
+		f, ok := p.Node().(*ast.Field)
+		if !ok {
+			continue
+		}
+		if lbl, ok := f.Label.(*ast.Ident); ok && strings.HasPrefix(lbl.Name, "#") {
+			return ""
+		}
+		if doc := docComment(f); doc != "" {
+			return doc
+		}
+		// `a: b: c` parses as `a: {b: c}`, with no braces.
+		if s, ok := p.Parent().Node().(*ast.StructLit); !ok || s.Lbrace.IsValid() {
+			return ""
+		}
+	}
+	return ""
 }
 
 // hiddenHelperName returns the name (without '#') of the top-level hidden #_

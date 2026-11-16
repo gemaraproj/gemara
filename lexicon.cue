@@ -18,6 +18,7 @@ package gemara
 	// terms is one or more defined entries for linking and rendering
 	terms: [#LexiconTerm, ...#LexiconTerm] @go(Terms)
 
+	// term ids must be unique
 	_uniqueTermIds: {for i, t in terms {(t.id): i}}
 }
 

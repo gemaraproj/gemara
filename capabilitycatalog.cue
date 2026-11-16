@@ -16,6 +16,7 @@ import "list"
 	// capabilities is a list of capabilities defined by this catalog
 	capabilities?: [#Capability, ...#Capability] @go(Capabilities)
 
+	// when capabilities are listed, groups is required, capability ids must be unique, and each capability's group must be a declared group id
 	if capabilities != _|_ {
 		_uniqueCapabilityIds: {for i, c in capabilities {(c.id): i}}
 		groups: [#Group, ...#Group]

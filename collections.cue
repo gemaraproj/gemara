@@ -22,14 +22,17 @@ package gemara
 
 	imports?: [#MultiEntryMapping, ...#MultiEntryMapping]
 
+	// group ids must be unique
 	if groups != _|_ {
 		_uniqueGroupIds: {for i, g in groups {(g.id): i}}
 	}
 
+	// when extends is set, metadata.mapping-references is required
 	if extends != _|_ {
 		metadata: "mapping-references": [#MappingReference, ...#MappingReference]
 	}
 
+	// when imports are listed, metadata.mapping-references is required
 	if imports != _|_ {
 		metadata: "mapping-references": [#MappingReference, ...#MappingReference]
 	}

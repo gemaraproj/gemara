@@ -8,6 +8,48 @@ reviews:
   high_level_summary: true
   poem: false
   in_progress_fortune: false
+
+  # Sort every PR by whether it traces to an issue. CodeRabbit suggests only
+  # labels listed here; release-drafter's auto-labeler applies the rest.
+  suggested_labels: true
+  auto_apply_labels: true
+  # A PR carries exactly one issue label, so linking an issue after the first
+  # review moves it from needs-issue to has-issue instead of adding both.
+  mutually_exclusive_groups:
+    issue-linkage:
+      - has-issue
+      - needs-issue
+      - no-issue-needed
+  labeling_instructions:
+    - label: has-issue
+      instructions: |
+        Apply when the PR description links a gemaraproj issue, either with a
+        closing keyword (fixes, closes, resolves) or an explicit reference such
+        as "part of #123" or a full issue URL, or when GitHub lists a linked
+        issue. A PR number on its own does not count.
+    - label: needs-issue
+      instructions: |
+        Apply when the PR links no issue and does more than the changes listed
+        under no-issue-needed. Apply this whenever the PR adds or tightens a
+        schema rule, adds a field, changes CLI or CI behaviour, or adds a
+        feature, however small the diff.
+    - label: no-issue-needed
+      instructions: |
+        Apply when the PR links no issue and every change is one of: tests
+        only (files under test/), a typo or grammar fix in any file, a small
+        documentation fix (Markdown or doc comments only, under about 20
+        changed lines, no new sections), or a dependency bump opened by a bot.
+        If any change falls outside these, use needs-issue instead.
+    - label: tightens-validation
+      instructions: |
+        Apply in addition to one of the labels above when the diff to any
+        *.cue file makes the schema reject a document it accepted before:
+        a new or narrower constraint, an optional field made required, a
+        new uniqueness or cross-field rule, a forbidden combination, a
+        removed enum value, or a closed struct that was open. Do not apply
+        for doc-comment changes, renames that keep the accepted documents
+        the same, new optional fields, or test and fixture changes alone.
+
   auto_review:
     enabled: true
     auto_incremental_review: true
@@ -29,6 +71,13 @@ reviews:
         that a changed definition's comment still matches what it now does.
         Prefer leaving a field out. Challenge anything derivable, any open
         enum, and any property bag (free-form maps, `_`, open structs).
+        When a finding needs a schema design decision (a new field, a new
+        identifier, a wire format), check the linked issue for an agreed
+        approach first and do not offer options the issue ruled out. If the
+        issue does not settle it, say the maintainers should decide on the
+        issue; do not leave the choice to the PR author. Do not suggest turning
+        a documented format into a pattern or regex until a maintainer has
+        agreed to the format.
     - path: "test/**"
       instructions: |
         Schema tests read the .cue files at runtime. Check that each new rule has
@@ -49,6 +98,20 @@ reviews:
 
   pre_merge_checks:
     custom_checks:
+      - name: Change traces to an issue
+        mode: warning
+        instructions: |
+          Pass if the PR description links a gemaraproj issue (a closing
+          keyword, an explicit "part of #123" style reference, or a full issue
+          URL) or GitHub lists a linked issue.
+          Also pass if the PR links no issue and every change is tests only
+          (files under test/), a typo or grammar fix, a small documentation fix
+          (Markdown or doc comments only, under about 20 changed lines), or a
+          dependency bump opened by a bot.
+          Fail otherwise. When failing, ask the author to open an issue first
+          that says what problem a Gemara user hits, how they found it, and why
+          it should be fixed, and to link it here once a maintainer has agreed
+          to the approach. Do not suggest an implementation.
       - name: No property bags or open extension points
         mode: warning
         instructions: |
@@ -67,7 +130,10 @@ reviews:
         instructions: |
           Fail if the diff to any *.cue file adds a field whose value can be
           computed from other fields or from its enclosing document, or adds a
-          UUID/GUID field. Pass otherwise.
+          UUID/GUID field. Hidden `_`-prefixed fields that only exist to
+          enforce a validation rule, such as a keyed struct used to reject
+          duplicates in linear time, are not schema fields and pass.
+          Pass otherwise.
       - name: New fields state a use case
         mode: warning
         instructions: |

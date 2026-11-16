@@ -78,11 +78,28 @@ func TestSchemaValidation(t *testing.T) {
 
 		// RiskCatalog — negative
 		{"risk catalog with duplicate rank", "./test-data/bad-risk-catalog-duplicate-rank.yaml", "#RiskCatalog", true, `_uniqueRiskRanks."1"`},
+		{"risk catalog with empty risks list", "./test-data/bad-risk-empty-risks.yaml", "#RiskCatalog", true, "risks: incompatible list lengths"},
+		{"risk missing required title", "./test-data/bad-risk-missing-title.yaml", "#RiskCatalog", true, "risks.0.title: incomplete value string"},
+		{"risk missing required description", "./test-data/bad-risk-missing-description.yaml", "#RiskCatalog", true, "risks.0.description: incomplete value string"},
+		{"risk with invalid severity", "./test-data/bad-risk-invalid-severity.yaml", "#RiskCatalog", true, `risks.0.severity: 4 errors in empty disjunction`},
+		{"risk category with invalid appetite", "./test-data/bad-risk-category-invalid-appetite.yaml", "#RiskCatalog", true, `groups.0.appetite: 4 errors in empty disjunction`},
 
 		// Policy — positive
 		{"valid policy", "./test-data/good-policy.yaml", "#Policy", false, ""},
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
+		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
+
+		// Policy — negative (applicability)
+		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
+
+		// Policy — negative
+		{"policy with disallowed field directly under scope", "./test-data/bad-policy-invalid-scope.yaml", "#Policy", true, "scope.technologies: field not allowed"},
+		{"policy with empty dimensions list", "./test-data/bad-policy-dimensions-empty.yaml", "#Policy", true, "scope.in.technologies: incompatible list lengths"},
+		{"policy implementation plan missing required timeline", "./test-data/bad-policy-plan-missing-timeline.yaml", "#Policy", true, `"implementation-plan"."enforcement-timeline".start: incomplete value`},
+		{"policy evaluation method with enforcement type", "./test-data/bad-policy-adherence-invalid-eval-method.yaml", "#Policy", true, `adherence."evaluation-methods".0.type: 2 errors in empty disjunction`},
+		{"policy enforcement method with evaluation type", "./test-data/bad-policy-adherence-invalid-enforce-method.yaml", "#Policy", true, `adherence."enforcement-methods".0.type: 2 errors in empty disjunction`},
+		{"policy adherence method with invalid mode", "./test-data/bad-policy-adherence-invalid-mode.yaml", "#Policy", true, `adherence."evaluation-methods".0.mode: 2 errors in empty disjunction`},
 
 		// Policy — negative (retention)
 		{"retention obligation measured from an undeclared anchor", "./test-data/bad-policy-retention-undeclared-anchor.yaml", "#Policy", true, `does not satisfy list.Contains("employee-separation")`},
@@ -102,11 +119,15 @@ func TestSchemaValidation(t *testing.T) {
 		// MappingDocument — positive
 		{"valid mapping document", "./test-data/good-mapping-document.yaml", "#MappingDocument", false, ""},
 		{"valid AIGF NIST 800-53 mapping", "./test-data/good-aigf-nist-mapping.yaml", "#MappingDocument", false, ""},
+		{"valid mapping document with strength boundaries", "./test-data/good-mapping-strength-boundaries.yaml", "#MappingDocument", false, ""},
 
 		// MappingDocument — negative
 		{"invalid mapping document without mapping-references", "./test-data/bad-mapping-document.yaml", "#MappingDocument", true, `metadata."mapping-references".0.id: incomplete value string`},
 		{"mapping document with duplicate mapping id", "./test-data/bad-mapping-duplicate-id.yaml", "#MappingDocument", true, `_uniqueMappingIds."DUP-01"`},
 		{"mapping missing targets for non-no-match relationship", "./test-data/bad-mapping-no-target.yaml", "#MappingDocument", true, `targets.0."entry-id": incomplete value string`},
+		{"mapping target strength below minimum", "./test-data/bad-mapping-strength-below-min.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: invalid value 0 (out of bound >=1)`},
+		{"mapping target strength above maximum", "./test-data/bad-mapping-strength-above-max.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: invalid value 11 (out of bound <=10)`},
+		{"mapping target strength non-integer", "./test-data/bad-mapping-strength-non-integer.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: conflicting values 5.5 and int`},
 
 		// Lexicon — positive
 		{"valid lexicon", "./test-data/good-lexicon.yaml", "#Lexicon", false, ""},
@@ -116,6 +137,10 @@ func TestSchemaValidation(t *testing.T) {
 
 		// GuidanceCatalog — negative
 		{"retired guideline with recommendations", "./test-data/bad-lifecycle.yaml", "#GuidanceCatalog", true, "#GuidanceCatalog: explicit error"},
+		{"guidance catalog with duplicate guideline id", "./test-data/bad-guidance-duplicate-id.yaml", "#GuidanceCatalog", true, `_uniqueGuidelineIds."AIR-PREV-001"`},
+		{"guideline missing required title", "./test-data/bad-guidance-missing-title.yaml", "#GuidanceCatalog", true, "guidelines.0.title: incomplete value string"},
+		{"guideline with empty recommendations list", "./test-data/bad-guidance-empty-recommendations.yaml", "#GuidanceCatalog", true, "guidelines.0.recommendations: incompatible list lengths"},
+		{"guidance catalog with empty guidelines list", "./test-data/bad-guidance-empty-list.yaml", "#GuidanceCatalog", true, "guidelines: incompatible list lengths"},
 
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
@@ -124,6 +149,7 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — negative
 		{"mismatched requirement reference-id", "./test-data/bad-evaluation-log-mismatched-requirement-reference.yaml", "#EvaluationLog", true, `requirement."reference-id": conflicting values "OSPS-B" and "MISMATCHED-REF"`},
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
+		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
@@ -154,18 +180,27 @@ func TestSchemaValidation(t *testing.T) {
 		// CapabilityCatalog — negative
 		{"capability with invalid group", "./test-data/bad-capability-invalid-group.yaml", "#CapabilityCatalog", true, `_groupValidation."0": invalid value ["container-infrastructure"]`},
 		{"capability catalog with duplicate capability id", "./test-data/bad-capability-duplicate-id.yaml", "#CapabilityCatalog", true, `_uniqueCapabilityIds."CAP-001"`},
+		{"capability missing required id", "./test-data/bad-capability-missing-id.yaml", "#CapabilityCatalog", true, "capabilities.0.id: incomplete value string"},
+		{"capability missing required description", "./test-data/bad-capability-missing-description.yaml", "#CapabilityCatalog", true, "capabilities.0.description: incomplete value string"},
+		{"capability catalog with empty capabilities list", "./test-data/bad-capability-empty-capabilities.yaml", "#CapabilityCatalog", true, "capabilities: incompatible list lengths"},
 
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
+		{"threat missing description", "./test-data/bad-threat-missing-description.yaml", "#ThreatCatalog", true, "threats.0.description: incomplete value string"},
+		{"threat with empty capabilities list", "./test-data/bad-threat-empty-capabilities.yaml", "#ThreatCatalog", true, "threats.0.capabilities: incompatible list lengths"},
 
 		// VectorCatalog — negative
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
 		{"vector catalog with duplicate vector id", "./test-data/bad-vector-duplicate-id.yaml", "#VectorCatalog", true, `_uniqueVectorIds."VEC-001"`},
+		{"vector missing id", "./test-data/bad-vector-missing-id.yaml", "#VectorCatalog", true, "vectors.0.id: incomplete value string"},
+		{"vector catalog with empty vectors list", "./test-data/bad-vector-empty-list.yaml", "#VectorCatalog", true, "vectors: incompatible list lengths"},
 
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
 		{"principle catalog with duplicate principle id", "./test-data/bad-principle-duplicate-id.yaml", "#PrincipleCatalog", true, `_uniquePrinciplesIds."PRIN-001"`},
+		{"principle missing description", "./test-data/bad-principle-missing-description.yaml", "#PrincipleCatalog", true, "principles.0.description: incomplete value string"},
+		{"principle catalog with empty principles list", "./test-data/bad-principle-empty-list.yaml", "#PrincipleCatalog", true, "principles: incompatible list lengths"},
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
@@ -173,9 +208,19 @@ func TestSchemaValidation(t *testing.T) {
 
 		// RiskCatalog — negative (group validation)
 		{"risk with invalid group", "./test-data/bad-risk-catalog-invalid-group.yaml", "#RiskCatalog", true, `_groupValidation."0": invalid value ["CAT-SECURITY"]`},
+		{"risk catalog with duplicate risk id", "./test-data/bad-risk-duplicate-id.yaml", "#RiskCatalog", true, `_uniqueRiskIds."RISK-001"`},
+
+		// Catalog & Metadata collection uniqueness — negative
+		{"catalog with duplicate group id", "./test-data/bad-catalog-duplicate-group-id.yaml", "#ControlCatalog", true, `_uniqueGroupIds."GRP-ACCESS"`},
+		{"metadata with duplicate mapping reference id", "./test-data/bad-metadata-duplicate-mapping-reference.yaml", "#MappingDocument", true, `_uniqueRefIds."NIST-800-53"`},
+		{"metadata with duplicate applicability group id", "./test-data/bad-metadata-duplicate-applicability-group.yaml", "#ControlCatalog", true, `_uniqueGroupsIds."cloud-production"`},
 
 		// GuidanceCatalog — negative (group validation)
 		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
+		{"guideline with invalid applicability", "./test-data/bad-guidance-invalid-applicability.yaml", "#GuidanceCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-native"]`},
+
+		// VectorCatalog — negative (applicability validation)
+		{"vector with invalid applicability", "./test-data/bad-vector-invalid-applicability.yaml", "#VectorCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]`},
 
 		// ControlCatalog — edge cases
 		{"empty nested catalog", "./test-data/nested-empty.yaml", "#ControlCatalog", false, ""},

@@ -148,6 +148,9 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - retention anchor ids must be unique, and none may redeclare collected-at
+      - retention obligation ids must be unique, each obligation's anchor must be collected-at or a declared retention anchor, and an obligation measured from collected-at must state a duration
       x-status: experimental
     ArtifactMapping:
       description: ArtifactMapping represents a mapping to an external artifact or artifact entry
@@ -357,57 +360,9 @@ components:
       - text
       - applicability
       type: object
+      x-rules:
+      - retired assessment requirements must not have a recommendation
       x-status: stable
-    AssessmentRequirementMapping:
-      description: |-
-        AssessmentRequirementMapping represents how an assessment requirement maps to a control catalog entry.
-        The reference-id is optional; when omitted, a consumer reads it from the enclosing control.
-      properties:
-        entry-id:
-          description: entry-id is the identifier being mapped to in the referenced artifact
-          type: string
-        reference-id:
-          description: |-
-            reference-id is the id for a MappingReference entry in the artifact's metadata.
-            When omitted in an assessment log, a consumer reads it from the enclosing control.
-          type: string
-        remarks:
-          description: remarks is prose describing the mapping relationship
-          type: string
-      required:
-      - entry-id
-      type: object
-      x-status: stable
-    AssessmentRequirementModifier:
-      description: AssessmentRequirementModifier allows organizations to customize assessment requirements based on how an organization wants to gather evidence for the objective.
-      properties:
-        applicability:
-          description: The updated applicability of the assessment requirement
-          items:
-            type: string
-          minItems: 1
-          type: array
-        id:
-          type: string
-        modification-rationale:
-          type: string
-        modification-type:
-          $ref: "#/components/schemas/ModType"
-        recommendation:
-          description: The updated recommendation for the assessment requirement
-          type: string
-        target-id:
-          type: string
-        text:
-          description: The updated text of the assessment requirement
-          type: string
-      required:
-      - id
-      - target-id
-      - modification-type
-      - modification-rationale
-      type: object
-      x-status: experimental
     AssessmentStep:
       type: string
       x-status: stable
@@ -451,6 +406,8 @@ components:
           description: summary provides the high-level conclusion
           type: string
       type: object
+      x-rules:
+      - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
       x-status: experimental
     AuditResult:
       description: AuditResult records a single result with supporting evidence and recommendations.
@@ -540,6 +497,8 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when capabilities are listed, groups is required, capability ids must be unique, and each capability's group must be a declared group id
       x-status: stable
     Catalog:
       description: Catalog describes a set of topically-associated entries
@@ -571,13 +530,21 @@ components:
       - title
       - metadata
       type: object
+      x-rules:
+      - group ids must be unique
+      - when extends is set, metadata.mapping-references is required
+      - when imports are listed, metadata.mapping-references is required
       x-status: stable
     CatalogImport:
-      description: CatalogImport defines how to import control catalogs with optional exclusions, constraints, and assessment requirement modifications.
+      description: CatalogImport defines how to import control catalogs with optional exclusions and constraints.
       properties:
-        assessment-requirement-modifications:
+        applicability:
+          description: |-
+            applicability selects the applicability groups to adopt from this imported catalog. Each ID must match
+            an entry in the catalog's metadata."applicability-groups". A requirement is in play when any of its
+            applicability IDs is selected.
           items:
-            $ref: "#/components/schemas/AssessmentRequirementModifier"
+            type: string
           minItems: 1
           type: array
         constraints:
@@ -586,6 +553,7 @@ components:
           minItems: 1
           type: array
         exclusions:
+          description: exclusions lists the control and assessment requirement IDs from the imported catalog that this policy leaves out
           items:
             type: string
           minItems: 1
@@ -712,10 +680,7 @@ components:
       description: ControlCatalog describes a set of related controls and relevant metadata
       properties:
         controls:
-          description: |-
-            controls is a list of unique controls defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: controls is a list of unique controls defined by this catalog
           items:
             $ref: "#/components/schemas/Control"
           minItems: 1
@@ -731,16 +696,13 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, and each assessment requirement's applicability must name declared applicability groups
       x-status: stable
     ControlEvaluation:
       description: ControlEvaluation contains the results of evaluating a single Layer 5 control.
       properties:
         assessment-logs:
-          description: |-
-            Enforce that control reference and the assessments' references match when supplied.
-            When omitted, a consumer reads it from the enclosing control.
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             allOf:
             - $ref: "#/components/schemas/AssessmentLog"
@@ -750,6 +712,7 @@ components:
               requirement:
                 properties:
                   reference-id:
+                    description: each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
                     type: string
                 type: object
             type: object
@@ -770,6 +733,8 @@ components:
       - control
       - assessment-logs
       type: object
+      x-rules:
+      - each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
       x-status: stable
     Datetime:
       description: Datetime represents an ISO 8601 formatted datetime string
@@ -839,8 +804,6 @@ components:
             
             
             Enforce that Clear dispositions only contain Passed assessment results
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           items:
             $ref: "#/components/schemas/ActionResult"
           minItems: 1
@@ -860,6 +823,8 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - when the log's disposition is Clear, every assessment cited in an action's justification must have result Passed
       x-status: experimental
     EnforcementMethodType:
       enum:
@@ -1128,10 +1093,7 @@ components:
           description: front-matter provides introductory text for the document to be used during rendering
           type: string
         guidelines:
-          description: |-
-            guidelines is a list of unique guidelines defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: guidelines is a list of unique guidelines defined by this catalog
           items:
             $ref: "#/components/schemas/Guideline"
           minItems: 1
@@ -1151,6 +1113,8 @@ components:
           - $ref: "#/components/schemas/GuidanceType"
           description: type categorizes this document based on the intent of its contents
       type: object
+      x-rules:
+      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
       x-status: experimental
     GuidanceImport:
       description: GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
@@ -1255,6 +1219,8 @@ components:
       - objective
       - group
       type: object
+      x-rules:
+      - retired guidelines must not have recommendations
       x-status: experimental
     ImplementationDetails:
       description: ImplementationDetails specifies the timeline for policy implementation.
@@ -1352,6 +1318,8 @@ components:
       - metadata
       - terms
       type: object
+      x-rules:
+      - term ids must be unique
       x-status: experimental
     LexiconReference:
       description: LexiconReference cites a source supporting a lexicon definition
@@ -1510,6 +1478,8 @@ components:
       - target-reference
       - mappings
       type: object
+      x-rules:
+      - mapping ids must be unique
       x-status: experimental
     MappingReference:
       description: MappingReference represents a reference to an external document with full metadata.
@@ -1623,6 +1593,9 @@ components:
       - description
       - author
       type: object
+      x-rules:
+      - mapping-reference ids must be unique
+      - applicability group ids must be unique
       x-status: stable
     MethodType:
       enum:
@@ -1646,16 +1619,6 @@ components:
       - id
       - risk
       type: object
-      x-status: experimental
-    ModType:
-      description: ModType defines the type of modification to the assessment requirement.
-      enum:
-      - Add
-      - Modify
-      - Remove
-      - Replace
-      - Override
-      type: string
       x-status: experimental
     ModeType:
       enum:
@@ -1778,15 +1741,14 @@ components:
           - type
           type: object
         principles:
-          description: |-
-            principles is a list of unique principles defined by this catalog
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
+          description: principles is a list of unique principles defined by this catalog
           items:
             $ref: "#/components/schemas/Principle"
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when principles are listed, groups is required, principle ids must be unique, and each principle's group must be a declared group id
       x-status: experimental
     RACI:
       description: RACI defines the roles responsible for managing an artifact
@@ -2047,8 +2009,6 @@ components:
             rank optionally orders risks for the same catalog (e.g. when several share the same severity).
             Lower values mean higher relative importance. Omitted when the four severity levels are enough.
             When set, each value must be unique among all risks in the catalog that specify rank.
-            
-            (Enforced by the CUE schema; not by this OpenAPI projection.)
           type: integer
         severity:
           allOf:
@@ -2113,6 +2073,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
       x-status: experimental
     RiskCategory:
       allOf:
@@ -2258,6 +2220,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when threats are listed, groups is required, threat ids must be unique, and each threat's group must be a declared group id
       x-status: stable
     TypedMapping:
       allOf:
@@ -2323,6 +2287,8 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, and when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups
       x-status: experimental
 info:
   description: Gemara schema definitions

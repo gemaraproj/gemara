@@ -1,0 +1,29 @@
+metadata:
+  id: TEST-VECTOR-INVALID-APPLICABILITY
+  type: VectorCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example Vector Catalog with invalid applicability group reference
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+  applicability-groups:
+    - id: cloud-infrastructure
+      title: Cloud Infrastructure
+      description: Cloud infrastructure environments
+
+title: AI Attack Vector Catalog
+
+groups:
+  - id: prompt-injection
+    title: Prompt Injection
+    description: Vectors related to prompt injection attacks
+
+vectors:
+  - id: VEC-001
+    title: Direct Prompt Injection
+    description: Direct manipulation of model inputs
+    group: prompt-injection
+    applicability:
+      - nonexistent-applicability

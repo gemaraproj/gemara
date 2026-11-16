@@ -20,11 +20,12 @@ import "list"
 	"front-matter"?: string @go(FrontMatter) @yaml("front-matter,omitempty")
 
 	// guidelines is a list of unique guidelines defined by this catalog
-	guidelines?: [#Guideline, ...#Guideline] @gemara(projectable=false) @go(Guidelines)
+	guidelines?: [#Guideline, ...#Guideline] @go(Guidelines)
 
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [#Exemption, ...#Exemption] @go(Exemptions)
 
+	// when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
 	if guidelines != _|_ {
 		_uniqueGuidelineIds: {for i, g in guidelines {(g.id): i}}
 		groups: [#Group, ...#Group]
