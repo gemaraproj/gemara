@@ -363,6 +363,26 @@ components:
       x-rules:
       - retired assessment requirements must not have a recommendation
       x-status: stable
+    AssessmentRequirementMapping:
+      description: |-
+        AssessmentRequirementMapping represents how an assessment requirement maps to a control catalog entry.
+        The reference-id is optional; when omitted, a consumer reads it from the enclosing control.
+      properties:
+        entry-id:
+          description: entry-id is the identifier being mapped to in the referenced artifact
+          type: string
+        reference-id:
+          description: |-
+            reference-id is the id for a MappingReference entry in the artifact's metadata.
+            When omitted in an assessment log, a consumer reads it from the enclosing control.
+          type: string
+        remarks:
+          description: remarks is prose describing the mapping relationship
+          type: string
+      required:
+      - entry-id
+      type: object
+      x-status: stable
     AssessmentStep:
       type: string
       x-status: stable
@@ -714,6 +734,8 @@ components:
                   reference-id:
                     description: each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
                     type: string
+                required:
+                - reference-id
                 type: object
             type: object
           minItems: 1
