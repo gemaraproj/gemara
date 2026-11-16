@@ -69,7 +69,11 @@ func rootDescription(v cue.Value, root string) (string, error) {
 	if root == "" {
 		return "", nil
 	}
-	rv := v.LookupPath(cue.ParsePath(root))
+	path := cue.ParsePath(root)
+	if sels := path.Selectors(); len(sels) == 0 || !sels[len(sels)-1].IsDefinition() {
+		return "", fmt.Errorf("--root %q must name a definition (#Name)", root)
+	}
+	rv := v.LookupPath(path)
 	if err := rv.Err(); err != nil {
 		return "", fmt.Errorf("--root %q does not resolve in the CUE package: %w", root, err)
 	}

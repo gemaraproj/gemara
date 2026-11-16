@@ -242,6 +242,24 @@ func TestConverterRejectsUndocumentedRoot(t *testing.T) {
 	}
 }
 
+// A --root that names a regular field instead of a definition must fail.
+func TestConverterRejectsNonDefinitionRoot(t *testing.T) {
+	c := NewConverter("", "#AssessmentLog.description")
+	if err := c.Load("../../../.."); err != nil {
+		t.Fatal(err)
+	}
+	if err := c.Prep(); err != nil {
+		t.Fatal(err)
+	}
+	err := c.Convert("../../../..")
+	if err == nil {
+		t.Fatal("expected an error for a --root naming a regular field, got nil")
+	}
+	if !strings.Contains(err.Error(), "must name a definition (#Name)") {
+		t.Errorf("error %q does not explain that --root must name a definition", err)
+	}
+}
+
 func TestConverterWritesManifest(t *testing.T) {
 	dir := t.TempDir()
 	manifest := filepath.Join(dir, "schema-manifest.json")
