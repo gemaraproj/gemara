@@ -214,7 +214,7 @@ import "list"
 //
 // highest-rank and unanimous decide by method, so each method counts once, by its own
 // result: the result of its executed log with the latest start, or "Needs Review" when
-// its two latest logs share that start and disagree. Both strategies need an assessment
+// the logs at that start disagree. Both strategies need an assessment
 // log to say which method produced it. A log has no such field yet (see
 // gemaraproj/gemara#485), so these two cannot be applied from log data alone until it
 // has; most-recent and escalate do not depend on it.
@@ -229,7 +229,7 @@ import "list"
 //     is by the assessment's start rather than the log's metadata.date, because start is
 //     when the evidence was observed, while metadata.date moves whenever a log is
 //     republished without being re-run. start is required on every executed assessment log,
-//     so the order is always defined. Two latest logs with the same start that disagree
+//     so the order is always defined. Logs at the latest start that disagree
 //     resolve to "Needs Review".
 //   - escalate: no automatic resolution. Any conflict resolves to "Needs Review" for a
 //     person to settle.
