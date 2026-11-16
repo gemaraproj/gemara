@@ -726,15 +726,30 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 		}
 
 		// Other relationships require targets
-		exactData := map[string]any{
+		implementsData := map[string]any{
 			"id":           "MAP-2",
-			"relationship": "exact",
+			"relationship": "implements",
 			"source":       "S-2",
 		}
-		rawJson, _ = json.Marshal(exactData)
+		rawJson, _ = json.Marshal(implementsData)
 		valDoc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
 		if err := sch.Validate(valDoc); err == nil {
-			t.Errorf("expected Mapping with relationship exact and no targets to fail, but passed")
+			t.Errorf("expected Mapping with relationship implements and no targets to fail, but passed")
+		}
+
+		// The same mapping with valid targets must pass
+		withTargets := map[string]any{
+			"id":           "MAP-3",
+			"relationship": "implements",
+			"source":       "S-3",
+			"targets": []any{
+				map[string]any{"entry-id": "T-1"},
+			},
+		}
+		rawJson, _ = json.Marshal(withTargets)
+		valDoc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
+		if err := sch.Validate(valDoc); err != nil {
+			t.Errorf("Mapping with relationship implements and targets failed: %v", err)
 		}
 	})
 }

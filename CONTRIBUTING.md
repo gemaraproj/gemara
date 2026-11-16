@@ -158,9 +158,9 @@ After all release assets are generated and uploaded, the release workflow dispat
   ```
 - **Maintained Consumers:**
   - `website`: Consumes `openapi.yaml` to rebuild and publish schema reference documentation.
-  - `gemara-python`: Consumes `gemara-v1.schema.json` to generate strongly-typed Python SDK models and validate fixtures.
+  - `gemara-python`: Planned consumer of `gemara-v1.schema.json` for Python SDK models and fixture validation. It does not yet subscribe to `gemara-release`; its models use a vendored schema.
 
-Downstream repositories can subscribe to this event by adding an `on: repository_dispatch` trigger:
+Downstream repositories can subscribe to this event by adding an `on: repository_dispatch` trigger (note: `gemara-python` does not yet subscribe to `gemara-release`):
 ```yaml
 on:
   repository_dispatch:

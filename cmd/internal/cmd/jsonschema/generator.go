@@ -137,7 +137,14 @@ func (g *Generator) Generate() (map[string]any, error) {
 				body[k] = v
 			}
 		}
-		defs[normalizeDefName(name)] = body
+		key := normalizeDefName(name)
+		// A root $ref wrapper must not replace the concrete definition imported above.
+		if _, isWrapper := body["$ref"]; isWrapper && len(body) == 1 {
+			if _, imported := defs[key]; imported {
+				continue
+			}
+		}
+		defs[key] = body
 	}
 
 	// 1. Rewrite references to strict helpers to base definitions
@@ -388,7 +395,19 @@ func relaxAssessmentLogRequirement(defs map[string]any) {
 					var filtered []any
 					for _, item := range allOf {
 						if itemMap, ok := item.(map[string]any); ok {
-							if desc, ok := itemMap["description"].(string); ok && strings.Contains(desc, "control reference and the assessments' references match") {
+							// Filter out cross-field requirement on assessment logs
+							if items, ok := itemMap["items"].(map[string]any); ok {
+								if itemsProps, ok := items["properties"].(map[string]any); ok {
+									if reqProp, ok := itemsProps["requirement"].(map[string]any); ok {
+										if reqProps, ok := reqProp["properties"].(map[string]any); ok {
+											if _, hasRefID := reqProps["reference-id"]; hasRefID {
+												continue
+											}
+										}
+									}
+								}
+							}
+							if desc, ok := itemMap["description"].(string); ok && (strings.Contains(desc, "control reference") || strings.Contains(desc, "reference-id")) {
 								continue
 							}
 						}
