@@ -1,0 +1,42 @@
+metadata:
+  id: "enforcement-log-bad-exception"
+  type: EnforcementLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Invalid enforcement log: action justification with unmapped exception reference"
+  author:
+    id: enforcement-engine
+    name: "Example Enforcement Engine"
+    type: Software
+  mapping-references:
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+    - id: eval-log
+      title: "pvtr Evaluation Log"
+      version: "2025-08-22"
+
+disposition: Tolerated
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+
+actions:
+  - disposition: Tolerated
+    method:
+      reference-id: security-policy
+      entry-id: EM-GATE-01
+    message: "Exception approved"
+    start: "2025-08-22T16:05:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/gate.TolerateException
+    justification:
+      assessments:
+        - result: Failed
+          log:
+            reference-id: eval-log
+            entry-id: OSPS-DO-01.01
+      exceptions:
+        - remarks: "Unmapped exception missing required reference-id"
