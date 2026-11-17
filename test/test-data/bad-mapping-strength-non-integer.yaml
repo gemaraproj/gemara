@@ -1,0 +1,31 @@
+title: Test Mapping Target Strength Non Integer
+metadata:
+  id: TEST-MAP-STRENGTH-FLOAT
+  version: "1.0.0"
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  description: Test invalid non-integer strength (5.5)
+  author:
+    id: test
+    name: Test
+    type: Human
+  mapping-references:
+    - id: SRC
+      title: Source
+      version: "1.0"
+    - id: TGT
+      title: Target
+      version: "1.0"
+source-reference:
+  reference-id: SRC
+  entry-type: Control
+target-reference:
+  reference-id: TGT
+  entry-type: Guideline
+mappings:
+  - id: m1
+    source: S1
+    relationship: implements
+    targets:
+      - entry-id: T1
+        strength: 5.5
