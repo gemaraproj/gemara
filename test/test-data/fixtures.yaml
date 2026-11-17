@@ -270,6 +270,27 @@ fixtures:
       error: 'targets.0."entry-id": incomplete value string'
     reason: 'mapping missing targets for non-no-match relationship'
 
+  - files: [test/test-data/bad-mapping-strength-above-max.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: 'mappings.0.targets.0.strength: invalid value 11 (out of bound <=10)'
+    reason: 'mapping target strength above maximum'
+
+  - files: [test/test-data/bad-mapping-strength-below-min.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: 'mappings.0.targets.0.strength: invalid value 0 (out of bound >=1)'
+    reason: 'mapping target strength below minimum'
+
+  - files: [test/test-data/bad-mapping-strength-non-integer.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: false
+      error: 'mappings.0.targets.0.strength: conflicting values 5.5 and int'
+    reason: 'mapping target strength non-integer'
+
   - files: [test/test-data/bad-metadata-duplicate-applicability-group.yaml]
     definition: '#ControlCatalog'
     schema:
@@ -431,12 +452,47 @@ fixtures:
       error: '_groupValidation."0": invalid value ["CAT-SECURITY"]'
     reason: 'risk with invalid group'
 
+  - files: [test/test-data/bad-risk-category-invalid-appetite.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: 'groups.0.appetite: 4 errors in empty disjunction'
+    reason: 'risk category with invalid appetite'
+
   - files: [test/test-data/bad-risk-duplicate-id.yaml]
     definition: '#RiskCatalog'
     schema:
       valid: false
       error: '_uniqueRiskIds."RISK-001"'
     reason: 'risk catalog with duplicate risk id'
+
+  - files: [test/test-data/bad-risk-empty-risks.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: 'risks: incompatible list lengths'
+    reason: 'risk catalog with empty risks list'
+
+  - files: [test/test-data/bad-risk-invalid-severity.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: 'risks.0.severity: 4 errors in empty disjunction'
+    reason: 'risk with invalid severity'
+
+  - files: [test/test-data/bad-risk-missing-description.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: 'risks.0.description: incomplete value string'
+    reason: 'risk missing required description'
+
+  - files: [test/test-data/bad-risk-missing-title.yaml]
+    definition: '#RiskCatalog'
+    schema:
+      valid: false
+      error: 'risks.0.title: incomplete value string'
+    reason: 'risk missing required title'
 
   - files: [test/test-data/bad-threat-duplicate-id.yaml]
     definition: '#ThreatCatalog'
@@ -445,6 +501,13 @@ fixtures:
       error: '_uniqueThreatIds."THR-001"'
     reason: 'threat catalog with duplicate threat id'
 
+  - files: [test/test-data/bad-threat-empty-capabilities.yaml]
+    definition: '#ThreatCatalog'
+    schema:
+      valid: false
+      error: 'threats.0.capabilities: incompatible list lengths'
+    reason: 'threat with empty capabilities list'
+
   - files: [test/test-data/bad-threat-invalid-group.yaml]
     definition: '#ThreatCatalog'
     schema:
@@ -452,12 +515,26 @@ fixtures:
       error: '_groupValidation."0": invalid value ["stride-s"]'
     reason: 'threat with invalid group'
 
+  - files: [test/test-data/bad-threat-missing-description.yaml]
+    definition: '#ThreatCatalog'
+    schema:
+      valid: false
+      error: 'threats.0.description: incomplete value string'
+    reason: 'threat missing description'
+
   - files: [test/test-data/bad-vector-duplicate-id.yaml]
     definition: '#VectorCatalog'
     schema:
       valid: false
       error: '_uniqueVectorIds."VEC-001"'
     reason: 'vector catalog with duplicate vector id'
+
+  - files: [test/test-data/bad-vector-empty-list.yaml]
+    definition: '#VectorCatalog'
+    schema:
+      valid: false
+      error: 'vectors: incompatible list lengths'
+    reason: 'vector catalog with empty vectors list'
 
   - files: [test/test-data/bad-vector-invalid-applicability.yaml]
     definition: '#VectorCatalog'
@@ -472,6 +549,13 @@ fixtures:
       valid: false
       error: '_groupValidation."0": invalid value ["prompt-injection"]'
     reason: 'vector with invalid group'
+
+  - files: [test/test-data/bad-vector-missing-id.yaml]
+    definition: '#VectorCatalog'
+    schema:
+      valid: false
+      error: 'vectors.0.id: incomplete value string'
+    reason: 'vector missing id'
 
   - files: [test/test-data/bad.json]
     definition: '#ControlCatalog'
@@ -576,6 +660,12 @@ fixtures:
     schema:
       valid: true
     reason: 'valid mapping document'
+
+  - files: [test/test-data/good-mapping-strength-boundaries.yaml]
+    definition: '#MappingDocument'
+    schema:
+      valid: true
+    reason: 'valid mapping document with strength boundaries'
 
   - files: [test/test-data/good-osps.yml]
     definition: '#ControlCatalog'
