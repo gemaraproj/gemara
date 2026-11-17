@@ -212,6 +212,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"author with an empty id", "./test-data/bad-capability-empty-author-id.yaml", "#CapabilityCatalog", true, `metadata.author.id: invalid value ""`},
 		{"author with a blank name", "./test-data/bad-capability-blank-author-name.yaml", "#CapabilityCatalog", true, `metadata.author.name: invalid value " "`},
 		{"author name with an embedded carriage return", "./test-data/bad-capability-cr-in-author-name.yaml", "#CapabilityCatalog", true, `metadata.author.name: invalid value "Security\rTeam"`},
+		{"author name that is only a no-break space", "./test-data/bad-capability-nbsp-author-name.yaml", "#CapabilityCatalog", true, `metadata.author.name: invalid value "\u00a0"`},
+		{"author name with an embedded line separator", "./test-data/bad-capability-line-separator-in-author-name.yaml", "#CapabilityCatalog", true, `metadata.author.name: invalid value "Security\u2028Team"`},
 		{"target name with trailing whitespace", "./test-data/bad-evaluation-log-padded-target-name.yaml", "#EvaluationLog", true, `target.name: invalid value "GitHub Repository "`},
 
 		// ControlCatalog — edge cases

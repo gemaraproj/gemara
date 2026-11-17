@@ -6,15 +6,21 @@ package gemara
 
 @go(gemara)
 
+// _blank lists the characters JavaScript's \s matches. CUE's \S comes from RE2 and
+// treats a no-break space as visible, so spelling the set out keeps CUE and OpenAPI
+// validators in agreement. \u2028 and \u2029 also end a line.
+let _blank = "\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff"
+let _singleLine = "^[^\(_blank)]([^\\r\\n\u2028\u2029]*[^\(_blank)])?$"
+
 // Entity represents a human or tool
 #Entity: {
 	// id uniquely identifies the entity and allows this entry to be referenced by other elements.
 	// It must be a single non-empty line with no leading or trailing whitespace.
-	id: =~"^\\S([^\\r\\n]*\\S)?$"
+	id: =~_singleLine
 
 	// name is the name of the entity.
 	// It must be a single non-empty line with no leading or trailing whitespace.
-	name: =~"^\\S([^\\r\\n]*\\S)?$"
+	name: =~_singleLine
 
 	// type specifies the type of entity interacting in the workflow
 	type: #EntityType
