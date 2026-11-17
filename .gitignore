@@ -37,6 +37,7 @@ artifacts/
 
 # Generated CUE→OpenAPI pipeline output
 generated/
+docs/superpowers/
 .gocache/
 .cache
 

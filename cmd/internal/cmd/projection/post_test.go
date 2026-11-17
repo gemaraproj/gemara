@@ -24,6 +24,30 @@ func docWithSchema(name string, s *openapi3.Schema) *openapi3.T {
 	return &openapi3.T{Components: &openapi3.Components{Schemas: openapi3.Schemas{name: val(s)}}}
 }
 
+func TestDefaultsRemoveInlineConjunctRequirements(t *testing.T) {
+	s := &openapi3.Schema{
+		Properties: openapi3.Schemas{"relationship": val(openapi3.NewStringSchema())},
+		AllOf: openapi3.SchemaRefs{val(&openapi3.Schema{AllOf: openapi3.SchemaRefs{
+			val(&openapi3.Schema{Required: []string{"relationship", "reference-id"}}),
+		}})},
+		AnyOf: openapi3.SchemaRefs{
+			val(&openapi3.Schema{Required: []string{"relationship"}}),
+			val(&openapi3.Schema{Required: []string{"entries"}}),
+		},
+	}
+	doc := docWithSchema("Link", s)
+	if err := applyDefaultsTyped(doc, map[string]any{"Link.relationship": "relates-to"}); err != nil {
+		t.Fatal(err)
+	}
+	_, required := inlineConstraints(s)
+	if required["relationship"] || !required["reference-id"] {
+		t.Fatalf("effective required = %v; only the defaulted field should be removed", required)
+	}
+	if !slicesContainString(s.AnyOf[0].Value.Required, "relationship") {
+		t.Fatal("default removal weakened the explicit no-match branch")
+	}
+}
+
 // evidenceShapeOneOf reproduces the encoder's rendering of `Evidence & (A | B)`
 // where A requires "payload" and B requires "source": each branch is wrapped
 // in an allOf with a `not: {anyOf: [<other branch>]}` exclusivity clause.

@@ -535,6 +535,28 @@ components:
       - when extends is set, metadata.mapping-references is required
       - when imports are listed, metadata.mapping-references is required
       x-status: stable
+    CatalogEntryMapping:
+      allOf:
+      - $ref: "#/components/schemas/EntryMapping"
+      - $ref: "#/components/schemas/MappingTargetMetadata"
+      - {}
+      description: CatalogEntryMapping extends an entry pointer with node-to-target semantics.
+      properties:
+        relationship:
+          default: relates-to
+          enum:
+          - relates-to
+          - implements
+          - implemented-by
+          - supports
+          - supported-by
+          - equivalent
+          - subsumes
+          - subsumed-by
+          - no-match
+          type: string
+      type: object
+      x-status: experimental
     CatalogImport:
       description: CatalogImport defines how to import control catalogs with optional exclusions and constraints.
       properties:
@@ -562,6 +584,55 @@ components:
           type: string
       required:
       - reference-id
+      type: object
+      x-status: experimental
+    CatalogMappingTarget:
+      allOf:
+      - $ref: "#/components/schemas/ArtifactMapping"
+      - $ref: "#/components/schemas/MappingTargetMetadata"
+      description: |-
+        CatalogMappingTarget preserves the legacy grouped inline entry identifier.
+        Here reference-id names an entry; the parent group names its artifact.
+      type: object
+      x-status: experimental
+    CatalogMultiEntryMapping:
+      allOf:
+      - $ref: "#/components/schemas/ArtifactMapping"
+      - {}
+      - anyOf:
+        - properties:
+            relationship:
+              enum:
+              - no-match
+              type: string
+          required:
+          - relationship
+        - required:
+          - entries
+      description: |-
+        CatalogMultiEntryMapping is one mapping assertion on the containing node.
+        Separate assertions retain separate ids, even for identical source/target pairs.
+      properties:
+        entries:
+          items:
+            $ref: "#/components/schemas/CatalogMappingTarget"
+          minItems: 1
+          type: array
+        id:
+          type: string
+        relationship:
+          default: relates-to
+          enum:
+          - relates-to
+          - implements
+          - implemented-by
+          - supports
+          - supported-by
+          - equivalent
+          - subsumes
+          - subsumed-by
+          - no-match
+          type: string
       type: object
       x-status: experimental
     CollectedAtAnchor:
@@ -634,7 +705,7 @@ components:
         guidelines:
           description: guidelines documents relationships between this control and Layer 1 guideline artifacts
           items:
-            $ref: "#/components/schemas/MultiEntryMapping"
+            $ref: "#/components/schemas/CatalogMultiEntryMapping"
           minItems: 1
           type: array
         id:
@@ -658,7 +729,7 @@ components:
         threats:
           description: threats documents relationships between this control and Layer 2 threat artifacts
           items:
-            $ref: "#/components/schemas/MultiEntryMapping"
+            $ref: "#/components/schemas/CatalogMultiEntryMapping"
           minItems: 1
           type: array
         title:
@@ -1172,7 +1243,7 @@ components:
         principles:
           description: principles documents the relationship between this guideline and one or more principles
           items:
-            $ref: "#/components/schemas/MultiEntryMapping"
+            $ref: "#/components/schemas/CatalogMultiEntryMapping"
           minItems: 1
           type: array
         rationale:
@@ -1212,7 +1283,7 @@ components:
         vectors:
           description: vector-mappings documents the relationship between this guideline and one or more vectors
           items:
-            $ref: "#/components/schemas/MultiEntryMapping"
+            $ref: "#/components/schemas/CatalogMultiEntryMapping"
           minItems: 1
           type: array
       required:
@@ -1514,7 +1585,21 @@ components:
       type: object
       x-status: stable
     MappingTarget:
+      allOf:
+      - $ref: "#/components/schemas/MappingTargetMetadata"
+      - required:
+        - entry-id
       description: MappingTarget identifies a target entry with optional per-target metadata
+      properties:
+        entry-id:
+          description: entry-id identifies the specific entry in the target artifact
+          type: string
+      type: object
+      x-status: experimental
+    MappingTargetMetadata:
+      description: |-
+        MappingTargetMetadata carries the author's assessment of a target relationship.
+        Absence means unreported; none of these attributes has a default.
       properties:
         applicability:
           description: applicability constrains the contexts in which this target mapping holds
@@ -1524,9 +1609,6 @@ components:
           type: array
         confidence-level:
           $ref: "#/components/schemas/ConfidenceLevel"
-        entry-id:
-          description: entry-id identifies the specific entry in the target artifact
-          type: string
         rationale:
           description: rationale explains why this relationship exists for this target
           type: string
@@ -1538,8 +1620,6 @@ components:
           maximum: 10.0
           minimum: 1.0
           type: integer
-      required:
-      - entry-id
       type: object
       x-status: experimental
     Metadata:
@@ -2019,7 +2099,7 @@ components:
         threats:
           description: threats link this risk to Layer 2 threats
           items:
-            $ref: "#/components/schemas/MultiEntryMapping"
+            $ref: "#/components/schemas/CatalogMultiEntryMapping"
           minItems: 1
           type: array
         title:
@@ -2169,7 +2249,7 @@ components:
         capabilities:
           description: capabilities documents the relationship between this threat and a system capability
           items:
-            $ref: "#/components/schemas/MultiEntryMapping"
+            $ref: "#/components/schemas/CatalogMultiEntryMapping"
           minItems: 1
           type: array
         description:
@@ -2187,7 +2267,7 @@ components:
         vectors:
           description: vectors documents the relationship between this threat and one or more vectors
           items:
-            $ref: "#/components/schemas/MultiEntryMapping"
+            $ref: "#/components/schemas/CatalogMultiEntryMapping"
           minItems: 1
           type: array
       required:

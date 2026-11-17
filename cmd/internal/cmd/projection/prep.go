@@ -43,6 +43,7 @@ func (c *Converter) Prep() error {
 // prepInfo records what prepare rewrote, so the post-pass can restore the
 // information in a form OpenAPI can express.
 type prepInfo struct {
+	RequiredUnless []requiredUnless
 	// CUE CONVERTER WORKAROUND: DroppedConditionals records every cross-field
 	// conditional removed by stripComprehensions. The current CUE OpenAPI
 	// projector cannot translate these, so the caller reports their omission
@@ -86,6 +87,7 @@ type droppedConditional struct {
 func prepare(f *ast.File) (*prepInfo, error) {
 	info := &prepInfo{HelperRules: map[string][]helperRule{}}
 	var err error
+	info.RequiredUnless = extractRequiredUnless(f)
 
 	f.Decls = stripComprehensions(f.Decls, info, "", "", "")
 	astutil.Apply(f, func(c astutil.Cursor) bool {

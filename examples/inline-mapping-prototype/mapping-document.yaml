@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: Apache-2.0
+# Synthetic assertions and scores; not evidence of real-world compliance.
+title: Demonstration inventory mappings
+metadata:
+  id: DEMO-MAPPINGS
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Synthetic mapping assertions used to test evidence retention.
+  author: {id: demo, name: Example Author, type: Human}
+  mapping-references:
+    - {id: DEMO-CONTROLS, title: Demonstration controls, version: "1.0.0"}
+    - {id: DEMO-GUIDANCE, title: Demonstration inventory guidance, version: "1.0.0"}
+  applicability-groups:
+    - {id: manual, title: Manual inventory, description: Inventory maintained manually.}
+    - {id: automated, title: Automated inventory, description: Inventory collected automatically.}
+source-reference: {reference-id: DEMO-CONTROLS, entry-type: Control}
+target-reference: {reference-id: DEMO-GUIDANCE, entry-type: Guideline}
+mappings:
+  - id: inventory-manual
+    source: DEMO.C01
+    relationship: implements
+    remarks: Independent assertion for manual inventory collection.
+    targets:
+      - entry-id: DEMO.G01
+        strength: 6
+        confidence-level: Medium
+        applicability: [manual]
+        rationale: A release inventory addresses dependency identification but manual collection may omit dependencies.
+        remarks: Demonstration score only.
+  - id: inventory-automated
+    source: DEMO.C01
+    relationship: implements
+    targets:
+      - entry-id: DEMO.G01
+        strength: 9
+        confidence-level: High
+        applicability: [automated]
+        rationale: Automated collection covers the demonstration dependency identification requirement more completely.
+  - id: inventory-review
+    source: DEMO.C02
+    relationship: supports
+    targets:
+      - entry-id: DEMO.G01
+        rationale: Reviewing inventory changes can detect missing dependencies.
+      - entry-id: DEMO.G02
+        strength: 7
+        confidence-level: Medium
+        rationale: Pre-release review addresses inventory accuracy but does not specify periodic review.
+  - id: ownership-gap
+    source: DEMO.C03
+    relationship: no-match
+    remarks: The demonstration target guidance has no ownership requirement.

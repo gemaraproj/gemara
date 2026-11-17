@@ -57,6 +57,9 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid OSPS baseline", "./test-data/good-osps.yml", "#ControlCatalog", false, ""},
 		{"valid lifecycle catalog", "./test-data/good-lifecycle.yaml", "#ControlCatalog", false, ""},
 		{"valid nested control catalog", "./test-data/nested-good-ccc.yaml", "#ControlCatalog", false, ""},
+		{"prototype source catalog", "../examples/inline-mapping-prototype/source-catalog.yaml", "#ControlCatalog", false, ""},
+		{"prototype resolved catalog", "../examples/inline-mapping-prototype/resolved-catalog.yaml", "#ControlCatalog", false, ""},
+		{"prototype mapping document", "../examples/inline-mapping-prototype/mapping-document.yaml", "#MappingDocument", false, ""},
 
 		// GuidanceCatalog — positive
 		{"valid AI governance framework", "./test-data/good-aigf.yaml", "#GuidanceCatalog", false, ""},

@@ -100,5 +100,5 @@ import "list"
 	impact?: string
 
 	// threats link this risk to Layer 2 threats
-	"threats"?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Threats)
+	"threats"?: [#CatalogMultiEntryMapping, ...#CatalogMultiEntryMapping] @go(Threats)
 }

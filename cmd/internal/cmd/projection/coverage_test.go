@@ -5,6 +5,7 @@ package projection
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -61,6 +62,10 @@ func effective(schemas map[string]any, name string, seen map[string]bool) (map[s
 // part of the change, so it does not get to supply its own ground truth.
 func TestEveryCUEFieldReachesTheDocument(t *testing.T) {
 	schemas, _ := loadGenerated(t)
+	_, prep, _, err := loadPrepared("../../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
 	v, err := loadRaw("../../../..")
 	if err != nil {
 		t.Fatal(err)
@@ -142,6 +147,15 @@ func TestEveryCUEFieldReachesTheDocument(t *testing.T) {
 				}
 			}
 			if !fields.IsOptional() && !req[field] {
+				conditional := false
+				for _, rule := range prep.RequiredUnless {
+					if rule.Schema == name && rule.Field == field && projectedRequiredUnless(schemas, rule) {
+						conditional = true
+					}
+				}
+				if conditional {
+					continue
+				}
 				t.Errorf("%s.%s is required in CUE but not in the document", name, field)
 			}
 		}
@@ -158,6 +172,25 @@ func TestEveryCUEFieldReachesTheDocument(t *testing.T) {
 	if fieldsChecked < minFields {
 		t.Fatalf("gate checked only %d fields; it is not exercising the schema and would pass vacuously", fieldsChecked)
 	}
+}
+
+// Default selection can activate a CUE presence conditional while enumerating
+// fields. Such a field is required on the wire unless the explicit exception
+// is present, rather than unconditionally required. Check both branches.
+func projectedRequiredUnless(schemas map[string]any, rule requiredUnless) bool {
+	for _, conjunct := range sliceOf(mapOf(schemas[rule.Schema])["allOf"]) {
+		branches := sliceOf(mapOf(conjunct)["anyOf"])
+		if len(branches) != 2 {
+			continue
+		}
+		exception, required := mapOf(branches[0]), mapOf(branches[1])
+		if reflect.DeepEqual(exception["required"], []any{rule.Selector}) &&
+			reflect.DeepEqual(mapOf(mapOf(exception["properties"])[rule.Selector])["enum"], []any{rule.Value}) &&
+			reflect.DeepEqual(required["required"], []any{rule.Field}) {
+			return true
+		}
+	}
+	return false
 }
 
 // TestEveryDocumentedFieldKeepsItsDescription gates the one place this

@@ -54,10 +54,10 @@ import "list"
 	"assessment-requirements": [#AssessmentRequirement, ...#AssessmentRequirement] @go(AssessmentRequirements)
 
 	// guidelines documents relationships between this control and Layer 1 guideline artifacts
-	guidelines?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Guidelines)
+	guidelines?: [#CatalogMultiEntryMapping, ...#CatalogMultiEntryMapping] @go(Guidelines)
 
 	// threats documents relationships between this control and Layer 2 threat artifacts
-	threats?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Threats)
+	threats?: [#CatalogMultiEntryMapping, ...#CatalogMultiEntryMapping] @go(Threats)
 
 	// state is the lifecycle state of this control
 	state: #Lifecycle @gemara(default="Active") @go(State) @yaml("state,omitempty")

@@ -91,10 +91,10 @@ import "list"
 	statements?: [#Statement, ...#Statement] @go(Statements)
 
 	// principles documents the relationship between this guideline and one or more principles
-	"principles"?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Principles) @yaml("principles,omitempty")
+	"principles"?: [#CatalogMultiEntryMapping, ...#CatalogMultiEntryMapping] @go(Principles) @yaml("principles,omitempty")
 
 	// vector-mappings documents the relationship between this guideline and one or more vectors
-	"vectors"?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Vectors) @yaml("vectors,omitempty")
+	"vectors"?: [#CatalogMultiEntryMapping, ...#CatalogMultiEntryMapping] @go(Vectors) @yaml("vectors,omitempty")
 
 	// see-also lists related guideline IDs within the same GuidanceCatalog
 	"see-also"?: [string, ...string] @go(SeeAlso) @yaml("see-also,omitempty")

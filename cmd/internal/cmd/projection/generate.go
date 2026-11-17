@@ -39,6 +39,7 @@ func loadPrepared(schemaDir string) (cue.Value, *prepInfo, *build.Instance, erro
 		for helper, rules := range fileInfo.HelperRules {
 			info.HelperRules[helper] = append(info.HelperRules[helper], rules...)
 		}
+		info.RequiredUnless = append(info.RequiredUnless, fileInfo.RequiredUnless...)
 	}
 
 	v := cuecontext.New().BuildInstance(inst)

@@ -52,22 +52,10 @@ package gemara
 
 // MappingTarget identifies a target entry with optional per-target metadata
 #MappingTarget: {
+	#MappingTargetMetadata
+
 	// entry-id identifies the specific entry in the target artifact
 	"entry-id": string @go(EntryId)
-
-	// strength is the author's estimate of how completely the source satisfies this target; range 1-10
-	strength?: int & >=1 & <=10 @go(Strength)
-
-	"confidence-level"?: #ConfidenceLevel @go(ConfidenceLevel)
-
-	// applicability constrains the contexts in which this target mapping holds
-	applicability?: [string, ...string] @go(Applicability)
-
-	// rationale explains why this relationship exists for this target
-	rationale?: string
-
-	// remarks is general prose regarding this target mapping
-	remarks?: string
 }
 
 // Mapping represents a relationship between a source entry and one or more target entries.

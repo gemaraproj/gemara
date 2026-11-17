@@ -44,10 +44,10 @@ import "list"
 	group: string @go(Group)
 
 	// capabilities documents the relationship between this threat and a system capability
-	capabilities: [#MultiEntryMapping, ...#MultiEntryMapping]
+	capabilities: [#CatalogMultiEntryMapping, ...#CatalogMultiEntryMapping]
 
 	// vectors documents the relationship between this threat and one or more vectors
-	vectors?: [#MultiEntryMapping, ...#MultiEntryMapping] @go(Vectors)
+	vectors?: [#CatalogMultiEntryMapping, ...#CatalogMultiEntryMapping] @go(Vectors)
 
 	// actors describes the relevant internal or external threat actors
 	actors?: [#Actor, ...#Actor]

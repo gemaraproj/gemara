@@ -62,6 +62,9 @@ func (c *Converter) Post() error {
 	if err := applyDefaultsTyped(doc, defaults); err != nil {
 		return err
 	}
+	if err := applyRequiredUnlessTyped(doc, c.prep.RequiredUnless); err != nil {
+		return err
+	}
 	statuses, err := fileStatuses(c.instance)
 	if err != nil {
 		return err
@@ -487,15 +490,28 @@ func applyDefaultsTyped(doc *openapi3.T, defaults map[string]any) error {
 			return fmt.Errorf("a default was recovered for %s, but that property is not in the generated schema", key)
 		}
 		holder.Properties[property].Value.Default = value
-		required := holder.Required[:0:0]
-		for _, item := range holder.Required {
-			if item != property {
-				required = append(required, item)
-			}
-		}
-		holder.Required = required
+		removeInlineRequired(holder, property)
+		removeInlineRequired(doc.Components.Schemas[name].Value, property)
 	}
 	return nil
+}
+
+// CUE may emit a property's required constraint in a separate allOf conjunct.
+// Only unconditional inline conjuncts participate: branch requirements in
+// anyOf/oneOf and constraints belonging to referenced schemas must survive.
+func removeInlineRequired(s *openapi3.Schema, property string) {
+	required := s.Required[:0:0]
+	for _, item := range s.Required {
+		if item != property {
+			required = append(required, item)
+		}
+	}
+	s.Required = required
+	for _, branch := range s.AllOf {
+		if branch.Ref == "" && branch.Value != nil {
+			removeInlineRequired(branch.Value, property)
+		}
+	}
 }
 
 // declaringSchema returns the schema that holds property on behalf of the

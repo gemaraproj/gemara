@@ -142,15 +142,15 @@ func TestPrepareDropsConditionalsNotInTheHelpersOwnConjuncts(t *testing.T) {
 	}
 }
 
-// Only a hidden helper's own conditionals are translated; the same shape in an
-// ordinary definition still has nowhere to go and is reported as dropped.
+// Ordinary conditionals outside the supported required-unless shape are still
+// reported as dropped.
 func TestPrepareLeavesOrdinaryConditionalsDropped(t *testing.T) {
 	_, info := mustPrepare(t, `package p
 #T: string
 #B: {
 	k: string
 	f?: #T
-	if k != "x" { f: #T }
+	if k == "x" { f: #T }
 }
 `)
 	if len(info.HelperRules) != 0 || len(info.DroppedConditionals) != 1 {
