@@ -7,15 +7,30 @@ metadata:
   gemara-version: "1.1.0"
   version: "1.0.0"
   description: Synthetic mapping assertions used to test evidence retention.
-  author: {id: demo, name: Example Author, type: Human}
+  author:
+    id: demo
+    name: Example Author
+    type: Human
   mapping-references:
-    - {id: DEMO-CONTROLS, title: Demonstration controls, version: "1.0.0"}
-    - {id: DEMO-GUIDANCE, title: Demonstration inventory guidance, version: "1.0.0"}
+    - id: DEMO-CONTROLS
+      title: Demonstration controls
+      version: "1.0.0"
+    - id: DEMO-GUIDANCE
+      title: Demonstration inventory guidance
+      version: "1.0.0"
   applicability-groups:
-    - {id: manual, title: Manual inventory, description: Inventory maintained manually.}
-    - {id: automated, title: Automated inventory, description: Inventory collected automatically.}
-source-reference: {reference-id: DEMO-CONTROLS, entry-type: Control}
-target-reference: {reference-id: DEMO-GUIDANCE, entry-type: Guideline}
+    - id: manual
+      title: Manual inventory
+      description: Inventory maintained manually.
+    - id: automated
+      title: Automated inventory
+      description: Inventory collected automatically.
+source-reference:
+  reference-id: DEMO-CONTROLS
+  entry-type: Control
+target-reference:
+  reference-id: DEMO-GUIDANCE
+  entry-type: Guideline
 mappings:
   - id: inventory-manual
     source: DEMO.C01

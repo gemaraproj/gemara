@@ -7,13 +7,22 @@ metadata:
   gemara-version: "1.1.0"
   version: "1.0.0"
   description: Synthetic controls for testing inline mapping resolution.
-  author: {id: demo, name: Example Author, type: Human}
+  author:
+    id: demo
+    name: Example Author
+    type: Human
   applicability-groups:
-    - {id: all, title: All deployments, description: Every demonstration deployment.}
+    - id: all
+      title: All deployments
+      description: Every demonstration deployment.
   mapping-references:
-    - {id: DEMO-LEGACY, title: Demonstration legacy guidance, version: "1.0.0"}
+    - id: DEMO-LEGACY
+      title: Demonstration legacy guidance
+      version: "1.0.0"
 groups:
-  - {id: operations, title: Operations, description: Demonstration operational controls.}
+  - id: operations
+    title: Operations
+    description: Demonstration operational controls.
 controls:
   - id: DEMO.C01
     title: Dependency inventory
