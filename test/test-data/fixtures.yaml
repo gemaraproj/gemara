@@ -25,6 +25,27 @@ fixtures:
       error: '_uniqueResultIds."RES-001"'
     reason: 'audit log with duplicate result id'
 
+  - files: [test/test-data/bad-audit-log-evidence-id-repeated-in-list.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'appears more than once in one evidence list'
+    reason: 'audit log evidence item listed twice in one evidence list'
+
+  - files: [test/test-data/bad-audit-log-evidence-id-reused-incomplete.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'evidence.1.type: incomplete value'
+    reason: 'audit log evidence reused with an incomplete copy reports what is missing'
+
+  - files: [test/test-data/bad-audit-log-evidence-id-reused.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'names two different evidence items in this log: results.3.evidence.1 differs from results.1.evidence.0'
+    reason: 'audit log evidence id naming different items in two results'
+
   - files: [test/test-data/bad-audit-log-evidence-neither.yaml]
     definition: '#AuditLog'
     schema:
@@ -32,12 +53,26 @@ fixtures:
       error: 'evidence.0.source."reference-id": incomplete value string'
     reason: 'audit log evidence with neither payload nor source'
 
+  - files: [test/test-data/bad-audit-log-evidence-source-undeclared.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'not declared in metadata.mapping-references'
+    reason: 'audit log evidence source that is not declared'
+
   - files: [test/test-data/bad-audit-log-invalid-digest.yaml]
     definition: '#AuditLog'
     schema:
       valid: false
       error: 'invalid value "SHA256:invalidbecauseuppercasealgorithm"'
     reason: 'audit log evidence source with invalid digest format'
+
+  - files: [test/test-data/bad-audit-log-mapping-reference-missing-id.yaml]
+    definition: '#AuditLog'
+    schema:
+      valid: false
+      error: 'metadata."mapping-references".4.id: incomplete value string'
+    reason: 'audit log mapping reference with no id reported where the id is missing'
 
   - files: [test/test-data/bad-audit-log-retention-empty.yaml]
     definition: '#AuditLog'
@@ -178,6 +213,69 @@ fixtures:
       valid: false
       error: 'log."reference-id": incomplete value string'
     reason: 'enforcement action missing log reference'
+
+  - files: [test/test-data/bad-evaluation-log-evidence-entry-id-not-artifact.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'entry-id is only for evidence that is a Gemara artifact'
+    reason: 'entry-id on evidence that is not a Gemara artifact'
+
+  - files: [test/test-data/bad-evaluation-log-evidence-id-repeated-in-list.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'appears more than once in one evidence list'
+    reason: 'one evidence item listed twice in one evidence list'
+
+  - files: [test/test-data/bad-evaluation-log-evidence-id-reused-incomplete.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'evidence.1.type: incomplete value'
+    reason: 'evidence reused with an incomplete copy reports what is missing'
+
+  - files: [test/test-data/bad-evaluation-log-evidence-id-reused.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'names two different evidence items in this log: evaluations.0.assessment-logs.1.evidence.0 differs from evaluations.0.assessment-logs.0.evidence.0'
+    reason: 'one evidence id naming different items in two assessments'
+
+  - files: [test/test-data/bad-evaluation-log-evidence-missing-id.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'evidence.0.id: incomplete value string'
+    reason: 'evidence with no id reported where the id is missing'
+
+  - files: [test/test-data/bad-evaluation-log-evidence-payload-with-digest.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'inline payload cannot also have a source digest'
+    reason: 'inline payload with a source digest'
+
+  - files: [test/test-data/bad-evaluation-log-evidence-source-undeclared.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'not declared in metadata.mapping-references'
+    reason: 'evidence source that is not declared'
+
+  - files: [test/test-data/bad-evaluation-log-mapping-reference-missing-id.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: '"mapping-references".1.id: incomplete value string'
+    reason: 'mapping reference with no id reported where the id is missing'
+
+  - files: [test/test-data/bad-evaluation-log-mapping-reference-url-no-scheme.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: false
+      error: 'metadata."mapping-references".0.url: invalid value "baseline.openssf.org"'
+    reason: 'evaluation log mapping reference url with no scheme'
 
   - files: [test/test-data/bad-evaluation-log-mismatched-reference-id.yaml]
     definition: '#EvaluationLog'
@@ -636,6 +734,12 @@ fixtures:
     schema:
       valid: true
     reason: 'valid enforcement log'
+
+  - files: [test/test-data/good-evaluation-log-evidence.yaml]
+    definition: '#EvaluationLog'
+    schema:
+      valid: true
+    reason: 'evidence that is addressed, carried, and reused by two assessments'
 
   - files: [test/test-data/good-evaluation-log-unstarted.yaml]
     definition: '#EvaluationLog'
