@@ -32,12 +32,15 @@ package gemara
 		}
 	}
 
+	// Items are grouped by id, keyed by where each sits in the log, and each
+	// occurrence is compared with the first occurrence of its id, so a log where
+	// many assessments cite one item validates in linear time.
+
 	// Across the log an evidence id names exactly one evidence item. The same
 	// item may appear under its id in another assessment's evidence, which is how
 	// one artifact supports several results; two different items may not share
-	// an id. Each occurrence is compared with the first occurrence of its id,
-	// so a log where many assessments cite one item validates in linear time.
-	_evidenceByID: {
+	// an id.
+	for id, occurrences in {
 		for i, evaluation in evaluations
 		for j, assessment in evaluation."assessment-logs"
 		if assessment.evidence != _|_
@@ -45,8 +48,7 @@ package gemara
 		if item.id != _|_ {
 			(item.id): "evaluations.\(i).assessment-logs.\(j).evidence.\(k)": item
 		}
-	}
-	for id, occurrences in _evidenceByID {
+	} {
 		let at = [for o, _ in occurrences {o}]
 		let items = [for o in occurrences {o}]
 		for n, item in items
@@ -55,12 +57,10 @@ package gemara
 		}
 	}
 
-	// An evidence source names where the evidence came from, so its reference-id
-	// must be a mapping reference declared in this log's metadata.
-	//
-	// This check and the one above are assignments rather than conditions. An
-	// assignment involving an incomplete item stays incomplete and waits, while a
-	// condition fails on it and hides every other error in the log.
+	// The source check below and the reuse check above are assignments rather
+	// than conditions. An assignment involving an incomplete item stays
+	// incomplete and waits, while a condition fails on it and hides every other
+	// error in the log.
 	//
 	// The declared ids are field names, so a mapping reference with no id leaves
 	// them incomplete and the source checks wait until the id is supplied; the
@@ -68,7 +68,13 @@ package gemara
 	// metadata's fields, because selecting mapping-references directly fails as
 	// a whole when any one entry is invalid, and every sourced item would then be
 	// reported as undeclared.
+
+	// The mapping-reference ids declared in this log's metadata, which an
+	// evidence source's reference-id must name.
 	_declaredReferenceIDs: {for k, refs in metadata if k == "mapping-references" for r in refs {(r.id): true}}
+
+	// An evidence source names where the evidence came from, so its reference-id
+	// must be a mapping reference declared in this log's metadata.
 	for evaluation in evaluations
 	for assessment in evaluation."assessment-logs"
 	if assessment.evidence != _|_
