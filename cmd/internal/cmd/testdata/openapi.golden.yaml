@@ -732,10 +732,8 @@ components:
               requirement:
                 properties:
                   reference-id:
-                    description: each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
+                    description: each assessment log's requirement.reference-id must match the control's reference-id when present
                     type: string
-                required:
-                - reference-id
                 type: object
             type: object
           minItems: 1
@@ -756,7 +754,7 @@ components:
       - assessment-logs
       type: object
       x-rules:
-      - each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
+      - each assessment log's requirement.reference-id must match the control's reference-id when present
       x-status: stable
     Datetime:
       description: Datetime represents an ISO 8601 formatted datetime string

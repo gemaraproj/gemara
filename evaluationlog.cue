@@ -23,8 +23,8 @@ package gemara
 	control: #EntryMapping
 	"assessment-logs": [#AssessmentLog, ...#AssessmentLog] @go(AssessmentLogs,type=[]*AssessmentLog)
 	"assessment-logs": [...{
-		// each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
-		requirement: "reference-id": (control."reference-id")
+		// each assessment log's requirement.reference-id must match the control's reference-id when present
+		requirement: "reference-id"?: (control."reference-id")
 	}]
 	"assessment-logs": [#_AssessmentLogStrict, ...#_AssessmentLogStrict]
 }
