@@ -847,14 +847,14 @@ components:
         id:
           description: |-
             id uniquely identifies the entity and allows this entry to be referenced by other elements.
-            It must be a single non-empty line with no leading or trailing whitespace.
-          pattern: "^[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]([^\\r\\n\u2028\u2029]*[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff])?$"
+            It must contain at least one character that is not whitespace.
+          pattern: "[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
           type: string
         name:
           description: |-
             name is the name of the entity.
-            It must be a single non-empty line with no leading or trailing whitespace.
-          pattern: "^[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]([^\\r\\n\u2028\u2029]*[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff])?$"
+            It must contain at least one character that is not whitespace.
+          pattern: "[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
           type: string
         type:
           allOf:
