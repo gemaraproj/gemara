@@ -129,7 +129,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid mapping document with strength boundaries", "./test-data/good-mapping-strength-boundaries.yaml", "#MappingDocument", false, ""},
 
 		// MappingDocument — negative
-		{"invalid mapping document without mapping-references", "./test-data/bad-mapping-document.yaml", "#MappingDocument", true, `does not satisfy list.Contains("SOURCE")`},
+		{"mapping reference with no id reported where the id is missing", "./test-data/bad-mapping-reference-missing-id.yaml", "#MappingDocument", true, `metadata."mapping-references".0.id: incomplete value string`},
 		{"mapping document with duplicate mapping id", "./test-data/bad-mapping-duplicate-id.yaml", "#MappingDocument", true, `_uniqueMappingIds."DUP-01"`},
 		{"mapping missing targets for non-no-match relationship", "./test-data/bad-mapping-no-target.yaml", "#MappingDocument", true, `targets.0."entry-id": incomplete value string`},
 		{"mapping target strength below minimum", "./test-data/bad-mapping-strength-below-min.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: invalid value 0 (out of bound >=1)`},
