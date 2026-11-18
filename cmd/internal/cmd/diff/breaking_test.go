@@ -182,9 +182,12 @@ func TestFilterAllowed(t *testing.T) {
 		{ID: "a", Schema: "Foo", Text: "x"},
 		{ID: "b", Schema: "Foo", Text: "y"},
 	}
-	got := filterAllowed(changes, map[string]bool{"a Foo": true})
+	got, unused := filterAllowed(changes, map[string]bool{"a Foo": true})
 	if len(got) != 1 || got[0].ID != "b" {
 		t.Fatalf("expected only [b], got %+v", got)
+	}
+	if len(unused) != 0 {
+		t.Fatalf("expected 0 unused entries, got %+v", unused)
 	}
 }
 
@@ -195,13 +198,45 @@ func TestFilterAllowedSchemaScoped(t *testing.T) {
 	}
 	// A schema-scoped entry drops only the matching change, not every change
 	// sharing the check ID.
-	got := filterAllowed(changes, map[string]bool{"a Foo": true})
+	got, unused := filterAllowed(changes, map[string]bool{"a Foo": true})
 	if len(got) != 1 || got[0].Schema != "Bar" {
 		t.Fatalf("expected only the Bar change to remain, got %+v", got)
 	}
+	if len(unused) != 0 {
+		t.Fatalf("expected 0 unused entries, got %+v", unused)
+	}
 	// A bare check ID (no schema) matches nothing: entries must be schema-scoped.
-	got = filterAllowed(changes, map[string]bool{"a": true})
+	got, unused = filterAllowed(changes, map[string]bool{"a": true})
 	if len(got) != 2 {
 		t.Fatalf("expected a bare ID to drop nothing, got %+v", got)
+	}
+	if len(unused) != 1 || unused[0] != "a" {
+		t.Fatalf("expected [a] unused, got %+v", unused)
+	}
+}
+
+func TestFilterAllowedUnusedEntries(t *testing.T) {
+	changes := []Change{
+		{ID: "req-prop-removed", Schema: "User", Text: "property removed"},
+	}
+	// Matching exception, stale exception, and exception with same check ID on different schema
+	allowlist := map[string]bool{
+		"req-prop-removed User":   true, // matched
+		"req-prop-removed Order":  true, // same check ID, different schema (stale/unused)
+		"some-other-check Action": true, // completely unrelated (stale/unused)
+	}
+	remaining, unused := filterAllowed(changes, allowlist)
+	if len(remaining) != 0 {
+		t.Fatalf("expected remaining to be empty, got %+v", remaining)
+	}
+	if len(unused) != 2 {
+		t.Fatalf("expected 2 unused entries, got %d: %+v", len(unused), unused)
+	}
+	unusedMap := make(map[string]bool)
+	for _, u := range unused {
+		unusedMap[u] = true
+	}
+	if !unusedMap["req-prop-removed Order"] || !unusedMap["some-other-check Action"] {
+		t.Fatalf("expected specific unused entries, got %+v", unused)
 	}
 }

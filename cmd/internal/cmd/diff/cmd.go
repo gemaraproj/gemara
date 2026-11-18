@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/gemaraproj/gemara/internal/cmd/projection"
 	"github.com/spf13/cobra"
@@ -96,11 +97,17 @@ func runBreakingCheck(opts breakingCheckOpts) (exitCode int, err error) {
 		return 0, err
 	}
 
-	remaining := filterAllowed(changes, allowed)
+	remaining, unused := filterAllowed(changes, allowed)
 	for _, c := range remaining {
 		fmt.Printf("ERR[%s] %s: %s\n", c.ID, c.Schema, c.Text)
 	}
-	if len(remaining) > 0 {
+	if len(unused) > 0 {
+		sort.Strings(unused)
+		for _, u := range unused {
+			fmt.Printf("ERR[unused-allowlist-entry] %s: allowlist entry did not match any breaking change\n", u)
+		}
+	}
+	if len(remaining) > 0 || len(unused) > 0 {
 		return 1, nil
 	}
 	return 0, nil
