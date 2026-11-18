@@ -1,0 +1,739 @@
+// SPDX-License-Identifier: Apache-2.0
+
+package validate
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"github.com/goccy/go-yaml"
+)
+
+// LoadPaths resolves a list of file or directory paths and parses all Gemara YAML/JSON documents.
+// An optional SchemaWalker can be passed for dynamic CUE AST reference discovery.
+func LoadPaths(paths []string, walkers ...*SchemaWalker) ([]*Document, error) {
+	var walker *SchemaWalker
+	if len(walkers) > 0 && walkers[0] != nil {
+		walker = walkers[0]
+	} else {
+		walker, _ = NewSchemaWalker("")
+	}
+
+	var docs []*Document
+
+	for _, p := range paths {
+		info, err := os.Stat(p)
+		if err != nil {
+			return nil, fmt.Errorf("stat path %q: %w", p, err)
+		}
+
+		if info.IsDir() {
+			err = filepath.Walk(p, func(path string, f os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if f.IsDir() {
+					return nil
+				}
+				ext := strings.ToLower(filepath.Ext(path))
+				if ext == ".yaml" || ext == ".yml" || ext == ".json" {
+					doc, err := LoadDocument(path, walker)
+					if err != nil {
+						// Skip files that aren't valid Gemara documents
+						return nil
+					}
+					if doc != nil {
+						docs = append(docs, doc)
+					}
+				}
+				return nil
+			})
+			if err != nil {
+				return nil, fmt.Errorf("walk directory %q: %w", p, err)
+			}
+		} else {
+			doc, err := LoadDocument(p, walker)
+			if err != nil {
+				return nil, err
+			}
+			if doc != nil {
+				docs = append(docs, doc)
+			}
+		}
+	}
+
+	return docs, nil
+}
+
+// LoadDocument reads a single YAML/JSON file and parses its metadata, declared entities, and references.
+// An optional SchemaWalker can be passed for dynamic CUE AST reference discovery.
+func LoadDocument(path string, walkers ...*SchemaWalker) (*Document, error) {
+	var walker *SchemaWalker
+	if len(walkers) > 0 && walkers[0] != nil {
+		walker = walkers[0]
+	} else {
+		walker, _ = NewSchemaWalker("")
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("read file %q: %w", path, err)
+	}
+
+	var root map[string]any
+	if err := yaml.Unmarshal(data, &root); err != nil {
+		return nil, fmt.Errorf("unmarshal YAML %q: %w", path, err)
+	}
+
+	metaRaw, ok := root["metadata"].(map[string]any)
+	if !ok {
+		// Not a standard Gemara document with metadata
+		return nil, nil
+	}
+
+	doc := &Document{
+		FilePath:          path,
+		MappingReferences: make(map[string]MappingReference),
+		DeclaredEntities:  make(map[string]bool),
+		SubEntities:       make(map[string]map[string]bool),
+	}
+
+	if title, ok := root["title"].(string); ok {
+		doc.Title = title
+	}
+	if id, ok := metaRaw["id"].(string); ok {
+		doc.ID = id
+	}
+	if docType, ok := metaRaw["type"].(string); ok {
+		doc.Type = docType
+	}
+	if ver, ok := metaRaw["version"].(string); ok {
+		doc.Version = ver
+	}
+
+	// Parse metadata.mapping-references
+	if mrList, ok := metaRaw["mapping-references"].([]any); ok {
+		for _, item := range mrList {
+			if mrMap, ok := item.(map[string]any); ok {
+				var mr MappingReference
+				if id, ok := mrMap["id"].(string); ok {
+					mr.ID = id
+				}
+				if t, ok := mrMap["title"].(string); ok {
+					mr.Title = t
+				}
+				if u, ok := mrMap["url"].(string); ok {
+					mr.URL = u
+				}
+				if v, ok := mrMap["version"].(string); ok {
+					mr.Version = v
+				}
+				if mr.ID != "" {
+					doc.MappingReferences[mr.ID] = mr
+				}
+			}
+		}
+	}
+
+	// Extract declared entities & references based on document type
+	extractDocumentContents(doc, root, walker)
+
+	return doc, nil
+}
+
+func extractDocumentContents(doc *Document, root map[string]any, walkers ...*SchemaWalker) {
+	var walker *SchemaWalker
+	if len(walkers) > 0 {
+		walker = walkers[0]
+	}
+
+	// 1. Extract declared entities and sub-entities across catalogs
+	extractDeclaredEntities(doc, root)
+
+	// 2. Extract cross-document references:
+	// If schema walker is available and has paths for this artifact type, use dynamic CUE AST discovery!
+	if walker != nil && len(walker.RefPathsByArtifact[doc.Type]) > 0 {
+		walker.ExtractReferences(doc, root)
+	} else {
+		// Fallback to static extraction when CUE schema is not available
+		extractStaticReferences(doc, root)
+	}
+
+	// 3. Document types with specialized relational semantics:
+	switch doc.Type {
+	case "MappingDocument":
+		extractMappingDocument(doc, root)
+	case "EvaluationLog":
+		extractEvaluationRequirementInheritance(doc, root)
+	}
+}
+
+func extractDeclaredEntities(doc *Document, root map[string]any) {
+	switch doc.Type {
+	case "ControlCatalog":
+		extractControlEntities(doc, root)
+	case "ThreatCatalog":
+		extractSimpleList(doc, root, "threats")
+	case "RiskCatalog":
+		extractSimpleList(doc, root, "risks")
+	case "CapabilityCatalog":
+		extractSimpleList(doc, root, "capabilities")
+	case "GuidanceCatalog":
+		extractSimpleList(doc, root, "guidelines")
+	case "VectorCatalog":
+		extractSimpleList(doc, root, "vectors")
+	case "PrincipleCatalog":
+		extractSimpleList(doc, root, "principles")
+	case "MappingDocument":
+		if mappings, ok := root["mappings"].([]any); ok {
+			for _, m := range mappings {
+				if mMap, ok := m.(map[string]any); ok {
+					if mID, _ := mMap["id"].(string); mID != "" {
+						doc.DeclaredEntities[mID] = true
+					}
+				}
+			}
+		}
+	default:
+		extractGenericArtifact(doc, root)
+	}
+}
+
+func extractControlEntities(doc *Document, root map[string]any) {
+	controls, ok := root["controls"].([]any)
+	if !ok {
+		return
+	}
+	for _, c := range controls {
+		cMap, ok := c.(map[string]any)
+		if !ok {
+			continue
+		}
+		cID, ok := cMap["id"].(string)
+		if !ok || cID == "" {
+			continue
+		}
+		doc.DeclaredEntities[cID] = true
+
+		if arList, ok := cMap["assessment-requirements"].([]any); ok {
+			if doc.SubEntities[cID] == nil {
+				doc.SubEntities[cID] = make(map[string]bool)
+			}
+			for _, ar := range arList {
+				if arMap, ok := ar.(map[string]any); ok {
+					if arID, ok := arMap["id"].(string); ok && arID != "" {
+						doc.SubEntities[cID][arID] = true
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractEvaluationRequirementInheritance(doc *Document, root map[string]any) {
+	evals, ok := root["evaluations"].([]any)
+	if !ok {
+		return
+	}
+
+	for _, e := range evals {
+		eMap, ok := e.(map[string]any)
+		if !ok {
+			continue
+		}
+
+		var ctrlRef, ctrlID string
+		if ctrl, ok := eMap["control"].(map[string]any); ok {
+			ctrlRef, _ = ctrl["reference-id"].(string)
+			ctrlID, _ = ctrl["entry-id"].(string)
+			if ctrlID != "" {
+				// Index the evaluated control so downstream references (e.g. enforcement logs) resolve
+				doc.DeclaredEntities[ctrlID] = true
+			}
+		}
+
+		if aLogs, ok := eMap["assessment-logs"].([]any); ok {
+			for _, al := range aLogs {
+				alMap, ok := al.(map[string]any)
+				if !ok {
+					continue
+				}
+				if req, ok := alMap["requirement"].(map[string]any); ok {
+					reqRef, _ := req["reference-id"].(string)
+					reqID, _ := req["entry-id"].(string)
+					if reqRef == "" {
+						reqRef = ctrlRef // Inherited from control
+					}
+					if reqRef != "" && reqID != "" {
+						doc.AddEntityUsage(reqRef, ctrlID, reqID, "evaluations.assessment-logs.requirement")
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractStaticReferences(doc *Document, root map[string]any) {
+	switch doc.Type {
+	case "ControlCatalog":
+		extractControlCatalog(doc, root)
+	case "RiskCatalog":
+		extractRiskCatalog(doc, root)
+	case "ThreatCatalog":
+		extractThreatCatalog(doc, root)
+	case "GuidanceCatalog":
+		extractGuidanceCatalog(doc, root)
+	case "Policy":
+		extractPolicy(doc, root)
+	case "EvaluationLog":
+		extractEvaluationLog(doc, root)
+	case "EnforcementLog":
+		extractEnforcementLog(doc, root)
+	case "AuditLog":
+		extractAuditLog(doc, root)
+	}
+}
+
+func extractControlCatalog(doc *Document, root map[string]any) {
+	controls, ok := root["controls"].([]any)
+	if !ok {
+		return
+	}
+	for _, c := range controls {
+		cMap, ok := c.(map[string]any)
+		if !ok {
+			continue
+		}
+		cID, ok := cMap["id"].(string)
+		if !ok || cID == "" {
+			continue
+		}
+		doc.DeclaredEntities[cID] = true
+
+		// Assessment requirements
+		if arList, ok := cMap["assessment-requirements"].([]any); ok {
+			if doc.SubEntities[cID] == nil {
+				doc.SubEntities[cID] = make(map[string]bool)
+			}
+			for _, ar := range arList {
+				if arMap, ok := ar.(map[string]any); ok {
+					if arID, ok := arMap["id"].(string); ok && arID != "" {
+						doc.SubEntities[cID][arID] = true
+					}
+				}
+			}
+		}
+
+		// Guidelines mapped from control
+		extractMultiEntryMappings(doc, cMap["guidelines"], "control.guidelines")
+		// Threats mapped from control
+		extractMultiEntryMappings(doc, cMap["threats"], "control.threats")
+		extractEntryMapping(doc, cMap["replaced-by"], "control.replaced-by")
+	}
+	extractCatalogCollections(doc, root)
+}
+
+func extractThreatCatalog(doc *Document, root map[string]any) {
+	threats, ok := root["threats"].([]any)
+	if !ok {
+		return
+	}
+	for _, t := range threats {
+		tMap, ok := t.(map[string]any)
+		if !ok {
+			continue
+		}
+		tID, ok := tMap["id"].(string)
+		if !ok || tID == "" {
+			continue
+		}
+		doc.DeclaredEntities[tID] = true
+
+		extractMultiEntryMappings(doc, tMap["capabilities"], "threat.capabilities")
+		extractMultiEntryMappings(doc, tMap["vectors"], "threat.vectors")
+	}
+	extractCatalogCollections(doc, root)
+}
+
+func extractRiskCatalog(doc *Document, root map[string]any) {
+	extractSimpleList(doc, root, "risks")
+	extractCatalogCollections(doc, root)
+	if risks, ok := root["risks"].([]any); ok {
+		for _, r := range risks {
+			if rMap, ok := r.(map[string]any); ok {
+				extractMultiEntryMappings(doc, rMap["threats"], "risk.threats")
+			}
+		}
+	}
+}
+
+func extractGuidanceCatalog(doc *Document, root map[string]any) {
+	extractSimpleList(doc, root, "guidelines")
+	extractCatalogCollections(doc, root)
+
+	if exemptions, ok := root["exemptions"].([]any); ok {
+		for _, ex := range exemptions {
+			if exMap, ok := ex.(map[string]any); ok {
+				extractMultiEntryMappings(doc, exMap["redirect"], "guidance.exemptions.redirect")
+			}
+		}
+	}
+
+	if guidelines, ok := root["guidelines"].([]any); ok {
+		for _, g := range guidelines {
+			if gMap, ok := g.(map[string]any); ok {
+				extractMultiEntryMappings(doc, gMap["principles"], "guideline.principles")
+				extractMultiEntryMappings(doc, gMap["vectors"], "guideline.vectors")
+				extractEntryMapping(doc, gMap["extends"], "guideline.extends")
+				extractEntryMapping(doc, gMap["replaced-by"], "guideline.replaced-by")
+			}
+		}
+	}
+}
+
+func extractSimpleList(doc *Document, root map[string]any, key string) {
+	items, ok := root[key].([]any)
+	if !ok {
+		return
+	}
+	for _, item := range items {
+		if iMap, ok := item.(map[string]any); ok {
+			if id, ok := iMap["id"].(string); ok && id != "" {
+				doc.DeclaredEntities[id] = true
+			}
+		}
+	}
+}
+
+func extractMappingDocument(doc *Document, root map[string]any) {
+	var srcRef, tgtRef string
+
+	if src, ok := root["source-reference"].(map[string]any); ok {
+		if rID, ok := src["reference-id"].(string); ok && rID != "" {
+			srcRef = rID
+			doc.AddReferenceUsage(rID, "source-reference")
+		}
+	}
+
+	if tgt, ok := root["target-reference"].(map[string]any); ok {
+		if rID, ok := tgt["reference-id"].(string); ok && rID != "" {
+			tgtRef = rID
+			doc.AddReferenceUsage(rID, "target-reference")
+		}
+	}
+
+	mappings, ok := root["mappings"].([]any)
+	if !ok {
+		return
+	}
+
+	for _, m := range mappings {
+		mMap, ok := m.(map[string]any)
+		if !ok {
+			continue
+		}
+		mID, _ := mMap["id"].(string)
+		if mID != "" {
+			doc.DeclaredEntities[mID] = true
+		}
+
+		entry := MappingEntry{
+			ID:        mID,
+			SourceRef: srcRef,
+			TargetRef: tgtRef,
+		}
+		if s, ok := mMap["source"].(string); ok {
+			entry.Source = s
+		}
+		if r, ok := mMap["relationship"].(string); ok {
+			entry.Relationship = r
+		}
+
+		if targets, ok := mMap["targets"].([]any); ok {
+			for _, tgt := range targets {
+				if tMap, ok := tgt.(map[string]any); ok {
+					if entryID, ok := tMap["entry-id"].(string); ok && entryID != "" {
+						entry.Targets = append(entry.Targets, entryID)
+					}
+				}
+			}
+		}
+
+		doc.Mappings = append(doc.Mappings, entry)
+	}
+}
+
+func extractPolicy(doc *Document, root map[string]any) {
+	if imports, ok := root["imports"].(map[string]any); ok {
+		for _, catKey := range []string{"catalogs", "policies", "guidance"} {
+			if list, ok := imports[catKey].([]any); ok {
+				for _, item := range list {
+					if iMap, ok := item.(map[string]any); ok {
+						if rID, ok := iMap["reference-id"].(string); ok && rID != "" {
+							doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+								ReferenceID: rID,
+								Context:     "imports." + catKey,
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+
+	if risks, ok := root["risks"].(map[string]any); ok {
+		for _, rk := range []string{"mitigated", "accepted"} {
+			if list, ok := risks[rk].([]any); ok {
+				for _, item := range list {
+					if rMap, ok := item.(map[string]any); ok {
+						rID, _ := rMap["reference-id"].(string)
+						entryID, _ := rMap["entry-id"].(string)
+						if entryID == "" {
+							entryID, _ = rMap["risk-id"].(string)
+						}
+						// In Gemara schema (#MitigatedRisk, #AcceptedRisk), the reference is nested under risk: #EntryMapping
+						if riskMap, ok := rMap["risk"].(map[string]any); ok {
+							if nrID, ok := riskMap["reference-id"].(string); ok && nrID != "" {
+								rID = nrID
+							}
+							if nEntryID, ok := riskMap["entry-id"].(string); ok && nEntryID != "" {
+								entryID = nEntryID
+							} else if nRiskID, ok := riskMap["risk-id"].(string); ok && nRiskID != "" {
+								entryID = nRiskID
+							}
+						}
+						if rID != "" {
+							doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+								ReferenceID: rID,
+								Context:     "risks." + rk,
+							})
+							if entryID != "" {
+								doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
+									ReferenceID: rID,
+									EntryID:     entryID,
+									Context:     "risks." + rk,
+								})
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractEvaluationLog(doc *Document, root map[string]any) {
+	evals, ok := root["evaluations"].([]any)
+	if !ok {
+		return
+	}
+
+	for _, e := range evals {
+		eMap, ok := e.(map[string]any)
+		if !ok {
+			continue
+		}
+
+		var ctrlRef, ctrlID string
+		if ctrl, ok := eMap["control"].(map[string]any); ok {
+			ctrlRef, _ = ctrl["reference-id"].(string)
+			ctrlID, _ = ctrl["entry-id"].(string)
+			if ctrlRef != "" {
+				doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+					ReferenceID: ctrlRef,
+					Context:     "evaluations.control",
+				})
+				if ctrlID != "" {
+					// Index the evaluated control so downstream references (e.g. enforcement logs, ref #499) resolve
+					doc.DeclaredEntities[ctrlID] = true
+					doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
+						ReferenceID: ctrlRef,
+						EntryID:     ctrlID,
+						Context:     "evaluations.control",
+					})
+				}
+			}
+		}
+
+		if aLogs, ok := eMap["assessment-logs"].([]any); ok {
+			for _, al := range aLogs {
+				alMap, ok := al.(map[string]any)
+				if !ok {
+					continue
+				}
+				if req, ok := alMap["requirement"].(map[string]any); ok {
+					reqRef, _ := req["reference-id"].(string)
+					reqID, _ := req["entry-id"].(string)
+					if reqRef == "" {
+						reqRef = ctrlRef // Inherited from control
+					} else {
+						doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+							ReferenceID: reqRef,
+							Context:     "evaluations.assessment-logs.requirement",
+						})
+					}
+					if reqRef != "" && reqID != "" {
+						doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
+							ReferenceID: reqRef,
+							EntryID:     ctrlID,
+							SubEntryID:  reqID,
+							Context:     "evaluations.assessment-logs.requirement",
+						})
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractEnforcementLog(doc *Document, root map[string]any) {
+	actions, ok := root["actions"].([]any)
+	if !ok {
+		return
+	}
+
+	for _, a := range actions {
+		aMap, ok := a.(map[string]any)
+		if !ok {
+			continue
+		}
+		if just, ok := aMap["justification"].(map[string]any); ok {
+			if assess, ok := just["assessments"].([]any); ok {
+				for _, as := range assess {
+					asMap, ok := as.(map[string]any)
+					if !ok {
+						continue
+					}
+					if logMap, ok := asMap["log"].(map[string]any); ok {
+						lRef, _ := logMap["reference-id"].(string)
+						lID, _ := logMap["entry-id"].(string)
+						if lRef != "" {
+							doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+								ReferenceID: lRef,
+								Context:     "actions.justification.assessments.log",
+							})
+							if lID != "" {
+								doc.EntityUsages = append(doc.EntityUsages, EntityUsage{
+									ReferenceID: lRef,
+									EntryID:     lID,
+									Context:     "actions.justification.assessments.log",
+								})
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractAuditLog(doc *Document, root map[string]any) {
+	if criteria, ok := root["criteria"].([]any); ok {
+		for _, c := range criteria {
+			if cMap, ok := c.(map[string]any); ok {
+				if rID, ok := cMap["reference-id"].(string); ok && rID != "" {
+					doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+						ReferenceID: rID,
+						Context:     "auditlog.criteria",
+					})
+				}
+			}
+		}
+	}
+
+	if results, ok := root["results"].([]any); ok {
+		for _, r := range results {
+			if rMap, ok := r.(map[string]any); ok {
+				if critRef, ok := rMap["criteria-reference"].(map[string]any); ok {
+					if rID, ok := critRef["reference-id"].(string); ok && rID != "" {
+						doc.ReferenceUsages = append(doc.ReferenceUsages, ReferenceUsage{
+							ReferenceID: rID,
+							Context:     "auditlog.results.criteria-reference",
+						})
+					}
+				}
+			}
+		}
+	}
+}
+
+func extractGenericArtifact(doc *Document, root map[string]any) {
+	// Fallback extraction
+	for _, key := range []string{"controls", "risks", "threats", "capabilities", "guidelines", "vectors", "principles"} {
+		extractSimpleList(doc, root, key)
+	}
+}
+
+func extractEntryMapping(doc *Document, raw any, context string) {
+	mMap, ok := raw.(map[string]any)
+	if !ok {
+		return
+	}
+	rID, _ := mMap["reference-id"].(string)
+	entryID, _ := mMap["entry-id"].(string)
+	if entryID == "" {
+		entryID, _ = mMap["risk-id"].(string)
+	}
+	if rID != "" {
+		doc.AddReferenceUsage(rID, context)
+		if entryID != "" {
+			doc.AddEntityUsage(rID, entryID, "", context)
+		}
+	}
+}
+
+func extractCatalogCollections(doc *Document, root map[string]any) {
+	if exts, ok := root["extends"].([]any); ok {
+		for _, e := range exts {
+			if eMap, ok := e.(map[string]any); ok {
+				if rID, ok := eMap["reference-id"].(string); ok && rID != "" {
+					doc.AddReferenceUsage(rID, "catalog.extends")
+				}
+			}
+		}
+	}
+	if imps := root["imports"]; imps != nil {
+		extractMultiEntryMappings(doc, imps, "catalog.imports")
+	}
+}
+
+func extractMultiEntryMappings(doc *Document, raw any, context string) {
+	if raw == nil {
+		return
+	}
+	var mappings []any
+	switch v := raw.(type) {
+	case []any:
+		mappings = v
+	case map[string]any:
+		mappings = []any{v}
+	default:
+		return
+	}
+	for _, m := range mappings {
+		mMap, ok := m.(map[string]any)
+		if !ok {
+			continue
+		}
+		rID, _ := mMap["reference-id"].(string)
+		if rID != "" {
+			doc.AddReferenceUsage(rID, context)
+			if entries, ok := mMap["entries"].([]any); ok {
+				for _, e := range entries {
+					if eMap, ok := e.(map[string]any); ok {
+						entryID, _ := eMap["reference-id"].(string)
+						if entryID == "" {
+							entryID, _ = eMap["entry-id"].(string)
+						}
+						if entryID != "" {
+							doc.AddEntityUsage(rID, entryID, "", context)
+						}
+					} else if eStr, ok := e.(string); ok && eStr != "" {
+						doc.AddEntityUsage(rID, eStr, "", context)
+					}
+				}
+			}
+		}
+	}
+}
