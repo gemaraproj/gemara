@@ -204,6 +204,12 @@ func TestSchemaValidation(t *testing.T) {
 		{"capability missing required description", "./test-data/bad-capability-missing-description.yaml", "#CapabilityCatalog", true, "capabilities.0.description: incomplete value string"},
 		{"capability catalog with empty capabilities list", "./test-data/bad-capability-empty-capabilities.yaml", "#CapabilityCatalog", true, "capabilities: incompatible list lengths"},
 
+		// Metadata date format — positive and negative (via #CapabilityCatalog)
+		{"capability metadata with a valid RFC 3339 date", "./test-data/good-capability-dated.yaml", "#CapabilityCatalog", false, ""},
+		{"capability metadata with a date missing the time portion", "./test-data/bad-capability-date-missing-time.yaml", "#CapabilityCatalog", true, `metadata.date: invalid value "2026-11-18" (does not satisfy time.Format`},
+		{"capability metadata with a date missing the UTC offset", "./test-data/bad-capability-date-missing-timezone.yaml", "#CapabilityCatalog", true, `metadata.date: invalid value "2026-11-18T10:30:00" (does not satisfy time.Format`},
+		{"capability metadata with impossible date values", "./test-data/bad-capability-date-impossible-values.yaml", "#CapabilityCatalog", true, `metadata.date: invalid value "2026-13-45T99:99:99Z" (does not satisfy time.Format`},
+
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
