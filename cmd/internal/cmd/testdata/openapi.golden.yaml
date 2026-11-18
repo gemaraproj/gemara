@@ -408,6 +408,10 @@ components:
       type: object
       x-rules:
       - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
+      - "Within one evidence list an id appears once: listing an item twice in the same place says nothing. Every rule here skips an item with no id, which the schema already reports where the id is missing."
+      - Across the log an evidence id names exactly one evidence item. The same item may appear under its id in another result's evidence, which is how one artifact supports several results; two different items may not share an id.
+      - An evidence source names where the evidence came from, so its reference-id must be a mapping reference declared in this log's metadata.
+      - The mapping-reference ids declared in this log's metadata, which an evidence source's reference-id must name.
       x-status: experimental
     AuditResult:
       description: AuditResult records a single result with supporting evidence and recommendations.
