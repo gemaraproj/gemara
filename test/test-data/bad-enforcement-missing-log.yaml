@@ -15,7 +15,7 @@ metadata:
       title: "Information Security Policy"
       version: "2.1.0"
 
-disposition: Enforced
+effect: Blocked
 
 target:
   id: gemara-repo
@@ -24,7 +24,8 @@ target:
   uri: "https://github.com/gemaraproj/gemara"
 
 actions:
-  - disposition: Enforced
+  - id: ACT-01
+    effect: Blocked
     method:
       reference-id: security-policy
       entry-id: EM-GATE-01
@@ -33,11 +34,10 @@ actions:
     steps:
       - github.com/gemaraproj/gemara/enforcement/gate.BlockMerge
     justification:
-      assessments:
-        - result: Failed
-          requirement:
+      findings:
+        - id: FIND-01
+          description: "A required assessment finding with no log reference."
+          severity: High
+          control:
             reference-id: security-policy
-            entry-id: OSPS-DO-01.01
-          plan:
-            reference-id: security-policy
-            entry-id: AP-DO-01
+            entry-id: OSPS-DO-01

@@ -1,9 +1,9 @@
 metadata:
-  id: "enforcement-log-bad-clear"
+  id: "enforcement-log-shadow-gate"
   type: EnforcementLog
   gemara-version: "1.1.0"
   version: "1.0.0"
-  description: "Invalid enforcement log: Clear disposition with Failed assessment result"
+  description: "A shadow gate: findings reported, no action taken, no exception"
   author:
     id: enforcement-engine
     name: "Example Enforcement Engine"
@@ -11,6 +11,9 @@ metadata:
     version: "1.2.0"
     uri: "https://github.com/gemaraproj/gemara"
   mapping-references:
+    - id: OSPS
+      title: "Open Source Project Security Baseline"
+      version: "2025.1"
     - id: security-policy
       title: "Information Security Policy"
       version: "2.1.0"
@@ -18,7 +21,7 @@ metadata:
       title: "pvtr Evaluation Log"
       version: "2025-08-22"
 
-disposition: Clear
+effect: None
 
 target:
   id: gemara-repo
@@ -27,20 +30,22 @@ target:
   uri: "https://github.com/gemaraproj/gemara"
 
 actions:
-  - disposition: Clear
+  - id: ACT-01
+    effect: None
     method:
       reference-id: security-policy
       entry-id: EM-PASS-01
-    message: "Falsely cleared despite failed assessment"
+    message: "Shadow gate: finding reported, no action taken"
     start: "2025-08-22T16:07:00Z"
     steps:
       - github.com/gemaraproj/gemara/enforcement/allow.PassThrough
     justification:
-      assessments:
-        - result: Failed
-          plan:
-            reference-id: security-policy
-            entry-id: AP-AC-01
+      findings:
+        - id: FIND-01
+          description: "No user guide is published or referenced in the Security Insights data."
+          severity: Medium
+          control:
+            reference-id: OSPS
+            entry-id: OSPS-AC-01
           log:
             reference-id: eval-log
-            entry-id: OSPS-AC-01

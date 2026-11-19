@@ -25,7 +25,7 @@ metadata:
       title: "Approved Exception Register"
       version: "2025-Q3"
 
-disposition: Enforced
+effect: Blocked
 
 target:
   id: gemara-repo
@@ -38,7 +38,8 @@ target:
     affiliation: "OpenSSF"
 
 actions:
-  - disposition: Enforced
+  - id: ACT-DO-01
+    effect: Blocked
     method:
       reference-id: security-policy
       entry-id: EM-GATE-01
@@ -48,19 +49,18 @@ actions:
     steps:
       - github.com/gemaraproj/gemara/enforcement/gate.BlockMerge
     justification:
-      assessments:
-        - result: Failed
-          requirement:
+      findings:
+        - id: FIND-DO-01
+          description: "No user guide is published or referenced in the Security Insights data."
+          severity: Medium
+          control:
             reference-id: OSPS
-            entry-id: OSPS-DO-01.01
-          plan:
-            reference-id: security-policy
-            entry-id: AP-DO-01
+            entry-id: OSPS-DO-01
           log:
             reference-id: eval-log
-            entry-id: OSPS-DO-01
 
-  - disposition: Enforced
+  - id: ACT-DO-02
+    effect: Remediated
     method:
       reference-id: security-policy
       entry-id: EM-REMEDIATE-01
@@ -71,19 +71,18 @@ actions:
       - github.com/gemaraproj/gemara/enforcement/remediate.EnablePrivateVulnReporting
       - github.com/gemaraproj/gemara/enforcement/remediate.VerifyVulnReportingActive
     justification:
-      assessments:
-        - result: Failed
-          requirement:
+      findings:
+        - id: FIND-DO-02
+          description: "Private vulnerability reporting was not enabled on the repository."
+          severity: High
+          control:
             reference-id: OSPS
-            entry-id: OSPS-DO-02.01
-          plan:
-            reference-id: security-policy
-            entry-id: AP-DO-02
+            entry-id: OSPS-DO-02
           log:
             reference-id: eval-log
-            entry-id: OSPS-DO-02
 
-  - disposition: Clear
+  - id: ACT-AC-01
+    effect: None
     method:
       reference-id: security-policy
       entry-id: EM-PASS-01
@@ -91,17 +90,8 @@ actions:
     start: "2025-08-22T16:07:00Z"
     steps:
       - github.com/gemaraproj/gemara/enforcement/allow.PassThrough
-    justification:
-      assessments:
-        - result: Passed
-          plan:
-            reference-id: security-policy
-            entry-id: AP-AC-01
-          log:
-            reference-id: eval-log
-            entry-id: OSPS-AC-01
-
-  - disposition: Tolerated
+  - id: ACT-QA-04
+    effect: None
     method:
       reference-id: security-policy
       entry-id: EM-WAIVE-01
@@ -111,22 +101,22 @@ actions:
     steps:
       - github.com/gemaraproj/gemara/enforcement/waive.RecordException
     justification:
-      assessments:
-        - result: Failed
-          requirement:
+      findings:
+        - id: FIND-QA-04
+          description: "Dependency manifests were not published for the current release."
+          severity: Medium
+          disposition: Waived
+          control:
             reference-id: OSPS
-            entry-id: OSPS-QA-04.01
-          plan:
-            reference-id: security-policy
-            entry-id: AP-QA-04
+            entry-id: OSPS-QA-04
           log:
             reference-id: eval-log
-            entry-id: OSPS-QA-04
       exceptions:
         - reference-id: exception-register
           remarks: "EXC-2025-042: Single-repository projects are exempt from the subproject listing requirement"
 
-  - disposition: Clear
+  - id: ACT-DO-02-CLEAR
+    effect: None
     method:
       reference-id: security-policy
       entry-id: EM-REMEDIATE-01
@@ -134,12 +124,3 @@ actions:
     start: "2025-08-22T16:09:00Z"
     steps:
       - github.com/gemaraproj/gemara/enforcement/remediate.EnablePrivateVulnReporting
-    justification:
-      assessments:
-        - result: Passed
-          plan:
-            reference-id: security-policy
-            entry-id: AP-DO-02
-          log:
-            reference-id: eval-log
-            entry-id: OSPS-DO-02

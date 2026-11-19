@@ -1,0 +1,66 @@
+metadata:
+  id: BAD-DUP-ACTION-ID
+  type: EnforcementLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Action ids must be unique within an enforcement log so an action can
+    be referenced unambiguously.
+  author:
+    id: enforcement-engine
+    name: Example Enforcement Engine
+    type: Software
+  mapping-references:
+    - id: OSPS
+      title: "Open Source Project Security Baseline"
+      version: "2025.1"
+    - id: eval-log
+      title: "PVTR Evaluation Log"
+      version: "2025-08-22"
+
+effect: Blocked
+
+target:
+  id: gemara-repo
+  name: gemaraproj/gemara
+  type: Software
+
+actions:
+  - id: ACT-01
+    effect: Blocked
+    method:
+      reference-id: security-policy
+      entry-id: EM-GATE-01
+    message: "Blocked merge: missing user documentation"
+    start: "2025-08-22T16:05:00Z"
+    end: "2025-08-22T16:05:01Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/gate.BlockMerge
+    justification:
+      findings:
+        - id: FIND-01
+          severity: Medium
+          control:
+            reference-id: OSPS
+            entry-id: OSPS-DO-01
+          log:
+            reference-id: eval-log
+  # Same action id as above: nothing can disambiguate a reference to ACT-01.
+  - id: ACT-01
+    effect: Remediated
+    method:
+      reference-id: security-policy
+      entry-id: EM-REMEDIATE-01
+    message: "Auto-remediation: enabled private vulnerability reporting"
+    start: "2025-08-22T16:06:00Z"
+    end: "2025-08-22T16:06:03Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/remediate.EnablePrivateVulnReporting
+    justification:
+      findings:
+        - id: FIND-02
+          severity: Medium
+          control:
+            reference-id: OSPS
+            entry-id: OSPS-DO-02
+          log:
+            reference-id: eval-log
