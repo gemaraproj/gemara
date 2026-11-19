@@ -198,6 +198,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"audit log with duplicate result id", "./test-data/bad-audit-log-duplicate-result-id.yaml", "#AuditLog", true, `_uniqueResultIds."RES-001"`},
 		{"audit log evidence source with invalid digest format", "./test-data/bad-audit-log-invalid-digest.yaml", "#AuditLog", true, `invalid value "SHA256:invalidbecauseuppercasealgorithm"`},
 		{"audit result referencing undeclared criteria", "./test-data/bad-audit-log-undeclared-criteria.yaml", "#AuditLog", true, `does not satisfy list.Contains("OSPS")`},
+		{"audit finding naming no control", "./test-data/bad-audit-log-finding-missing-control.yaml", "#AuditLog", true, `results.2.control."reference-id": incomplete value string`},
 		{"audit log evidence with neither payload nor source", "./test-data/bad-audit-log-evidence-neither.yaml", "#AuditLog", true, `evidence.0.source."reference-id": incomplete value string`},
 		{"audit log evidence reused with an incomplete copy reports what is missing", "./test-data/bad-audit-log-evidence-id-reused-incomplete.yaml", "#AuditLog", true, "evidence.1.type: incomplete value"},
 		{"audit log evidence id naming different items in two results", "./test-data/bad-audit-log-evidence-id-reused.yaml", "#AuditLog", true, "names two different evidence items in this log: results.3.evidence.1 differs from results.1.evidence.0"},
