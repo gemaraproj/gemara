@@ -138,3 +138,11 @@ response-optional-property-removed Metadata
 response-optional-property-removed Resource
 response-optional-property-removed Threat
 response-optional-property-removed ThreatCatalog
+
+# Assessment requirement mapping uses site-specific #AssessmentRequirementMapping
+# with optional reference-id rather than generic #EntryMapping.
+request-property-all-of-removed AssessmentLog
+response-property-became-optional ControlEvaluation
+request-property-all-of-removed ControlEvaluation
+response-property-became-optional EvaluationLog
+request-property-all-of-removed EvaluationLog
