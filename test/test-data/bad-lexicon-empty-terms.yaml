@@ -1,0 +1,11 @@
+title: Empty Terms Lexicon
+metadata:
+  id: bad-lexicon-empty
+  type: Lexicon
+  gemara-version: "1.1.0"
+  description: Lexicon with empty terms list
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+terms: []

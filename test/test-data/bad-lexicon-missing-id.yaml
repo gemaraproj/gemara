@@ -1,0 +1,13 @@
+title: Missing Term ID Lexicon
+metadata:
+  id: bad-lexicon-missing-id
+  type: Lexicon
+  gemara-version: "1.1.0"
+  description: Lexicon term missing required id
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+terms:
+  - title: Software Bill of Materials
+    definition: A formal, machine-readable inventory of software components.
