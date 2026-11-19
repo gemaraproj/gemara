@@ -175,11 +175,11 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
+		{"shadow gate reporting a failed assessment without acting", "./test-data/good-enforcement-shadow-gate.yaml", "#EnforcementLog", false, ""},
 
 		// EnforcementLog — negative
-		{"enforcement action with invalid disposition", "./test-data/bad-enforcement-log.yaml", "#EnforcementLog", true, "actions.0.disposition: 4 errors in empty disjunction"},
+		{"enforcement action with invalid effect", "./test-data/bad-enforcement-log.yaml", "#EnforcementLog", true, "actions.0.effect: 4 errors in empty disjunction"},
 		{"enforcement action missing log reference", "./test-data/bad-enforcement-missing-log.yaml", "#EnforcementLog", true, `log."reference-id": incomplete value string`},
-		{"clear disposition with failed assessment", "./test-data/bad-enforcement-clear-failed.yaml", "#EnforcementLog", true, `conflicting values "Passed" and "Failed"`},
 
 		// AuditLog — positive
 		{"valid audit log", "./test-data/good-audit-log.yaml", "#AuditLog", false, ""},

@@ -15,7 +15,7 @@ metadata:
       title: "Information Security Policy"
       version: "2.1.0"
 
-disposition: Enforced
+effect: Blocked
 
 target:
   id: gemara-repo
@@ -24,7 +24,7 @@ target:
   uri: "https://github.com/gemaraproj/gemara"
 
 actions:
-  - disposition: Enforced
+  - effect: Blocked
     method:
       reference-id: security-policy
       entry-id: EM-GATE-01

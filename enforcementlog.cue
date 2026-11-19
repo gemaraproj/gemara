@@ -10,23 +10,17 @@ package gemara
 #EnforcementLog: {
 	#Log
 	metadata: type: "EnforcementLog"
-	// disposition is the aggregate enforcement disposition across all actions in this log
-	disposition: #Disposition
+	// effect is the aggregate across this log's actions, by the precedence
+	// documented on #Effect.
+	effect: #Effect
 	// actions is the list of enforcement actions performed
 	actions: [#ActionResult, ...#ActionResult] @go(Actions,type=[]*ActionResult)
-	// Enforce that Clear dispositions only contain Passed assessment results
-	actions: [...{
-		// when the log's disposition is Clear, every assessment cited in an action's justification must have result Passed
-		if disposition == "Clear" {
-			justification: assessments: [...{result: "Passed"}]
-		}
-	}]
 }
 
 // ActionResult captures a performed enforcement action.
 #ActionResult: {
-	// disposition is the enforcement action taken
-	disposition: #Disposition @go(Disposition)
+	// effect is what this action did to the target.
+	effect: #Effect @go(Effect)
 
 	// method references the specific AcceptedMethod entry within the Policy being enforced
 	method: #EntryMapping @go(Method)
@@ -74,13 +68,16 @@ package gemara
 	log: #EntryMapping @go(Log)
 }
 
-// Disposition enumerates the possible enforcement outcomes.
-#Disposition:
-	// Enforcement outcome could not be determined.
+// Effect is what an enforcement action did to its target. It rolls up from an
+// action to the log by the precedence Blocked > Remediated > Undetermined > None:
+// the strongest effect dominates, because the log records what the enforcement
+// layer did; how much that should worry anyone is the audit's question.
+#Effect:
+	// The action's effect could not be determined.
 	"Undetermined" |
-	// Findings existed and actions were taken.
-	"Enforced" |
-	// Findings existed but were accepted without action.
-	"Tolerated" |
-	// No findings, nothing to act on.
-	"Clear" @go(-)
+	// The action stopped the target, for example by blocking a merge.
+	"Blocked" |
+	// The action changed the target to correct a finding.
+	"Remediated" |
+	// The action did nothing to the target.
+	"None" @go(-)
