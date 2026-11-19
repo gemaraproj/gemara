@@ -99,20 +99,13 @@ func TestAssessmentIdentity(t *testing.T) {
 			errContains: "_uniqueAssessments",
 		},
 		{
-			name: "literal hyphen plan differs from omitted plan",
+			// The key marks an omitted executor as "absent", so an executor whose id
+			// is "absent" must not collide with one that is left out.
+			name: "executor id absent differs from an omitted executor under a cited plan",
 			replacements: []string{
-				"entry-id: AP-AC-01\n" + ctx("security-policy", "EM-AC-01-probe"),
-				"entry-id: '-'\n" + ctx("security-policy", "X"),
-				review, ctx("security-policy", "X") + "\n",
-			},
-		},
-		{
-			name: "literal hyphen method differs from omitted method",
-			replacements: []string{
-				probe, ctx("security-policy", "'-'") + "\n",
-				review, "",
-				probeExecutor, "",
+				ctx("security-policy", "EM-AC-01-review"), ctx("security-policy", "EM-AC-01-probe"),
 				reviewExecutor, "",
+				"id: pvtr-github-repo", "id: absent",
 			},
 		},
 		{
