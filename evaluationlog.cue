@@ -90,18 +90,17 @@ import "strings"
 	// A comment directly above a rule is listed under x-rules in the OpenAPI
 	// projection.
 
-	// Under a cited plan an AssessmentLog is one method's execution against one
-	// requirement, so (this control evaluation, requirement, plan, method, executor)
-	// is its key, where the plan and the method are each their reference-id and
-	// entry-id together: two policies may each have a plan, or a method, with the
-	// same entry-id. This is what lets a log hold several results for one
-	// requirement — a plan requiring an automated probe and a manual review
-	// produces two. Two records that agree on every part of the key are rejected.
-	// The executor is part of the key because a plan's method may name the executor
-	// meant to run it, but the key uses the executor that did, and the two can
-	// differ: one requirement run by the same method on two instances is two results.
-	// A record with no plan is not keyed, so records that agree on everything else
-	// are accepted. Existing producers that cite no plan keep validating.
+	// Under a cited plan, an AssessmentLog is keyed by (this control evaluation,
+	// requirement, plan, method, executor). The plan and the method are each their
+	// reference-id and entry-id together, because two policies may each have a
+	// plan or a method with the same entry-id; the executor is its id. The key lets
+	// a log hold several results for one requirement: a plan with an automated
+	// probe and a manual review produces two. A method does not fix who runs it, so
+	// one method run on two instances is also two results, even when the plan's
+	// method names the executor meant to run it. Two records that agree on every
+	// part of the key are rejected, so a log holds one run of a method by an
+	// executor. Records with no plan are not keyed, so this rule does not affect
+	// logs that cite no plans.
 	for i, e in evaluations {
 		_uniqueAssessments: "\(i)": {
 			for j, a in e."assessment-logs"
@@ -140,18 +139,18 @@ import "strings"
 	}
 }
 
-// ExecutionContext records how an assessment was configured: which method it
-// ran. What the assessment is, its result, timing, steps, and the executor that
-// produced it, stays at the top level of #AssessmentLog. Who performed the
-// execution is executor, not part of its configuration. It is one field rather
-// than several so that a stable type does not gain a permanent top-level field per
-// configuration input; further inputs land here additively, where a top-level field
-// could never be moved.
+// ExecutionContext records what an assessment took from a policy: the accepted
+// method it ran. The executor, the result and everything else about the
+// assessment stay at the top level of AssessmentLog, because they mean something
+// without a policy. Policy inputs share this one field so that a stable type does
+// not gain a top-level field for each of them, and a field placed at the top
+// level could not later be grouped with the rest. Further policy inputs, such as
+// the values given for a plan's parameters, belong here too.
 #ExecutionContext: {
-	// method names the accepted method this assessment executed. Under a cited plan it
+	// method names the accepted method this assessment ran. Under a cited plan it
 	// is one of that plan's evaluation-methods, and its reference-id is the plan's.
-	// Without a plan its reference-id names the policy, and its entry-id one of that
-	// policy's own evaluation-methods, which are the fallback where no plan is bound.
+	// Without a plan, its reference-id names a policy and its entry-id one of that
+	// policy's own evaluation-methods.
 	method?: #EntryMapping & {"entry-id": string & strings.MinRunes(1)} @go(Method,optional=nillable)
 }
 
@@ -162,12 +161,14 @@ import "strings"
 	requirement: #EntryMapping
 	// Plan maps to the policy assessment plan being executed.
 	plan?: #EntryMapping @go(Plan,optional=nillable)
-	// execution-context records how this assessment was configured. A cited plan obliges a
-	// method of that plan: it lists the methods it accepts, so a record of running under
-	// it has to say which one ran.
+	// execution-context records what this assessment took from a policy. A record
+	// that cites a plan names here which of the plan's methods it ran.
 	"execution-context"?: #ExecutionContext @go(ExecutionContext,optional=nillable)
 	// executor is the actor that performed this assessment: the tool instance,
-	// service or person that produced this result when it is not the author of the log.
+	// service or person that produced this result. When it is omitted, the log's
+	// metadata.author performed it. A plan's accepted method may name the executor
+	// meant to run it; this field names the one that did. A record whose executor
+	// differs from the method's is still valid, and an audit reports the mismatch.
 	executor?: #Actor @go(Executor,optional=nillable)
 	// Description provides a summary of the assessment procedure.
 	description: string
@@ -199,20 +200,20 @@ import "strings"
 	// A comment directly above a rule is listed under x-rules in the OpenAPI
 	// projection.
 
-	// The rule compares the method's reference-id with `==` rather than unifying
-	// it: unifying would fill an omitted reference-id in from the plan, so the
-	// document a producer wrote would lack a field every non-CUE consumer
-	// requires. It is stated on the field it requires: forbidding a field instead
-	// puts bottom in that field's type, and the Go projection degrades it to an
+	// The rule below compares the method's reference-id with `==` rather than
+	// unifying it: unifying would fill an omitted reference-id in from the plan,
+	// so the document a producer wrote would lack a field every non-CUE consumer
+	// requires. It requires a method when a plan is present rather than forbidding
+	// the plan when the method is absent: a conditional that forbids a field puts
+	// bottom in that field's type, and the Go projection turns the field into an
 	// unusable `any`.
 
-	// A cited plan obliges a method of that plan: the plan lists the methods it
-	// accepts, and a record of running under it that does not say which one ran
-	// leaves two results against the same plan indistinguishable. The method's
-	// reference-id is the plan's, the way a requirement's is its control's. There
-	// is no rule the other way: a method without a plan is the ordinary case for a
-	// producer running the policy's fallback method, and a producer that knows of
-	// no policy omits it.
+	// A record that cites a plan names the method it ran, so that the record can
+	// be checked against the methods the plan accepts. The method's reference-id
+	// must equal the plan's. Unlike a requirement's reference-id, which is taken
+	// from its control when left out, it must be written. A method without a plan
+	// is allowed: it names one of a policy's own evaluation-methods, and a producer
+	// that knows of no policy omits it.
 	if plan != _|_ {"execution-context": method: {"reference-id": ==plan."reference-id", "entry-id": string}}
 
 }
