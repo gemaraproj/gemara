@@ -123,9 +123,10 @@ package gemara
 		source?: digest?: error("an inline payload cannot also have a source digest: an inline payload is as trustworthy as the log that carries it, and a digest is for evidence that lives elsewhere")
 	}
 
+	type: #EvidenceType
+
 	// entry-id selects what a Gemara artifact recorded for a catalog entry, so it
 	// has nothing to select when the evidence is not a Gemara artifact.
-	type: #EvidenceType
 	if (type & #ArtifactType) == _|_ {
 		source?: "entry-id"?: error("entry-id is only for evidence that is a Gemara artifact: set type to the artifact type, or remove entry-id")
 	}

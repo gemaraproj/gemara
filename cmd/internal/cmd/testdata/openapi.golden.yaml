@@ -29,7 +29,7 @@ components:
         residual risk after partial mitigation.
       properties:
         id:
-          description: id allows this accepted risk entry to be referenced
+          description: id uniquely identifies this accepted risk entry
           type: string
         justification:
           description: justification explains why the risk is accepted
@@ -43,7 +43,7 @@ components:
           - $ref: "#/components/schemas/Scope"
           description: scope defines where the risk acceptance applies
         target-id:
-          description: target-id optionally links this acceptance to a mitigated risk entry
+          description: target-id optionally links this acceptance to a mitigated risk entry; when set it must match the id of an entry in risks.mitigated
           type: string
       required:
       - id
@@ -938,6 +938,11 @@ components:
           - $ref: "#/components/schemas/Result"
           description: result is the aggregate outcome across all evaluations in this log
       type: object
+      x-rules:
+      - "Within one evidence list an id appears once: listing an item twice in the same place says nothing. Every rule here skips an item with no id, which the schema already reports where the id is missing."
+      - Across the log an evidence id names exactly one evidence item. The same item may appear under its id in another assessment's evidence, which is how one artifact supports several results; two different items may not share an id.
+      - An evidence source names where the evidence came from, so its reference-id must be a mapping reference declared in this log's metadata.
+      - The mapping-reference ids declared in this log's metadata, which an evidence source's reference-id must name.
       x-status: stable
     EvaluationMethodType:
       enum:
@@ -1003,6 +1008,9 @@ components:
       - type
       - collected-at
       type: object
+      x-rules:
+      - Evidence with an inline payload is carried by this log, and is as trustworthy as the log itself. source may still name where it came from, by reference-id. A digest is for evidence that lives elsewhere, so it cannot accompany a payload.
+      - entry-id selects what a Gemara artifact recorded for a catalog entry, so it has nothing to select when the evidence is not a Gemara artifact.
       x-status: stable
     EvidenceMapping:
       description: |-
@@ -1626,7 +1634,7 @@ components:
       description: MitigatedRisk represents a risk addressed by the policy
       properties:
         id:
-          description: id allows this mitigated risk entry to be referenced by accepted risks
+          description: id uniquely identifies this mitigated risk entry so it can be referenced by accepted risks
           type: string
         risk:
           allOf:
@@ -2126,6 +2134,9 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when mitigated risks are listed, each mitigated risk id must be unique
+      - when accepted risks are listed, each accepted risk id must be unique, and when target-id is set, it must match an entry in risks.mitigated
       x-status: experimental
     Scope:
       description: Scope defines what is included and excluded from policy applicability.
