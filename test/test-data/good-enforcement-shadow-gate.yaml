@@ -1,9 +1,9 @@
 metadata:
-  id: "enforcement-log-bad-clear"
+  id: "enforcement-log-shadow-gate"
   type: EnforcementLog
   gemara-version: "1.1.0"
   version: "1.0.0"
-  description: "Invalid enforcement log: Clear disposition with Failed assessment result"
+  description: "Shadow gate: an action with no effect that reports a failed assessment without acting on it"
   author:
     id: enforcement-engine
     name: "Example Enforcement Engine"
@@ -18,7 +18,7 @@ metadata:
       title: "pvtr Evaluation Log"
       version: "2025-08-22"
 
-disposition: Clear
+effect: None
 
 target:
   id: gemara-repo
@@ -27,11 +27,11 @@ target:
   uri: "https://github.com/gemaraproj/gemara"
 
 actions:
-  - disposition: Clear
+  - effect: None
     method:
       reference-id: security-policy
       entry-id: EM-PASS-01
-    message: "Falsely cleared despite failed assessment"
+    message: "Reported without blocking: the gate runs in shadow mode"
     start: "2025-08-22T16:07:00Z"
     steps:
       - github.com/gemaraproj/gemara/enforcement/allow.PassThrough

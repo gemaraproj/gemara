@@ -53,10 +53,10 @@ components:
     ActionResult:
       description: ActionResult captures a performed enforcement action.
       properties:
-        disposition:
+        effect:
           allOf:
-          - $ref: "#/components/schemas/Disposition"
-          description: disposition is the enforcement action taken
+          - $ref: "#/components/schemas/Effect"
+          description: effect is what this action did to the target.
         end:
           allOf:
           - $ref: "#/components/schemas/Datetime"
@@ -83,7 +83,7 @@ components:
           minItems: 1
           type: array
       required:
-      - disposition
+      - effect
       - method
       - start
       - steps
@@ -777,13 +777,17 @@ components:
           type: array
       type: object
       x-status: experimental
-    Disposition:
-      description: Disposition enumerates the possible enforcement outcomes.
+    Effect:
+      description: |-
+        Effect is what an enforcement action did to its target. It rolls up from an
+        action to the log by the precedence Blocked > Remediated > Undetermined > None:
+        the strongest effect dominates, because the log records what the enforcement
+        layer did; how much that should worry anyone is the audit's question.
       enum:
       - Undetermined
-      - Enforced
-      - Tolerated
-      - Clear
+      - Blocked
+      - Remediated
+      - None
       type: string
       x-status: experimental
     Email:
@@ -796,24 +800,20 @@ components:
       - $ref: "#/components/schemas/Log"
       - required:
         - metadata
-        - disposition
+        - effect
         - actions
       description: EnforcementLog records actions taken in response to noncompliance findings from Layer 5 evaluations.
       properties:
         actions:
-          description: |-
-            actions is the list of enforcement actions performed
-            
-            
-            Enforce that Clear dispositions only contain Passed assessment results
+          description: actions is the list of enforcement actions performed
           items:
             $ref: "#/components/schemas/ActionResult"
           minItems: 1
           type: array
-        disposition:
+        effect:
           allOf:
-          - $ref: "#/components/schemas/Disposition"
-          description: disposition is the aggregate enforcement disposition across all actions in this log
+          - $ref: "#/components/schemas/Effect"
+          description: "effect is the aggregate across this log's actions, by the precedence\ndocumented on #Effect."
         metadata:
           description: metadata provides detailed data about this log
           properties:
@@ -825,8 +825,6 @@ components:
           - type
           type: object
       type: object
-      x-rules:
-      - when the log's disposition is Clear, every assessment cited in an action's justification must have result Passed
       x-status: experimental
     EnforcementMethodType:
       enum:
