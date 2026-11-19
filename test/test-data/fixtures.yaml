@@ -410,6 +410,20 @@ fixtures:
       error: '_groupValidation."0": invalid value [string] (does not satisfy list.Contains("missing-group"))'
     reason: 'controls without groups'
 
+  - files: [test/test-data/bad-policy-accepted-risk-dangling-target.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '_targetValidation."1": invalid value ["MIT-ACCESS-01"] (does not satisfy list.Contains("A.9.1.1"))'
+    reason: 'accepted risk whose target-id names no mitigated risk'
+
+  - files: [test/test-data/bad-policy-accepted-risk-target-without-mitigated.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '_targetValidation."0": invalid value [] (does not satisfy list.Contains("MIT-ACCESS-01"))'
+    reason: 'accepted risk with a target-id in a policy with no mitigated risks'
+
   - files: [test/test-data/bad-policy-adherence-invalid-enforce-method.yaml]
     definition: '#Policy'
     schema:
@@ -437,6 +451,20 @@ fixtures:
       valid: false
       error: 'scope.in.technologies: incompatible list lengths'
     reason: 'policy scope with an empty dimension list'
+
+  - files: [test/test-data/bad-policy-duplicate-accepted-risk-id.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '_uniqueAcceptedRiskIds."ACC-RESIDUAL-01"'
+    reason: 'duplicate accepted risk id'
+
+  - files: [test/test-data/bad-policy-duplicate-mitigated-risk-id.yaml]
+    definition: '#Policy'
+    schema:
+      valid: false
+      error: '_uniqueMitigatedRiskIds."MIT-ACCESS-01"'
+    reason: 'duplicate mitigated risk id'
 
   - files: [test/test-data/bad-policy-empty-catalog-applicability.yaml]
     definition: '#Policy'
@@ -777,6 +805,12 @@ fixtures:
       valid: true
     reason: 'valid OSPS baseline'
 
+  - files: [test/test-data/good-policy-accepted-only-risks.yaml]
+    definition: '#Policy'
+    schema:
+      valid: true
+    reason: 'policy with accepted risks only'
+
   - files: [test/test-data/good-policy-applicability-groups.yaml]
     definition: '#Policy'
     schema:
@@ -788,6 +822,12 @@ fixtures:
     schema:
       valid: true
     reason: 'policy with retention floor, ceiling and declared anchor'
+
+  - files: [test/test-data/good-policy-risks.yaml]
+    definition: '#Policy'
+    schema:
+      valid: true
+    reason: 'policy with mitigated and accepted risks'
 
   - files: [test/test-data/good-policy.yaml]
     definition: '#Policy'
