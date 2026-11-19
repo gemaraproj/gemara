@@ -38,6 +38,8 @@ var repoFixtures = []struct {
 	{"test/test-data/good-policy.yaml", "Policy"},
 	{"test/test-data/good-security-policy.yml", "Policy"},
 	{"test/test-data/good-policy-retention.yaml", "Policy"},
+	{"test/test-data/good-policy-risks.yaml", "Policy"},
+	{"test/test-data/good-policy-accepted-only-risks.yaml", "Policy"},
 	{"test/test-data/good-mapping-document.yaml", "MappingDocument"},
 	{"test/test-data/good-aigf-nist-mapping.yaml", "MappingDocument"},
 	{"test/test-data/good-lexicon.yaml", "Lexicon"},
