@@ -1,0 +1,62 @@
+metadata:
+  id: "security-policy-risks-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy demonstrating resolved mitigated and accepted risks"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+    contact:
+      name: "Security Team Lead"
+      affiliation: "Security Department"
+      email: "security-lead@company.com"
+  mapping-references:
+    - id: "ISO-27001"
+      title: "ISO/IEC 27001"
+      version: "2022"
+      description: "Information security management systems"
+      url: "https://www.iso.org/standard/27001"
+
+title: "Information Security Policy with Risks"
+contacts:
+  responsible:
+    - name: "IT Director"
+      affiliation: "Information Technology"
+      email: "it-director@company.com"
+  accountable:
+    - name: "Chief Information Security Officer"
+      affiliation: "Executive Team"
+      email: "ciso@company.com"
+
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+
+imports:
+  guidance:
+    - reference-id: "ISO-27001"
+
+risks:
+  mitigated:
+    - id: "MIT-ACCESS-01"
+      risk:
+        reference-id: "ISO-27001"
+        entry-id: "A.9.1.1"
+  accepted:
+    - id: "ACC-RESIDUAL-01"
+      target-id: "MIT-ACCESS-01"
+      risk:
+        reference-id: "ISO-27001"
+        entry-id: "A.9.1.1"
+      justification: "Residual access risk accepted for legacy systems"
+    - id: "ACC-DIRECT-01"
+      risk:
+        reference-id: "ISO-27001"
+        entry-id: "A.9.2.1"
+      justification: "Risk directly accepted without partial mitigation"
+
+adherence:
+  non-compliance: "Non-compliant systems will be quarantined pending remediation"
