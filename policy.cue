@@ -67,11 +67,28 @@ import "list"
 	mitigated?: [#MitigatedRisk, ...#MitigatedRisk]
 	// Accepted risks require rationale (justification) and may include scope. Controls addressing these risks are implicitly identified through threat mappings.
 	accepted?: [#AcceptedRisk, ...#AcceptedRisk]
+
+	// when mitigated risks are listed, each mitigated risk id must be unique
+	if mitigated != _|_ {
+		_uniqueMitigatedRiskIds: {for i, m in mitigated {(m.id): i}}
+	}
+
+	// when accepted risks are listed, each accepted risk id must be unique, and when target-id is set, it must match an entry in risks.mitigated
+	if accepted != _|_ {
+		_uniqueAcceptedRiskIds: {for i, a in accepted {(a.id): i}}
+
+		let _validMitigatedIds = [if mitigated != _|_ for m in mitigated {m.id}]
+		for i, a in accepted {
+			if a."target-id" != _|_ {
+				_targetValidation: "\(i)": _validMitigatedIds & list.Contains(a."target-id")
+			}
+		}
+	}
 }
 
 // MitigatedRisk represents a risk addressed by the policy
 #MitigatedRisk: {
-	// id allows this mitigated risk entry to be referenced by accepted risks
+	// id uniquely identifies this mitigated risk entry so it can be referenced by accepted risks
 	id: string
 
 	// risk references the risk being mitigated
@@ -82,10 +99,10 @@ import "list"
 // optionally linking it to a mitigated risk when the acceptance covers
 // residual risk after partial mitigation.
 #AcceptedRisk: {
-	// id allows this accepted risk entry to be referenced
+	// id uniquely identifies this accepted risk entry
 	id: string
 
-	// target-id optionally links this acceptance to a mitigated risk entry
+	// target-id optionally links this acceptance to a mitigated risk entry; when set it must match the id of an entry in risks.mitigated
 	"target-id"?: string
 
 	// risk references the risk being accepted
