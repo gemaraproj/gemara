@@ -50,7 +50,10 @@ func TestFileStatusesAndSchemaFiles(t *testing.T) {
 		t.Errorf("metadata.cue status = %q, want stable", metadata)
 	}
 
-	files := schemaFiles(v)
+	files, err := schemaFiles(v)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if got := files["Datetime"]; got != "metadata.cue" {
 		t.Errorf("Datetime declared in %q, want metadata.cue", got)
 	}
@@ -136,7 +139,10 @@ func TestApplyStatusStampsRealSchemas(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	absFiles := schemaAbsFiles(v)
+	absFiles, err := schemaAbsFiles(v)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	schemas := map[string]any{}
 	for name := range absFiles {
