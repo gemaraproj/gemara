@@ -210,6 +210,10 @@ func TestSchemaValidation(t *testing.T) {
 		{"capability missing required description", "./test-data/bad-capability-missing-description.yaml", "#CapabilityCatalog", true, "capabilities.0.description: incomplete value string"},
 		{"capability catalog with empty capabilities list", "./test-data/bad-capability-empty-capabilities.yaml", "#CapabilityCatalog", true, "capabilities: incompatible list lengths"},
 
+		// Metadata artifact type — negative
+		{"metadata with an unknown artifact type", "./test-data/bad-metadata-unknown-artifact-type.yaml", "#Metadata", true, `type: 13 errors in empty disjunction`},
+		{"capability metadata with a type belonging to another artifact", "./test-data/bad-capability-artifact-type-wrong-artifact.yaml", "#CapabilityCatalog", true, `metadata.type: conflicting values "CapabilityCatalog" and "Policy"`},
+
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
