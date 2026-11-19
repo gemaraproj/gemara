@@ -225,8 +225,12 @@ func TestSchemaValidation(t *testing.T) {
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
 		{"principle catalog with duplicate principle id", "./test-data/bad-principle-duplicate-id.yaml", "#PrincipleCatalog", true, `_uniquePrinciplesIds."PRIN-001"`},
+		{"principle missing id", "./test-data/bad-principle-missing-id.yaml", "#PrincipleCatalog", true, "principles.0.id: incomplete value string"},
+		{"principle missing title", "./test-data/bad-principle-missing-title.yaml", "#PrincipleCatalog", true, "principles.0.title: incomplete value string"},
 		{"principle missing description", "./test-data/bad-principle-missing-description.yaml", "#PrincipleCatalog", true, "principles.0.description: incomplete value string"},
+		{"principle missing group", "./test-data/bad-principle-missing-group.yaml", "#PrincipleCatalog", true, "principles.0.group: incomplete value string"},
 		{"principle catalog with empty principles list", "./test-data/bad-principle-empty-list.yaml", "#PrincipleCatalog", true, "principles: incompatible list lengths"},
+		{"principle catalog with empty groups list", "./test-data/bad-principle-empty-groups.yaml", "#PrincipleCatalog", true, "groups: incompatible list lengths"},
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
