@@ -1,0 +1,50 @@
+metadata:
+  id: "security-policy-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy with duplicate accepted parameter values"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "NIST-800-53"
+      title: "NIST Special Publication 800-53"
+      version: "Rev. 5"
+      url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+
+title: "Information Security Policy"
+contacts:
+  responsible:
+    - name: "IT Director"
+  accountable:
+    - name: "Chief Information Security Officer"
+
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+
+imports:
+  catalogs:
+    - reference-id: "NIST-800-53"
+
+adherence:
+  assessment-plans:
+    - id: "PLAN-01"
+      requirement-id: "REQ-01"
+      frequency: "P1M"
+      evaluation-methods:
+        - id: "EV-01"
+          type: "Behavioral"
+          mode: "Automated"
+      parameters:
+        - id: "PARAM-01"
+          label: "Timeout"
+          description: "Session timeout in minutes"
+          accepted-values:
+            - "15"
+            - "30"
+            - "15"
+  non-compliance: "Non-compliant systems will be quarantined pending remediation"
