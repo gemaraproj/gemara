@@ -83,19 +83,41 @@ func (c *Converter) Convert(schemaDir string, options ...ConvertOption) error {
 
 // WriteOpenAPI writes the fully converted and postprocessed document.
 func (c *Converter) WriteOpenAPI(outputPath string) error {
-	if c.doc == nil {
-		return fmt.Errorf("convert a CUE package before writing OpenAPI")
+	data, err := c.EncodeOpenAPI()
+	if err != nil {
+		return err
 	}
-	return writeDoc(c.doc, outputPath)
+	return os.WriteFile(outputPath, data, 0644)
+}
+
+// EncodeOpenAPI marshals the fully converted and postprocessed document to YAML bytes.
+func (c *Converter) EncodeOpenAPI() ([]byte, error) {
+	if c.doc == nil {
+		return nil, fmt.Errorf("convert a CUE package before writing OpenAPI")
+	}
+	data, err := yaml.Marshal(c.doc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal OpenAPI spec: %w", err)
+	}
+	return data, nil
 }
 
 // WriteManifest writes the schema-to-source-file manifest for the current document.
 func (c *Converter) WriteManifest(manifestPath string) error {
+	data, err := c.EncodeManifest()
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(manifestPath, data, 0644)
+}
+
+// EncodeManifest builds and marshals the schema-to-source-file manifest to JSON bytes.
+func (c *Converter) EncodeManifest() ([]byte, error) {
 	if c.doc == nil {
-		return fmt.Errorf("convert a CUE package before writing a manifest")
+		return nil, fmt.Errorf("convert a CUE package before writing a manifest")
 	}
 	if c.doc.Components == nil || c.doc.Components.Schemas == nil {
-		return fmt.Errorf("generated document has no components.schemas; cannot build the manifest")
+		return nil, fmt.Errorf("generated document has no components.schemas; cannot build the manifest")
 	}
 	files := schemaFiles(c.value)
 	for name := range files {
@@ -106,31 +128,14 @@ func (c *Converter) WriteManifest(manifestPath string) error {
 		// folded it into its base. Anything else missing is a generation bug,
 		// and dropping it here would hide that bug behind a plausible manifest.
 		if !strings.HasPrefix(name, "_") {
-			return fmt.Errorf("definition #%s is declared in CUE but missing from the generated "+
+			return nil, fmt.Errorf("definition #%s is declared in CUE but missing from the generated "+
 				"document; refusing to write a manifest that omits it", name)
 		}
 		delete(files, name)
 	}
-	if err := writeManifest(buildManifest(files), manifestPath); err != nil {
-		return err
-	}
-	return nil
-}
-
-// writeDoc marshals the document to YAML. goccy/go-yaml sorts map keys, which
-// is what keeps schema and property order stable across runs.
-func writeDoc(doc *openapi3.T, outputPath string) error {
-	data, err := yaml.Marshal(doc)
+	data, err := json.MarshalIndent(buildManifest(files), "", "  ")
 	if err != nil {
-		return fmt.Errorf("failed to marshal OpenAPI spec: %w", err)
+		return nil, fmt.Errorf("marshal manifest: %w", err)
 	}
-	return os.WriteFile(outputPath, data, 0644)
-}
-
-func writeManifest(manifest map[string][]string, path string) error {
-	data, err := json.MarshalIndent(manifest, "", "  ")
-	if err != nil {
-		return fmt.Errorf("marshal manifest: %w", err)
-	}
-	return os.WriteFile(path, data, 0644)
+	return data, nil
 }
