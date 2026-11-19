@@ -142,6 +142,22 @@ reviews:
           Fields that only communicate information, such as a draft marker,
           version, type or state, are exempt and need no stated reader.
           Pass otherwise.
+      - name: Stable schemas reference only stable types
+        mode: warning
+        instructions: |
+          Each *.cue file declares its lifecycle with a file-level
+          `@gemara(status="...")` attribute. Fail if this PR leaves a file
+          marked stable referencing a definition (`#Name`, `#_Name` or `_#Name`)
+          that is declared, in whole or in part, in a file not marked stable.
+          This can happen by adding the reference, by moving the definition, by
+          adding a declaration of an existing definition to a non-stable file
+          (CUE merges declarations across files), or by changing either file's
+          status. The schema versioning policy says stable schemas may only
+          reference other stable types (https://gemara.openssf.org/schema/).
+          Ignore references inside comments, and do not fail for a violation
+          that predates this PR and that the diff does not touch. When failing,
+          name the stable file, the definition, and the non-stable file that
+          declares it. Pass otherwise.
 
 knowledge_base:
   code_guidelines:
