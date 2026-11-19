@@ -414,7 +414,14 @@ components:
         results:
           description: results records audit results against the criteria
           items:
-            $ref: "#/components/schemas/AuditResult"
+            allOf:
+            - $ref: "#/components/schemas/AuditResult"
+            - required:
+              - type
+            properties:
+              type:
+                $ref: "#/components/schemas/ResultType"
+            type: object
           minItems: 1
           type: array
         summary:
@@ -423,9 +430,18 @@ components:
       type: object
       x-rules:
       - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
+      - A Gap or Finding result names the control it concerns, since a finding's identity across logs derives from the log's target and its control.
       x-status: experimental
     AuditResult:
-      description: AuditResult records a single result with supporting evidence and recommendations.
+      allOf:
+      - $ref: "#/components/schemas/Finding"
+      - required:
+        - id
+        - title
+        - type
+        - description
+        - criteria-reference
+      description: "AuditResult records a single result with supporting evidence and\nrecommendations. It carries the #Finding core, so a result that names a\ncontrol has the same derived identity as a finding in any other log."
       properties:
         criteria-reference:
           allOf:
@@ -458,12 +474,6 @@ components:
           allOf:
           - $ref: "#/components/schemas/ResultType"
           description: type classifies the nature of this result
-      required:
-      - id
-      - title
-      - type
-      - description
-      - criteria-reference
       type: object
       x-status: experimental
     Capability:
@@ -1882,11 +1892,7 @@ components:
       type: object
       x-status: experimental
     Recommendation:
-      description: |-
-        Recommendation provides a corrective action for an audit result
-        
-        
-        Recommendation provides a corrective action for a finding.
+      description: Recommendation provides a corrective action for a finding.
       properties:
         id:
           description: id uniquely identifies this recommendation
