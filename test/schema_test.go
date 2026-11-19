@@ -168,11 +168,18 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
-		{"shadow gate reporting a failed assessment without acting", "./test-data/good-enforcement-shadow-gate.yaml", "#EnforcementLog", false, ""},
+		{"shadow gate reporting findings without acting", "./test-data/good-enforcement-shadow-gate.yaml", "#EnforcementLog", false, ""},
 
 		// EnforcementLog — negative
 		{"enforcement action with invalid effect", "./test-data/bad-enforcement-log.yaml", "#EnforcementLog", true, "actions.0.effect: 4 errors in empty disjunction"},
-		{"enforcement action missing log reference", "./test-data/bad-enforcement-missing-log.yaml", "#EnforcementLog", true, `log."reference-id": incomplete value string`},
+		{"enforcement action missing log reference", "./test-data/bad-enforcement-missing-log.yaml", "#EnforcementLog", true, `findings.0.log."reference-id": incomplete value string`},
+		{"action with no effect carrying an empty justification", "./test-data/bad-enforcement-empty-justification-no-effect.yaml", "#EnforcementLog", true, "an empty justification justifies nothing"},
+		{"blocking action whose justification names no findings", "./test-data/bad-enforcement-empty-justification.yaml", "#EnforcementLog", true, "a Blocked or Remediated action acted on findings"},
+		{"enforcement finding the gate never rated", "./test-data/bad-enforcement-finding-missing-severity.yaml", "#EnforcementLog", true, "findings.0.severity: incomplete value"},
+		{"enforcement finding naming no control", "./test-data/bad-enforcement-finding-missing-control.yaml", "#EnforcementLog", true, `findings.0.control."reference-id": incomplete value string`},
+		{"enforcement finding citing an undeclared control reference", "./test-data/bad-enforcement-finding-undeclared-control.yaml", "#EnforcementLog", true, `does not satisfy list.Contains("OSPS-UNDECLARED")`},
+		{"enforcement log with duplicate action ids", "./test-data/bad-enforcement-duplicate-action-id.yaml", "#EnforcementLog", true, `_uniqueActionIds."ACT-01"`},
+		{"enforcement log with duplicate finding ids across actions", "./test-data/bad-enforcement-duplicate-finding-id.yaml", "#EnforcementLog", true, `_uniqueFindingIds."FIND-01"`},
 
 		// AuditLog — positive
 		{"valid audit log", "./test-data/good-audit-log.yaml", "#AuditLog", false, ""},

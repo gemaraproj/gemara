@@ -61,10 +61,17 @@ components:
           allOf:
           - $ref: "#/components/schemas/Datetime"
           description: end is the timestamp when the enforcement action concluded
+        id:
+          description: id allows this entry to be referenced by other elements
+          type: string
         justification:
           allOf:
           - $ref: "#/components/schemas/Justification"
-          description: justification links the action to its assessment findings and any applicable exceptions
+          description: |-
+            justification links the action to the findings that prompted it and any
+            applicable exceptions. A Blocked or Remediated action requires one that
+            names its findings; an action with no effect carries one only when it
+            reported findings or cited exceptions.
         message:
           description: message provides additional context about the action
           type: string
@@ -83,12 +90,15 @@ components:
           minItems: 1
           type: array
       required:
+      - id
       - effect
       - method
       - start
       - steps
-      - justification
       type: object
+      x-rules:
+      - A Blocked or Remediated action acted on something, so it names the findings it acted on.
+      - "An action with no effect may leave its justification out, but a justification it carries names findings or exceptions: an empty one justifies nothing."
       x-status: experimental
     Actor:
       allOf:
@@ -184,27 +194,32 @@ components:
       type: string
       x-status: stable
     AssessmentFinding:
-      description: AssessmentFinding maps an enforcement action to its originating assessment data across Layer 2, Layer 3, and Layer 5.
+      allOf:
+      - $ref: "#/components/schemas/Finding"
+      - required:
+        - id
+        - control
+        - severity
+        - log
+      description: "AssessmentFinding is a finding an enforcement action acted on: a control\nfailure surfaced by assessing it in an evaluation. It carries an id, a handle\nfor referring to it within the log; a log and a control, because an\nenforcement action reacts to an evaluation and the control picks out that\nevaluation within the log; and a severity, because a finding a gate acted on\nis negative by nature. Unlike an audit finding, which may record conformity\nas readily as nonconformity, there is nothing to enforce against good news,\nand a waived Critical is not a waived Low. This is the grading of\nnonconformities that certification bodies work to under ISO/IEC 17021-1,\nwhich #Severity carries. Two actions may act on the same control failure, a\nblock and then a remediation, so one log can hold findings with the same\nidentity; they are the same finding."
       properties:
+        control:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          description: "control names the control whose failure this finding records. It is\nrequired here because it is the finding's subject, and it picks out the\nevaluation in log.\n\n\ncontrol names the control this finding concerns. A finding cites a control\nrather than one of its assessment requirements: requirements are what gets\ntested, and a control is what gets remediated."
+        id:
+          description: |-
+            id identifies this finding within the log, a handle its actions use to
+            refer to it.
+          type: string
         log:
           allOf:
-          - $ref: "#/components/schemas/EntryMapping"
-          description: log maps to the EvaluationLog entry containing the finding
-        plan:
+          - $ref: "#/components/schemas/ArtifactMapping"
+          description: "log names the evaluation log this finding came from. The finding's control\nidentifies the evaluation within it, since a log evaluates each control\nonce, so no entry id is needed. There is no plan field beside it: the\nevaluation's assessments name their own plans, and a second copy here could\nonly disagree."
+        severity:
           allOf:
-          - $ref: "#/components/schemas/EntryMapping"
-          description: plan maps to the Policy assessment plan that was executed
-        requirement:
-          allOf:
-          - $ref: "#/components/schemas/EntryMapping"
-          description: requirement maps to the Layer 2 assessment requirement that was evaluated
-        result:
-          allOf:
-          - $ref: "#/components/schemas/Result"
-          description: result is the assessment outcome that triggered the enforcement action
-      required:
-      - result
-      - log
+          - $ref: "#/components/schemas/Severity"
+          description: "severity states how material the failure is. It is required because a\nfinding a gate acted on is negative by nature.\n\n\nseverity states how material the finding is, on the same scale the risk\ncatalog uses. It is optional here because not every finding rates one: an\naudit finding that records conformity has no materiality to state. It is\nrequired where a finding is negative by construction: anything an audit\ndetermines Not Compliant, and every finding in an enforcement\njustification."
       type: object
       x-status: experimental
     AssessmentLog:
@@ -777,12 +792,16 @@ components:
           type: array
       type: object
       x-status: experimental
+    Disposition:
+      description: "Disposition is how a finding was settled. Open is outstanding, Resolved was\ndealt with, and Waived means a subject that cannot conform was granted an\nexception, so the finding stands and enforcement stands down.\n\nIt is independent of #Effect, which says what an enforcement action did to its\ntarget: a blocked merge leaves its finding Open. The documented\ncorrespondences live on #Effect, and like #Result's roll-up precedence they are\nstated rather than enforced."
+      enum:
+      - Open
+      - Resolved
+      - Waived
+      type: string
+      x-status: experimental
     Effect:
-      description: |-
-        Effect is what an enforcement action did to its target. It rolls up from an
-        action to the log by the precedence Blocked > Remediated > Undetermined > None:
-        the strongest effect dominates, because the log records what the enforcement
-        layer did; how much that should worry anyone is the audit's question.
+      description: "Effect is what an enforcement action did to its target. It rolls up from an\naction to the log by the precedence Blocked > Remediated > Undetermined > None:\nthe strongest effect dominates, because the log records what the enforcement\nlayer did; how much that should worry anyone is the audit's question.\n\nAn effect is not a finding's disposition, which says how the finding was\nsettled. The two line up in documented ways rather than enforced ones: a\nblock leaves its finding Open, since the gate prevented harm without fixing\nanything; a remediation normally leaves it Resolved; an action with no effect\nthat cites an exception leaves it Waived; and one with no effect and no\nexception, a shadow gate, leaves it Open."
       enum:
       - Undetermined
       - Blocked
@@ -807,7 +826,9 @@ components:
         actions:
           description: actions is the list of enforcement actions performed
           items:
-            $ref: "#/components/schemas/ActionResult"
+            allOf:
+            - $ref: "#/components/schemas/ActionResult"
+            type: object
           minItems: 1
           type: array
         effect:
@@ -825,6 +846,10 @@ components:
           - type
           type: object
       type: object
+      x-rules:
+      - "Every finding's control and log name a declared mapping-reference. Unlike other references in a log, neither may name this log itself: a finding's control lives in a catalog, and its log is the evaluation log it came from."
+      - Action ids are unique within the log, so an action can be referenced unambiguously.
+      - "Finding ids must be unique across the whole log, not just within one action's justification: a reference to a finding id would otherwise be ambiguous between actions. The value names the action position, so a collision names both."
       x-status: experimental
     EnforcementMethodType:
       enum:
@@ -1080,6 +1105,38 @@ components:
       - reason
       type: object
       x-status: experimental
+    Finding:
+      description: "Finding records something an enforcement action or an audit found, together\nwith what became of it. Its identity across logs is derived, never stored: the\ntarget of the log that holds it, and the control it concerns, or the risk when\nit names no control, each resolved to an identifier that means the same thing\nin every document. Findings with the same identity are the same finding, which\nis what lets a later log resolve a finding an earlier one opened.\n\nThe shape is the one OCSF's Compliance Finding expects, so a finding projects\nwithout rearranging."
+      properties:
+        control:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          description: "control names the control this finding concerns. A finding cites a control\nrather than one of its assessment requirements: requirements are what gets\ntested, and a control is what gets remediated."
+        description:
+          description: "description explains what was found. It is optional because a routine\nconclusion needs no prose: a control decided Compliant says enough by\nsaying so. An override, or anything a reader would question, explains itself."
+          type: string
+        disposition:
+          allOf:
+          - $ref: "#/components/schemas/Disposition"
+          description: "disposition is how this finding was settled: still outstanding, dealt with,\nor waived because a subject that cannot conform was granted an exception. It\nis deliberately not #Effect, which says what an enforcement action did."
+        id:
+          description: |-
+            id identifies this finding where something references it. A finding
+            reported against a named check needs none, so it is optional here and
+            required where it is addressed.
+          type: string
+        recommendations:
+          description: recommendations record the corrective actions for this finding.
+          items:
+            $ref: "#/components/schemas/Recommendation"
+          minItems: 1
+          type: array
+        severity:
+          allOf:
+          - $ref: "#/components/schemas/Severity"
+          description: "severity states how material the finding is, on the same scale the risk\ncatalog uses. It is optional here because not every finding rates one: an\naudit finding that records conformity has no materiality to state. It is\nrequired where a finding is negative by construction: anything an audit\ndetermines Not Compliant, and every finding in an enforcement\njustification."
+      type: object
+      x-status: experimental
     Group:
       description: Group represents a classification or grouping that can be used in different contexts with semantic meaning derived from its usage
       properties:
@@ -1296,20 +1353,22 @@ components:
     Justification:
       description: Justification provides the assessment data and exception references that justify an enforcement action.
       properties:
-        assessments:
-          description: assessments links the action to one or more Assessment Findings
-          items:
-            $ref: "#/components/schemas/AssessmentFinding"
-          minItems: 1
-          type: array
         exceptions:
-          description: exceptions references approved Policy exceptions that authorize the action
+          description: |-
+            exceptions references the approved exceptions that authorise this action:
+            a subject that cannot conform has been granted one, so evaluation still
+            fails and enforcement stands down. Gemara does not model an exception, so
+            these name external artifacts through the log's mapping-references.
           items:
             $ref: "#/components/schemas/ArtifactMapping"
           minItems: 1
           type: array
-      required:
-      - assessments
+        findings:
+          description: findings links the action to the assessment findings that justify it.
+          items:
+            $ref: "#/components/schemas/AssessmentFinding"
+          minItems: 1
+          type: array
       type: object
       x-status: experimental
     Lexicon:
@@ -1823,7 +1882,11 @@ components:
       type: object
       x-status: experimental
     Recommendation:
-      description: Recommendation provides a corrective action for an audit result
+      description: |-
+        Recommendation provides a corrective action for an audit result
+        
+        
+        Recommendation provides a corrective action for a finding.
       properties:
         id:
           description: id uniquely identifies this recommendation
