@@ -82,7 +82,8 @@ evaluations:
     start: 2026-03-28T09:00:00Z
     end: 2026-03-28T09:25:00Z
     recommendation: Record an expiry for each MFA exemption or remove it.
-  # No plan, so nothing was selected from one and there is no execution context to record.
+  # No plan and no method: execution-context is optional without a plan, and this
+  # record leaves it out.
   # No executor either: the log's own author ran this, and naming it again would
   # repeat metadata.author.
   - requirement:
