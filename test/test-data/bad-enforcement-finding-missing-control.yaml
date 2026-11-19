@@ -1,0 +1,122 @@
+metadata:
+  id: "enforcement-log-001"
+  type: EnforcementLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Invalid enforcement log: a finding names no control"
+  author:
+    id: enforcement-engine
+    name: "Example Enforcement Engine"
+    type: Software
+    version: "1.2.0"
+    uri: "https://github.com/gemaraproj/gemara"
+  mapping-references:
+    - id: OSPS
+      title: "Open Source Project Security Baseline"
+      version: "2025.1"
+      url: "https://baseline.openssf.org"
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+    - id: eval-log
+      title: "pvtr Evaluation Log"
+      version: "2025-08-22"
+    - id: exception-register
+      title: "Approved Exception Register"
+      version: "2025-Q3"
+
+effect: Blocked
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+  uri: "https://github.com/gemaraproj/gemara"
+  environment: production
+  owner:
+    name: "Gemara Maintainers"
+    affiliation: "OpenSSF"
+
+actions:
+  - id: ACT-DO-01
+    effect: Blocked
+    method:
+      reference-id: security-policy
+      entry-id: EM-GATE-01
+    message: "Blocked merge: missing user documentation"
+    start: "2025-08-22T16:05:00Z"
+    end: "2025-08-22T16:05:01Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/gate.BlockMerge
+    justification:
+      findings:
+        - id: FIND-DO-01
+          description: "No user guide is published or referenced in the Security Insights data."
+          severity: Medium
+          log:
+            reference-id: eval-log
+
+  - id: ACT-DO-02
+    effect: Remediated
+    method:
+      reference-id: security-policy
+      entry-id: EM-REMEDIATE-01
+    message: "Auto-remediation: enabled private vulnerability reporting"
+    start: "2025-08-22T16:06:00Z"
+    end: "2025-08-22T16:06:03Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/remediate.EnablePrivateVulnReporting
+      - github.com/gemaraproj/gemara/enforcement/remediate.VerifyVulnReportingActive
+    justification:
+      findings:
+        - id: FIND-DO-02
+          description: "Private vulnerability reporting was not enabled on the repository."
+          severity: High
+          control:
+            reference-id: OSPS
+            entry-id: OSPS-DO-02
+          log:
+            reference-id: eval-log
+
+  - id: ACT-AC-01
+    effect: None
+    method:
+      reference-id: security-policy
+      entry-id: EM-PASS-01
+    message: "All access control assessments passed; no enforcement action required"
+    start: "2025-08-22T16:07:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/allow.PassThrough
+  - id: ACT-QA-04
+    effect: None
+    method:
+      reference-id: security-policy
+      entry-id: EM-WAIVE-01
+    message: "Waived: subproject listing requirement deferred per approved exception EXC-2025-042"
+    start: "2025-08-22T16:08:00Z"
+    end: "2025-08-22T16:08:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/waive.RecordException
+    justification:
+      findings:
+        - id: FIND-QA-04
+          description: "Dependency manifests were not published for the current release."
+          severity: Medium
+          control:
+            reference-id: OSPS
+            entry-id: OSPS-QA-04
+          log:
+            reference-id: eval-log
+      exceptions:
+        - reference-id: exception-register
+          remarks: "EXC-2025-042: Single-repository projects are exempt from the subproject listing requirement"
+
+  - id: ACT-DO-02-CLEAR
+    effect: None
+    method:
+      reference-id: security-policy
+      entry-id: EM-REMEDIATE-01
+    message: "Autoremediation enforcement active; no noncompliance findings to act on"
+    start: "2025-08-22T16:09:00Z"
+    steps:
+      - github.com/gemaraproj/gemara/enforcement/remediate.EnablePrivateVulnReporting
