@@ -251,11 +251,13 @@ components:
         execution-context:
           allOf:
           - $ref: "#/components/schemas/ExecutionContext"
-          description: "execution-context records how this assessment was configured. A cited plan obliges a\nmethod of that plan: it lists the methods it accepts, so a record of running under\nit has to say which one ran."
+          description: |-
+            execution-context records what this assessment took from a policy. A record
+            that cites a plan names here which of the plan's methods it ran.
         executor:
           allOf:
           - $ref: "#/components/schemas/Actor"
-          description: "executor is the actor that performed this assessment: the tool instance,\nservice or person that produced this result when it is not the author of the log."
+          description: "executor is the actor that performed this assessment: the tool instance,\nservice or person that produced this result. When it is omitted, the log's\nmetadata.author performed it. A plan's accepted method may name the executor\nmeant to run it; this field names the one that did. A record whose executor\ndiffers from the method's is still valid, and an audit reports the mismatch."
         message:
           description: Message provides additional context about the assessment result.
           type: string
@@ -298,7 +300,7 @@ components:
       - steps
       type: object
       x-rules:
-      - "A cited plan obliges a method of that plan: the plan lists the methods it accepts, and a record of running under it that does not say which one ran leaves two results against the same plan indistinguishable. The method's reference-id is the plan's, the way a requirement's is its control's. There is no rule the other way: a method without a plan is the ordinary case for a producer running the policy's fallback method, and a producer that knows of no policy omits it."
+      - "A record that cites a plan names the method it ran, so that the record can be checked against the methods the plan accepts. The method's reference-id must equal the plan's. Unlike a requirement's reference-id, which is taken from its control when left out, it must be written. A method without a plan is allowed: it names one of a policy's own evaluation-methods, and a producer that knows of no policy omits it."
       x-status: stable
     AssessmentPlan:
       description: AssessmentPlan defines how a specific assessment requirement is evaluated.
@@ -952,7 +954,7 @@ components:
       - "Within one evidence list an id appears once: listing an item twice in the same place says nothing. Every rule here skips an item with no id, which the schema already reports where the id is missing."
       - Across the log an evidence id names exactly one evidence item. The same item may appear under its id in another assessment's evidence, which is how one artifact supports several results; two different items may not share an id.
       - An evidence source names where the evidence came from, so its reference-id must be a mapping reference declared in this log's metadata.
-      - "Under a cited plan an AssessmentLog is one method's execution against one requirement, so (this control evaluation, requirement, plan, method, executor) is its key, where the plan and the method are each their reference-id and entry-id together: two policies may each have a plan, or a method, with the same entry-id. This is what lets a log hold several results for one requirement — a plan requiring an automated probe and a manual review produces two. Two records that agree on every part of the key are rejected. The executor is part of the key because a plan's method may name the executor meant to run it, but the key uses the executor that did, and the two can differ: one requirement run by the same method on two instances is two results. A record with no plan is not keyed, so records that agree on everything else are accepted. Existing producers that cite no plan keep validating."
+      - "Under a cited plan, an AssessmentLog is keyed by (this control evaluation, requirement, plan, method, executor). The plan and the method are each their reference-id and entry-id together, because two policies may each have a plan or a method with the same entry-id; the executor is its id. The key lets a log hold several results for one requirement: a plan with an automated probe and a manual review produces two. A method does not fix who runs it, so one method run on two instances is also two results, even when the plan's method names the executor meant to run it. Two records that agree on every part of the key are rejected, so a log holds one run of a method by an executor. Records with no plan are not keyed, so this rule does not affect logs that cite no plans."
       - The mapping-reference ids declared in this log's metadata, which an evidence source's reference-id must name.
       x-status: stable
     EvaluationMethodType:
@@ -1076,7 +1078,7 @@ components:
       type: string
       x-status: stable
     ExecutionContext:
-      description: "ExecutionContext records how an assessment was configured: which method it\nran. What the assessment is, its result, timing, steps, and the executor that\nproduced it, stays at the top level of #AssessmentLog. Who performed the\nexecution is executor, not part of its configuration. It is one field rather\nthan several so that a stable type does not gain a permanent top-level field per\nconfiguration input; further inputs land here additively, where a top-level field\ncould never be moved."
+      description: "ExecutionContext records what an assessment took from a policy: the accepted\nmethod it ran. The executor, the result and everything else about the\nassessment stay at the top level of AssessmentLog, because they mean something\nwithout a policy. Policy inputs share this one field so that a stable type does\nnot gain a top-level field for each of them, and a field placed at the top\nlevel could not later be grouped with the rest. Further policy inputs, such as\nthe values given for a plan's parameters, belong here too."
       properties:
         method:
           allOf:
@@ -1084,10 +1086,10 @@ components:
           - required:
             - entry-id
           description: |-
-            method names the accepted method this assessment executed. Under a cited plan it
+            method names the accepted method this assessment ran. Under a cited plan it
             is one of that plan's evaluation-methods, and its reference-id is the plan's.
-            Without a plan its reference-id names the policy, and its entry-id one of that
-            policy's own evaluation-methods, which are the fallback where no plan is bound.
+            Without a plan, its reference-id names a policy and its entry-id one of that
+            policy's own evaluation-methods.
           properties:
             entry-id:
               minLength: 1
