@@ -181,3 +181,114 @@ func TestCue2OpenAPICmdCollidingOutputAndManifestPaths(t *testing.T) {
 		})
 	}
 }
+
+func TestCue2OpenAPICmdRejectsOverwritingInputs(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test invoking CUE generation in -short mode")
+	}
+
+	tests := []struct {
+		name       string
+		setArgs    func(schemaDir, outDefault, manifestDefault string) []string
+		targetFile func(schemaDir string) string
+	}{
+		{
+			name: "output targets CUE source file",
+			setArgs: func(schemaDir, outDefault, manifestDefault string) []string {
+				return []string{
+					"--schema", schemaDir,
+					"--output", filepath.Join(schemaDir, "policy.cue"),
+					"--manifest", manifestDefault,
+				}
+			},
+			targetFile: func(schemaDir string) string {
+				return filepath.Join(schemaDir, "policy.cue")
+			},
+		},
+		{
+			name: "manifest targets VERSION file",
+			setArgs: func(schemaDir, outDefault, manifestDefault string) []string {
+				return []string{
+					"--schema", schemaDir,
+					"--output", outDefault,
+					"--manifest", filepath.Join(schemaDir, "VERSION"),
+				}
+			},
+			targetFile: func(schemaDir string) string {
+				return filepath.Join(schemaDir, "VERSION")
+			},
+		},
+		{
+			name: "output targets VERSION file via relative path traversal",
+			setArgs: func(schemaDir, outDefault, manifestDefault string) []string {
+				return []string{
+					"--schema", schemaDir,
+					"--output", filepath.Join(schemaDir, "sub", "..", "VERSION"),
+					"--manifest", manifestDefault,
+				}
+			},
+			targetFile: func(schemaDir string) string {
+				return filepath.Join(schemaDir, "VERSION")
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			tmpDir := t.TempDir()
+
+			// Create a minimal CUE package in tmpDir with a VERSION file
+			cueModDir := filepath.Join(tmpDir, "cue.mod")
+			if err := os.MkdirAll(cueModDir, 0755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(cueModDir, "module.cue"), []byte("module: \"test.example\"\nlanguage: version: \"v0.12.0\"\n"), 0644); err != nil {
+				t.Fatal(err)
+			}
+
+			cueContent := []byte("@gemara(status=\"stable\")\npackage gemara\n\n#TestDef: {\n\tfield: string\n}\n")
+			cuePath := filepath.Join(tmpDir, "policy.cue")
+			if err := os.WriteFile(cuePath, cueContent, 0644); err != nil {
+				t.Fatal(err)
+			}
+
+			versionContent := []byte("v1.2.3\n")
+			versionPath := filepath.Join(tmpDir, "VERSION")
+			if err := os.WriteFile(versionPath, versionContent, 0644); err != nil {
+				t.Fatal(err)
+			}
+
+			outDefault := filepath.Join(tmpDir, "out.yaml")
+			manifestDefault := filepath.Join(tmpDir, "manifest.json")
+
+			target := tc.targetFile(tmpDir)
+			originalContent, err := os.ReadFile(target)
+			if err != nil {
+				t.Fatalf("reading original target file: %v", err)
+			}
+
+			cmd := NewCue2OpenAPICmd()
+			cmd.SetArgs(tc.setArgs(tmpDir, outDefault, manifestDefault))
+			t.Cleanup(func() {
+				cmd.SetArgs(nil)
+			})
+
+			err = cmd.Execute()
+			if err == nil {
+				t.Fatalf("expected error when output or manifest overwrites input, got nil")
+			}
+			if !strings.Contains(err.Error(), "would overwrite input file") {
+				t.Fatalf("expected 'would overwrite input file' in error, got: %v", err)
+			}
+
+			// Verify input file was not altered or truncated
+			afterContent, err := os.ReadFile(target)
+			if err != nil {
+				t.Fatalf("reading target file after execution: %v", err)
+			}
+			if string(afterContent) != string(originalContent) {
+				t.Errorf("target file content was modified!\nGot: %q\nWant: %q", string(afterContent), string(originalContent))
+			}
+		})
+	}
+}

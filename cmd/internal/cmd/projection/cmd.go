@@ -96,6 +96,27 @@ func runCue2OpenAPI(opts cue2OpenAPIOpts) error {
 	if err := c.Post(); err != nil {
 		return err
 	}
+
+	for _, input := range c.InputFiles() {
+		same, err := samePath(opts.outputPath, input)
+		if err != nil {
+			return fmt.Errorf("checking output path against input file %s: %w", input, err)
+		}
+		if same {
+			return fmt.Errorf("output path %s would overwrite input file %s", opts.outputPath, input)
+		}
+
+		if opts.manifestPath != "" {
+			sameManifest, err := samePath(opts.manifestPath, input)
+			if err != nil {
+				return fmt.Errorf("checking manifest path against input file %s: %w", input, err)
+			}
+			if sameManifest {
+				return fmt.Errorf("manifest path %s would overwrite input file %s", opts.manifestPath, input)
+			}
+		}
+	}
+
 	if err := c.WriteOpenAPI(opts.outputPath); err != nil {
 		return err
 	}
