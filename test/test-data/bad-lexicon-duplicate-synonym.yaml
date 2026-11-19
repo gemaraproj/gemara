@@ -1,0 +1,21 @@
+title: Invalid lexicon with duplicate synonyms across terms
+metadata:
+  id: bad-lexicon-dup-synonym
+  type: Lexicon
+  gemara-version: "1.1.0"
+  description: Synonyms must be unique across all terms in a lexicon.
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+terms:
+  - id: term-one
+    title: Term One
+    definition: First term definition.
+    synonyms:
+      - shared-synonym
+  - id: term-two
+    title: Term Two
+    definition: Second term definition.
+    synonyms:
+      - shared-synonym
