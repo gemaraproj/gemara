@@ -1,0 +1,5 @@
+# Ensure golden files always use LF line endings
+cmd/internal/cmd/testdata/*.yaml text eol=lf
+
+# Ensure CUE sources use LF line endings so cue mod tidy and cue fmt see stable bytes
+*.cue text eol=lf
