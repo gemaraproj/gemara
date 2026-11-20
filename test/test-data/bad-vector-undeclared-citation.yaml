@@ -1,0 +1,26 @@
+title: Vector with Undeclared Citation
+metadata:
+  id: BAD-VEC-CIT
+  type: VectorCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Bad Vector Catalog
+  author:
+    id: sec-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: DECLARED-REF
+      title: Declared Ref
+      version: "1.0.0"
+groups:
+  - id: injection
+    title: Injection
+    description: Injection vectors
+vectors:
+  - id: VEC-01
+    title: Prompt Injection
+    description: Prompt injection vector
+    group: injection
+    citations:
+      - reference-id: UNDECLARED-VECTOR-REF

@@ -16,7 +16,7 @@ import "list"
 	// controls is a list of unique controls defined by this catalog
 	controls?: [#Control, ...#Control] @go(Controls)
 
-	// when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, and each assessment requirement's applicability must name declared applicability groups
+	// when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, each assessment requirement's applicability must name declared applicability groups, and each citation reference-id must be declared in metadata.mapping-references
 	if controls != _|_ {
 		_uniqueControlIds: {for i, c in controls {(c.id): i}}
 		groups: [#Group, ...#Group]
@@ -31,6 +31,13 @@ import "list"
 				for k, a in ar.applicability {
 					_applicabilityValidation: "\(i)-\(j)-\(k)": _validApplicabilityIds & list.Contains(a)
 				}
+			}
+		}
+
+		let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+		for i, c in controls if c.citations != _|_ {
+			for j, cit in c.citations {
+				_citationRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(cit."reference-id")
 			}
 		}
 	}
@@ -64,6 +71,9 @@ import "list"
 
 	// replaced-by references the control that supersedes this one when deprecated or retired
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
+
+	// citations lists the external sources this entry is drawn from
+	citations?: [#ArtifactMapping, ...#ArtifactMapping] @go(Citations)
 
 	// remarks is prose recording context or reasoning for content maintainers; it is not intended to be presented to consumers
 	remarks?: string

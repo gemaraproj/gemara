@@ -1,0 +1,23 @@
+title: Threat with Undeclared Citation
+metadata:
+  id: BAD-THREAT-CIT
+  type: ThreatCatalog
+  version: "1.0.0"
+  mapping-references:
+    - id: MITRE-ATTACK
+      title: MITRE ATT&CK
+      version: "v14"
+groups:
+  - id: GRP-01
+    title: Threat Group
+threats:
+  - id: THR-01
+    title: Injection Attack
+    description: Attack realizing injection
+    group: GRP-01
+    capabilities:
+      - reference-id: MITRE-ATTACK
+        entries:
+          - reference-id: T1059
+    citations:
+      - reference-id: UNDECLARED-THREAT-SOURCE

@@ -1,0 +1,18 @@
+title: Guidance with Undeclared Citation
+metadata:
+  id: BAD-GUIDE-CIT
+  type: GuidanceCatalog
+  version: "1.0.0"
+  mapping-references:
+    - id: NIST-CSF
+      title: NIST Cybersecurity Framework
+      version: "2.0"
+groups:
+  - id: GOV
+    title: Governance
+guidelines:
+  - id: GL-01
+    title: Establish Governance
+    group: GOV
+    citations:
+      - reference-id: UNDECLARED-FRAMEWORK

@@ -1,0 +1,29 @@
+title: Risk Catalog with Citations
+metadata:
+  id: RISK-CIT-CAT
+  type: RiskCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Risk Catalog with entry citations
+  author:
+    id: risk-team
+    name: Risk Team
+    type: Human
+  mapping-references:
+    - id: ISO-27005
+      title: ISO/IEC 27005 Information Security Risk Management
+      version: "2022"
+groups:
+  - id: CAT-SEC
+    title: Security Risk
+    description: Risks regarding unauthorized system access
+    appetite: Low
+risks:
+  - id: RISK-01
+    title: Unauthenticated Data Access
+    description: Potential for unauthorized parties to view sensitive operational telemetry.
+    group: CAT-SEC
+    severity: Medium
+    citations:
+      - reference-id: ISO-27005
+        remarks: Clause 8.2

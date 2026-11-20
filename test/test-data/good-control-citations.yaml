@@ -1,0 +1,36 @@
+title: Control Catalog with Citations
+metadata:
+  id: CTRL-CIT-CAT
+  type: ControlCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Control Catalog with entry citations
+  author:
+    id: compliance-team
+    name: Compliance Team
+    type: Human
+  applicability-groups:
+    - id: cloud
+      title: Cloud
+      description: Cloud environment
+  mapping-references:
+    - id: NIST-800-53
+      title: NIST SP 800-53
+      version: "Rev 5"
+      url: https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final
+groups:
+  - id: AC
+    title: Access Control
+    description: Controls governing system access
+controls:
+  - id: AC-1
+    title: Access Control Policy
+    objective: Establish access control policy and procedures.
+    group: AC
+    assessment-requirements:
+      - id: AR-1
+        text: Develop and document access control policy.
+        applicability: [cloud]
+    citations:
+      - reference-id: NIST-800-53
+        remarks: Section 3.1
