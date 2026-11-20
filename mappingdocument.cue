@@ -4,6 +4,8 @@
 @gemara(status="experimental")
 package gemara
 
+import "list"
+
 @go(gemara)
 
 // MappingDocument captures the user's intent for how entries in a source artifact relate to entries in a target artifact
@@ -17,16 +19,25 @@ package gemara
 	metadata: "mapping-references": [#MappingReference, ...#MappingReference]
 
 	// source-reference identifies the artifact being mapped from; must match a mapping-reference id
-	"source-reference": #TypedMapping @go(SourceReference)
+	SR="source-reference": #TypedMapping @go(SourceReference)
 
 	// target-reference identifies the artifact being mapped to; must match a mapping-reference id
-	"target-reference": #TypedMapping @go(TargetReference)
+	TR="target-reference": #TypedMapping @go(TargetReference)
 
 	// mappings is one or more atomic relationships between entries in the referenced artifacts
 	mappings: [#_MappingStrict, ...#_MappingStrict] @go(Mappings,type=[]Mapping)
 
-	// mapping ids must be unique
+	// mapping ids must be unique, and source-reference and target-reference must match declared mapping-reference ids
 	_uniqueMappingIds: {for i, m in mappings {(m.id): i}}
+
+	// mapping ids must be unique, and source-reference and target-reference must match declared mapping-reference ids
+	if SR != _|_ {
+		let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+		if len(_validRefIds) > 0 {
+			_sourceRefValidation: _validRefIds & list.Contains(SR."reference-id")
+			_targetRefValidation: _validRefIds & list.Contains(TR."reference-id")
+		}
+	}
 
 	// remarks is prose regarding this mapping document
 	remarks?: string

@@ -25,7 +25,17 @@ import "list"
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [#Exemption, ...#Exemption] @go(Exemptions)
 
-	// when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
+	// when exemptions are listed, and when metadata.mapping-references is set, each redirect's reference-id must be declared in it
+	if exemptions != _|_ {
+		if metadata."mapping-references" != _|_ {
+			let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+			for i, ex in exemptions if ex.redirect != _|_ {
+				_exemptionRedirectRefValidation: "\(i)": _validRefIds & list.Contains(ex.redirect."reference-id")
+			}
+		}
+	}
+
+	// when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups, and when metadata.mapping-references is set, each extends, replaced-by, principle, or vector reference-id must be declared in it
 	if guidelines != _|_ {
 		_uniqueGuidelineIds: {for i, g in guidelines {(g.id): i}}
 		groups: [#Group, ...#Group]
@@ -39,6 +49,28 @@ import "list"
 		for i, g in guidelines if g."see-also" != _|_ {
 			for j, sa in g."see-also" {
 				_seeAlsoValidation: "\(i)-\(j)": _validGuidelineIds & list.Contains(sa)
+			}
+		}
+
+		if metadata."mapping-references" != _|_ {
+			let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+			for i, g in guidelines {
+				if g.extends != _|_ {
+					_guidelineExtendsRefValidation: "\(i)": _validRefIds & list.Contains(g.extends."reference-id")
+				}
+				if g."replaced-by" != _|_ {
+					_guidelineReplacedByRefValidation: "\(i)": _validRefIds & list.Contains(g."replaced-by"."reference-id")
+				}
+				if g.principles != _|_ {
+					for j, p in g.principles {
+						_principleRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(p."reference-id")
+					}
+				}
+				if g.vectors != _|_ {
+					for j, v in g.vectors {
+						_vectorRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(v."reference-id")
+					}
+				}
 			}
 		}
 		if metadata."applicability-groups" != _|_ {

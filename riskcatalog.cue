@@ -21,7 +21,7 @@ import "list"
 	// risks is a list of risks defined by this catalog
 	risks?: [#Risk, ...#Risk] @go(Risks)
 
-	// when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
+	// when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, each risk's group must be a declared group id, and when metadata.mapping-references is set, each threat reference-id must be declared in it
 	if risks != _|_ {
 		_uniqueRiskIds: {for i, r in risks {(r.id): i}}
 		// Each distinct rank value may appear at most once among risks that set rank (partial ranking allowed).
@@ -33,6 +33,17 @@ import "list"
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, r in risks {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(r.group)
+		}
+
+		if metadata."mapping-references" != _|_ {
+			let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+			for i, r in risks {
+				if r.threats != _|_ {
+					for j, th in r.threats {
+						_threatRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(th."reference-id")
+					}
+				}
+			}
 		}
 	}
 }

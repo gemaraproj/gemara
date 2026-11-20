@@ -1,0 +1,68 @@
+groups:
+- description: Impersonating something or someone to gain unauthorized access
+  id: stride-s
+  title: Spoofing
+- description: Modifying data or code without authorization
+  id: stride-t
+  title: Tampering
+- description: Gaining capabilities without proper authorization
+  id: stride-e
+  title: Elevation of Privilege
+metadata:
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+  description: Example Threat Catalog
+  gemara-version: 1.1.0
+  id: EXAMPLE-THREAT-CATALOG
+  mapping-references:
+  - id: EXAMPLE-VECTOR-CATALOG
+    title: Example Attack Vector Catalog
+    version: 1.0.0
+  - id: EXAMPLE-CAPABILITY-CATALOG
+    title: Example Capability Catalog
+    version: 1.0.0
+  type: ThreatCatalog
+  version: 1.0.0
+threats:
+- actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+  capabilities:
+  - entries:
+    - reference-id: CAP-002
+    reference-id: EXAMPLE-CAPABILITY-CATALOG
+  description: Attackers exploit known vulnerabilities in container images to gain
+    unauthorized access or execute malicious code.
+  group: stride-t
+  id: THREAT-001
+  title: Exploitation of Vulnerable Container Images
+  vectors:
+  - entries:
+    - reference-id: VEC-001
+    reference-id: EXAMPLE-VECTOR-CATALOG
+- actors:
+  - id: external-attacker
+    name: External Attacker
+    type: Human
+  - id: malicious-insider
+    name: Malicious Insider
+    type: Human
+  capabilities:
+  - entries:
+    - reference-id: CAP-001
+    reference-id: EXAMPLE-CAPABILITY-CATALOG
+  description: Attackers escape container isolation to gain access to the underlying
+    host system and compromise other containers or host resources.
+  group: stride-e
+  id: THREAT-002
+  title: Host System Compromise via Container Escape
+  vectors:
+  - entries:
+    - reference-id: VEC-002
+    reference-id: EXAMPLE-VECTOR-CATALOG
+title: Example Threat Catalog
+extends:
+- reference-id: UNDECLARED-EXTENDS
