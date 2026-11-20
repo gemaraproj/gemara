@@ -138,3 +138,10 @@ response-optional-property-removed Metadata
 response-optional-property-removed Resource
 response-optional-property-removed Threat
 response-optional-property-removed ThreatCatalog
+
+# Not part of the transition above. #563 requires Entity.id and Entity.name to
+# contain at least one character that is not whitespace, so an empty or blank
+# id or name no longer validates. Such a value never identified anything, and
+# OSCAL rejects it too (go-gemara#156). Keep this entry if the transition
+# entries above are removed; drop it once a v1 release carries the pattern.
+request-property-pattern-added Entity

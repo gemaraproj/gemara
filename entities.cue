@@ -6,13 +6,21 @@ package gemara
 
 @go(gemara)
 
+// _blank lists the characters JavaScript's \s matches. CUE's \S comes from RE2 and
+// treats a no-break space as visible, so spelling the set out keeps CUE and OpenAPI
+// validators in agreement.
+let _blank = "\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff"
+let _notBlank = "[^\(_blank)]"
+
 // Entity represents a human or tool
 #Entity: {
-	// id uniquely identifies the entity and allows this entry to be referenced by other elements
-	id: string
+	// id uniquely identifies the entity and allows this entry to be referenced by other elements.
+	// It must contain at least one character that is not whitespace.
+	id: =~_notBlank
 
-	// name is the name of the entity
-	name: string
+	// name is the name of the entity.
+	// It must contain at least one character that is not whitespace.
+	name: =~_notBlank
 
 	// type specifies the type of entity interacting in the workflow
 	type: #EntityType
