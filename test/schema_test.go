@@ -123,6 +123,13 @@ func TestSchemaValidation(t *testing.T) {
 		{"invalid JSON", "./test-data/bad.json", "#ControlCatalog", true, "#ControlCatalog.this: field not allowed"},
 		{"controls without groups", "./test-data/bad-no-groups.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value [string] (does not satisfy list.Contains("missing-group"))`},
 		{"control catalog with duplicate control id", "./test-data/bad-control-catalog-duplicate-control-id.yaml", "#ControlCatalog", true, `_uniqueControlIds."TC-001"`},
+		{"control catalog with empty controls list", "./test-data/bad-control-empty-controls.yaml", "#ControlCatalog", true, "controls: incompatible list lengths"},
+		{"control missing required title", "./test-data/bad-control-missing-title.yaml", "#ControlCatalog", true, "controls.0.title: incomplete value string"},
+		{"control missing required objective", "./test-data/bad-control-missing-objective.yaml", "#ControlCatalog", true, "controls.0.objective: incomplete value string"},
+		{"control with empty assessment requirements list", "./test-data/bad-control-empty-assessment-requirements.yaml", "#ControlCatalog", true, `controls.0."assessment-requirements": incompatible list lengths`},
+		{"assessment requirement missing required text", "./test-data/bad-control-requirement-missing-text.yaml", "#ControlCatalog", true, `controls.0."assessment-requirements".0.text: incomplete value string`},
+		{"assessment requirement with empty applicability list", "./test-data/bad-control-requirement-empty-applicability.yaml", "#ControlCatalog", true, `controls.0."assessment-requirements".0.applicability: incompatible list lengths`},
+		{"retired assessment requirement with recommendation", "./test-data/bad-control-retired-requirement-recommendation.yaml", "#ControlCatalog", true, "#ControlCatalog: explicit error"},
 
 		// MappingDocument — positive
 		{"valid mapping document", "./test-data/good-mapping-document.yaml", "#MappingDocument", false, ""},

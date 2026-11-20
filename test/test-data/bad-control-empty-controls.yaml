@@ -1,0 +1,22 @@
+metadata:
+  id: "test-control-catalog-empty-controls"
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Test control catalog with empty controls list"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  applicability-groups:
+    - id: "cloud-native"
+      title: "Cloud Native"
+      description: "Cloud native environments"
+
+title: "Empty Controls Catalog"
+groups:
+  - id: "access-control"
+    title: "Access Control"
+    description: "Access control requirements"
+
+controls: []

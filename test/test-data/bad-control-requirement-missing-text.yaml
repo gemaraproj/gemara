@@ -1,0 +1,30 @@
+metadata:
+  id: "test-control-catalog-requirement-missing-text"
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Test control catalog where assessment requirement is missing required text"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  applicability-groups:
+    - id: "cloud-native"
+      title: "Cloud Native"
+      description: "Cloud native environments"
+
+title: "Requirement Missing Text Catalog"
+groups:
+  - id: "access-control"
+    title: "Access Control"
+    description: "Access control requirements"
+
+controls:
+  - id: "AC-01"
+    group: "access-control"
+    title: "Enforce Multi-Factor Authentication"
+    objective: "Enforce multi-factor authentication for administrative access."
+    assessment-requirements:
+      - id: "AC-01.01"
+        applicability:
+          - "cloud-native"
