@@ -1,9 +1,6 @@
 blank_issues_enabled: false
 
 contact_links:
-  - name: Ask a question by filing an issue
-    url: https://github.com/gemaraproj/gemara/issues/new/choose
-    about: Ask a question by filing an issue
   - name: Join us on Slack in the gemara channel
     url: https://openssf.slack.com/archives/C09A9PP765Q
     about: Join the OpenSSF Slack
