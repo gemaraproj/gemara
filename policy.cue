@@ -13,12 +13,40 @@ import "list"
 	title:    string
 	metadata: #Metadata
 	metadata: type: "Policy"
-	contacts:               #RACI
+	contacts:     #RACI
+	stakeholders: #Stakeholders @go(Stakeholders)
+	stakeholders: {
+		assignments: [#RoleAssignment, ...#RoleAssignment]
+	}
 	scope:                  #Scope
 	imports:                #Imports
 	"implementation-plan"?: #ImplementationPlan @go(ImplementationPlan)
 	risks?:                 #Risks
 	adherence:              #Adherence
+
+	// every role named in a RACI slot must be declared in stakeholders.roles, and every accountable role must have an assignment
+	if len(stakeholders.roles) > 0 {
+		let _validRoleIds = [for r in stakeholders.roles {r.id}]
+		let _assignedRoleIds = [for a in stakeholders.assignments {a."role-id"}]
+
+		for j, roleId in contacts.responsible {
+			_policyRoleValidationResp: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+		for j, roleId in contacts.accountable {
+			_policyRoleValidationAcct: "\(j)":    _validRoleIds & list.Contains(roleId)
+			_policyAccountableValidation: "\(j)": _assignedRoleIds & list.Contains(roleId)
+		}
+		if contacts.consulted != _|_ {
+			for j, roleId in contacts.consulted {
+				_policyRoleValidationCons: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
+		}
+		if contacts.informed != _|_ {
+			for j, roleId in contacts.informed {
+				_policyRoleValidationInfo: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
+		}
+	}
 }
 
 // Scope defines what is included and excluded from policy applicability.

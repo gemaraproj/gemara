@@ -25,15 +25,39 @@ metadata:
       url: "https://oag.ca.gov/privacy/ccpa"
 
 title: "Data Protection and Privacy Policy"
+
+stakeholders:
+  parties:
+    - id: dpo
+      name: Data Protection Officer
+      type: Human
+      contact:
+        name: "Data Protection Officer"
+        affiliation: "Legal & Compliance"
+        email: dpo@company.com
+    - id: cpo
+      name: Chief Privacy Officer
+      type: Human
+      contact:
+        name: "Chief Privacy Officer"
+        affiliation: "Executive Team"
+        email: cpo@company.com
+  roles:
+    - id: dpo
+      title: Data Protection Officer
+    - id: cpo
+      title: Chief Privacy Officer
+  assignments:
+    - role-id: dpo
+      party-ids: [dpo]
+    - role-id: cpo
+      party-ids: [cpo]
+
 contacts:
   responsible:
-    - name: "Data Protection Officer"
-      affiliation: "Legal & Compliance"
-      email: "dpo@company.com"
+    - dpo
   accountable:
-    - name: "Chief Privacy Officer"
-      affiliation: "Executive Team"
-      email: "cpo@company.com"
+    - cpo
 
 scope:
   in:

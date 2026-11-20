@@ -20,15 +20,38 @@ metadata:
       url: "https://www.iso.org/standard/27001"
 
 title: "Information Security Policy with Risks"
+stakeholders:
+  parties:
+    - id: it-director
+      name: IT Director
+      type: Human
+      contact:
+        name: "IT Director"
+        affiliation: "Information Technology"
+        email: "it-director@company.com"
+    - id: ciso
+      name: Chief Information Security Officer
+      type: Human
+      contact:
+        name: "Chief Information Security Officer"
+        affiliation: "Executive Team"
+        email: "ciso@company.com"
+  roles:
+    - id: it-director
+      title: IT Director
+    - id: ciso
+      title: Chief Information Security Officer
+  assignments:
+    - role-id: it-director
+      party-ids: [it-director]
+    - role-id: ciso
+      party-ids: [ciso]
+
 contacts:
   responsible:
-    - name: "IT Director"
-      affiliation: "Information Technology"
-      email: "it-director@company.com"
+    - it-director
   accountable:
-    - name: "Chief Information Security Officer"
-      affiliation: "Executive Team"
-      email: "ciso@company.com"
+    - ciso
 
 scope:
   in:

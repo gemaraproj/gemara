@@ -18,18 +18,62 @@ metadata:
       title: "Maturity Level 1"
       description: "Baseline foundational security controls"
 title: "Bad Policy with Empty Catalog Applicability"
+stakeholders:
+  parties:
+    - id: sec-officer
+      name: Security Officer
+      type: Human
+      contact:
+        name: "Security Officer"
+        affiliation: "Security Team"
+        email: "security@example.com"
+    - id: ciso
+      name: Chief Information Security Officer
+      type: Human
+      contact:
+        name: "Chief Information Security Officer"
+        affiliation: "Executive Team"
+        email: "ciso@example.com"
+    - id: eng-lead
+      name: Engineering Lead
+      type: Human
+      contact:
+        name: "Engineering Lead"
+        affiliation: "Engineering"
+        email: "eng-lead@example.com"
+    - id: all-staff
+      name: All Staff
+      type: Group
+      contact:
+        name: "Staff Representative"
+  roles:
+    - id: security-officer
+      title: Security Officer
+    - id: ciso
+      title: Chief Information Security Officer
+    - id: engineering-lead
+      title: Engineering Lead
+    - id: all-staff
+      title: All Staff
+  assignments:
+    - role-id: security-officer
+      party-ids: [sec-officer]
+    - role-id: ciso
+      party-ids: [ciso]
+    - role-id: engineering-lead
+      party-ids: [eng-lead]
+    - role-id: all-staff
+      party-ids: [all-staff]
+
 contacts:
   responsible:
-    - name: "Security Officer"
-      email: "security@example.com"
+    - security-officer
   accountable:
-    - name: "CISO"
-      email: "ciso@example.com"
+    - ciso
   consulted:
-    - name: "Engineering Lead"
-      email: "eng-lead@example.com"
+    - engineering-lead
   informed:
-    - name: "All Staff"
+    - all-staff
 scope:
   in:
     technologies:

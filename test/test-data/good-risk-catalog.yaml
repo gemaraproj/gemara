@@ -31,6 +31,43 @@ groups:
     description: Risks arising from failure to comply with applicable laws, regulations, or industry standards
     appetite: Minimal
 
+stakeholders:
+  parties:
+    - id: platform-lead
+      name: Platform Engineering Lead
+      type: Human
+      contact:
+        name: "Platform Engineering Lead"
+        affiliation: "Platform Team"
+        email: platform-lead@example.org
+    - id: ciso
+      name: Chief Information Security Officer
+      type: Human
+      contact:
+        name: "Chief Information Security Officer"
+        affiliation: "Security"
+        email: ciso@example.org
+    - id: infra-architect
+      name: Infrastructure Architect
+      type: Human
+      contact:
+        name: "Infrastructure Architect"
+        affiliation: "Architecture"
+  roles:
+    - id: platform-lead
+      title: Platform Engineering Lead
+    - id: ciso
+      title: Chief Information Security Officer
+    - id: infra-architect
+      title: Infrastructure Architect
+  assignments:
+    - role-id: platform-lead
+      party-ids: [platform-lead]
+    - role-id: ciso
+      party-ids: [ciso]
+    - role-id: infra-architect
+      party-ids: [infra-architect]
+
 risks:
   - id: RISK-001
     title: Container Image Supply Chain Compromise
@@ -40,13 +77,9 @@ risks:
     rank: 2
     owner:
       responsible:
-        - name: Platform Engineering Lead
-          affiliation: Platform Team
-          email: platform-lead@example.org
+        - platform-lead
       accountable:
-        - name: Chief Information Security Officer
-          affiliation: Security
-          email: ciso@example.org
+        - ciso
     impact: Unauthorized code execution in production workloads, potential data exfiltration, and lateral movement across the cluster.
     threats:
       - reference-id: EXAMPLE-THREAT-CATALOG
@@ -60,16 +93,11 @@ risks:
     severity: Critical
     owner:
       responsible:
-        - name: Platform Engineering Lead
-          affiliation: Platform Team
-          email: platform-lead@example.org
+        - platform-lead
       accountable:
-        - name: Chief Information Security Officer
-          affiliation: Security
-          email: ciso@example.org
+        - ciso
       consulted:
-        - name: Infrastructure Architect
-          affiliation: Architecture
+        - infra-architect
     impact: Full compromise of the underlying node, access to secrets, and disruption of co-located workloads.
     threats:
       - reference-id: EXAMPLE-THREAT-CATALOG

@@ -1,0 +1,40 @@
+metadata:
+  id: bad-audit-log-owner-without-stakeholders
+  type: AuditLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Invalid audit log: owner specified but stakeholders omitted"
+  author:
+    id: lead-auditor
+    name: "Auditor"
+    type: Human
+  mapping-references:
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+  uri: "https://github.com/gemaraproj/gemara"
+  environment: production
+
+owner:
+  responsible:
+    - auditor
+  accountable:
+    - auditor
+
+summary: "Owner without stakeholders test."
+
+criteria:
+  - reference-id: security-policy
+
+results:
+  - id: AR-AC-01
+    title: "MFA enforcement verified"
+    type: Strength
+    description: "Multi-factor authentication is enforced."
+    criteria-reference:
+      reference-id: security-policy
