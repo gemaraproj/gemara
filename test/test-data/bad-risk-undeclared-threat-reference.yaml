@@ -1,0 +1,33 @@
+metadata:
+  id: TEST-RISK-CATALOG
+  type: RiskCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Risk catalog with undeclared threat reference
+  author:
+    id: risk-team
+    name: Risk Team
+    type: Human
+  mapping-references:
+    - id: VALID-MAPPING
+      title: Valid Mapping
+      version: "1.0.0"
+
+title: Test Risk Catalog
+
+groups:
+  - id: CAT-SECURITY
+    title: Security Risk
+    description: Security risks
+    appetite: Low
+
+risks:
+  - id: RISK-001
+    title: Test Risk
+    description: Test risk description
+    group: CAT-SECURITY
+    severity: High
+    threats:
+      - reference-id: UNDECLARED-THREAT
+        entries:
+          - reference-id: THREAT-001

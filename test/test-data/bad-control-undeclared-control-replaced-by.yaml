@@ -1,0 +1,41 @@
+metadata:
+  id: BAD-CONTROL-UNDECLARED-CONTROL-REPLACED-BY
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Invalid — control replaced-by references undeclared alias
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+  applicability-groups:
+    - id: production
+      title: Production
+      description: Production environments
+  mapping-references:
+    - id: NIST-800-53
+      title: NIST SP 800-53
+      version: "Rev 5"
+
+title: Invalid Control Catalog
+
+groups:
+  - id: GRP-ACCESS
+    title: Access Control
+    description: Access and authentication policies
+
+controls:
+  - id: CTRL-001
+    group: GRP-ACCESS
+    title: Legacy Authentication
+    objective: Require legacy authentication
+    state: Retired
+    replaced-by:
+      reference-id: UNDECLARED-ALIAS
+      entry-id: CTRL-002
+    assessment-requirements:
+      - id: CTRL-001.AR01
+        text: Must be audited
+        state: Retired
+        applicability:
+          - production
