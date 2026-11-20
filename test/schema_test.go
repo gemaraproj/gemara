@@ -130,12 +130,16 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid mapping document with strength boundaries", "./test-data/good-mapping-strength-boundaries.yaml", "#MappingDocument", false, ""},
 
 		// MappingDocument — negative
-		{"invalid mapping document without mapping-references", "./test-data/bad-mapping-document.yaml", "#MappingDocument", true, `metadata."mapping-references".0.id: incomplete value string`},
+		{"mapping reference with no id reported where the id is missing", "./test-data/bad-mapping-reference-missing-id.yaml", "#MappingDocument", true, `metadata."mapping-references".0.id: incomplete value string`},
 		{"mapping document with duplicate mapping id", "./test-data/bad-mapping-duplicate-id.yaml", "#MappingDocument", true, `_uniqueMappingIds."DUP-01"`},
 		{"mapping missing targets for non-no-match relationship", "./test-data/bad-mapping-no-target.yaml", "#MappingDocument", true, `targets.0."entry-id": incomplete value string`},
 		{"mapping target strength below minimum", "./test-data/bad-mapping-strength-below-min.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: invalid value 0 (out of bound >=1)`},
 		{"mapping target strength above maximum", "./test-data/bad-mapping-strength-above-max.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: invalid value 11 (out of bound <=10)`},
 		{"mapping target strength non-integer", "./test-data/bad-mapping-strength-non-integer.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: conflicting values 5.5 and int`},
+		{"mapping document with undeclared source mapping-reference", "./test-data/bad-mapping-undeclared-source-reference.yaml", "#MappingDocument", true, `does not satisfy list.Contains("UNDECLARED-SOURCE")`},
+		{"mapping document with undeclared target mapping-reference", "./test-data/bad-mapping-undeclared-target-reference.yaml", "#MappingDocument", true, `does not satisfy list.Contains("UNDECLARED-TARGET")`},
+		{"mapping document with identical source and target references", "./test-data/bad-mapping-identical-references.yaml", "#MappingDocument", true, `_distinctReferences: conflicting values false and true`},
+		{"mapping target with undeclared applicability group", "./test-data/bad-mapping-invalid-applicability.yaml", "#MappingDocument", true, `does not satisfy list.Contains("nonexistent-applicability")`},
 
 		// Lexicon — positive
 		{"valid lexicon", "./test-data/good-lexicon.yaml", "#Lexicon", false, ""},
