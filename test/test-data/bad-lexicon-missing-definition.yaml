@@ -1,0 +1,13 @@
+title: Missing Term Definition Lexicon
+metadata:
+  id: bad-lexicon-missing-definition
+  type: Lexicon
+  gemara-version: "1.1.0"
+  description: Lexicon term missing required definition
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+terms:
+  - id: sbom
+    title: Software Bill of Materials

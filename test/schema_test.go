@@ -142,6 +142,11 @@ func TestSchemaValidation(t *testing.T) {
 
 		// Lexicon — negative
 		{"lexicon with duplicate term ids", "./test-data/bad-lexicon-duplicate-term-id.yaml", "#Lexicon", true, `_uniqueTermIds."same-id"`},
+		{"lexicon with empty terms list", "./test-data/bad-lexicon-empty-terms.yaml", "#Lexicon", true, "terms: incompatible list lengths"},
+		{"lexicon term missing id", "./test-data/bad-lexicon-missing-id.yaml", "#Lexicon", true, "terms.0.id: incomplete value string"},
+		{"lexicon term missing title", "./test-data/bad-lexicon-missing-title.yaml", "#Lexicon", true, "terms.0.title: incomplete value string"},
+		{"lexicon term missing definition", "./test-data/bad-lexicon-missing-definition.yaml", "#Lexicon", true, "terms.0.definition: incomplete value string"},
+		{"lexicon reference with invalid url scheme", "./test-data/bad-lexicon-reference-url-invalid-scheme.yaml", "#Lexicon", true, `terms.0.references.0.url: invalid value "ftp://example.com/sp800-218"`},
 
 		// GuidanceCatalog — negative
 		{"retired guideline with recommendations", "./test-data/bad-lifecycle.yaml", "#GuidanceCatalog", true, "#GuidanceCatalog: explicit error"},
