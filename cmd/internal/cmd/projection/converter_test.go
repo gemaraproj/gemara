@@ -220,6 +220,46 @@ func TestConverterRejectsUnknownRoot(t *testing.T) {
 	}
 }
 
+// A --root that names a definition without a doc comment must also fail
+// rather than silently leaving the default description in place.
+func TestConverterRejectsUndocumentedRoot(t *testing.T) {
+	c := NewConverter("", "#AssessmentStep")
+	if err := c.Load("../../../.."); err != nil {
+		t.Fatal(err)
+	}
+	if err := c.Prep(); err != nil {
+		t.Fatal(err)
+	}
+	err := c.Convert("../../../..")
+	if err == nil {
+		t.Fatal("expected an error for an undocumented --root definition, got nil")
+	}
+	if !strings.Contains(err.Error(), "#AssessmentStep") {
+		t.Errorf("error %q does not name the offending root path", err)
+	}
+	if !strings.Contains(err.Error(), "no documentation comment") {
+		t.Errorf("error %q does not explain that the definition lacks documentation", err)
+	}
+}
+
+// A --root that names a regular field instead of a definition must fail.
+func TestConverterRejectsNonDefinitionRoot(t *testing.T) {
+	c := NewConverter("", "#AssessmentLog.description")
+	if err := c.Load("../../../.."); err != nil {
+		t.Fatal(err)
+	}
+	if err := c.Prep(); err != nil {
+		t.Fatal(err)
+	}
+	err := c.Convert("../../../..")
+	if err == nil {
+		t.Fatal("expected an error for a --root naming a regular field, got nil")
+	}
+	if !strings.Contains(err.Error(), "must name a definition (#Name)") {
+		t.Errorf("error %q does not explain that --root must name a definition", err)
+	}
+}
+
 func TestConverterWritesManifest(t *testing.T) {
 	dir := t.TempDir()
 	manifest := filepath.Join(dir, "schema-manifest.json")
