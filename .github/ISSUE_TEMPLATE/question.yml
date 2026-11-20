@@ -1,0 +1,20 @@
+---
+name: Question
+description: Ask how Gemara works, why it is designed the way it is, or how it fits your process
+labels:
+  - needs-triage
+  - question
+body:
+  - type: textarea
+    attributes:
+      label: Your question
+      description: What would you like to know?
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Context
+      description: What are you trying to do? Mention the standard, framework or workflow you are working with, if any.
+    validations:
+      required: false
