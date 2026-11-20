@@ -146,8 +146,13 @@ func TestSchemaValidation(t *testing.T) {
 		// GuidanceCatalog — negative
 		{"retired guideline with recommendations", "./test-data/bad-lifecycle.yaml", "#GuidanceCatalog", true, "#GuidanceCatalog: explicit error"},
 		{"guidance catalog with duplicate guideline id", "./test-data/bad-guidance-duplicate-id.yaml", "#GuidanceCatalog", true, `_uniqueGuidelineIds."AIR-PREV-001"`},
+		{"guidance catalog with invalid type", "./test-data/bad-guidance-invalid-type.yaml", "#GuidanceCatalog", true, "type: 4 errors in empty disjunction"},
+		{"guidance catalog with empty exemptions list", "./test-data/bad-guidance-empty-exemptions.yaml", "#GuidanceCatalog", true, "exemptions: incompatible list lengths"},
+		{"guidance catalog with empty groups list", "./test-data/bad-guidance-empty-groups.yaml", "#GuidanceCatalog", true, "groups: incompatible list lengths"},
 		{"guideline missing required title", "./test-data/bad-guidance-missing-title.yaml", "#GuidanceCatalog", true, "guidelines.0.title: incomplete value string"},
+		{"guideline missing required objective", "./test-data/bad-guidance-missing-objective.yaml", "#GuidanceCatalog", true, "guidelines.0.objective: incomplete value string"},
 		{"guideline with empty recommendations list", "./test-data/bad-guidance-empty-recommendations.yaml", "#GuidanceCatalog", true, "guidelines.0.recommendations: incompatible list lengths"},
+		{"guideline with empty statements list", "./test-data/bad-guidance-empty-statements.yaml", "#GuidanceCatalog", true, "guidelines.0.statements: incompatible list lengths"},
 		{"guidance catalog with empty guidelines list", "./test-data/bad-guidance-empty-list.yaml", "#GuidanceCatalog", true, "guidelines: incompatible list lengths"},
 
 		// EvaluationLog — positive

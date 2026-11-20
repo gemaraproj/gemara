@@ -1,0 +1,21 @@
+metadata:
+  id: TEST-GUIDANCE-EMPTY-GROUPS
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Guidance catalog with empty groups list
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+
+title: AI Governance Framework
+type: Framework
+
+groups: []
+
+guidelines:
+  - id: AIR-PREV-001
+    title: Preventive Guideline
+    group: PREV
+    objective: Objective of preventive guideline
