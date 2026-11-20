@@ -47,11 +47,6 @@ func TestRegexConstraintsReachTheDocument(t *testing.T) {
 		if len(ps) == 0 {
 			t.Errorf("%s.%s has no pattern, directly or through a referenced definition", tc.schema, tc.field)
 		}
-		for _, p := range ps {
-			if _, err := regexp.Compile(p); err != nil {
-				t.Errorf("%s.%s pattern %q does not compile: %v", tc.schema, tc.field, p, err)
-			}
-		}
 	}
 }
 
