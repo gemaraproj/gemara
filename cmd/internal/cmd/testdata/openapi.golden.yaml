@@ -454,6 +454,12 @@ components:
     Capability:
       description: Capability describes a system capability such as a feature, component or object.
       properties:
+        citations:
+          description: citations lists the external sources this entry is drawn from
+          items:
+            $ref: "#/components/schemas/ArtifactMapping"
+          minItems: 1
+          type: array
         description:
           description: description provides a detailed overview of this capability
           type: string
@@ -498,7 +504,7 @@ components:
           type: object
       type: object
       x-rules:
-      - when capabilities are listed, groups is required, capability ids must be unique, and each capability's group must be a declared group id
+      - when capabilities are listed, groups is required, capability ids must be unique, each capability's group must be a declared group id, and each citation reference-id must be declared in metadata.mapping-references
       x-status: stable
     Catalog:
       description: Catalog describes a set of topically-associated entries
@@ -628,6 +634,12 @@ components:
             $ref: "#/components/schemas/AssessmentRequirement"
           minItems: 1
           type: array
+        citations:
+          description: citations lists the external sources this entry is drawn from
+          items:
+            $ref: "#/components/schemas/ArtifactMapping"
+          minItems: 1
+          type: array
         group:
           description: group references by id a catalog group that this control belongs to
           type: string
@@ -697,7 +709,7 @@ components:
           type: object
       type: object
       x-rules:
-      - when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, and each assessment requirement's applicability must name declared applicability groups
+      - when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, each assessment requirement's applicability must name declared applicability groups, and each citation reference-id must be declared in metadata.mapping-references
       x-status: stable
     ControlEvaluation:
       description: ControlEvaluation contains the results of evaluating a single Layer 5 control.
@@ -1139,7 +1151,7 @@ components:
           description: type categorizes this document based on the intent of its contents
       type: object
       x-rules:
-      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
+      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups, and each citation reference-id must be declared in metadata.mapping-references
       x-status: experimental
     GuidanceImport:
       description: GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
@@ -1177,6 +1189,12 @@ components:
           description: applicability specifies the contexts in which this guideline applies
           items:
             type: string
+          minItems: 1
+          type: array
+        citations:
+          description: citations lists the external sources this entry is drawn from
+          items:
+            $ref: "#/components/schemas/ArtifactMapping"
           minItems: 1
           type: array
         extends:
@@ -1726,6 +1744,12 @@ components:
     Principle:
       description: Principle represents a foundational value or tenet that guides governance, design, and operational decisions
       properties:
+        citations:
+          description: citations lists the external sources this entry is drawn from
+          items:
+            $ref: "#/components/schemas/ArtifactMapping"
+          minItems: 1
+          type: array
         description:
           description: description explains the principle and its expected outcomes
           type: string
@@ -1773,7 +1797,7 @@ components:
           type: array
       type: object
       x-rules:
-      - when principles are listed, groups is required, principle ids must be unique, and each principle's group must be a declared group id
+      - when principles are listed, groups is required, principle ids must be unique, each principle's group must be a declared group id, and each citation reference-id must be declared in metadata.mapping-references
       x-status: experimental
     RACI:
       description: RACI defines the roles responsible for managing an artifact
@@ -2013,6 +2037,12 @@ components:
     Risk:
       description: A Risk represents the potential for negative impact resulting from one or more threats.
       properties:
+        citations:
+          description: citations lists the external sources this entry is drawn from
+          items:
+            $ref: "#/components/schemas/ArtifactMapping"
+          minItems: 1
+          type: array
         description:
           description: description explains the risk scenario
           type: string
@@ -2099,7 +2129,7 @@ components:
           type: array
       type: object
       x-rules:
-      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
+      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, each risk's group must be a declared group id, and each citation reference-id must be declared in metadata.mapping-references
       x-status: experimental
     RiskCategory:
       allOf:
@@ -2198,6 +2228,12 @@ components:
             $ref: "#/components/schemas/MultiEntryMapping"
           minItems: 1
           type: array
+        citations:
+          description: citations lists the external sources this entry is drawn from
+          items:
+            $ref: "#/components/schemas/ArtifactMapping"
+          minItems: 1
+          type: array
         description:
           description: description provides a detailed explanation of an opportunity for negative impact
           type: string
@@ -2249,7 +2285,7 @@ components:
           type: array
       type: object
       x-rules:
-      - when threats are listed, groups is required, threat ids must be unique, and each threat's group must be a declared group id
+      - when threats are listed, groups is required, threat ids must be unique, each threat's group must be a declared group id, and each citation reference-id must be declared in metadata.mapping-references
       x-status: stable
     TypedMapping:
       allOf:
@@ -2271,6 +2307,12 @@ components:
           description: applicability specifies the contexts in which this vector can manifest
           items:
             type: string
+          minItems: 1
+          type: array
+        citations:
+          description: citations lists the external sources this entry is drawn from
+          items:
+            $ref: "#/components/schemas/ArtifactMapping"
           minItems: 1
           type: array
         description:
@@ -2316,7 +2358,7 @@ components:
           type: array
       type: object
       x-rules:
-      - when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, and when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups
+      - when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups, and each citation reference-id must be declared in metadata.mapping-references
       x-status: experimental
 info:
   description: Gemara schema definitions

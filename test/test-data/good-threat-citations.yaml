@@ -1,0 +1,32 @@
+title: Threat Catalog with Citations
+metadata:
+  id: THREAT-CIT-CAT
+  type: ThreatCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Threat Catalog with entry citations
+  author:
+    id: sec-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: MITRE-ATTACK
+      title: MITRE ATT&CK
+      version: "v14"
+      url: https://attack.mitre.org
+groups:
+  - id: GRP-01
+    title: Threat Group
+    description: Initial access and injection threats
+threats:
+  - id: THR-01
+    title: Command Injection
+    description: Attackers inject malicious commands into system shells.
+    group: GRP-01
+    capabilities:
+      - reference-id: MITRE-ATTACK
+        entries:
+          - reference-id: T1059
+    citations:
+      - reference-id: MITRE-ATTACK
+        remarks: T1059.004 Unix Shell

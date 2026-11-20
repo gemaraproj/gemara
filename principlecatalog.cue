@@ -16,7 +16,7 @@ import "list"
 	// principles is a list of unique principles defined by this catalog
 	principles?: [#Principle, ...#Principle] @go(Principles)
 
-	// when principles are listed, groups is required, principle ids must be unique, and each principle's group must be a declared group id
+	// when principles are listed, groups is required, principle ids must be unique, each principle's group must be a declared group id, and each citation reference-id must be declared in metadata.mapping-references
 	if principles != _|_ {
 		_uniquePrinciplesIds: {for i, p in principles {(p.id): i}}
 		groups: [#Group, ...#Group]
@@ -25,6 +25,13 @@ import "list"
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, p in principles {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(p.group)
+		}
+
+		let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+		for i, p in principles if p.citations != _|_ {
+			for j, cit in p.citations {
+				_citationRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(cit."reference-id")
+			}
 		}
 	}
 }
@@ -45,4 +52,7 @@ import "list"
 
 	// rationale provides the context for this principle
 	rationale?: string
+
+	// citations lists the external sources this entry is drawn from
+	citations?: [#ArtifactMapping, ...#ArtifactMapping] @go(Citations)
 }

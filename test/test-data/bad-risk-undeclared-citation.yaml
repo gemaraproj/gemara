@@ -1,0 +1,28 @@
+title: Risk with Undeclared Citation
+metadata:
+  id: BAD-RISK-CIT
+  type: RiskCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Bad Risk Catalog
+  author:
+    id: risk-team
+    name: Risk Team
+    type: Human
+  mapping-references:
+    - id: DECLARED-REF
+      title: Declared Ref
+      version: "1.0.0"
+groups:
+  - id: CAT-SEC
+    title: Security
+    description: Security risk category
+    appetite: Low
+risks:
+  - id: RISK-01
+    title: Data Loss
+    description: Data loss risk
+    group: CAT-SEC
+    severity: High
+    citations:
+      - reference-id: UNDECLARED-RISK-REF

@@ -1,0 +1,26 @@
+title: Capability with Undeclared Citation
+metadata:
+  id: BAD-CAP-CIT
+  type: CapabilityCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Bad Capability Catalog
+  author:
+    id: sec-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: DECLARED-REF
+      title: Declared Ref
+      version: "1.0.0"
+groups:
+  - id: infra
+    title: Infrastructure
+    description: Infrastructure capabilities
+capabilities:
+  - id: CAP-01
+    title: Container Registry
+    description: Registry capability
+    group: infra
+    citations:
+      - reference-id: UNDECLARED-CAP-REF

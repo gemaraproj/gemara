@@ -18,7 +18,7 @@ import "list"
 	// vectors is a list of attack vectors documented in this catalog
 	vectors?: [#Vector, ...#Vector] @go(Vectors)
 
-	// when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, and when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups
+	// when vectors are listed, groups is required, vector ids must be unique, each vector's group must be a declared group id, when metadata.applicability-groups is set, each vector's applicability must name declared applicability groups, and each citation reference-id must be declared in metadata.mapping-references
 	if vectors != _|_ {
 		_uniqueVectorIds: {for i, v in vectors {(v.id): i}}
 		groups: [#Group, ...#Group]
@@ -34,6 +34,13 @@ import "list"
 				for j, a in v.applicability {
 					_applicabilityValidation: "\(i)-\(j)": _validApplicabilityIds & list.Contains(a)
 				}
+			}
+		}
+
+		let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+		for i, v in vectors if v.citations != _|_ {
+			for j, cit in v.citations {
+				_citationRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(cit."reference-id")
 			}
 		}
 	}
@@ -55,4 +62,7 @@ import "list"
 
 	// applicability specifies the contexts in which this vector can manifest
 	applicability?: [string, ...string] @go(Applicability)
+
+	// citations lists the external sources this entry is drawn from
+	citations?: [#ArtifactMapping, ...#ArtifactMapping] @go(Citations)
 }

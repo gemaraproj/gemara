@@ -58,17 +58,23 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid OSPS baseline", "./test-data/good-osps.yml", "#ControlCatalog", false, ""},
 		{"valid lifecycle catalog", "./test-data/good-lifecycle.yaml", "#ControlCatalog", false, ""},
 		{"valid nested control catalog", "./test-data/nested-good-ccc.yaml", "#ControlCatalog", false, ""},
+		{"valid control catalog with citations", "./test-data/good-control-citations.yaml", "#ControlCatalog", false, ""},
 
 		// GuidanceCatalog — positive
 		{"valid AI governance framework", "./test-data/good-aigf.yaml", "#GuidanceCatalog", false, ""},
 		{"guideline see-also references across ordering", "./test-data/good-guidance-see-also.yaml", "#GuidanceCatalog", false, ""},
+		{"valid guidance catalog with citations", "./test-data/good-guidance-citations.yaml", "#GuidanceCatalog", false, ""},
 		// PrinciplesCatalog — positive
 		{"valid AIGF principles catalog", "./test-data/good-aigf-principles.yaml", "#PrincipleCatalog", false, ""},
+		{"valid principle catalog with citations", "./test-data/good-principle-citations.yaml", "#PrincipleCatalog", false, ""},
 
 		// VectorCatalog — positive
 		{"valid AIGF vector catalog", "./test-data/good-aigf-vectors.yaml", "#VectorCatalog", false, ""},
+		{"valid vector catalog with citations", "./test-data/good-vector-citations.yaml", "#VectorCatalog", false, ""},
 		{"threats with vectors", "./test-data/good-threat-catalog.yaml", "#ThreatCatalog", false, ""},
+		{"valid threat catalog with citations", "./test-data/good-threat-citations.yaml", "#ThreatCatalog", false, ""},
 		{"valid capability catalog", "./test-data/good-capability-catalog.yaml", "#CapabilityCatalog", false, ""},
+		{"valid capability catalog with citations", "./test-data/good-capability-citations.yaml", "#CapabilityCatalog", false, ""},
 		{"vector mapping", "./test-data/good-vector-owasp-mapping.yaml", "#MappingDocument", false, ""},
 
 		// AI agent capability catalog and ATR mappings (authored by ATR, validated against Gemara)
@@ -77,6 +83,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// RiskCatalog — positive
 		{"valid risk catalog", "./test-data/good-risk-catalog.yaml", "#RiskCatalog", false, ""},
+		{"valid risk catalog with citations", "./test-data/good-risk-citations.yaml", "#RiskCatalog", false, ""},
 
 		// RiskCatalog — negative
 		{"risk catalog with duplicate rank", "./test-data/bad-risk-catalog-duplicate-rank.yaml", "#RiskCatalog", true, `_uniqueRiskRanks."1"`},
@@ -171,7 +178,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
-		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
+		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true, `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
@@ -210,6 +217,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"capability missing required id", "./test-data/bad-capability-missing-id.yaml", "#CapabilityCatalog", true, "capabilities.0.id: incomplete value string"},
 		{"capability missing required description", "./test-data/bad-capability-missing-description.yaml", "#CapabilityCatalog", true, "capabilities.0.description: incomplete value string"},
 		{"capability catalog with empty capabilities list", "./test-data/bad-capability-empty-capabilities.yaml", "#CapabilityCatalog", true, "capabilities: incompatible list lengths"},
+		{"capability with undeclared citation reference", "./test-data/bad-capability-undeclared-citation.yaml", "#CapabilityCatalog", true, `_citationRefValidation."0-0"`},
 
 		// Metadata artifact type — negative
 		{"metadata with an unknown artifact type", "./test-data/bad-metadata-unknown-artifact-type.yaml", "#Metadata", true, `type: 13 errors in empty disjunction`},
@@ -220,26 +228,32 @@ func TestSchemaValidation(t *testing.T) {
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
 		{"threat missing description", "./test-data/bad-threat-missing-description.yaml", "#ThreatCatalog", true, "threats.0.description: incomplete value string"},
 		{"threat with empty capabilities list", "./test-data/bad-threat-empty-capabilities.yaml", "#ThreatCatalog", true, "threats.0.capabilities: incompatible list lengths"},
+		{"threat with undeclared citation reference", "./test-data/bad-threat-undeclared-citation.yaml", "#ThreatCatalog", true, `_citationRefValidation."0-0"`},
 
 		// VectorCatalog — negative
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
 		{"vector catalog with duplicate vector id", "./test-data/bad-vector-duplicate-id.yaml", "#VectorCatalog", true, `_uniqueVectorIds."VEC-001"`},
 		{"vector missing id", "./test-data/bad-vector-missing-id.yaml", "#VectorCatalog", true, "vectors.0.id: incomplete value string"},
 		{"vector catalog with empty vectors list", "./test-data/bad-vector-empty-list.yaml", "#VectorCatalog", true, "vectors: incompatible list lengths"},
+		{"vector with undeclared citation reference", "./test-data/bad-vector-undeclared-citation.yaml", "#VectorCatalog", true, `_citationRefValidation."0-0"`},
 
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
 		{"principle catalog with duplicate principle id", "./test-data/bad-principle-duplicate-id.yaml", "#PrincipleCatalog", true, `_uniquePrinciplesIds."PRIN-001"`},
 		{"principle missing description", "./test-data/bad-principle-missing-description.yaml", "#PrincipleCatalog", true, "principles.0.description: incomplete value string"},
 		{"principle catalog with empty principles list", "./test-data/bad-principle-empty-list.yaml", "#PrincipleCatalog", true, "principles: incompatible list lengths"},
+		{"principle with undeclared citation reference", "./test-data/bad-principle-undeclared-citation.yaml", "#PrincipleCatalog", true, `_citationRefValidation."0-0"`},
+		{"principle with citation but missing mapping-references", "./test-data/bad-principle-citation-no-mapping-references.yaml", "#PrincipleCatalog", true, `_citationRefValidation."0-0"`},
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},
 		{"control with invalid applicability", "./test-data/bad-control-invalid-applicability.yaml", "#ControlCatalog", true, `_applicabilityValidation."0-0-0": invalid value ["production"]`},
+		{"control with undeclared citation reference", "./test-data/bad-control-undeclared-citation.yaml", "#ControlCatalog", true, `_citationRefValidation."0-0"`},
 
 		// RiskCatalog — negative (group validation)
 		{"risk with invalid group", "./test-data/bad-risk-catalog-invalid-group.yaml", "#RiskCatalog", true, `_groupValidation."0": invalid value ["CAT-SECURITY"]`},
 		{"risk catalog with duplicate risk id", "./test-data/bad-risk-duplicate-id.yaml", "#RiskCatalog", true, `_uniqueRiskIds."RISK-001"`},
+		{"risk with undeclared citation reference", "./test-data/bad-risk-undeclared-citation.yaml", "#RiskCatalog", true, `_citationRefValidation."0-0"`},
 
 		// Catalog & Metadata collection uniqueness — negative
 		{"catalog with duplicate group id", "./test-data/bad-catalog-duplicate-group-id.yaml", "#ControlCatalog", true, `_uniqueGroupIds."GRP-ACCESS"`},
@@ -250,6 +264,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
 		{"guideline with invalid applicability", "./test-data/bad-guidance-invalid-applicability.yaml", "#GuidanceCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-native"]`},
 		{"guideline with dangling see-also reference", "./test-data/bad-guidance-dangling-see-also.yaml", "#GuidanceCatalog", true, `_seeAlsoValidation."0-0": invalid value ["GL-001"]`},
+		{"guideline with undeclared citation reference", "./test-data/bad-guidance-undeclared-citation.yaml", "#GuidanceCatalog", true, `_citationRefValidation."0-0"`},
 
 		// VectorCatalog — negative (applicability validation)
 		{"vector with invalid applicability", "./test-data/bad-vector-invalid-applicability.yaml", "#VectorCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]`},

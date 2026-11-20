@@ -1,0 +1,28 @@
+title: Capability Catalog with Citations
+metadata:
+  id: CAP-CIT-CAT
+  type: CapabilityCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Capability Catalog with entry citations
+  author:
+    id: arch-team
+    name: Architecture Team
+    type: Human
+  mapping-references:
+    - id: OCI-SPEC
+      title: Open Container Initiative Image Specification
+      version: "v1.1.0"
+      url: https://github.com/opencontainers/image-spec
+groups:
+  - id: container-infra
+    title: Container Infrastructure
+    description: Core container capabilities
+capabilities:
+  - id: CAP-01
+    title: Container Image Distribution
+    description: System capability to distribute OCI container images.
+    group: container-infra
+    citations:
+      - reference-id: OCI-SPEC
+        remarks: Section 5 Distribution

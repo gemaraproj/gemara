@@ -16,7 +16,7 @@ import "list"
 	// threats is a list of threats defined by this catalog
 	threats?: [#Threat, ...#Threat] @go(Threats)
 
-	// when threats are listed, groups is required, threat ids must be unique, and each threat's group must be a declared group id
+	// when threats are listed, groups is required, threat ids must be unique, each threat's group must be a declared group id, and each citation reference-id must be declared in metadata.mapping-references
 	if threats != _|_ {
 		_uniqueThreatIds: {for i, t in threats {(t.id): i}}
 		groups: [#Group, ...#Group]
@@ -25,6 +25,13 @@ import "list"
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, t in threats {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(t.group)
+		}
+
+		let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+		for i, t in threats if t.citations != _|_ {
+			for j, cit in t.citations {
+				_citationRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(cit."reference-id")
+			}
 		}
 	}
 }
@@ -51,4 +58,7 @@ import "list"
 
 	// actors describes the relevant internal or external threat actors
 	actors?: [#Actor, ...#Actor]
+
+	// citations lists the external sources this entry is drawn from
+	citations?: [#ArtifactMapping, ...#ArtifactMapping] @go(Citations)
 }
