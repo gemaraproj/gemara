@@ -1,0 +1,28 @@
+title: Invalid Mapping Document Undeclared Target Reference
+metadata:
+  id: BAD-MAP-UNDECLARED-TARGET
+  type: MappingDocument
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Mapping document referencing undeclared target-reference
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+  mapping-references:
+    - id: SOURCE-CATALOG
+      title: Source Catalog
+      version: "1.0.0"
+      url: https://example.com/source
+source-reference:
+  reference-id: SOURCE-CATALOG
+  entry-type: Control
+target-reference:
+  reference-id: UNDECLARED-TARGET
+  entry-type: Control
+mappings:
+  - id: MAP-001
+    source: SOURCE-1
+    relationship: equivalent
+    targets:
+      - entry-id: TARGET-1

@@ -1,0 +1,31 @@
+metadata:
+  id: TEST-GUIDANCE-CATALOG
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Guidance catalog with undeclared vector reference
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+  mapping-references:
+    - id: VALID-MAPPING
+      title: Valid Mapping
+      version: "1.0.0"
+
+title: Test Guidance Catalog
+type: Framework
+
+groups:
+  - id: PREV
+    title: Preventive
+    description: Preventive guidance
+
+guidelines:
+  - id: GDL-001
+    group: PREV
+    title: Test Guideline
+    vectors:
+      - reference-id: UNDECLARED-VECTOR
+        entries:
+          - reference-id: VEC-001

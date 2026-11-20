@@ -16,7 +16,7 @@ import "list"
 	// controls is a list of unique controls defined by this catalog
 	controls?: [#Control, ...#Control] @go(Controls)
 
-	// when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, and each assessment requirement's applicability must name declared applicability groups
+	// when controls are listed, groups and metadata.applicability-groups are required, control ids must be unique, each control's group must be a declared group id, each assessment requirement's applicability must name declared applicability groups, and when metadata.mapping-references is set, each replaced-by, guideline, or threat reference-id must be declared in it
 	if controls != _|_ {
 		_uniqueControlIds: {for i, c in controls {(c.id): i}}
 		groups: [#Group, ...#Group]
@@ -30,6 +30,30 @@ import "list"
 			for j, ar in c."assessment-requirements" {
 				for k, a in ar.applicability {
 					_applicabilityValidation: "\(i)-\(j)-\(k)": _validApplicabilityIds & list.Contains(a)
+				}
+			}
+		}
+
+		if metadata."mapping-references" != _|_ {
+			let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+			for i, c in controls {
+				if c."replaced-by" != _|_ {
+					_controlReplacedByRefValidation: "\(i)": _validRefIds & list.Contains(c."replaced-by"."reference-id")
+				}
+				for j, ar in c."assessment-requirements" {
+					if ar."replaced-by" != _|_ {
+						_arReplacedByRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(ar."replaced-by"."reference-id")
+					}
+				}
+				if c.guidelines != _|_ {
+					for j, g in c.guidelines {
+						_guidelineRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(g."reference-id")
+					}
+				}
+				if c.threats != _|_ {
+					for j, th in c.threats {
+						_threatRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(th."reference-id")
+					}
 				}
 			}
 		}
