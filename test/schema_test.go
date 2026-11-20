@@ -225,7 +225,12 @@ func TestSchemaValidation(t *testing.T) {
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
 		{"vector catalog with duplicate vector id", "./test-data/bad-vector-duplicate-id.yaml", "#VectorCatalog", true, `_uniqueVectorIds."VEC-001"`},
 		{"vector missing id", "./test-data/bad-vector-missing-id.yaml", "#VectorCatalog", true, "vectors.0.id: incomplete value string"},
+		{"vector missing title", "./test-data/bad-vector-missing-title.yaml", "#VectorCatalog", true, "vectors.0.title: incomplete value string"},
+		{"vector missing description", "./test-data/bad-vector-missing-description.yaml", "#VectorCatalog", true, "vectors.0.description: incomplete value string"},
+		{"vector missing group", "./test-data/bad-vector-missing-group.yaml", "#VectorCatalog", true, "vectors.0.group: incomplete value string"},
+		{"vector with empty applicability list", "./test-data/bad-vector-empty-applicability.yaml", "#VectorCatalog", true, "vectors.0.applicability: incompatible list lengths"},
 		{"vector catalog with empty vectors list", "./test-data/bad-vector-empty-list.yaml", "#VectorCatalog", true, "vectors: incompatible list lengths"},
+		{"vector catalog with empty groups list", "./test-data/bad-vector-empty-groups.yaml", "#VectorCatalog", true, "groups: incompatible list lengths"},
 
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
