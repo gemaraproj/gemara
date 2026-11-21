@@ -25,7 +25,6 @@ metadata:
       title: "Approved Exception Register"
       version: "2025-Q3"
 
-effect: Blocked
 
 target:
   id: gemara-repo

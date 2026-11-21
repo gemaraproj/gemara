@@ -21,7 +21,6 @@ metadata:
       title: "pvtr Evaluation Log"
       version: "2025-08-22"
 
-effect: None
 
 target:
   id: gemara-repo

@@ -811,7 +811,7 @@ components:
       type: string
       x-status: experimental
     Effect:
-      description: "Effect is what an enforcement action did to its target. It rolls up from an\naction to the log by the precedence Blocked > Remediated > Undetermined > None:\nthe strongest effect dominates, because the log records what the enforcement\nlayer did; how much that should worry anyone is the audit's question.\n\nAn effect is not a finding's disposition, which says how the finding was\nsettled. The two line up in documented ways rather than enforced ones: a\nblock leaves its finding Open, since the gate prevented harm without fixing\nanything; a remediation normally leaves it Resolved; an action with no effect\nthat cites an exception leaves it Waived; and one with no effect and no\nexception, a shadow gate, leaves it Open."
+      description: "Effect is what an enforcement action did to its target. It belongs to the\naction, and an enforcement log states no effect of its own. An evaluation\nsweeps a target, so its log states one result for the sweep; enforcement is\nsurgical, and each action is the unit a consumer acts on. A consumer that\nneeds one effect for a log takes the strongest of its actions' effects by the\nprecedence Blocked > Remediated > Undetermined > None, because the log records\nwhat the enforcement layer did; how much that should worry anyone is the\naudit's question.\n\nAn effect is not a finding's disposition, which says how the finding was\nsettled. The two line up in documented ways rather than enforced ones: a\nblock leaves its finding Open, since the gate prevented harm without fixing\nanything; a remediation normally leaves it Resolved; an action with no effect\nthat cites an exception leaves it Waived; and one with no effect and no\nexception, a shadow gate, leaves it Open."
       enum:
       - Undetermined
       - Blocked
@@ -829,7 +829,6 @@ components:
       - $ref: "#/components/schemas/Log"
       - required:
         - metadata
-        - effect
         - actions
       description: EnforcementLog records actions taken in response to noncompliance findings from Layer 5 evaluations.
       properties:
@@ -841,10 +840,6 @@ components:
             type: object
           minItems: 1
           type: array
-        effect:
-          allOf:
-          - $ref: "#/components/schemas/Effect"
-          description: "effect is the aggregate across this log's actions, by the precedence\ndocumented on #Effect."
         metadata:
           description: metadata provides detailed data about this log
           properties:

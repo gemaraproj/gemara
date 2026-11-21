@@ -15,7 +15,6 @@ metadata:
       title: "Information Security Policy"
       version: "2.1.0"
 
-effect: None
 
 target:
   id: gemara-repo

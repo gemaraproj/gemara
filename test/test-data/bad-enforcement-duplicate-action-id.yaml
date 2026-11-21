@@ -17,7 +17,6 @@ metadata:
       title: "PVTR Evaluation Log"
       version: "2025-08-22"
 
-effect: Blocked
 
 target:
   id: gemara-repo

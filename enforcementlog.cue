@@ -12,9 +12,6 @@ import "list"
 #EnforcementLog: {
 	#Log
 	metadata: type: "EnforcementLog"
-	// effect is the aggregate across this log's actions, by the precedence
-	// documented on #Effect.
-	effect: #Effect
 	// actions is the list of enforcement actions performed
 	actions: [#ActionResult, ...#ActionResult] @go(Actions,type=[]*ActionResult)
 
@@ -137,10 +134,14 @@ import "list"
 	log: #ArtifactMapping
 }
 
-// Effect is what an enforcement action did to its target. It rolls up from an
-// action to the log by the precedence Blocked > Remediated > Undetermined > None:
-// the strongest effect dominates, because the log records what the enforcement
-// layer did; how much that should worry anyone is the audit's question.
+// Effect is what an enforcement action did to its target. It belongs to the
+// action, and an enforcement log states no effect of its own. An evaluation
+// sweeps a target, so its log states one result for the sweep; enforcement is
+// surgical, and each action is the unit a consumer acts on. A consumer that
+// needs one effect for a log takes the strongest of its actions' effects by the
+// precedence Blocked > Remediated > Undetermined > None, because the log records
+// what the enforcement layer did; how much that should worry anyone is the
+// audit's question.
 //
 // An effect is not a finding's disposition, which says how the finding was
 // settled. The two line up in documented ways rather than enforced ones: a
@@ -160,8 +161,9 @@ import "list"
 
 // #_ActionResultStrict carries the justification rules on #ActionResult. It is
 // hidden from Go code generation (@go(-)), so the generated types stay shape
-// only; cue2openapi lists its rules under x-rules. effect is redeclared here so
-// the conditions resolve to the action rather than to the log's aggregate.
+// only; cue2openapi lists its rules under x-rules. effect and justification are
+// redeclared here because the conditions below can only reference fields
+// declared in this struct, not ones that arrive by unifying with #ActionResult.
 #_ActionResultStrict: {
 	@go(-)
 } & #ActionResult & {
