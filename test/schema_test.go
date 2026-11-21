@@ -91,11 +91,13 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
 		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
+		{"policy adopting guidance applicability groups", "./test-data/good-policy-guidance-applicability.yaml", "#Policy", false, ""},
 		{"valid policy with mitigated and accepted risks", "./test-data/good-policy-risks.yaml", "#Policy", false, ""},
 		{"valid policy with accepted risks only", "./test-data/good-policy-accepted-only-risks.yaml", "#Policy", false, ""},
 
 		// Policy — negative (applicability)
 		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
+		{"policy with empty guidance applicability list", "./test-data/bad-policy-empty-guidance-applicability.yaml", "#Policy", true, "imports.guidance.0.applicability: incompatible list lengths"},
 
 		// Policy — negative
 		{"policy with disallowed field directly under scope", "./test-data/bad-policy-invalid-scope.yaml", "#Policy", true, "scope.technologies: field not allowed"},
@@ -171,7 +173,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
-		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
+		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true, `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},

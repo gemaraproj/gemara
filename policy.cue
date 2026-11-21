@@ -194,6 +194,10 @@ import "list"
 	exclusions?: [string, ...string]
 	// Constraints allow policy authors to define ad hoc minimum requirements (e.g., "review at least annually").
 	constraints?: [#Constraint, ...#Constraint]
+	// applicability selects the applicability groups to adopt from this imported guidance document. Each ID must match
+	// an entry in the guidance document's metadata."applicability-groups". A guideline is in play when any of its
+	// applicability IDs is selected. Guidelines that do not set applicability remain in play.
+	"applicability"?: [string, ...string] @go(Applicability)
 }
 
 // CatalogImport defines how to import control catalogs with optional exclusions and constraints.

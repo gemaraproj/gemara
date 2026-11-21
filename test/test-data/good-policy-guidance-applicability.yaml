@@ -1,0 +1,59 @@
+metadata:
+  id: "policy-with-guidance-applicability"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy demonstrating adoption of specific applicability groups from imported guidance"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "AIGF"
+      title: "AI Governance Framework"
+      version: "1.0.0"
+      url: "https://example.com/aigf"
+  applicability-groups:
+    - id: "production-ai"
+      title: "Production AI"
+      description: "Systems deploying AI models into production"
+
+title: "Policy with Adopted Guidance Applicability Groups"
+contacts:
+  responsible:
+    - name: "AI Ethics Lead"
+      email: "ai-ethics@example.com"
+  accountable:
+    - name: "CISO"
+      email: "ciso@example.com"
+  consulted:
+    - name: "ML Engineering Lead"
+      email: "ml-lead@example.com"
+  informed:
+    - name: "All Staff"
+
+scope:
+  in:
+    technologies:
+      - "Generative AI Systems"
+
+imports:
+  guidance:
+    - reference-id: "AIGF"
+      applicability:
+        - "production-ai"
+
+adherence:
+  evaluation-methods:
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
+      description: "Automated model alignment checks"
+  enforcement-methods:
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
+      required: true
+      description: "Model release gate"
+  non-compliance: "Escalate to AI safety committee"
