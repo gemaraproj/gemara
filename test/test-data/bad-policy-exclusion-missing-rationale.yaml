@@ -1,0 +1,59 @@
+metadata:
+  id: "security-policy-missing-rationale-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy with an exclusion missing required rationale"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "NIST-800-53"
+      title: "NIST Special Publication 800-53"
+      version: "Rev. 5"
+      description: "Security and Privacy Controls for Federal Information Systems"
+      url: "https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final"
+
+title: "Policy with Missing Exclusion Rationale"
+contacts:
+  responsible:
+    - name: "IT Director"
+      affiliation: "IT"
+      email: "it@company.com"
+  accountable:
+    - name: "CISO"
+      affiliation: "Security"
+      email: "ciso@company.com"
+  consulted:
+    - name: "Legal"
+      affiliation: "Legal"
+      email: "legal@company.com"
+  informed:
+    - name: "All"
+      affiliation: "All"
+
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+
+imports:
+  catalogs:
+    - reference-id: "NIST-800-53"
+      exclusions:
+        - id: "AC-1"
+
+adherence:
+  evaluation-methods:
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
+      description: "Automated compliance scanning"
+  enforcement-methods:
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
+      required: true
+      description: "Pre-deployment gate"

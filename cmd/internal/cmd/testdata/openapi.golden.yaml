@@ -553,9 +553,9 @@ components:
           minItems: 1
           type: array
         exclusions:
-          description: exclusions lists the control and assessment requirement IDs from the imported catalog that this policy leaves out
+          description: exclusions lists the controls and assessment requirements from the imported catalog that this policy leaves out, each with a required rationale
           items:
-            type: string
+            $ref: "#/components/schemas/Exclusion"
           minItems: 1
           type: array
         reference-id:
@@ -563,6 +563,8 @@ components:
       required:
       - reference-id
       type: object
+      x-rules:
+      - when exclusions are listed, each exclusion id must be unique
       x-status: experimental
     CollectedAtAnchor:
       description: |-
@@ -1064,6 +1066,22 @@ components:
         EvaluationLog, EnforcementLog) plus categories for common evidence forms.
       type: string
       x-status: stable
+    Exclusion:
+      description: Exclusion defines a catalog or guidance item excluded from this policy, along with its justification.
+      properties:
+        id:
+          description: id identifies the excluded control, assessment requirement, or guideline from the imported artifact
+          pattern: "\\S"
+          type: string
+        rationale:
+          description: rationale explains the justification for excluding this item from the policy
+          pattern: "\\S"
+          type: string
+      required:
+      - id
+      - rationale
+      type: object
+      x-status: experimental
     Exemption:
       description: Exemption describes a single scenario where the catalog is not applicable
       properties:
@@ -1151,8 +1169,9 @@ components:
           minItems: 1
           type: array
         exclusions:
+          description: exclusions lists the guidelines from the imported guidance document that this policy leaves out, each with a required rationale
           items:
-            type: string
+            $ref: "#/components/schemas/Exclusion"
           minItems: 1
           type: array
         reference-id:
@@ -1160,6 +1179,8 @@ components:
       required:
       - reference-id
       type: object
+      x-rules:
+      - when exclusions are listed, each exclusion id must be unique
       x-status: experimental
     GuidanceType:
       description: GuidanceType restricts the possible types that a catalog may be listed as

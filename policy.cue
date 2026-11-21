@@ -191,21 +191,41 @@ import "list"
 // GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
 #GuidanceImport: {
 	"reference-id": string @go(ReferenceId)
-	exclusions?: [string, ...string]
+	// exclusions lists the guidelines from the imported guidance document that this policy leaves out, each with a required rationale
+	exclusions?: [#Exclusion, ...#Exclusion]
 	// Constraints allow policy authors to define ad hoc minimum requirements (e.g., "review at least annually").
 	constraints?: [#Constraint, ...#Constraint]
+
+	// when exclusions are listed, each exclusion id must be unique
+	if exclusions != _|_ {
+		_uniqueGuidanceExclusionIds: {for i, e in exclusions {(e.id): i}}
+	}
 }
 
 // CatalogImport defines how to import control catalogs with optional exclusions and constraints.
 #CatalogImport: {
 	"reference-id": string @go(ReferenceId)
-	// exclusions lists the control and assessment requirement IDs from the imported catalog that this policy leaves out
-	exclusions?: [string, ...string]
+	// exclusions lists the controls and assessment requirements from the imported catalog that this policy leaves out, each with a required rationale
+	exclusions?: [#Exclusion, ...#Exclusion]
 	constraints?: [#Constraint, ...#Constraint]
 	// applicability selects the applicability groups to adopt from this imported catalog. Each ID must match
 	// an entry in the catalog's metadata."applicability-groups". A requirement is in play when any of its
 	// applicability IDs is selected.
 	"applicability"?: [string, ...string] @go(Applicability)
+
+	// when exclusions are listed, each exclusion id must be unique
+	if exclusions != _|_ {
+		_uniqueCatalogExclusionIds: {for i, e in exclusions {(e.id): i}}
+	}
+}
+
+// Exclusion defines a catalog or guidance item excluded from this policy, along with its justification.
+#Exclusion: {
+	// id identifies the excluded control, assessment requirement, or guideline from the imported artifact
+	id: string & =~"\\S"
+
+	// rationale explains the justification for excluding this item from the policy
+	rationale: string & =~"\\S"
 }
 
 // Constraint defines a prescriptive requirement that applies to a specific guidance or control.
