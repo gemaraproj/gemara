@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/goccy/go-yaml"
 )
 
@@ -234,5 +235,23 @@ func TestConverterWritesManifest(t *testing.T) {
 	}
 	if !slices.Contains(got["metadata.cue"], "Datetime") {
 		t.Errorf("manifest metadata.cue = %v, want it to contain Datetime", got["metadata.cue"])
+	}
+}
+
+func TestConverterEncodeErrorsOnUnconverted(t *testing.T) {
+	c := NewConverter("", "")
+	if _, err := c.EncodeOpenAPI(); err == nil || !strings.Contains(err.Error(), "convert a CUE package before writing OpenAPI") {
+		t.Errorf("expected unconverted EncodeOpenAPI error, got %v", err)
+	}
+	if _, err := c.EncodeManifest(); err == nil || !strings.Contains(err.Error(), "convert a CUE package before writing a manifest") {
+		t.Errorf("expected unconverted EncodeManifest error, got %v", err)
+	}
+}
+
+func TestConverterEncodeManifestRequiresComponentsSchemas(t *testing.T) {
+	c := NewConverter("", "")
+	c.doc = &openapi3.T{}
+	if _, err := c.EncodeManifest(); err == nil || !strings.Contains(err.Error(), "generated document has no components.schemas") {
+		t.Errorf("expected missing components.schemas error, got %v", err)
 	}
 }
