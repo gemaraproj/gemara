@@ -29,6 +29,7 @@ var repoFixtures = []struct {
 	{"test/test-data/nested-good-ccc.yaml", "ControlCatalog"},
 	{"test/test-data/nested-empty.yaml", "ControlCatalog"},
 	{"test/test-data/good-aigf.yaml", "GuidanceCatalog"},
+	{"test/test-data/good-guidance-see-also.yaml", "GuidanceCatalog"},
 	{"test/test-data/good-aigf-principles.yaml", "PrincipleCatalog"},
 	{"test/test-data/good-aigf-vectors.yaml", "VectorCatalog"},
 	{"test/test-data/good-threat-catalog.yaml", "ThreatCatalog"},

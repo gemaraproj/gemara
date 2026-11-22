@@ -1,0 +1,27 @@
+metadata:
+  id: TEST-DANGLING-SEE-ALSO
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Guidance catalog with a guideline referencing a nonexistent guideline in see-also.
+  author:
+    id: test
+    name: Test Author
+    type: Human
+
+title: Dangling See-Also Test
+type: Standard
+
+groups:
+  - id: sec
+    title: Security
+    description: Security guidelines.
+
+guidelines:
+  - id: GL-001
+    group: sec
+    title: First Guideline
+    objective: Test objective.
+    state: Active
+    see-also:
+      - NONEXISTENT-GUIDELINE
