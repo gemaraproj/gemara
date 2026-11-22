@@ -170,6 +170,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"evaluation log mapping reference url with no scheme", "./test-data/bad-evaluation-log-mapping-reference-url-no-scheme.yaml", "#EvaluationLog", true, `metadata."mapping-references".0.url: invalid value "baseline.openssf.org"`},
 
 		// EvaluationLog — negative
+		{"duplicate control mapping in evaluation log", "./test-data/bad-evaluation-log-duplicate-control.yaml", "#EvaluationLog", true, `duplicate control mapping`},
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 

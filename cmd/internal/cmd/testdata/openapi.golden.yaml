@@ -189,7 +189,9 @@ components:
         log:
           allOf:
           - $ref: "#/components/schemas/EntryMapping"
-          description: log maps to the EvaluationLog entry containing the finding
+          description: |-
+            log references the EvaluationLog entry containing the finding; it identifies the
+            ControlEvaluation rather than a nested AssessmentLog.
         plan:
           allOf:
           - $ref: "#/components/schemas/EntryMapping"
@@ -939,6 +941,7 @@ components:
           description: result is the aggregate outcome across all evaluations in this log
       type: object
       x-rules:
+      - A control mapping can identify at most one evaluation within this log.
       - "Within one evidence list an id appears once: listing an item twice in the same place says nothing. Every rule here skips an item with no id, which the schema already reports where the id is missing."
       - Across the log an evidence id names exactly one evidence item. The same item may appear under its id in another assessment's evidence, which is how one artifact supports several results; two different items may not share an id.
       - An evidence source names where the evidence came from, so its reference-id must be a mapping reference declared in this log's metadata.
