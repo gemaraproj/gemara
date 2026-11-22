@@ -9,6 +9,7 @@
 1. View the model and supporting resources at [gemara.openssf.org](https://gemara.openssf.org)
 2. Find schemas in this repository, or in the CUE central registry.
   - Use the schemas directly with [cue](https://cuelang.org/) for validating Gemara data payloads against the schemas and more.
+  - See [`bundle/`](bundle/) for how Gemara artifacts are packaged as OCI artifacts (experimental), with conformance test data for implementations.
 3. Use the Go SDK to integrate Gemara schemas into your automated tools
   - `github.com/gemaraproj/go-gemara` and consult our [go docs](https://pkg.go.dev/github.com/gemaraproj/go-gemara)
 
