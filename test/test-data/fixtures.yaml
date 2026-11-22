@@ -130,6 +130,13 @@ fixtures:
       error: 'summary: incomplete value string'
     reason: 'audit log missing summary criteria and results'
 
+  - files: [test/test-data/bad-capability-artifact-type-wrong-artifact.yaml]
+    definition: '#CapabilityCatalog'
+    schema:
+      valid: false
+      error: 'metadata.type: conflicting values "CapabilityCatalog" and "Policy"'
+    reason: 'capability metadata with a type belonging to another artifact'
+
   - files: [test/test-data/bad-capability-duplicate-id.yaml]
     definition: '#CapabilityCatalog'
     schema:
@@ -291,6 +298,13 @@ fixtures:
       error: '"assessment-logs".0.start: incomplete value'
     reason: 'executed assessment missing start'
 
+  - files: [test/test-data/bad-guidance-dangling-see-also.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: false
+      error: '_seeAlsoValidation."0-0": invalid value ["GL-001"]'
+    reason: 'guideline with dangling see-also reference'
+
   - files: [test/test-data/bad-guidance-duplicate-id.yaml]
     definition: '#GuidanceCatalog'
     schema:
@@ -402,6 +416,13 @@ fixtures:
       valid: false
       error: '_uniqueRefIds."NIST-800-53"'
     reason: 'mapping document with duplicate mapping reference id'
+
+  - files: [test/test-data/bad-metadata-unknown-artifact-type.yaml]
+    definition: '#Metadata'
+    schema:
+      valid: false
+      error: 'type: 13 errors in empty disjunction'
+    reason: 'metadata with an unknown artifact type'
 
   - files: [test/test-data/bad-no-groups.yaml]
     definition: '#ControlCatalog'
@@ -774,6 +795,12 @@ fixtures:
     schema:
       valid: true
     reason: 'assessments that never ran omit start'
+
+  - files: [test/test-data/good-guidance-see-also.yaml]
+    definition: '#GuidanceCatalog'
+    schema:
+      valid: true
+    reason: 'guideline see-also references across ordering'
 
   - files: [test/test-data/good-lexicon.yaml]
     definition: '#Lexicon'
