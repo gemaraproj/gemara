@@ -66,6 +66,9 @@ func (c *Converter) Post() error {
 	if err != nil {
 		return err
 	}
+	if err := checkStableReferences(c.prep.DefinitionUses, statuses); err != nil {
+		return err
+	}
 	applyStatusTyped(doc, schemaAbsFiles(c.value), statuses)
 	return nil
 }

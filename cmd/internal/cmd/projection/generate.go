@@ -28,7 +28,7 @@ func loadPrepared(schemaDir string) (cue.Value, *prepInfo, *build.Instance, erro
 		return cue.Value{}, nil, nil, fmt.Errorf("loading CUE package %s: %w", schemaDir, inst.Err)
 	}
 
-	info := &prepInfo{HelperRules: map[string][]helperRule{}}
+	info := &prepInfo{HelperRules: map[string][]helperRule{}, DefinitionUses: definitionUses(inst.Files)}
 	for _, f := range inst.Files {
 		fileInfo, err := prepare(f)
 		if err != nil {
