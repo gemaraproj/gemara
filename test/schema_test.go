@@ -61,6 +61,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// GuidanceCatalog — positive
 		{"valid AI governance framework", "./test-data/good-aigf.yaml", "#GuidanceCatalog", false, ""},
+		{"guidance catalog with exemptions", "./test-data/good-guidance-exemptions.yaml", "#GuidanceCatalog", false, ""},
 		{"guideline see-also references across ordering", "./test-data/good-guidance-see-also.yaml", "#GuidanceCatalog", false, ""},
 		// PrinciplesCatalog — positive
 		{"valid AIGF principles catalog", "./test-data/good-aigf-principles.yaml", "#PrincipleCatalog", false, ""},
@@ -148,7 +149,15 @@ func TestSchemaValidation(t *testing.T) {
 		{"guidance catalog with duplicate guideline id", "./test-data/bad-guidance-duplicate-id.yaml", "#GuidanceCatalog", true, `_uniqueGuidelineIds."AIR-PREV-001"`},
 		{"guideline missing required title", "./test-data/bad-guidance-missing-title.yaml", "#GuidanceCatalog", true, "guidelines.0.title: incomplete value string"},
 		{"guideline with empty recommendations list", "./test-data/bad-guidance-empty-recommendations.yaml", "#GuidanceCatalog", true, "guidelines.0.recommendations: incompatible list lengths"},
+		{"guideline with empty applicability list", "./test-data/bad-guidance-empty-applicability.yaml", "#GuidanceCatalog", true, "guidelines.0.applicability: incompatible list lengths"},
+		{"guideline with empty see-also list", "./test-data/bad-guidance-empty-see-also.yaml", "#GuidanceCatalog", true, `guidelines.0."see-also": incompatible list lengths`},
+		{"guideline statement missing required id", "./test-data/bad-guidance-statement-missing-id.yaml", "#GuidanceCatalog", true, "guidelines.0.statements.0.id: incomplete value string"},
+		{"guideline statement missing required text", "./test-data/bad-guidance-statement-missing-text.yaml", "#GuidanceCatalog", true, "guidelines.0.statements.0.text: incomplete value string"},
+		{"guideline statement with empty recommendations list", "./test-data/bad-guidance-statement-empty-recommendations.yaml", "#GuidanceCatalog", true, "guidelines.0.statements.0.recommendations: incompatible list lengths"},
 		{"guidance catalog with empty guidelines list", "./test-data/bad-guidance-empty-list.yaml", "#GuidanceCatalog", true, "guidelines: incompatible list lengths"},
+		{"guidance catalog exemption missing description", "./test-data/bad-guidance-exemption-missing-description.yaml", "#GuidanceCatalog", true, "exemptions.0.description: incomplete value string"},
+		{"guidance catalog exemption missing reason", "./test-data/bad-guidance-exemption-missing-reason.yaml", "#GuidanceCatalog", true, "exemptions.0.reason: incomplete value string"},
+		{"guideline rationale missing importance", "./test-data/bad-guidance-rationale-missing-importance.yaml", "#GuidanceCatalog", true, "guidelines.0.rationale.importance: incomplete value string"},
 
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
