@@ -1,0 +1,27 @@
+metadata:
+  id: TEST-GUIDANCE-STATEMENT-MISSING-TEXT
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Guideline statement missing required text
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+
+title: AI Governance Framework
+type: Framework
+
+groups:
+  - id: PREV
+    title: Preventive
+    description: Prevention and Risk Mitigation
+
+guidelines:
+  - id: AIR-PREV-001
+    title: Preventive Guideline
+    objective: Require secure model deployment
+    group: PREV
+    statements:
+      - id: AIR-PREV-001-S1
+        title: Incomplete Statement

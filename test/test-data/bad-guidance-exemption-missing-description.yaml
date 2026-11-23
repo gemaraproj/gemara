@@ -1,0 +1,27 @@
+metadata:
+  id: TEST-GUIDANCE-EXEMPTION-MISSING-DESC
+  type: GuidanceCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Guidance catalog exemption missing description
+  author:
+    id: test-author
+    name: Test Author
+    type: Human
+
+title: AI Governance Framework
+type: Framework
+
+groups:
+  - id: PREV
+    title: Preventive
+    description: Prevention and Risk Mitigation
+
+exemptions:
+  - reason: Testing exemption without description
+
+guidelines:
+  - id: AIR-PREV-001
+    title: Preventive Guideline
+    objective: Require secure model deployment
+    group: PREV
