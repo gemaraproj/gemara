@@ -2,7 +2,7 @@
 name: Feature request
 description: Suggest an idea for this project
 labels:
-  - needs-triage
+  - maintainer-triage
   - enhancement
 body:
   - type: textarea

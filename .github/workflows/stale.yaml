@@ -25,7 +25,7 @@ jobs:
           days-before-issue-close: 14
           days-before-pr-stale: 30
           days-before-pr-close: 14
-          exempt-issue-labels: keep,security
+          exempt-issue-labels: keep,security,maintainer-triage
           exempt-pr-labels: keep,security
           stale-issue-message: >-
             This issue has had no activity for 60 days. It will close in 14 days
