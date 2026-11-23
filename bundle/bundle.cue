@@ -105,8 +105,6 @@ import "list"
 	"gemara-version": string
 	// revision is an optional producer-chosen revision label.
 	revision?: string
-	// metadata holds producer extensions, not to be confused with the Gemara document's metadata.
-	metadata?: {...}
 	// artifacts describes each bundled document and its dependencies.
 	artifacts?: [...#ConfigArtifact]
 	...

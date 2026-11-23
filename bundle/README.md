@@ -82,7 +82,6 @@ such as `application/vnd.gemara.bundle.config.v2+json`.
 | `bundle-version` | yes | The `artifact` document's `metadata.version`, exactly. It is **not** the format version, and consumers MUST NOT read it as one. |
 | `gemara-version` | yes | The Gemara specification version the bundled documents target. |
 | `revision` | no | A revision label the producer chooses. |
-| `metadata` | no | An object for producer extensions. The format gives its keys no meaning. |
 | `artifacts` | no | One entry per bundled document: `name`, `type`, `id`, `role`, and optional `dependencies` (names of the documents it references). |
 
 Producers MUST set `bundle-version` to the `artifact` document's
@@ -90,9 +89,8 @@ Producers MUST set `bundle-version` to the `artifact` document's
 `bundle-version`: bundles already published carry other values, such as
 `1.0`. Consumers MUST ignore fields they don't recognise.
 
-Provenance is not yet part of the format. A producer may record it under
-`metadata`, but the format gives that no meaning; signed provenance is better
-carried as an OCI referrer of the manifest.
+Provenance is not yet part of the format. Signed provenance is better carried
+as an OCI referrer of the manifest.
 
 The `artifacts` list describes the layers; it does not define them. The layers
 are the source of truth for what a bundle contains.
