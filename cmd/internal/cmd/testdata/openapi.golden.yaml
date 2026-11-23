@@ -93,7 +93,7 @@ components:
     Actor:
       allOf:
       - $ref: "#/components/schemas/Entity"
-      description: Actor represents an entity (human or tool) that performs actions in evaluations
+      description: Actor represents an entity (human, group, or tool) that performs actions in evaluations or participates as a stakeholder
       properties:
         contact:
           allOf:
@@ -402,12 +402,17 @@ components:
             $ref: "#/components/schemas/AuditResult"
           minItems: 1
           type: array
+        stakeholders:
+          allOf:
+          - $ref: "#/components/schemas/Stakeholders"
+          description: stakeholders defines the parties, roles, and assignments for this audit
         summary:
           description: summary provides the high-level conclusion
           type: string
       type: object
       x-rules:
       - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
+      - when an owner is declared, stakeholders must be defined and every role named in owner must be declared in stakeholders.roles
       x-status: experimental
     AuditResult:
       description: AuditResult records a single result with supporting evidence and recommendations.
@@ -839,7 +844,7 @@ components:
       type: string
       x-status: experimental
     Entity:
-      description: Entity represents a human or tool
+      description: Entity represents a human, group, or tool
       properties:
         description:
           description: description provides additional context about the entity
@@ -874,6 +879,7 @@ components:
       description: EntityType specifies what entity is interacting in the workflow
       enum:
       - Human
+      - Group
       - Software
       - Software Assisted
       type: string
@@ -1712,16 +1718,31 @@ components:
           $ref: "#/components/schemas/Risks"
         scope:
           $ref: "#/components/schemas/Scope"
+        stakeholders:
+          allOf:
+          - $ref: "#/components/schemas/Stakeholders"
+          - required:
+            - assignments
+          properties:
+            assignments:
+              items:
+                $ref: "#/components/schemas/RoleAssignment"
+              minItems: 1
+              type: array
+          type: object
         title:
           type: string
       required:
       - title
       - metadata
       - contacts
+      - stakeholders
       - scope
       - imports
       - adherence
       type: object
+      x-rules:
+      - every role named in a RACI slot must be declared in stakeholders.roles, and every accountable role must have an assignment
       x-status: experimental
     Principle:
       description: Principle represents a foundational value or tenet that guides governance, design, and operational decisions
@@ -1779,27 +1800,27 @@ components:
       description: RACI defines the roles responsible for managing an artifact
       properties:
         accountable:
-          description: accountable identifies the entity ultimately accountable for the outcome
+          description: accountable identifies the roles ultimately accountable for the outcome
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
         consulted:
-          description: consulted identifies entities whose input is required when assessing or responding to the artifact
+          description: consulted identifies roles whose input is required when assessing or responding to the artifact
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
         informed:
-          description: informed identifies entities that should be notified about changes to the artifact status
+          description: informed identifies roles that should be notified about changes to the artifact status
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
         responsible:
-          description: responsible identifies the entities responsible for executing work to manage or mitigate the artifact
+          description: responsible identifies the roles executing work to manage or mitigate the artifact
           items:
-            $ref: "#/components/schemas/Contact"
+            type: string
           minItems: 1
           type: array
       required:
@@ -2097,9 +2118,13 @@ components:
             $ref: "#/components/schemas/Risk"
           minItems: 1
           type: array
+        stakeholders:
+          allOf:
+          - $ref: "#/components/schemas/Stakeholders"
+          description: stakeholders defines the parties, roles, and standing role assignments for this catalog
       type: object
       x-rules:
-      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, and each risk's group must be a declared group id
+      - when risks are listed, groups is required, risk ids must be unique, no two risks may share a rank, each risk's group must be a declared group id, and any risk owner roles must be declared in stakeholders.roles
       x-status: experimental
     RiskCategory:
       allOf:
@@ -2138,6 +2163,40 @@ components:
       - when mitigated risks are listed, each mitigated risk id must be unique
       - when accepted risks are listed, each accepted risk id must be unique, and when target-id is set, it must match an entry in risks.mitigated
       x-status: experimental
+    Role:
+      description: Role defines a governance, operational, or interest role that can be bound to parties
+      properties:
+        description:
+          description: description describes the responsibilities or nature of this role
+          type: string
+        id:
+          description: id uniquely identifies this role
+          type: string
+        title:
+          description: title is the human-readable name of the role
+          type: string
+      required:
+      - id
+      - title
+      type: object
+      x-status: stable
+    RoleAssignment:
+      description: RoleAssignment binds one or more parties to a specific role
+      properties:
+        party-ids:
+          description: party-ids lists the parties assigned to this role
+          items:
+            type: string
+          minItems: 1
+          type: array
+        role-id:
+          description: role-id identifies the role being assigned
+          type: string
+      required:
+      - role-id
+      - party-ids
+      type: object
+      x-status: stable
     Scope:
       description: Scope defines what is included and excluded from policy applicability.
       properties:
@@ -2158,6 +2217,36 @@ components:
       - Critical
       type: string
       x-status: experimental
+    Stakeholders:
+      description: Stakeholders defines the reusable parties, roles, and optional standing assignments
+      properties:
+        assignments:
+          description: assignments optionally declares standing party-to-role bindings
+          items:
+            $ref: "#/components/schemas/RoleAssignment"
+          minItems: 1
+          type: array
+        parties:
+          description: parties lists the entities taking part by holding a stake
+          items:
+            $ref: "#/components/schemas/Actor"
+          minItems: 1
+          type: array
+        roles:
+          description: roles lists the roles defined for this context
+          items:
+            $ref: "#/components/schemas/Role"
+          minItems: 1
+          type: array
+      required:
+      - parties
+      - roles
+      type: object
+      x-rules:
+      - party ids must be unique
+      - role ids must be unique
+      - every role and party referenced in an assignment must be declared in stakeholders.roles and stakeholders.parties
+      x-status: stable
     Statement:
       description: |-
         Statement represents a structural sub-requirement within a guideline;

@@ -16,6 +16,9 @@ import "list"
 	// owner defines the RACI roles responsible for managing the audit
 	owner?: #RACI @go(Owner)
 
+	// stakeholders defines the parties, roles, and assignments for this audit
+	stakeholders?: #Stakeholders @go(Stakeholders,optional=nillable)
+
 	// summary provides the high-level conclusion
 	summary: string
 
@@ -94,6 +97,29 @@ import "list"
 		if item.id != _|_
 		if item.source != _|_ {
 			_evidenceSourceDeclared: "evidence \(item.id) names a source that is not declared in metadata.mapping-references": true & _declaredReferenceIDs[item.source."reference-id"]
+		}
+	}
+
+	// when an owner is declared, stakeholders must be defined and every role named in owner must be declared in stakeholders.roles
+	if owner != _|_ {
+		stakeholders: #Stakeholders
+		let _validRoleIds = [for r in stakeholders.roles {r.id}]
+
+		for j, roleId in owner.responsible {
+			_auditOwnerValidationResp: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+		for j, roleId in owner.accountable {
+			_auditOwnerValidationAcct: "\(j)": _validRoleIds & list.Contains(roleId)
+		}
+		if owner.consulted != _|_ {
+			for j, roleId in owner.consulted {
+				_auditOwnerValidationCons: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
+		}
+		if owner.informed != _|_ {
+			for j, roleId in owner.informed {
+				_auditOwnerValidationInfo: "\(j)": _validRoleIds & list.Contains(roleId)
+			}
 		}
 	}
 }
