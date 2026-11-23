@@ -13,7 +13,7 @@ import "list"
 // ArtifactTypeV1 is the OCI artifactType of a version 1 bundle manifest.
 #ArtifactTypeV1: "application/vnd.gemara.bundle.v1"
 
-// ConfigMediaTypeV1 is the media type of the bundle config blob (bundle.json).
+// ConfigMediaTypeV1 is the media type of the bundle config blob.
 #ConfigMediaTypeV1: "application/vnd.gemara.manifest.v1+json"
 
 // LayerMediaTypeV1 is the media type of a layer that holds one Gemara YAML document.
@@ -40,8 +40,8 @@ import "list"
 #Role: "artifact" | "import"
 
 // FileName is a layer's file name: one path segment, not "." or "..",
-// and not "bundle.json", which the unpacked layout reserves for the config.
-#FileName: string & =~"^[^/\\\\]+$" & !="." & !=".." & !="bundle.json"
+// and not "bundle.json" or "references", which the unpacked layout reserves.
+#FileName: string & =~"^[^/\\\\]+$" & !="." & !=".." & !="bundle.json" & !="references"
 
 // Digest is an OCI content digest, for example "sha256:<64 hex>".
 #Digest: string & =~"^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$"
@@ -97,15 +97,15 @@ import "list"
 	...
 }
 
-// Config is the bundle config blob. An unpacker may write a rendering of it as bundle.json; the content check uses the blob's own bytes.
+// A tool that unpacks a bundle may save it to disk as bundle.json, possibly reformatted. The content check hashes the config blob as fetched.
 #Config: {
-	// bundle-version is a producer-chosen label for this bundle. It is not the format version.
+	// bundle-version is the bundled artifact's metadata.version, elevated from within the primary document in the bundle.
 	"bundle-version": string
 	// gemara-version is the Gemara specification version the bundled artifacts target.
 	"gemara-version": string
 	// revision is an optional producer-chosen revision label.
 	revision?: string
-	// metadata holds producer extensions. The format gives its keys no meaning.
+	// metadata holds producer extensions, not to be confused with the Gemara document's metadata.
 	metadata?: {...}
 	// artifacts describes each bundled document and its dependencies.
 	artifacts?: [...#ConfigArtifact]
@@ -115,13 +115,13 @@ import "list"
 // ConfigArtifact describes one bundled document in the config.
 #ConfigArtifact: {
 	// name is the document's file name, matching its layer's title annotation.
-	name: string
+	name: #FileName
 	// type is the document's Gemara artifact type.
 	type: string
 	// id is the document's metadata.id.
 	id: string
 	// role is the document's layer role.
-	role: string
+	role: #Role
 	// dependencies lists the names of the documents this one references.
-	dependencies?: [...string]
+	dependencies?: [...#FileName]
 }

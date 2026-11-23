@@ -51,8 +51,8 @@ def layer(name, data, role, typ=None):
     return desc(LAYER, data, a)
 
 
-def config(artifacts):
-    return json.dumps({"bundle-version": "1.0.0", "gemara-version": "1.0.0", "artifacts": artifacts},
+def config(version, artifacts):
+    return json.dumps({"bundle-version": version, "gemara-version": "1.0.0", "artifacts": artifacts},
                       separators=(",", ":")).encode()
 
 
@@ -71,11 +71,11 @@ def render(cfg):
     return json.dumps(json.loads(cfg), indent=2).encode()
 
 
-SINGLE_CFG = config([{"name": "catalog.yaml", "type": "ControlCatalog", "id": "example-controls", "role": "artifact"}])
+SINGLE_CFG = config("2.1.0", [{"name": "catalog.yaml", "type": "ControlCatalog", "id": "example-controls", "role": "artifact"}])
 SINGLE_LAYERS = [layer("catalog.yaml", CATALOG, "artifact", "ControlCatalog")]
 SINGLE_FILES = {"bundle.json": render(SINGLE_CFG), "catalog.yaml": CATALOG}
 
-IMP_CFG = config([
+IMP_CFG = config("1.0.0", [
     {"name": "policy.yaml", "type": "Policy", "id": "example-policy", "role": "artifact",
      "dependencies": ["catalog.yaml", "guidance.yaml"]},
     {"name": "catalog.yaml", "type": "ControlCatalog", "id": "example-controls", "role": "import"},
@@ -141,9 +141,29 @@ add("mismatch-layer", "An import file differs from its layer.",
     MI, IMP_CFG, {**IMP_FILES, "imports/catalog.yaml": CATALOG.replace(b"2.1.0", b"2.1.1")}, "mismatch")
 add("mismatch-config", "The config bytes held differ from the config descriptor.",
     M1, SINGLE_CFG.replace(b"1.0.0", b"9.9.9", 1), SINGLE_FILES, "mismatch")
-add("missing-layer", "An import layer has no file.",
-    MI, IMP_CFG, {k: v for k, v in IMP_FILES.items() if k != "imports/guidance.yaml"}, "missing-layer")
+add("missing-file", "An import layer has no file.",
+    MI, IMP_CFG, {k: v for k, v in IMP_FILES.items() if k != "imports/guidance.yaml"}, "missing-file")
 add("missing-config", "The implementation holds no config bytes.",
-    M1, None, SINGLE_FILES, "missing-layer")
-add("extra-layer", "A file in the unpacked layout matches no layer.",
-    M1, SINGLE_CFG, {**SINGLE_FILES, "imports/extra.yaml": GUIDANCE}, "extra-layer")
+    M1, None, SINGLE_FILES, "missing-config")
+add("extra-file", "A file in the unpacked layout matches no layer.",
+    M1, SINGLE_CFG, {**SINGLE_FILES, "imports/extra.yaml": GUIDANCE}, "extra-file")
+add("valid-references", "Files under references/ are ignored by the content check.",
+    M1, SINGLE_CFG, {**SINGLE_FILES, "references/provenance.json": b"{}\n"}, "ok")
+for title in ["../x", "a/b.yaml", "bundle.json", "references"]:
+    add("malformed-title-" + title.replace("../", "dotdot-").replace("/", "-").replace(".", "-"),
+        f"A layer title ({title}) is not a valid file name.",
+        manifest(SINGLE_CFG, [layer(title, CATALOG, "artifact", "ControlCatalog")]), SINGLE_CFG,
+        SINGLE_FILES, "malformed-manifest")
+add("malformed-duplicate-title", "Two import layers have the same title.",
+    manifest(IMP_CFG, IMP_LAYERS + [layer("catalog.yaml", GUIDANCE, "import", "GuidanceCatalog")]), IMP_CFG,
+    IMP_FILES, "malformed-manifest")
+add("malformed-config-media-type", "The config media type is not the Gemara config media type.",
+    manifest(SINGLE_CFG, SINGLE_LAYERS).replace(CONFIG.encode(), b"application/vnd.oci.image.config.v1+json", 1),
+    SINGLE_CFG, SINGLE_FILES, "malformed-manifest")
+add("legacy-missing-role-imports", "The artifact layer has no role annotation and the other layers are imports.",
+    manifest(IMP_CFG, [layer("policy.yaml", POLICY, None, "Policy")] + IMP_LAYERS[1:]), IMP_CFG, IMP_FILES,
+    "ok", legacy=True)
+_odd = layer("guidance.yaml", GUIDANCE, "import", "GuidanceCatalog")
+_odd["digest"] = "example:" + hashlib.sha256(GUIDANCE).hexdigest()
+add("unsupported-digest", "An import layer's digest uses an algorithm no implementation is required to support.",
+    manifest(IMP_CFG, IMP_LAYERS[:2] + [_odd]), IMP_CFG, IMP_FILES, "unsupported-digest")

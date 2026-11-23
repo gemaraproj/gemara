@@ -102,6 +102,9 @@ type descriptor struct {
 // holds, or nil. It supports sha256 digests only.
 func checkBundle(manifest []byte, want string, config []byte, unpacked string) string {
 	// Step 1: the manifest bytes hash to the requested digest.
+	if !strings.HasPrefix(want, "sha256:") {
+		return "unsupported-digest"
+	}
 	if sha256Digest(manifest) != want {
 		return "digest-mismatch"
 	}
@@ -156,7 +159,7 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 			continue
 		}
 		name := l.Annotations["org.opencontainers.image.title"]
-		if name == "" || name == "." || name == ".." || name == "bundle.json" || strings.ContainsAny(name, `/\`) {
+		if name == "" || name == "." || name == ".." || name == "bundle.json" || name == "references" || strings.ContainsAny(name, `/\`) {
 			return "malformed-manifest"
 		}
 		path := name
@@ -173,10 +176,18 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 	if artifacts != 1 {
 		return "malformed-manifest"
 	}
+	if !strings.HasPrefix(m.Config.Digest, "sha256:") {
+		return "unsupported-digest"
+	}
+	for _, l := range expected {
+		if !strings.HasPrefix(l.Digest, "sha256:") {
+			return "unsupported-digest"
+		}
+	}
 
 	// Step 5: the config bytes, then every layer file, match their descriptors.
 	if config == nil {
-		return "missing-layer"
+		return "missing-config"
 	}
 	if int64(len(config)) != m.Config.Size || sha256Digest(config) != m.Config.Digest {
 		return "mismatch"
@@ -184,7 +195,7 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 	for path, d := range expected {
 		info, err := os.Lstat(filepath.Join(unpacked, filepath.FromSlash(path)))
 		if err != nil {
-			return "missing-layer"
+			return "missing-file"
 		}
 		if !info.Mode().IsRegular() {
 			return "mismatch"
@@ -195,19 +206,23 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 		}
 	}
 
-	// Step 6: nothing else is present.
+	// Step 6: nothing else is present outside references/.
 	result := "ok"
 	_ = filepath.WalkDir(unpacked, func(p string, e fs.DirEntry, err error) error {
 		if err != nil {
-			result = "extra-layer"
+			result = "extra-file"
 			return err
 		}
+		rel, _ := filepath.Rel(unpacked, p)
+		rel = filepath.ToSlash(rel)
 		if e.IsDir() {
+			if rel == "references" {
+				return fs.SkipDir
+			}
 			return nil
 		}
-		rel, _ := filepath.Rel(unpacked, p)
-		if _, ok := expected[filepath.ToSlash(rel)]; !ok && rel != "bundle.json" {
-			result = "extra-layer"
+		if _, ok := expected[rel]; !ok && rel != "bundle.json" {
+			result = "extra-file"
 			return fs.SkipAll
 		}
 		return nil

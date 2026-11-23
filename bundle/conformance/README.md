@@ -11,7 +11,8 @@ whitespace or line endings. Fields:
 
 - `description`: what the test case tests;
 - `expect`: the check's result: `ok`, `digest-mismatch`, `malformed-manifest`,
-  `unknown-role`, `mismatch`, `missing-layer` or `extra-layer`;
+  `unknown-role`, `unsupported-digest`, `mismatch`, `missing-config`, `missing-file` or
+  `extra-file`;
 - `legacy`: present and `true` when the test case is a [legacy bundle](../README.md#legacy-bundles).
   The check accepts it; `bundle.cue` rejects it, because producers must not write it;
 - `digest`: the digest the caller expects for the manifest (plain text);

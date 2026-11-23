@@ -34,7 +34,7 @@ byte for byte. Layer annotations:
 
 | Annotation | Required | Value |
 |---|---|---|
-| `org.opencontainers.image.title` | yes | The document's file name. One path segment: no `/` or `\`, not `.`, `..` or `bundle.json`. |
+| `org.opencontainers.image.title` | yes | The document's file name. One path segment: no `/` or `\`, not `.`, `..`, `bundle.json` or `references`. |
 | `org.gemara.artifact.role` | yes | `artifact` or `import`. |
 | `org.gemara.artifact.type` | no | The document's Gemara artifact type, for example `ControlCatalog`. Informative only. |
 
@@ -72,21 +72,27 @@ manifest annotations are still covered by the manifest digest.
 The config blob is a JSON object. An unpacker may also write it to disk as
 `bundle.json` (see [Unpacked layout](#unpacked-layout)).
 
+The config media type is `application/vnd.gemara.manifest.v1+json`. Despite
+its name, it identifies the config blob, not the OCI image manifest. It is
+fixed for version 1. A future version should use a name that says "config",
+such as `application/vnd.gemara.bundle.config.v2+json`.
+
 | Field | Required | Meaning |
 |---|---|---|
-| `bundle-version` | yes | A label the producer chooses for this bundle, for example the source document's `metadata.version`. It is **not** the format version, and consumers MUST NOT read it as one. |
+| `bundle-version` | yes | The `artifact` document's `metadata.version`, exactly. It is **not** the format version, and consumers MUST NOT read it as one. |
 | `gemara-version` | yes | The Gemara specification version the bundled documents target. |
 | `revision` | no | A revision label the producer chooses. |
 | `metadata` | no | An object for producer extensions. The format gives its keys no meaning. |
 | `artifacts` | no | One entry per bundled document: `name`, `type`, `id`, `role`, and optional `dependencies` (names of the documents it references). |
 
-`bundle-version` and `gemara-version` may be empty strings. Consumers MUST
-ignore fields they don't recognise.
+Producers MUST set `bundle-version` to the `artifact` document's
+`metadata.version`. Consumers MUST NOT reject a bundle because of its
+`bundle-version`: bundles already published carry other values, such as
+`1.0`. Consumers MUST ignore fields they don't recognise.
 
-Provenance is not part of the format. A producer may record it under
+Provenance is not yet part of the format. A producer may record it under
 `metadata`, but the format gives that no meaning; signed provenance is better
-carried as an OCI referrer of the manifest. *(Proposal, pending a maintainer
-decision.)*
+carried as an OCI referrer of the manifest.
 
 The `artifacts` list describes the layers; it does not define them. The layers
 are the source of truth for what a bundle contains.
@@ -99,6 +105,7 @@ An unpacked bundle is a directory:
 <title>                the artifact layer
 imports/<title>        each import layer
 bundle.json            optional: a copy of the config, for people to read
+references/
 ```
 
 Layer files MUST be the layer's exact bytes.
@@ -107,9 +114,12 @@ Layer files MUST be the layer's exact bytes.
 exact bytes, MAY write a re-encoded copy (indented for reading, for example),
 or MAY leave it out. The content check never reads it. An implementation that
 wants to check the config later, offline, must keep the config's exact bytes
-somewhere else, such as its own cache. *(Proposal, pending a maintainer
-decision: this keeps existing `bundle.json` files and tools that read them
-working.)*
+somewhere else, such as its own cache. This keeps existing `bundle.json`
+files, and tools that read them, working.
+
+Tools that unpack a bundle should not create or follow symlinks in the
+unpacked layout. A symlink in place of a layer could make a tool read or write
+a file outside it.
 
 ## Content check
 
@@ -123,11 +133,17 @@ that a manifest describes. Its inputs are:
   registry, or kept in a cache), or nothing if it holds none;
 - the unpacked directory.
 
+Implementations MUST support `sha256` digests and MAY support other
+algorithms. A digest with an algorithm the implementation does not support is
+still well formed, as in OCI; the check cannot verify it, so it fails with
+`unsupported-digest` rather than `malformed-manifest`.
+
 The check does not fetch, sign or verify signatures. Run these steps in order
 and stop at the first failure:
 
-1. **Digest.** Hash the manifest bytes with the algorithm named in the
-   expected digest. If the result differs, fail with `digest-mismatch`.
+1. **Digest.** If the implementation does not support the algorithm named in
+   the expected digest, fail with `unsupported-digest`. Otherwise hash the
+   manifest bytes with it; if the result differs, fail with `digest-mismatch`.
 2. **Manifest.** Parse the bytes as JSON. Fail with `malformed-manifest` if
    parsing fails, if `schemaVersion` or `mediaType` differs from the values
    above, if `config.mediaType` is not the Gemara config media type, or if
@@ -139,17 +155,24 @@ and stop at the first failure:
    if that rule does not apply, fail with `unknown-role`.
 4. **Structure.** Fail with `malformed-manifest` if a Gemara layer's title is
    missing or not a valid file name, if two layers of the same role share a
-   title, if the number of `artifact` layers is not exactly one, or if a
-   descriptor's digest uses an algorithm the implementation does not support.
+   title, or if the number of `artifact` layers is not exactly one. Then, if
+   the config's or a Gemara layer's digest uses an algorithm the
+   implementation does not support, fail with `unsupported-digest`.
 5. **Content.** If the implementation holds no config bytes, fail with
-   `missing-layer`. If their size or digest differs from `config`, fail with
+   `missing-config`. If their size or digest differs from `config`, fail with
    `mismatch`. Then, for each Gemara layer, at its path in the unpacked layout:
-   - if nothing is there, fail with `missing-layer`;
+   - if nothing is there, fail with `missing-file`;
    - if what is there is not a regular file (a symlink, for example), or its
      size or digest differs from the layer's, fail with `mismatch`.
      Implementations MUST NOT follow symlinks.
-6. **Extras.** If the directory holds any file other than the layer files and
-   `bundle.json`, fail with `extra-layer`. Empty directories are ignored.
+6. **Extras.** If the directory holds any file other than the layer files,
+   `bundle.json` and files under `references/`, fail with `extra-file`. Empty
+   directories are ignored.
+
+`references/` holds material related to the bundle that isn't part of its
+signed content, such as dependencies, provenance or attestations. Its layout
+is up to the tool that writes it. The content check ignores references/, so
+its contents aren't covered by the bundle's signature.
 
 If every step passes, the result is `ok`. A consumer SHOULD warn when it
 accepted a legacy bundle.
@@ -166,8 +189,7 @@ bundle, and let callers change the bound.
 
 ## Legacy bundles
 
-*(Proposal, pending a maintainer decision.)* Every producer the authors know
-of writes the role annotation and `artifactType`. Bundles from older or other
+Every producer the authors know of writes the role annotation and `artifactType`. Bundles from older or other
 producers may lack them. So that such bundles stay readable, a consumer
 accepts these two cases, and SHOULD warn when it does:
 
@@ -203,7 +225,6 @@ an unknown role (step 3).
 
 The rules above follow existing producers: everything they write today passes
 the content check. Some existing consumers are more lenient than this spec.
-Each difference below is a proposal pending a maintainer decision.
 
 1. **Unknown roles.** Some consumers read any Gemara layer whose role is not
    `import` as the `artifact` layer. This spec rejects an unknown role, because
@@ -214,10 +235,11 @@ Each difference below is a proposal pending a maintainer decision.
    uses the config's exact bytes instead.
 3. **`bundle-version` has two meanings today.** One producer defaults it to the
    source document's `metadata.version`; another always writes `1.0`. This spec
-   keeps both: it is a producer label, not the format version.
+   requires the `artifact` document's `metadata.version`, and requires
+   consumers to accept bundles already published with other values.
 4. **Config media type.** Some consumers read the config only when its media
    type is the Gemara config type, and otherwise carry on with an empty config.
-   This spec rejects any other config media type. No known producer writes one.
+   This spec rejects any other config media type.
 5. **`artifactType`.** Existing consumers do not check it. This spec rejects a
    different value and accepts a missing one as legacy.
 6. **File names.** Existing producers do not check layer titles, and one names
@@ -226,7 +248,6 @@ Each difference below is a proposal pending a maintainer decision.
    not a single path segment. A producer should report the clash when it
    assembles the bundle, before publishing.
 7. **No artifact layer.** Some consumers accept a manifest with no artifact
-   layer and return an empty document. This spec requires exactly one. No known
-   producer can write such a manifest.
+   layer and return an empty document. This spec requires exactly one.
 8. **The `artifacts` list** is not checked against the layers anywhere today.
    This spec keeps it informative.
