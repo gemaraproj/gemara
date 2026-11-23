@@ -24,18 +24,16 @@ type definitionUse struct {
 // Prep reads them before prepare strips comprehensions, so a name inside a
 // cross-field rule counts too. A definition declared inside another one is
 // part of it, so neither its label nor a reference the parser bound to it is
-// listed.
-func definitionUses(files []*ast.File) []definitionUse {
+// listed. It fails when a file embeds anything but a struct literal at the
+// top level, since which package-level definitions that adds to can't be read
+// from the syntax.
+func definitionUses(files []*ast.File) ([]definitionUse, error) {
 	var out []definitionUse
+	var opaque []string
 	for _, f := range files {
 		labels := map[*ast.Ident]bool{}
 		allLabels := fieldLabels(f)
-		if !packageLabels(f.Decls, labels) {
-			// The file embeds a value whose fields can't be read from the
-			// syntax, so any label in it may declare part of a package-level
-			// definition. Count them all, rather than miss one.
-			labels = allLabels
-		}
+		opaque = append(opaque, packageLabels(f.Decls, labels)...)
 		astutil.Apply(f, func(c astutil.Cursor) bool {
 			id, ok := c.Node().(*ast.Ident)
 			if !ok || !isDefinitionName(id.Name) {
@@ -60,7 +58,10 @@ func definitionUses(files []*ast.File) []definitionUse {
 			return true
 		}, nil)
 	}
-	return out
+	if len(opaque) > 0 {
+		return nil, fmt.Errorf("only a struct literal can be embedded at the top level of a schema file, so the stable-reference check can see which definitions it adds to:\n  %s", strings.Join(opaque, "\n  "))
+	}
+	return out, nil
 }
 
 // fieldLabels records the label of every field in f, at any depth.
@@ -90,11 +91,11 @@ func unaliased(label ast.Label) ast.Label {
 // packageLabels records the labels that declare package-level fields: those of
 // top-level fields, aliased or not, and of fields in a top-level embedded
 // struct or comprehension, which CUE merges into the package the same way. It
-// reports false when an embedding is anything other than a struct literal,
-// such as a reference, a call or a unification, since the fields that adds to
-// the package can't be read from the syntax.
-func packageLabels(decls []ast.Decl, out map[*ast.Ident]bool) bool {
-	complete := true
+// returns the position of each top-level embedding that is anything other than
+// a struct literal, such as a reference, a call or a unification, since the
+// fields that adds to the package can't be read from the syntax.
+func packageLabels(decls []ast.Decl, out map[*ast.Ident]bool) []string {
+	var opaque []string
 	for _, d := range decls {
 		switch d := d.(type) {
 		case *ast.Field:
@@ -107,17 +108,17 @@ func packageLabels(decls []ast.Decl, out map[*ast.Ident]bool) bool {
 				expr = p.X
 			}
 			if s, ok := expr.(*ast.StructLit); ok {
-				complete = packageLabels(s.Elts, out) && complete
+				opaque = append(opaque, packageLabels(s.Elts, out)...)
 			} else {
-				complete = false
+				opaque = append(opaque, d.Pos().String())
 			}
 		case *ast.Comprehension:
 			if s, ok := d.Value.(*ast.StructLit); ok {
-				complete = packageLabels(s.Elts, out) && complete
+				opaque = append(opaque, packageLabels(s.Elts, out)...)
 			}
 		}
 	}
-	return complete
+	return opaque
 }
 
 func isDefinitionName(name string) bool {

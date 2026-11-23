@@ -17,7 +17,11 @@ func stabilityError(t *testing.T, files map[string]string) error {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return checkStableReferences(definitionUses(inst.Files), statuses)
+	uses, err := definitionUses(inst.Files)
+	if err != nil {
+		return err
+	}
+	return checkStableReferences(uses, statuses)
 }
 
 func TestCheckStableReferences(t *testing.T) {
@@ -173,30 +177,46 @@ func TestCheckStableReferences(t *testing.T) {
 			want: []string{"a.cue:3:5: stable a.cue names #A, which experimental b.cue declares"},
 		},
 		{
-			// The let's struct is merged into the package by the embedding,
-			// so its #X is part of the package-level #X.
-			name: "a stable file embeds a let at the top level",
+			// Embedding L merges its #X into the package-level #X, which the
+			// syntax alone doesn't show.
+			name: "a top-level embedding of a let is refused",
 			files: map[string]string{
 				"a.cue": stable + "let L = {#X: {s?: string}}\nL\n",
 				"b.cue": experimental + "#X: {e?: string}\n",
 			},
-			want: []string{"stable a.cue names #X, which experimental b.cue declares"},
+			want: []string{"only a struct literal can be embedded at the top level of a schema file, so the stable-reference check can see which definitions it adds to:\n  a.cue:4:1"},
 		},
 		{
-			name: "a stable file embeds a definition at the top level",
+			name: "a top-level embedding of a definition is refused",
 			files: map[string]string{
 				"a.cue": stable + "#A: {#X: {s?: string}}\n#A\n",
 				"b.cue": experimental + "#X: {e?: string}\n",
 			},
-			want: []string{"stable a.cue names #X, which experimental b.cue declares"},
+			want: []string{"a.cue:4:1"},
 		},
 		{
-			name: "experimental file adds to a stable definition through an embedded unification",
+			// b.cue adds a.cue's nested #A to the package-level #A.
+			name: "an experimental file embedding a stable definition is refused",
+			files: map[string]string{
+				"a.cue": stable + "#A: {value: string}\n#Container: {#A: {value: string}}\n",
+				"b.cue": experimental + "#Container\n",
+			},
+			want: []string{"b.cue:3:1"},
+		},
+		{
+			name: "a top-level embedded unification is refused",
 			files: map[string]string{
 				"a.cue": stable + "#A: b: string\n",
 				"b.cue": experimental + "{#A: c?: string} & {}\n",
 			},
-			want: []string{"stable a.cue names #A, which experimental b.cue declares"},
+			want: []string{"b.cue:3:1"},
+		},
+		{
+			name: "an embedding inside a top-level comprehension is refused",
+			files: map[string]string{
+				"a.cue": stable + "for k, v in {a: {#X: string}} {\n\tv\n}\n",
+			},
+			want: []string{"a.cue:4:2"},
 		},
 		{
 			name: "a selector names a definition of another package",
