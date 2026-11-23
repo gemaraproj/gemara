@@ -159,12 +159,15 @@ func TestSchemaValidation(t *testing.T) {
 		// happening under #496 — cannot quietly stop them testing evidence. Each
 		// negative fixture stands for one rule.
 		{"evidence that is addressed, carried, and reused by two assessments", "./test-data/good-evaluation-log-evidence.yaml", "#EvaluationLog", false, ""},
+		{"evidence that omits digest where its locator fixes the bytes or no claim is made", "./test-data/good-evaluation-log-evidence-digest-basis.yaml", "#EvaluationLog", false, ""},
 		{"inline payload with a source digest", "./test-data/bad-evaluation-log-evidence-payload-with-digest.yaml", "#EvaluationLog", true, "inline payload cannot also have a source digest"},
 		{"one evidence id naming different items in two assessments", "./test-data/bad-evaluation-log-evidence-id-reused.yaml", "#EvaluationLog", true, "names two different evidence items in this log: evaluations.0.assessment-logs.1.evidence.0 differs from evaluations.0.assessment-logs.0.evidence.0"},
 		{"one evidence item listed twice in one evidence list", "./test-data/bad-evaluation-log-evidence-id-repeated-in-list.yaml", "#EvaluationLog", true, "appears more than once in one evidence list"},
 		{"evidence source that is not declared", "./test-data/bad-evaluation-log-evidence-source-undeclared.yaml", "#EvaluationLog", true, "not declared in metadata.mapping-references"},
 		{"evidence with no id reported where the id is missing", "./test-data/bad-evaluation-log-evidence-missing-id.yaml", "#EvaluationLog", true, "evidence.0.id: incomplete value string"},
 		{"entry-id on evidence that is not a Gemara artifact", "./test-data/bad-evaluation-log-evidence-entry-id-not-artifact.yaml", "#EvaluationLog", true, "entry-id is only for evidence that is a Gemara artifact"},
+		{"evidence with no digest from a tag-only oci url", "./test-data/bad-evaluation-log-evidence-tag-only-oci-no-digest.yaml", "#EvaluationLog", true, "oci url not pinned by digest"},
+		{"evidence with no digest from a tag-only OCI url in uppercase", "./test-data/bad-evaluation-log-evidence-tag-only-oci-uppercase-scheme.yaml", "#EvaluationLog", true, "oci url not pinned by digest"},
 		{"evidence reused with an incomplete copy reports what is missing", "./test-data/bad-evaluation-log-evidence-id-reused-incomplete.yaml", "#EvaluationLog", true, "evidence.1.type: incomplete value"},
 		{"mapping reference with no id reported where the id is missing", "./test-data/bad-evaluation-log-mapping-reference-missing-id.yaml", "#EvaluationLog", true, "\"mapping-references\".1.id: incomplete value string"},
 		{"evaluation log mapping reference url with no scheme", "./test-data/bad-evaluation-log-mapping-reference-url-no-scheme.yaml", "#EvaluationLog", true, `metadata."mapping-references".0.url: invalid value "baseline.openssf.org"`},
@@ -184,6 +187,7 @@ func TestSchemaValidation(t *testing.T) {
 		// AuditLog — positive
 		{"valid audit log", "./test-data/good-audit-log.yaml", "#AuditLog", false, ""},
 		{"audit log evidence mapping with both coordinate and entry-id", "./test-data/good-audit-log-coordinate-and-entry-id.yaml", "#AuditLog", false, ""},
+		{"audit log evidence without digest from an oci url pinned by digest", "./test-data/good-audit-log-oci-digest-pinned-no-digest.yaml", "#AuditLog", false, ""},
 		{"audit log evidence with resolved conflicting retention obligations", "./test-data/good-audit-log-retention.yaml", "#AuditLog", false, ""},
 
 		// AuditLog — negative
@@ -200,6 +204,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"audit log mapping reference url with no scheme", "./test-data/bad-audit-log-url-no-scheme.yaml", "#AuditLog", true, `metadata."mapping-references".1.url: invalid value "baseline.openssf.org"`},
 		{"audit log mapping reference url with a non-alphabetic scheme", "./test-data/bad-audit-log-url-invalid-scheme.yaml", "#AuditLog", true, `metadata."mapping-references".1.url: invalid value "2oci://baseline.openssf.org"`},
 		{"audit log target uri with no scheme", "./test-data/bad-audit-log-uri-no-scheme.yaml", "#AuditLog", true, `target.uri: invalid value "github.com/gemaraproj/gemara"`},
+		{"audit log evidence with no digest from a tag-only oci url", "./test-data/bad-audit-log-evidence-tag-only-oci-no-digest.yaml", "#AuditLog", true, "oci url not pinned by digest"},
+		{"audit log evidence with no digest from a tag-only OCI url in uppercase", "./test-data/bad-audit-log-evidence-tag-only-oci-uppercase-scheme.yaml", "#AuditLog", true, "oci url not pinned by digest"},
 		{"retention obligation reference without an effective instant", "./test-data/bad-audit-log-retention-missing-effective.yaml", "#AuditLog", true, "obligations.1.effective"},
 		{"mutable preservation holds excluded from retention snapshots", "./test-data/bad-audit-log-retention-holds.yaml", "#AuditLog", true, "holds: field not allowed"},
 		{"retention block with no obligations", "./test-data/bad-audit-log-retention-empty.yaml", "#AuditLog", true, "obligations"},
