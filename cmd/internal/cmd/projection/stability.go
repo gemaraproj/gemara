@@ -20,14 +20,22 @@ type definitionUse struct {
 	decl bool   // the label of a top-level declaration
 }
 
-// definitionUses lists every place files name a definition. Prep reads them
-// before prepare strips comprehensions, so a name inside a cross-field rule
-// counts too.
+// definitionUses lists every place files name a package-level definition.
+// Prep reads them before prepare strips comprehensions, so a name inside a
+// cross-field rule counts too. A definition declared inside another one is
+// part of it, so neither its label nor a reference the parser bound to it is
+// listed.
 func definitionUses(files []*ast.File) []definitionUse {
 	var out []definitionUse
 	for _, f := range files {
 		labels := map[*ast.Ident]bool{}
-		packageLabels(f.Decls, labels)
+		allLabels := fieldLabels(f)
+		if !packageLabels(f.Decls, labels) {
+			// The file embeds a value whose fields can't be read from the
+			// syntax, so any label in it may declare part of a package-level
+			// definition. Count them all, rather than miss one.
+			labels = allLabels
+		}
 		astutil.Apply(f, func(c astutil.Cursor) bool {
 			id, ok := c.Node().(*ast.Ident)
 			if !ok || !isDefinitionName(id.Name) {
@@ -37,6 +45,17 @@ func definitionUses(files []*ast.File) []definitionUse {
 			if sel, ok := c.Parent().Node().(*ast.SelectorExpr); ok && sel.Sel == id {
 				return true
 			}
+			// A label nested in a struct declares a nested definition.
+			if allLabels[id] && !labels[id] {
+				return true
+			}
+			// The parser binds a reference to a nested declaration in scope
+			// to the struct that declares it. A reference to a package-level
+			// definition is bound to its file, or left unbound when another
+			// file declares it.
+			if _, nested := id.Scope.(*ast.StructLit); nested {
+				return true
+			}
 			out = append(out, definitionUse{name: id.Name, file: f.Filename, pos: id.Pos().String(), decl: labels[id]})
 			return true
 		}, nil)
@@ -44,30 +63,61 @@ func definitionUses(files []*ast.File) []definitionUse {
 	return out
 }
 
+// fieldLabels records the label of every field in f, at any depth.
+func fieldLabels(f *ast.File) map[*ast.Ident]bool {
+	out := map[*ast.Ident]bool{}
+	ast.Walk(f, func(n ast.Node) bool {
+		if field, ok := n.(*ast.Field); ok {
+			if id, ok := unaliased(field.Label).(*ast.Ident); ok {
+				out[id] = true
+			}
+		}
+		return true
+	}, nil)
+	return out
+}
+
+// unaliased returns the label an alias such as X=#A: names.
+func unaliased(label ast.Label) ast.Label {
+	if a, ok := label.(*ast.Alias); ok {
+		if l, ok := a.Expr.(ast.Label); ok {
+			return l
+		}
+	}
+	return label
+}
+
 // packageLabels records the labels that declare package-level fields: those of
 // top-level fields, aliased or not, and of fields in a top-level embedded
-// struct or comprehension, which CUE merges into the package the same way.
-func packageLabels(decls []ast.Decl, out map[*ast.Ident]bool) {
+// struct or comprehension, which CUE merges into the package the same way. It
+// reports false when an embedding is anything other than a struct literal,
+// such as a reference, a call or a unification, since the fields that adds to
+// the package can't be read from the syntax.
+func packageLabels(decls []ast.Decl, out map[*ast.Ident]bool) bool {
+	complete := true
 	for _, d := range decls {
 		switch d := d.(type) {
 		case *ast.Field:
-			label := d.Label
-			if a, ok := label.(*ast.Alias); ok {
-				label, _ = a.Expr.(ast.Label)
-			}
-			if id, ok := label.(*ast.Ident); ok {
+			if id, ok := unaliased(d.Label).(*ast.Ident); ok {
 				out[id] = true
 			}
 		case *ast.EmbedDecl:
-			if s, ok := d.Expr.(*ast.StructLit); ok {
-				packageLabels(s.Elts, out)
+			expr := d.Expr
+			for p, ok := expr.(*ast.ParenExpr); ok; p, ok = expr.(*ast.ParenExpr) {
+				expr = p.X
+			}
+			if s, ok := expr.(*ast.StructLit); ok {
+				complete = packageLabels(s.Elts, out) && complete
+			} else {
+				complete = false
 			}
 		case *ast.Comprehension:
 			if s, ok := d.Value.(*ast.StructLit); ok {
-				packageLabels(s.Elts, out)
+				complete = packageLabels(s.Elts, out) && complete
 			}
 		}
 	}
+	return complete
 }
 
 func isDefinitionName(name string) bool {

@@ -118,6 +118,87 @@ func TestCheckStableReferences(t *testing.T) {
 			want: []string{"stable a.cue names #A, which experimental b.cue declares"},
 		},
 		{
+			name: "experimental file adds to a stable definition through a parenthesized embedding",
+			files: map[string]string{
+				"a.cue": stable + "#A: b: string\n",
+				"b.cue": experimental + "({\n\t#A: c?: string\n})\n",
+			},
+			want: []string{"stable a.cue names #A, which experimental b.cue declares"},
+		},
+		{
+			// value binds to the #B nested in #A, not to b.cue's #B.
+			name: "a nested definition shadows a package-level one",
+			files: map[string]string{
+				"a.cue": stable + "#A: {\n\t#B: string\n\tvalue: #B\n\tlist: [for x in [1] {#B}]\n}\n",
+				"b.cue": experimental + "#B: int\n",
+			},
+		},
+		{
+			name: "a nested label is not a package-level declaration",
+			files: map[string]string{
+				"a.cue": stable + "#A: #B: string\n",
+				"b.cue": experimental + "#B: int\n",
+			},
+		},
+		{
+			// Inside #A, c names the package-level #C, which only b.cue declares.
+			name: "a reference from inside a definition still binds to the package",
+			files: map[string]string{
+				"a.cue": stable + "#A: {\n\t#B: string\n\tdeep: {x: #B, y: #C}\n}\n",
+				"b.cue": experimental + "#B: int\n#C: string\n",
+			},
+			want: []string{"a.cue:5:19: stable a.cue names #C, which experimental b.cue declares"},
+		},
+		{
+			name: "experimental file adds to a stable definition through an aliased label",
+			files: map[string]string{
+				"a.cue": stable + "#A: b: string\n",
+				"b.cue": experimental + "X=#A: c?: string\n#D: X\n",
+			},
+			want: []string{"stable a.cue names #A, which experimental b.cue declares"},
+		},
+		{
+			name: "an aliased nested label is not a package-level declaration",
+			files: map[string]string{
+				"a.cue": stable + "#A: {X=#B: string, c: X}\n",
+				"b.cue": experimental + "#B: int\n",
+			},
+		},
+		{
+			name: "a reference to a same-file definition is reported where it appears",
+			files: map[string]string{
+				"a.cue": stable + "#C: #A\n#A: b: string\n",
+				"b.cue": experimental + "#A: c?: string\n",
+			},
+			want: []string{"a.cue:3:5: stable a.cue names #A, which experimental b.cue declares"},
+		},
+		{
+			// The let's struct is merged into the package by the embedding,
+			// so its #X is part of the package-level #X.
+			name: "a stable file embeds a let at the top level",
+			files: map[string]string{
+				"a.cue": stable + "let L = {#X: {s?: string}}\nL\n",
+				"b.cue": experimental + "#X: {e?: string}\n",
+			},
+			want: []string{"stable a.cue names #X, which experimental b.cue declares"},
+		},
+		{
+			name: "a stable file embeds a definition at the top level",
+			files: map[string]string{
+				"a.cue": stable + "#A: {#X: {s?: string}}\n#A\n",
+				"b.cue": experimental + "#X: {e?: string}\n",
+			},
+			want: []string{"stable a.cue names #X, which experimental b.cue declares"},
+		},
+		{
+			name: "experimental file adds to a stable definition through an embedded unification",
+			files: map[string]string{
+				"a.cue": stable + "#A: b: string\n",
+				"b.cue": experimental + "{#A: c?: string} & {}\n",
+			},
+			want: []string{"stable a.cue names #A, which experimental b.cue declares"},
+		},
+		{
 			name: "a selector names a definition of another package",
 			files: map[string]string{
 				"a.cue": stable + "import \"example.com/q\"\n#A: b: q.#B\n",
