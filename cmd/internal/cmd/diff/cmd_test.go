@@ -197,3 +197,24 @@ func TestBreakingCheckCmdInvalidSchema(t *testing.T) {
 		t.Fatalf("expected error when running breaking-check on nonexistent schema dir, got nil")
 	}
 }
+
+func TestRunBreakingCheckFailsOnUnusedAllowlist(t *testing.T) {
+	// Base and candidate are identical (no breaking changes). An allowlist entry
+	// is provided, which will be unused. The check must fail (exit 1).
+	allow := filepath.Join(t.TempDir(), ".oasdiff-allow")
+	content := "some-check-id FooSchema\n"
+	if err := os.WriteFile(allow, []byte(content), 0644); err != nil {
+		t.Fatalf("writing allowlist: %v", err)
+	}
+	code, err := runBreakingCheck(breakingCheckOpts{
+		basePath:      "testdata/base.yaml",
+		candidatePath: "testdata/base.yaml",
+		allowPath:     allow,
+	})
+	if err != nil {
+		t.Fatalf("runBreakingCheck: %v", err)
+	}
+	if code != 1 {
+		t.Fatalf("expected exit code 1 for unused allowlist entry, got %d", code)
+	}
+}
