@@ -175,11 +175,18 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
+		{"shadow gate reporting findings without acting", "./test-data/good-enforcement-shadow-gate.yaml", "#EnforcementLog", false, ""},
 
 		// EnforcementLog — negative
-		{"enforcement action with invalid disposition", "./test-data/bad-enforcement-log.yaml", "#EnforcementLog", true, "actions.0.disposition: 4 errors in empty disjunction"},
-		{"enforcement action missing log reference", "./test-data/bad-enforcement-missing-log.yaml", "#EnforcementLog", true, `log."reference-id": incomplete value string`},
-		{"clear disposition with failed assessment", "./test-data/bad-enforcement-clear-failed.yaml", "#EnforcementLog", true, `conflicting values "Passed" and "Failed"`},
+		{"enforcement action with invalid effect", "./test-data/bad-enforcement-log.yaml", "#EnforcementLog", true, "actions.0.effect: 4 errors in empty disjunction"},
+		{"enforcement action missing log reference", "./test-data/bad-enforcement-missing-log.yaml", "#EnforcementLog", true, `findings.0.log."reference-id": incomplete value string`},
+		{"action with no effect carrying an empty justification", "./test-data/bad-enforcement-empty-justification-no-effect.yaml", "#EnforcementLog", true, "an empty justification justifies nothing"},
+		{"blocking action whose justification names no findings", "./test-data/bad-enforcement-empty-justification.yaml", "#EnforcementLog", true, "a Blocked or Remediated action acted on findings"},
+		{"enforcement finding the gate never rated", "./test-data/bad-enforcement-finding-missing-severity.yaml", "#EnforcementLog", true, "findings.0.severity: incomplete value"},
+		{"enforcement finding naming no control", "./test-data/bad-enforcement-finding-missing-control.yaml", "#EnforcementLog", true, `findings.0.control."reference-id": incomplete value string`},
+		{"enforcement finding citing an undeclared control reference", "./test-data/bad-enforcement-finding-undeclared-control.yaml", "#EnforcementLog", true, `does not satisfy list.Contains("OSPS-UNDECLARED")`},
+		{"enforcement log with duplicate action ids", "./test-data/bad-enforcement-duplicate-action-id.yaml", "#EnforcementLog", true, `_uniqueActionIds."ACT-01"`},
+		{"enforcement log with duplicate finding ids across actions", "./test-data/bad-enforcement-duplicate-finding-id.yaml", "#EnforcementLog", true, `_uniqueFindingIds."FIND-01"`},
 
 		// AuditLog — positive
 		{"valid audit log", "./test-data/good-audit-log.yaml", "#AuditLog", false, ""},
@@ -191,6 +198,7 @@ func TestSchemaValidation(t *testing.T) {
 		{"audit log with duplicate result id", "./test-data/bad-audit-log-duplicate-result-id.yaml", "#AuditLog", true, `_uniqueResultIds."RES-001"`},
 		{"audit log evidence source with invalid digest format", "./test-data/bad-audit-log-invalid-digest.yaml", "#AuditLog", true, `invalid value "SHA256:invalidbecauseuppercasealgorithm"`},
 		{"audit result referencing undeclared criteria", "./test-data/bad-audit-log-undeclared-criteria.yaml", "#AuditLog", true, `does not satisfy list.Contains("OSPS")`},
+		{"audit finding naming no control", "./test-data/bad-audit-log-finding-missing-control.yaml", "#AuditLog", true, `results.2.control."reference-id": incomplete value string`},
 		{"audit log evidence with neither payload nor source", "./test-data/bad-audit-log-evidence-neither.yaml", "#AuditLog", true, `evidence.0.source."reference-id": incomplete value string`},
 		{"audit log evidence reused with an incomplete copy reports what is missing", "./test-data/bad-audit-log-evidence-id-reused-incomplete.yaml", "#AuditLog", true, "evidence.1.type: incomplete value"},
 		{"audit log evidence id naming different items in two results", "./test-data/bad-audit-log-evidence-id-reused.yaml", "#AuditLog", true, "names two different evidence items in this log: results.3.evidence.1 differs from results.1.evidence.0"},

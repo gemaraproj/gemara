@@ -25,6 +25,22 @@ import "list"
 	// results records audit results against the criteria
 	results: [#AuditResult, ...#AuditResult] @go(Results,type=[]*AuditResult)
 
+	// The control rule is an element constraint rather than a conditional
+	// inside #AuditResult because a conditional on a required enum leaves the
+	// definition itself unevaluable. This comment stays detached (blank line
+	// after), so it is not added to the results field's description.
+
+	results: [...{
+		type: #ResultType // declared so the reference below resolves to this element
+
+		// A Gap or Finding result names the control it concerns, since a
+		// finding's identity across logs derives from the log's target and its
+		// control.
+		if type == "Gap" || type == "Finding" {
+			control: #EntryMapping
+		}
+	}]
+
 	// result ids must be unique, and each result's criteria-reference must name one of the declared criteria
 	if results != _|_ {
 		_uniqueResultIds: {for i, r in results {(r.id): i}}
@@ -101,8 +117,12 @@ import "list"
 // ResultType classifies the nature of an audit result
 #ResultType: "Gap" | "Finding" | "Observation" | "Strength" @go(-)
 
-// AuditResult records a single result with supporting evidence and recommendations.
+// AuditResult records a single result with supporting evidence and
+// recommendations. It carries the #Finding core, so a result that names a
+// control has the same derived identity as a finding in any other log.
 #AuditResult: {
+	#Finding
+
 	// id uniquely identifies this result
 	id: string
 
@@ -124,16 +144,4 @@ import "list"
 
 	// recommendations records corrective actions for this result
 	recommendations?: [#Recommendation, ...#Recommendation] @go(Recommendations)
-}
-
-// Recommendation provides a corrective action for an audit result
-#Recommendation: {
-	// id uniquely identifies this recommendation
-	id?: string
-
-	// text describes the recommended corrective action
-	text: string
-
-	// required indicates whether this recommendation is a mandatory corrective action
-	required: *false | bool @gemara(default=false)
 }

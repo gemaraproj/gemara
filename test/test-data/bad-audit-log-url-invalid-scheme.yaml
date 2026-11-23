@@ -68,6 +68,9 @@ results:
   - id: AR-DO-01
     title: "User documentation missing"
     type: Gap
+    control:
+      reference-id: OSPS
+      entry-id: OSPS-DO-01
     description: "No user guide is published or referenced in the Security Insights data."
     criteria-reference:
       reference-id: OSPS
@@ -90,6 +93,9 @@ results:
   - id: AR-DO-02
     title: "Vulnerability reporting channel not formalized"
     type: Finding
+    control:
+      reference-id: OSPS
+      entry-id: OSPS-DO-02
     description: "Private vulnerability reporting was not enabled prior to enforcement remediation."
     criteria-reference:
       reference-id: OSPS
