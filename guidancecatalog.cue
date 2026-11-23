@@ -25,15 +25,21 @@ import "list"
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [#Exemption, ...#Exemption] @go(Exemptions)
 
-	// when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
+	// when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
 	if guidelines != _|_ {
 		_uniqueGuidelineIds: {for i, g in guidelines {(g.id): i}}
 		groups: [#Group, ...#Group]
 		let _validGroupIds = [for g in groups {g.id}]
+		let _validGuidelineIds = [for g in guidelines {g.id}]
 
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, g in guidelines {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(g.group)
+		}
+		for i, g in guidelines if g."see-also" != _|_ {
+			for j, sa in g."see-also" {
+				_seeAlsoValidation: "\(i)-\(j)": _validGuidelineIds & list.Contains(sa)
+			}
 		}
 		if metadata."applicability-groups" != _|_ {
 			let _validApplicabilityIds = [for ag in metadata."applicability-groups" {ag.id}]

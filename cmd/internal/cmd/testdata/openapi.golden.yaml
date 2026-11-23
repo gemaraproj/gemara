@@ -29,7 +29,7 @@ components:
         residual risk after partial mitigation.
       properties:
         id:
-          description: id allows this accepted risk entry to be referenced
+          description: id uniquely identifies this accepted risk entry
           type: string
         justification:
           description: justification explains why the risk is accepted
@@ -43,7 +43,7 @@ components:
           - $ref: "#/components/schemas/Scope"
           description: scope defines where the risk acceptance applies
         target-id:
-          description: target-id optionally links this acceptance to a mitigated risk entry
+          description: target-id optionally links this acceptance to a mitigated risk entry; when set it must match the id of an entry in risks.mitigated
           type: string
       required:
       - id
@@ -1143,7 +1143,7 @@ components:
           description: type categorizes this document based on the intent of its contents
       type: object
       x-rules:
-      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
+      - when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
       x-status: experimental
     GuidanceImport:
       description: GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
@@ -1638,7 +1638,7 @@ components:
       description: MitigatedRisk represents a risk addressed by the policy
       properties:
         id:
-          description: id allows this mitigated risk entry to be referenced by accepted risks
+          description: id uniquely identifies this mitigated risk entry so it can be referenced by accepted risks
           type: string
         risk:
           allOf:
@@ -2138,6 +2138,9 @@ components:
           minItems: 1
           type: array
       type: object
+      x-rules:
+      - when mitigated risks are listed, each mitigated risk id must be unique
+      - when accepted risks are listed, each accepted risk id must be unique, and when target-id is set, it must match an entry in risks.mitigated
       x-status: experimental
     Scope:
       description: Scope defines what is included and excluded from policy applicability.

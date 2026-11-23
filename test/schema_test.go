@@ -61,6 +61,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// GuidanceCatalog — positive
 		{"valid AI governance framework", "./test-data/good-aigf.yaml", "#GuidanceCatalog", false, ""},
+		{"guideline see-also references across ordering", "./test-data/good-guidance-see-also.yaml", "#GuidanceCatalog", false, ""},
 		// PrinciplesCatalog — positive
 		{"valid AIGF principles catalog", "./test-data/good-aigf-principles.yaml", "#PrincipleCatalog", false, ""},
 
@@ -90,6 +91,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"valid security policy", "./test-data/good-security-policy.yml", "#Policy", false, ""},
 		{"policy with retention floor, ceiling and declared anchor", "./test-data/good-policy-retention.yaml", "#Policy", false, ""},
 		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
+		{"valid policy with mitigated and accepted risks", "./test-data/good-policy-risks.yaml", "#Policy", false, ""},
+		{"valid policy with accepted risks only", "./test-data/good-policy-accepted-only-risks.yaml", "#Policy", false, ""},
 
 		// Policy — negative (applicability)
 		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
@@ -110,6 +113,10 @@ func TestSchemaValidation(t *testing.T) {
 		{"duplicate retention obligation id", "./test-data/bad-policy-retention-duplicate-obligation-id.yaml", "#Policy", true, `_uniqueRetentionObligationIds."RET-AUDIT-7Y"`},
 		{"duplicate retention anchor id", "./test-data/bad-policy-retention-duplicate-anchor-id.yaml", "#Policy", true, `_uniqueRetentionAnchorIds."matter-closed"`},
 		{"retention anchor redeclaring collected-at", "./test-data/bad-policy-retention-redeclared-collected-at.yaml", "#Policy", true, `_uniqueRetentionAnchorIds."collected-at"`},
+		{"policy accepted risk with dangling target-id", "./test-data/bad-policy-accepted-risk-dangling-target.yaml", "#Policy", true, `_targetValidation."1": invalid value ["MIT-ACCESS-01"] (does not satisfy list.Contains("A.9.1.1"))`},
+		{"policy accepted risk with target-id but no mitigated risks", "./test-data/bad-policy-accepted-risk-target-without-mitigated.yaml", "#Policy", true, `_targetValidation."0": invalid value [] (does not satisfy list.Contains("MIT-ACCESS-01"))`},
+		{"policy with duplicate mitigated risk id", "./test-data/bad-policy-duplicate-mitigated-risk-id.yaml", "#Policy", true, `_uniqueMitigatedRiskIds."MIT-ACCESS-01"`},
+		{"policy with duplicate accepted risk id", "./test-data/bad-policy-duplicate-accepted-risk-id.yaml", "#Policy", true, `_uniqueAcceptedRiskIds."ACC-RESIDUAL-01"`},
 
 		// ControlCatalog — negative
 		{"invalid YAML", "./test-data/bad.yaml", "#ControlCatalog", true, `conflicting values "shouldn't be a string"`},
@@ -204,6 +211,10 @@ func TestSchemaValidation(t *testing.T) {
 		{"capability missing required description", "./test-data/bad-capability-missing-description.yaml", "#CapabilityCatalog", true, "capabilities.0.description: incomplete value string"},
 		{"capability catalog with empty capabilities list", "./test-data/bad-capability-empty-capabilities.yaml", "#CapabilityCatalog", true, "capabilities: incompatible list lengths"},
 
+		// Metadata artifact type — negative
+		{"metadata with an unknown artifact type", "./test-data/bad-metadata-unknown-artifact-type.yaml", "#Metadata", true, `type: 13 errors in empty disjunction`},
+		{"capability metadata with a type belonging to another artifact", "./test-data/bad-capability-artifact-type-wrong-artifact.yaml", "#CapabilityCatalog", true, `metadata.type: conflicting values "CapabilityCatalog" and "Policy"`},
+
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
@@ -238,6 +249,7 @@ func TestSchemaValidation(t *testing.T) {
 		// GuidanceCatalog — negative (group validation)
 		{"guideline with invalid group", "./test-data/bad-guidance-invalid-group.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value ["PREV"]`},
 		{"guideline with invalid applicability", "./test-data/bad-guidance-invalid-applicability.yaml", "#GuidanceCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-native"]`},
+		{"guideline with dangling see-also reference", "./test-data/bad-guidance-dangling-see-also.yaml", "#GuidanceCatalog", true, `_seeAlsoValidation."0-0": invalid value ["GL-001"]`},
 
 		// VectorCatalog — negative (applicability validation)
 		{"vector with invalid applicability", "./test-data/bad-vector-invalid-applicability.yaml", "#VectorCatalog", true, `_applicabilityValidation."0-0": invalid value ["cloud-infrastructure"]`},
