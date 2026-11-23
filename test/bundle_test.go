@@ -82,6 +82,23 @@ func TestBundleTestData(t *testing.T) {
 	}
 }
 
+// TestBundleConfigSchema checks that #Config rejects configs producers must not write.
+// The content check never parses the config, so these are not conformance test cases.
+func TestBundleConfigSchema(t *testing.T) {
+	insts := load.Instances([]string{"./bundle"}, &load.Config{Dir: ".."})
+	bundleSchema := schemaCtx.BuildInstance(insts[0])
+	for name, cfg := range map[string]string{
+		"missing-bundle-version": `{"gemara-version":"1.0.0"}`,
+		"missing-gemara-version": `{"bundle-version":"1.0.0"}`,
+		"unknown-role":           `{"bundle-version":"1.0.0","gemara-version":"1.0.0","artifacts":[{"name":"a.yaml","type":"Policy","id":"p","role":"evidence"}]}`,
+		"reserved-name":          `{"bundle-version":"1.0.0","gemara-version":"1.0.0","artifacts":[{"name":"imports","type":"Policy","id":"p","role":"artifact"}]}`,
+	} {
+		if vetJSON(bundleSchema, "#Config", []byte(cfg)) == nil {
+			t.Errorf("%s: #Config accepted %s", name, cfg)
+		}
+	}
+}
+
 func vetJSON(schema cue.Value, def string, data []byte) error {
 	v := schemaCtx.CompileBytes(data)
 	if err := v.Err(); err != nil {
@@ -113,19 +130,24 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 	var m struct {
 		SchemaVersion int          `json:"schemaVersion"`
 		MediaType     string       `json:"mediaType"`
-		ArtifactType  string       `json:"artifactType"`
+		ArtifactType  *string      `json:"artifactType"` // nil when absent (legacy)
 		Config        descriptor   `json:"config"`
 		Layers        []descriptor `json:"layers"`
 	}
 	if json.Unmarshal(manifest, &m) != nil || m.SchemaVersion != 2 ||
 		m.MediaType != "application/vnd.oci.image.manifest.v1+json" ||
-		(m.ArtifactType != "" && m.ArtifactType != "application/vnd.gemara.bundle.v1") ||
+		(m.ArtifactType != nil && *m.ArtifactType != "application/vnd.gemara.bundle.v1") ||
 		m.Config.MediaType != "application/vnd.gemara.manifest.v1+json" {
 		return "malformed-manifest"
 	}
+	for _, l := range m.Layers {
+		if strings.HasPrefix(l.MediaType, "application/vnd.gemara.artifact.") && l.MediaType != "application/vnd.gemara.artifact.v1+yaml" {
+			return "malformed-manifest"
+		}
+	}
 
-	// Step 3: every Gemara layer has a known role, except the legacy case of a
-	// single unannotated layer when no layer has role "artifact".
+	// Step 3: every document has a known role, except the legacy case of a
+	// single unannotated document when no document has role "artifact".
 	roles := map[int]string{}
 	var unannotated []int
 	marked := false
@@ -151,7 +173,7 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 		roles[unannotated[0]] = "artifact"
 	}
 
-	// Step 4: names are valid and unique, and there is exactly one artifact layer.
+	// Step 4: names are valid and unique, and there is exactly one primary document.
 	expected := map[string]descriptor{}
 	artifacts := 0
 	for i, l := range m.Layers {
@@ -159,7 +181,7 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 			continue
 		}
 		name := l.Annotations["org.opencontainers.image.title"]
-		if name == "" || name == "." || name == ".." || name == "bundle.json" || name == "references" || strings.ContainsAny(name, `/\`) {
+		if name == "" || name == "." || name == ".." || name == "bundle.json" || name == "imports" || name == "references" || strings.ContainsAny(name, `/\`) {
 			return "malformed-manifest"
 		}
 		path := name
@@ -185,11 +207,15 @@ func checkBundle(manifest []byte, want string, config []byte, unpacked string) s
 		}
 	}
 
-	// Step 5: the config bytes, then every layer file, match their descriptors.
+	// Step 5: the config bytes, then every document file, match their descriptors.
 	if config == nil {
 		return "missing-config"
 	}
 	if int64(len(config)) != m.Config.Size || sha256Digest(config) != m.Config.Digest {
+		return "mismatch"
+	}
+	// Lstat does not guard parent components, so check imports/ itself first.
+	if info, err := os.Lstat(filepath.Join(unpacked, "imports")); err == nil && !info.IsDir() {
 		return "mismatch"
 	}
 	for path, d := range expected {

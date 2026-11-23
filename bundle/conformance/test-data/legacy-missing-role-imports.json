@@ -1,5 +1,5 @@
 {
-  "description": "The artifact layer has no role annotation and the other layers are imports.",
+  "description": "The primary document has no role annotation and the other documents are imports.",
   "expect": "ok",
   "legacy": true,
   "digest": "sha256:52d4c4810a0d426a2e07fb81e42ddbe6348efc3ce37f8b91d5379583c10ae041",

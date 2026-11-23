@@ -1,5 +1,5 @@
 {
-  "description": "The only Gemara layer has no role annotation; read as the artifact layer.",
+  "description": "The only document has no role annotation; read as the primary document.",
   "expect": "ok",
   "legacy": true,
   "digest": "sha256:4bf19ef9799ce3780e26b3cb745bb8da33963ccd29846b64d6f7ef40f65da562",
