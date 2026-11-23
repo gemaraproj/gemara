@@ -2,7 +2,7 @@
 name: Question
 description: Ask how Gemara works, why it is designed the way it is, or how it fits your process
 labels:
-  - needs-triage
+  - maintainer-triage
   - question
 body:
   - type: textarea
