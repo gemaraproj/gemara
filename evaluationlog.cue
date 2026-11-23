@@ -105,10 +105,30 @@ import "strings"
 		_uniqueAssessments: "\(i)": {
 			for j, a in e."assessment-logs"
 			if a.plan != _|_ {
-				let _methodRef = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."reference-id")"}, "absent"][0]
-				let _method = [if a["execution-context"] != _|_ if a["execution-context"].method != _|_ {"present:\(a["execution-context"].method."entry-id")"}, "absent"][0]
 				let _executor = [if a.executor != _|_ {"present:\(a.executor.id)"}, "absent"][0]
-				"\(a.requirement."entry-id")": "\(a.plan."reference-id")": "\(a.plan."entry-id")": "\(_methodRef)": "\(_method)": "\(_executor)": j
+				"\(a.requirement."entry-id")": "\(a.plan."reference-id")": "\(a.plan."entry-id")": "\(a.method."reference-id")": "\(a.method."entry-id")": "\(_executor)": j
+			}
+		}
+	}
+
+	// A record that gives parameter values cites a plan, because parameters are
+	// declared on a plan and values without one have nothing to be values of.
+	for i, e in evaluations {
+		_parameterValuesNeedPlan: "\(i)": {
+			for j, a in e."assessment-logs"
+			if a["parameter-values"] != _|_ {
+				"assessment-logs \(j) gives parameter-values but cites no plan": true & a.plan != _|_
+			}
+		}
+	}
+
+	// A record gives at most one value for each parameter, so that which value a
+	// run used is never ambiguous.
+	for i, e in evaluations {
+		_uniqueParameterValues: "\(i)": {
+			for j, a in e."assessment-logs"
+			if a["parameter-values"] != _|_ {
+				"\(j)": {for k, p in a["parameter-values"] {"\(p.id)": k}}
 			}
 		}
 	}
@@ -139,19 +159,12 @@ import "strings"
 	}
 }
 
-// ExecutionContext records what an assessment took from a policy: the accepted
-// method it ran. The executor, the result and everything else about the
-// assessment stay at the top level of AssessmentLog, because they mean something
-// without a policy. Policy inputs share this one field so that a stable type does
-// not gain a top-level field for each of them, and a field placed at the top
-// level could not later be grouped with the rest. Further policy inputs, such as
-// the values given for a plan's parameters, belong here too.
-#ExecutionContext: {
-	// method names the accepted method this assessment ran. Under a cited plan it
-	// is one of that plan's evaluation-methods, and its reference-id is the plan's.
-	// Without a plan, its reference-id names a policy and its entry-id one of that
-	// policy's own evaluation-methods.
-	method?: #EntryMapping & {"entry-id": string & strings.MinRunes(1)} @go(Method,optional=nillable)
+// ParameterValue is the value an assessment used for one of its plan's parameters.
+#ParameterValue: {
+	// id names the parameter, matching the id of one of the plan's parameters.
+	id: string
+	// value is the value this assessment used for the parameter.
+	value: string
 }
 
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
@@ -161,9 +174,20 @@ import "strings"
 	requirement: #EntryMapping
 	// Plan maps to the policy assessment plan being executed.
 	plan?: #EntryMapping @go(Plan,optional=nillable)
-	// execution-context records what this assessment took from a policy. A record
-	// that cites a plan names here which of the plan's methods it ran.
-	"execution-context"?: #ExecutionContext @go(ExecutionContext,optional=nillable)
+	// method names the accepted method this assessment ran. Under a cited plan it
+	// is one of that plan's evaluation-methods, and its reference-id is the plan's.
+	// Without a plan, its reference-id names a policy and its entry-id one of that
+	// policy's own evaluation-methods. A plan can require several methods, and the
+	// method says which of them this result answers, so it is part of what the
+	// record is rather than a setting the run was given.
+	method?: #EntryMapping & {"entry-id": string & strings.MinRunes(1)} @go(Method,optional=nillable)
+	// parameter-values records the values this assessment used for its plan's
+	// parameters, one per parameter. Parameters are declared on a plan, so a
+	// record that gives values cites the plan they belong to. That each id names
+	// one of the plan's parameters, and that each value is among its
+	// accepted-values, can only be checked against the policy, so this schema
+	// does not check it.
+	"parameter-values"?: [#ParameterValue, ...#ParameterValue] @go(ParameterValues)
 	// executor is the actor that performed this assessment: the tool instance,
 	// service or person that produced this result. When it is omitted, the log's
 	// metadata.author performed it. A plan's accepted method may name the executor
@@ -214,7 +238,7 @@ import "strings"
 	// from its control when left out, it must be written. A method without a plan
 	// is allowed: it names one of a policy's own evaluation-methods, and a producer
 	// that knows of no policy omits it.
-	if plan != _|_ {"execution-context": method: {"reference-id": ==plan."reference-id", "entry-id": string}}
+	if plan != _|_ {method: {"reference-id": ==plan."reference-id", "entry-id": string}}
 
 }
 

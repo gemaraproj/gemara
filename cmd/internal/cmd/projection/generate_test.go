@@ -53,7 +53,7 @@ func TestGenerateRawHasNoDefaultsOrAdditionalItems(t *testing.T) {
 	}
 }
 
-func TestExecutionContextRejectsEmptyMethod(t *testing.T) {
+func TestAssessmentLogRejectsEmptyMethod(t *testing.T) {
 	v, _, _, err := loadPrepared("../../../..")
 	if err != nil {
 		t.Fatal(err)
@@ -62,7 +62,7 @@ func TestExecutionContextRejectsEmptyMethod(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	schema := doc.Components.Schemas["ExecutionContext"].Value
+	schema := doc.Components.Schemas["AssessmentLog"].Value
 	// The method's EntryMapping is a $ref VisitJSON cannot resolve from here, so check
 	// the entry-id constraint the schema layers on top of it.
 	entryID := schema.Properties["method"].Value.Properties["entry-id"].Value
@@ -74,7 +74,9 @@ func TestExecutionContextRejectsEmptyMethod(t *testing.T) {
 			t.Errorf("non-empty method entry-id %q was rejected: %v", entry, err)
 		}
 	}
-	if err := schema.VisitJSON(map[string]any{}); err != nil {
-		t.Errorf("omitted optional method was rejected: %v", err)
+	for _, required := range schema.Required {
+		if required == "method" {
+			t.Error("method is optional and must not be required")
+		}
 	}
 }

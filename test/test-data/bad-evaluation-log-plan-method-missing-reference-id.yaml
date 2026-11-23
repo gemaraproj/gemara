@@ -38,9 +38,8 @@ evaluations:
     plan:
       reference-id: security-policy
       entry-id: AP-AC-01
-    execution-context:
-      method:
-        entry-id: EM-AC-01-probe
+    method:
+      entry-id: EM-AC-01-probe
     executor:
       id: pvtr-github-repo
       name: PVTR GitHub Repository Probe
@@ -62,10 +61,9 @@ evaluations:
     plan:
       reference-id: security-policy
       entry-id: AP-AC-01
-    execution-context:
-      method:
-        reference-id: security-policy
-        entry-id: EM-AC-01-review
+    method:
+      reference-id: security-policy
+      entry-id: EM-AC-01-review
     executor:
       id: platform-security
       name: Platform Security Review
@@ -84,17 +82,17 @@ evaluations:
     start: 2026-03-28T09:00:00Z
     end: 2026-03-28T09:25:00Z
     recommendation: Record an expiry for each MFA exemption or remove it.
-  # No plan is bound, so the producer ran the policy's fallback method. It still
-  # records which one: a policy-aware producer knows, and an audit can check it.
+  # No plan, so the method is one of the policy's own evaluation-methods. It is
+  # still recorded: a policy-aware producer knows which one it ran, and an audit
+  # can check it.
   # No executor, because the log's own author ran this and naming it again would
   # repeat metadata.author.
   - requirement:
       reference-id: OSPS-B
       entry-id: OSPS-AC-01.04
-    execution-context:
-      method:
-        reference-id: security-policy
-        entry-id: EM-BASELINE-SCAN
+    method:
+      reference-id: security-policy
+      entry-id: EM-BASELINE-SCAN
     description: Verify that the default branch requires review.
     result: Passed
     message: Reviews are required on the default branch

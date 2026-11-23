@@ -26,14 +26,16 @@ func TestAssessmentIdentity(t *testing.T) {
 	}
 	def := schemaValue.LookupPath(cue.ParsePath("#EvaluationLog"))
 
-	// ctx renders the execution-context block the fixture uses, for one method.
+	// ctx renders the method block the fixture uses.
 	ctx := func(ref, entry string) string {
-		return "    execution-context:\n      method:\n        reference-id: " + ref + "\n        entry-id: " + entry
+		return "    method:\n      reference-id: " + ref + "\n      entry-id: " + entry
 	}
 	planRef := "    plan:\n      reference-id: security-policy\n      entry-id: AP-AC-01\n"
 	probeExecutor := "    executor:\n      id: pvtr-github-repo\n      name: PVTR GitHub Repository Probe\n      type: Software\n      uri: \"https://github.com/revanite-io/pvtr-github-repo\"\n"
 	reviewExecutor := "    executor:\n      id: platform-security\n      name: Platform Security Review\n      type: Human\n      contact:\n        name: Platform Security\n        affiliation: Example Org\n"
-	probe := planRef + ctx("security-policy", "EM-AC-01-probe") + "\n"
+	// The probe's parameter values sit with its plan, so removing the plan removes them too.
+	probeParams := "    # The values this run used for the plan's parameters.\n    parameter-values:\n    - id: mfa-methods\n      value: totp\n    - id: scope\n      value: organization\n"
+	probe := planRef + ctx("security-policy", "EM-AC-01-probe") + "\n" + probeParams
 	review := planRef + ctx("security-policy", "EM-AC-01-review") + "\n"
 
 	tests := []struct {
@@ -46,13 +48,33 @@ func TestAssessmentIdentity(t *testing.T) {
 			name:         "cited plan with empty method",
 			replacements: []string{"entry-id: EM-AC-01-probe", `entry-id: ""`},
 			wantErr:      true,
-			errContains:  `"execution-context".method."entry-id"`,
+			errContains:  `.method."entry-id"`,
 		},
 		{
 			name:         "fallback with empty method",
 			replacements: []string{"entry-id: EM-BASELINE-SCAN", `entry-id: ""`},
 			wantErr:      true,
-			errContains:  `"execution-context".method."entry-id"`,
+			errContains:  `.method."entry-id"`,
+		},
+		{
+			// Parameters are declared on an assessment plan, so values with no plan
+			// have nothing to be values of.
+			name: "parameter values without a plan",
+			replacements: []string{
+				"entry-id: EM-BASELINE-SCAN\n",
+				"entry-id: EM-BASELINE-SCAN\n    parameter-values:\n    - id: scope\n      value: organization\n",
+			},
+			wantErr:     true,
+			errContains: "_parameterValuesNeedPlan",
+		},
+		{
+			name: "two values for one parameter",
+			replacements: []string{
+				"      value: organization\n",
+				"      value: organization\n    - id: scope\n      value: repository\n",
+			},
+			wantErr:     true,
+			errContains: "_uniqueParameterValues",
 		},
 		{
 			name: "cited plan with a method from another policy",
@@ -60,7 +82,7 @@ func TestAssessmentIdentity(t *testing.T) {
 				ctx("security-policy", "EM-AC-01-probe"), ctx("other-policy", "EM-AC-01-probe"),
 			},
 			wantErr:     true,
-			errContains: `"execution-context".method."reference-id"`,
+			errContains: `.method."reference-id"`,
 		},
 		{
 			name: "distinct plans and methods containing slashes",
@@ -107,12 +129,6 @@ func TestAssessmentIdentity(t *testing.T) {
 				reviewExecutor, "",
 				"id: pvtr-github-repo", "id: absent",
 			},
-		},
-		{
-			name:         "cited plan with an empty execution context",
-			replacements: []string{ctx("security-policy", "EM-AC-01-probe"), "    execution-context: {}"},
-			wantErr:      true,
-			errContains:  `"execution-context".method`,
 		},
 		{
 			name: "two plan-less records with no method and no executor",
@@ -293,7 +309,7 @@ func TestSchemaValidation(t *testing.T) {
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
 		{"assessments that never ran omit start", "./test-data/good-evaluation-log-unstarted.yaml", "#EvaluationLog", false, ""},
-		{"assessments naming their executors and execution context", "./test-data/good-evaluation-log-execution.yaml", "#EvaluationLog", false, ""},
+		{"assessments naming their executors and methods", "./test-data/good-evaluation-log-execution.yaml", "#EvaluationLog", false, ""},
 
 		// Evidence rules ride on #Evidence and #EvidenceMapping, which both logs use.
 		// Their fixtures are evaluation logs so that reshaping the audit — which is
@@ -314,8 +330,8 @@ func TestSchemaValidation(t *testing.T) {
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
 		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 		{"two assessments nothing tells apart", "./test-data/bad-evaluation-log-duplicate-assessment.yaml", "#EvaluationLog", true, "_uniqueAssessments"},
-		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, "\"execution-context\".method"},
-		{"a cited plan's method that leaves out reference-id", "./test-data/bad-evaluation-log-plan-method-missing-reference-id.yaml", "#EvaluationLog", true, `"execution-context".method."reference-id": incomplete value`},
+		{"a cited plan that never says which of its methods ran", "./test-data/bad-evaluation-log-plan-without-method.yaml", "#EvaluationLog", true, `"assessment-logs".0.method."entry-id": incomplete value`},
+		{"a cited plan's method that leaves out reference-id", "./test-data/bad-evaluation-log-plan-method-missing-reference-id.yaml", "#EvaluationLog", true, `"assessment-logs".0.method."reference-id": incomplete value`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},
