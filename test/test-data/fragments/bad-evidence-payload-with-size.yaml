@@ -1,0 +1,10 @@
+# An evidence item (#_EvidenceStrict): an inline payload with a source size.
+# size describes evidence that lives elsewhere.
+id: dependency-graph-snapshot
+type: api-response
+collected-at: "2026-02-10T15:05:00Z"
+payload:
+  dependencies: []
+source:
+  reference-id: github-api
+  size: 20

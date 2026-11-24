@@ -1,0 +1,10 @@
+# An evidence item (#_EvidenceStrict): an inline payload with a source download-url.
+# Inline content is carried; referenced content is addressed.
+id: dependency-graph-snapshot
+type: api-response
+collected-at: "2026-02-10T15:05:00Z"
+payload:
+  dependencies: []
+source:
+  reference-id: github-api
+  download-url: https://example.com/storage/dependency-graph.json
