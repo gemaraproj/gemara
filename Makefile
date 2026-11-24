@@ -23,6 +23,8 @@ endif
 
 all: tidy cuefmtcheck lintcue lintinsights test
 
+check: tidycheck cuefmtcheck lintcue test breaking-check
+
 #
 # SCHEMA VALIDATION TESTS
 #
@@ -126,4 +128,4 @@ cleanup:
 	@rm -rf $(GENERATED_DIR)
 	@echo "  >  Cleanup complete!"
 
-.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights test breaking-check cleanup genopenapi
+.PHONY: tidy tidycheck cuefmtcheck lintcue lintinsights test breaking-check cleanup genopenapi check
