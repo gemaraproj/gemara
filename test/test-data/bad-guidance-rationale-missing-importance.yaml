@@ -22,4 +22,6 @@ guidelines:
     title: Preventive Guideline
     objective: Require secure model deployment
     group: PREV
-    rationale: {}
+    rationale:
+      goals:
+        - Mitigate deployment risks
