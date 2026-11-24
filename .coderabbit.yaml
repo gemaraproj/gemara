@@ -142,6 +142,26 @@ reviews:
           Fields that only communicate information, such as a draft marker,
           version, type or state, are exempt and need no stated reader.
           Pass otherwise.
+      - name: New references to deprecated types
+        mode: warning
+        instructions: |
+          Each *.cue file declares its lifecycle with a file-level
+          `@gemara(status="...")` attribute. A deprecated schema keeps the same
+          support guarantees as a stable one, but it is removed in the next
+          major version (https://gemara.openssf.org/schema/), so new work
+          should use its replacement. Fail if this PR leaves a file that is not
+          marked deprecated referencing a definition (`#Name`, `#_Name` or
+          `_#Name`) that is declared, in whole or in part, in a file marked
+          deprecated. This can happen by adding the reference, by moving the
+          definition into a deprecated file, or by marking a file deprecated
+          while other files still reference its definitions. References from
+          one deprecated file to another are fine. References from stable
+          files to experimental ones are enforced by cue2openapi, not by this
+          check. Ignore references inside comments, and do not fail for a
+          reference that predates this PR and that the diff does not touch.
+          When failing, name the referencing file, the definition, and the
+          deprecated file that declares it, and name the replacement if the
+          deprecated file's comments give one. Pass otherwise.
 
 knowledge_base:
   code_guidelines:
