@@ -11,6 +11,13 @@ components:
           type: string
         mode:
           $ref: "#/components/schemas/ModeType"
+        rank:
+          description: |-
+            rank orders this method against the others on the same assessment plan; lower is
+            higher precedence. It is required on every method when the plan's conflict-resolution
+            is highest-rank, and optional otherwise, because a plan with one method needs none.
+          minimum: 1.0
+          type: integer
         required:
           default: false
           type: boolean
@@ -151,6 +158,7 @@ components:
       x-rules:
       - retention anchor ids must be unique, and none may redeclare collected-at
       - retention obligation ids must be unique, each obligation's anchor must be collected-at or a declared retention anchor, and an obligation measured from collected-at must state a duration
+      - An assessment log names the plan it ran under by id, so a plan id must name one plan within a policy.
       x-status: experimental
     ArtifactMapping:
       description: ArtifactMapping represents a mapping to an external artifact or artifact entry
@@ -293,6 +301,10 @@ components:
     AssessmentPlan:
       description: AssessmentPlan defines how a specific assessment requirement is evaluated.
       properties:
+        conflict-resolution:
+          allOf:
+          - $ref: "#/components/schemas/ConflictResolution"
+          description: "conflict-resolution states how disagreeing results are resolved for this requirement.\nA plan naming more than one evaluation method MUST state one, because a multi-source\nevaluation with no stated resolution rule produces a result whose value depends on\nwhich log a consumer happened to read first. Stating it here rather than leaving it\nto each implementation is the point: a default that lives in an implementation is one\nevery implementer picks differently."
         evaluation-methods:
           items:
             allOf:
@@ -324,6 +336,12 @@ components:
       - frequency
       - evaluation-methods
       type: object
+      x-rules:
+      - A plan with more than one evaluation method must state conflict-resolution.
+      - highest-rank needs a total order, so every method on the plan must carry a rank. The list names any method that does not.
+      - unanimous is decided by the required methods, so the plan must mark at least one. Unanimity over no methods would pass every requirement without evidence.
+      - Method ranks within one assessment plan must be unique, so that a rank-based conflict resolution has a total order to work with.
+      - "A log that names the method that produced it does so by id (an assessment log has no such field yet, see gemaraproj/gemara#485), so a method id must name one method within its plan."
       x-status: experimental
     AssessmentRequirement:
       description: AssessmentRequirement describes a tightly scoped, verifiable condition that must be satisfied and confirmed by an evaluator
@@ -581,6 +599,15 @@ components:
       - High
       type: string
       x-status: stable
+    ConflictResolution:
+      description: "ConflictResolution states how disagreeing evaluation results for one requirement are\nresolved. Methods conflict when their assessment logs for the requirement carry different\nresults. Only executed results take part: a log whose result is \"Not Run\", \"Unknown\" or\n\"Not Applicable\" (the results that need no start time) is recorded but does not decide.\nUnder every option, methods that agree resolve to the result they agree on, and when no\nmethod that decides has an executed result (for unanimous, no required method), the\nresolved result is \"Needs Review\", so missing evidence is never read as a pass.\n\nhighest-rank and unanimous decide by method, so each method counts once, by its own\nresult: the result of its executed log with the latest start, or \"Needs Review\" when\nthe logs at that start disagree. Both strategies need an assessment\nlog to say which method produced it. A log has no such field yet (see\ngemaraproj/gemara#485), so these two cannot be applied from log data alone until it\nhas; most-recent and escalate do not depend on it.\n\n  - highest-rank: the result from the method with the lowest rank wins. Every method on\n    the plan must carry a rank, and ranks are unique.\n  - unanimous: only required methods decide. If they all returned the same result, that\n    is the resolved result; if any two disagree, the resolved result is \"Needs Review\".\n    Optional methods are recorded but cannot block. The plan must mark at least one\n    method as required.\n  - most-recent: the result from the assessment log with the latest start wins. The order\n    is by the assessment's start rather than the log's metadata.date, because start is\n    when the evidence was observed, while metadata.date moves whenever a log is\n    republished without being re-run. start is required on every executed assessment log,\n    so the order is always defined. Logs at the latest start that disagree\n    resolve to \"Needs Review\".\n  - escalate: no automatic resolution. Any conflict resolves to \"Needs Review\" for a\n    person to settle."
+      enum:
+      - highest-rank
+      - unanimous
+      - most-recent
+      - escalate
+      type: string
+      x-status: experimental
     Constraint:
       description: Constraint defines a prescriptive requirement that applies to a specific guidance or control.
       properties:

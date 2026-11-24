@@ -148,6 +148,75 @@ func TestPrepareRecordsDroppedConditionals(t *testing.T) {
 	}
 }
 
+// The encoder omits matchN without an error, so prepare must drop it itself and
+// record its comment for x-rules; otherwise the multi-method conflict-resolution
+// rule of #AssessmentPlan disappears from the document unreported.
+func TestPrepareRecordsDroppedMatchN(t *testing.T) {
+	got, info := mustPrepare(t, `package p
+#Plan: {
+	methods: [string, ...string]
+	resolution?: string
+	// A plan with more than one method must state resolution.
+	matchN(>=1, [
+		{resolution!: string},
+		{methods: [_]},
+	])
+}
+`)
+	if strings.Contains(got, "matchN") {
+		t.Errorf("matchN survived:\n%s", got)
+	}
+	if len(info.DroppedConditionals) != 1 {
+		t.Fatalf("DroppedConditionals = %v, want 1 entry", info.DroppedConditionals)
+	}
+	d := info.DroppedConditionals[0]
+	if d.owner != "Plan" {
+		t.Errorf("owner = %q, want Plan", d.owner)
+	}
+	if !strings.Contains(d.doc, "must state resolution") {
+		t.Errorf("doc = %q, want the comment above matchN", d.doc)
+	}
+}
+
+// A validator inside a hidden helper takes the helper field's comment when it has
+// none of its own, as a dropped conditional does; otherwise the x-rules entry for it
+// would be empty and generation would stop.
+func TestPrepareMatchNInHelperUsesFieldDoc(t *testing.T) {
+	_, info := mustPrepare(t, `package p
+#Plan: {
+	methods: [string, ...string]
+	resolution?: string
+
+	// A plan with more than one method must state resolution.
+	_resolutionRule: {
+		matchN(>=1, [
+			{resolution!: string},
+			{methods: [_]},
+		])
+	}
+}
+`)
+	if len(info.DroppedConditionals) != 1 {
+		t.Fatalf("DroppedConditionals = %v, want 1 entry", info.DroppedConditionals)
+	}
+	if d := info.DroppedConditionals[0].doc; !strings.Contains(d, "must state resolution") {
+		t.Errorf("doc = %q, want the helper field's comment", d)
+	}
+}
+
+// Any other embedded call is left for the encoder.
+func TestPrepareKeepsOtherEmbeddedCalls(t *testing.T) {
+	_, info := mustPrepare(t, `package p
+#Plan: {
+	a: int
+	close({a: int})
+}
+`)
+	if len(info.DroppedConditionals) != 0 {
+		t.Errorf("DroppedConditionals = %v, want none", info.DroppedConditionals)
+	}
+}
+
 // This reproduces the upstream panic the rewrite exists to avoid. If it ever
 // stops panicking without the rewrite, the workaround can be deleted.
 func TestUpstreamPanicsOnTimeFormatInList(t *testing.T) {

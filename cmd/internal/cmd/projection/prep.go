@@ -194,6 +194,19 @@ func prepare(f *ast.File) (*prepInfo, error) {
 func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldDoc string) []ast.Decl {
 	out := decls[:0:0]
 	for _, d := range decls {
+		// CUE CONVERTER WORKAROUND: the encoder has no branch for the matchN and
+		// matchIf validators and omits them without an error, so a rule such as
+		// "a plan with more than one method must state conflict-resolution"
+		// vanished from the document. Drop them here and list their comments
+		// under x-rules, as for a cross-field conditional.
+		if call, ok := embeddedValidator(d); ok {
+			doc := docComment(d)
+			if doc == "" {
+				doc = fieldDoc
+			}
+			info.DroppedConditionals = append(info.DroppedConditionals, droppedConditional{pos: call.Pos().String(), owner: owner, doc: doc})
+			continue
+		}
 		c, ok := d.(*ast.Comprehension)
 		if !ok {
 			out = append(out, d)
@@ -216,6 +229,28 @@ func stripComprehensions(decls []ast.Decl, info *prepInfo, helper, owner, fieldD
 		info.DroppedConditionals = append(info.DroppedConditionals, droppedConditional{pos: d.Pos().String(), owner: owner, doc: doc})
 	}
 	return out
+}
+
+// unprojectedValidators are the CUE validators the OpenAPI encoder omits
+// without an error.
+var unprojectedValidators = map[string]bool{"matchN": true, "matchIf": true}
+
+// embeddedValidator reports whether d embeds a call to one of
+// unprojectedValidators, as in `matchN(>=1, [...])` inside a definition.
+func embeddedValidator(d ast.Decl) (*ast.CallExpr, bool) {
+	e, ok := d.(*ast.EmbedDecl)
+	if !ok {
+		return nil, false
+	}
+	call, ok := e.Expr.(*ast.CallExpr)
+	if !ok {
+		return nil, false
+	}
+	fn, ok := call.Fun.(*ast.Ident)
+	if !ok || !unprojectedValidators[fn.Name] {
+		return nil, false
+	}
+	return call, true
 }
 
 // valueOfFieldDoc returns the doc comment of the hidden field whose value is
