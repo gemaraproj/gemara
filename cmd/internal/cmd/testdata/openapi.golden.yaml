@@ -845,10 +845,16 @@ components:
           description: description provides additional context about the entity
           type: string
         id:
-          description: id uniquely identifies the entity and allows this entry to be referenced by other elements
+          description: |-
+            id uniquely identifies the entity and allows this entry to be referenced by other elements.
+            It must contain at least one character that is not whitespace.
+          pattern: "[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
           type: string
         name:
-          description: name is the name of the entity
+          description: |-
+            name is the name of the entity.
+            It must contain at least one character that is not whitespace.
+          pattern: "[^\\t\\n\\v\\f\\r \u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]"
           type: string
         type:
           allOf:
