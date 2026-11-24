@@ -4,6 +4,8 @@
 @gemara(status="stable")
 package gemara
 
+import "strings"
+
 @go(gemara)
 
 // EvaluationLog contains the results of evaluating a set of Layer 2 controls.
@@ -83,6 +85,54 @@ package gemara
 	if item.source != _|_ {
 		_evidenceSourceDeclared: "evidence \(item.id) names a source that is not declared in metadata.mapping-references": true & _declaredReferenceIDs[item.source."reference-id"]
 	}
+
+	// ---- Validation --------------------------------------------------------
+	// A comment directly above a rule is listed under x-rules in the OpenAPI
+	// projection.
+
+	// Under a cited plan, an AssessmentLog is keyed by (this control evaluation,
+	// requirement, plan, method, executor). The plan and the method are each their
+	// reference-id and entry-id together, because two policies may each have a
+	// plan or a method with the same entry-id; the executor is its id. The key lets
+	// a log hold several results for one requirement: a plan with an automated
+	// probe and a manual review produces two. A method does not fix who runs it, so
+	// one method run on two instances is also two results, even when the plan's
+	// method names the executor meant to run it. Two records that agree on every
+	// part of the key are rejected, so a log holds one run of a method by an
+	// executor. Records with no plan are not keyed, so this rule does not affect
+	// logs that cite no plans.
+	for i, e in evaluations {
+		_uniqueAssessments: "\(i)": {
+			for j, a in e."assessment-logs"
+			if a.plan != _|_ {
+				let _executor = [if a.executor != _|_ {"present:\(a.executor.id)"}, "absent"][0]
+				"\(a.requirement."entry-id")": "\(a.plan."reference-id")": "\(a.plan."entry-id")": "\(a.method."reference-id")": "\(a.method."entry-id")": "\(_executor)": j
+			}
+		}
+	}
+
+	// A record that gives parameter values cites a plan, because parameters are
+	// declared on a plan and values without one have nothing to be values of.
+	for i, e in evaluations {
+		_parameterValuesNeedPlan: "\(i)": {
+			for j, a in e."assessment-logs"
+			if a["parameter-values"] != _|_ {
+				"assessment-logs \(j) gives parameter-values but cites no plan": true & a.plan != _|_
+			}
+		}
+	}
+
+	// A record gives at most one value for each parameter, so that which value a
+	// run used is never ambiguous.
+	for i, e in evaluations {
+		_uniqueParameterValues: "\(i)": {
+			for j, a in e."assessment-logs"
+			if a["parameter-values"] != _|_ {
+				"\(j)": {for k, p in a["parameter-values"] {"\(p.id)": k}}
+			}
+		}
+	}
+
 }
 
 // ControlEvaluation contains the results of evaluating a single Layer 5 control.
@@ -109,6 +159,14 @@ package gemara
 	}
 }
 
+// ParameterValue is the value an assessment used for one of its plan's parameters.
+#ParameterValue: {
+	// id names the parameter, matching the id of one of the plan's parameters.
+	id: string
+	// value is the value this assessment used for the parameter.
+	value: string
+}
+
 // AssessmentLog contains the results of executing a single assessment procedure for a control requirement.
 // An assessment log MUST include start unless its result is Not Run, Unknown or Not Applicable.
 #AssessmentLog: {
@@ -116,6 +174,26 @@ package gemara
 	requirement: #EntryMapping
 	// Plan maps to the policy assessment plan being executed.
 	plan?: #EntryMapping @go(Plan,optional=nillable)
+	// method names the accepted method this assessment ran. Under a cited plan it
+	// is one of that plan's evaluation-methods, and its reference-id is the plan's.
+	// Without a plan, its reference-id names a policy and its entry-id one of that
+	// policy's own evaluation-methods. A plan can require several methods, and the
+	// method says which of them this result answers, so it is part of what the
+	// record is rather than a setting the run was given.
+	method?: #EntryMapping & {"entry-id": string & strings.MinRunes(1)} @go(Method,optional=nillable)
+	// parameter-values records the values this assessment used for its plan's
+	// parameters, one per parameter. Parameters are declared on a plan, so a
+	// record that gives values cites the plan they belong to. That each id names
+	// one of the plan's parameters, and that each value is among its
+	// accepted-values, can only be checked against the policy, so this schema
+	// does not check it.
+	"parameter-values"?: [#ParameterValue, ...#ParameterValue] @go(ParameterValues)
+	// executor is the actor that performed this assessment: the tool instance,
+	// service or person that produced this result. When it is omitted, the log's
+	// metadata.author performed it. A plan's accepted method may name the executor
+	// meant to run it; this field names the one that did. A record whose executor
+	// differs from the method's is still valid, and an audit reports the mismatch.
+	executor?: #Actor @go(Executor,optional=nillable)
 	// Description provides a summary of the assessment procedure.
 	description: string
 	// Result is the overall outcome of the assessment procedure, matching the result of the last step that was run.
@@ -141,6 +219,27 @@ package gemara
 	// Evidence records the raw data cited to support this assessment's opinion.
 	evidence?: [#Evidence, ...#Evidence] @go(Evidence)
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
+
+	// ---- Validation --------------------------------------------------------
+	// A comment directly above a rule is listed under x-rules in the OpenAPI
+	// projection.
+
+	// The rule below compares the method's reference-id with `==` rather than
+	// unifying it: unifying would fill an omitted reference-id in from the plan,
+	// so the document a producer wrote would lack a field every non-CUE consumer
+	// requires. It requires a method when a plan is present rather than forbidding
+	// the plan when the method is absent: a conditional that forbids a field puts
+	// bottom in that field's type, and the Go projection turns the field into an
+	// unusable `any`.
+
+	// A record that cites a plan names the method it ran, so that the record can
+	// be checked against the methods the plan accepts. The method's reference-id
+	// must equal the plan's. Unlike a requirement's reference-id, which is taken
+	// from its control when left out, it must be written. A method without a plan
+	// is allowed: it names one of a policy's own evaluation-methods, and a producer
+	// that knows of no policy omits it.
+	if plan != _|_ {method: {"reference-id": ==plan."reference-id", "entry-id": string}}
+
 }
 
 #AssessmentStep: string @go(-)

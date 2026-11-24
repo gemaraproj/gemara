@@ -248,9 +248,42 @@ components:
             type: object
           minItems: 1
           type: array
+        executor:
+          allOf:
+          - $ref: "#/components/schemas/Actor"
+          description: "executor is the actor that performed this assessment: the tool instance,\nservice or person that produced this result. When it is omitted, the log's\nmetadata.author performed it. A plan's accepted method may name the executor\nmeant to run it; this field names the one that did. A record whose executor\ndiffers from the method's is still valid, and an audit reports the mismatch."
         message:
           description: Message provides additional context about the assessment result.
           type: string
+        method:
+          allOf:
+          - $ref: "#/components/schemas/EntryMapping"
+          - required:
+            - entry-id
+          description: |-
+            method names the accepted method this assessment ran. Under a cited plan it
+            is one of that plan's evaluation-methods, and its reference-id is the plan's.
+            Without a plan, its reference-id names a policy and its entry-id one of that
+            policy's own evaluation-methods. A plan can require several methods, and the
+            method says which of them this result answers, so it is part of what the
+            record is rather than a setting the run was given.
+          properties:
+            entry-id:
+              minLength: 1
+              type: string
+          type: object
+        parameter-values:
+          description: |-
+            parameter-values records the values this assessment used for its plan's
+            parameters, one per parameter. Parameters are declared on a plan, so a
+            record that gives values cites the plan they belong to. That each id names
+            one of the plan's parameters, and that each value is among its
+            accepted-values, can only be checked against the policy, so this schema
+            does not check it.
+          items:
+            $ref: "#/components/schemas/ParameterValue"
+          minItems: 1
+          type: array
         plan:
           allOf:
           - $ref: "#/components/schemas/EntryMapping"
@@ -289,6 +322,8 @@ components:
       - applicability
       - steps
       type: object
+      x-rules:
+      - "A record that cites a plan names the method it ran, so that the record can be checked against the methods the plan accepts. The method's reference-id must equal the plan's. Unlike a requirement's reference-id, which is taken from its control when left out, it must be written. A method without a plan is allowed: it names one of a policy's own evaluation-methods, and a producer that knows of no policy omits it."
       x-status: stable
     AssessmentPlan:
       description: AssessmentPlan defines how a specific assessment requirement is evaluated.
@@ -942,6 +977,9 @@ components:
       - "Within one evidence list an id appears once: listing an item twice in the same place says nothing. Every rule here skips an item with no id, which the schema already reports where the id is missing."
       - Across the log an evidence id names exactly one evidence item. The same item may appear under its id in another assessment's evidence, which is how one artifact supports several results; two different items may not share an id.
       - An evidence source names where the evidence came from, so its reference-id must be a mapping reference declared in this log's metadata.
+      - "Under a cited plan, an AssessmentLog is keyed by (this control evaluation, requirement, plan, method, executor). The plan and the method are each their reference-id and entry-id together, because two policies may each have a plan or a method with the same entry-id; the executor is its id. The key lets a log hold several results for one requirement: a plan with an automated probe and a manual review produces two. A method does not fix who runs it, so one method run on two instances is also two results, even when the plan's method names the executor meant to run it. Two records that agree on every part of the key are rejected, so a log holds one run of a method by an executor. Records with no plan are not keyed, so this rule does not affect logs that cite no plans."
+      - A record that gives parameter values cites a plan, because parameters are declared on a plan and values without one have nothing to be values of.
+      - A record gives at most one value for each parameter, so that which value a run used is never ambiguous.
       - The mapping-reference ids declared in this log's metadata, which an evidence source's reference-id must name.
       x-status: stable
     EvaluationMethodType:
@@ -1686,6 +1724,20 @@ components:
       - description
       type: object
       x-status: experimental
+    ParameterValue:
+      description: ParameterValue is the value an assessment used for one of its plan's parameters.
+      properties:
+        id:
+          description: id names the parameter, matching the id of one of the plan's parameters.
+          type: string
+        value:
+          description: value is the value this assessment used for the parameter.
+          type: string
+      required:
+      - id
+      - value
+      type: object
+      x-status: stable
     Policy:
       description: Policy represents a policy document with metadata, contacts, scope, imports, implementation plan, risks, and adherence requirements.
       properties:

@@ -52,3 +52,31 @@ func TestGenerateRawHasNoDefaultsOrAdditionalItems(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestAssessmentLogRejectsEmptyMethod(t *testing.T) {
+	v, _, _, err := loadPrepared("../../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := generateRaw(v, "Gemara", "test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	schema := doc.Components.Schemas["AssessmentLog"].Value
+	// The method's EntryMapping is a $ref VisitJSON cannot resolve from here, so check
+	// the entry-id constraint the schema layers on top of it.
+	entryID := schema.Properties["method"].Value.Properties["entry-id"].Value
+	if err := entryID.VisitJSON(""); err == nil {
+		t.Error("expected empty method entry-id to be rejected")
+	}
+	for _, entry := range []string{"X", "AC-01/X", "é", "\n"} {
+		if err := entryID.VisitJSON(entry); err != nil {
+			t.Errorf("non-empty method entry-id %q was rejected: %v", entry, err)
+		}
+	}
+	for _, required := range schema.Required {
+		if required == "method" {
+			t.Error("method is optional and must not be required")
+		}
+	}
+}
