@@ -14,6 +14,16 @@ package gemara
 	result: #Result
 	evaluations: [#ControlEvaluation, ...#ControlEvaluation] @go(Evaluations,type=[]*ControlEvaluation)
 
+	// A control mapping can identify at most one evaluation within this log.
+	for i, e in evaluations {
+		for j, other in evaluations if i < j {
+			if e.control."reference-id" == other.control."reference-id" &&
+				e.control."entry-id" == other.control."entry-id" {
+				evaluations: error("duplicate control mapping in evaluations")
+			}
+		}
+	}
+
 	// Within one evidence list an id appears once: listing an item twice in the
 	// same place says nothing. Every rule here skips an item with no id, which
 	// the schema already reports where the id is missing.

@@ -1,0 +1,48 @@
+metadata:
+  id: EVAL-DUPLICATE-CONTROL
+  type: EvaluationLog
+  gemara-version: "1.1.0"
+  version: 1.0.0
+  description: Evaluation log with a duplicate control mapping
+  author:
+    id: pvtr
+    name: PVTR
+    type: Software
+result: Needs Review
+target:
+  id: github-repo
+  name: GitHub Repository
+  type: Software
+evaluations:
+- name: first evaluation
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Needs Review
+  message: First evaluation
+  assessment-logs:
+  - requirement:
+      entry-id: OSPS-AC-01.01
+    description: Verify the first requirement.
+    result: Not Run
+    message: Assessment did not execute
+    applicability:
+    - Maturity Level 1
+    steps:
+    - example.first
+- name: duplicate evaluation
+  control:
+    reference-id: OSPS-B
+    entry-id: OSPS-AC-01
+  result: Needs Review
+  message: Duplicate evaluation
+  assessment-logs:
+  - requirement:
+      entry-id: OSPS-AC-01.02
+    description: Verify the second requirement.
+    result: Not Run
+    message: Assessment did not execute
+    applicability:
+    - Maturity Level 1
+    steps:
+    - example.second
