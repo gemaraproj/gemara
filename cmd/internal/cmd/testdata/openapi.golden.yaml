@@ -407,7 +407,7 @@ components:
           type: string
       type: object
       x-rules:
-      - result ids must be unique, and each result's criteria-reference must name one of the declared criteria
+      - result ids must be unique, each result's criteria-reference must name one of the declared criteria, and evidence that omits digest must not be located by a tag-only oci url
       x-status: experimental
     AuditResult:
       description: AuditResult records a single result with supporting evidence and recommendations.
@@ -942,7 +942,9 @@ components:
       - "Within one evidence list an id appears once: listing an item twice in the same place says nothing. Every rule here skips an item with no id, which the schema already reports where the id is missing."
       - Across the log an evidence id names exactly one evidence item. The same item may appear under its id in another assessment's evidence, which is how one artifact supports several results; two different items may not share an id.
       - An evidence source names where the evidence came from, so its reference-id must be a mapping reference declared in this log's metadata.
+      - "Evidence held elsewhere that omits digest must be located by an oci url pinned by digest, or by no oci url at all: a tag-only oci url names whatever the tag points at when it is read, so such evidence must carry digest."
       - The mapping-reference ids declared in this log's metadata, which an evidence source's reference-id must name.
+      - The url of each mapping reference declared in this log's metadata, by id.
       x-status: stable
     EvaluationMethodType:
       enum:
@@ -1025,7 +1027,7 @@ components:
             entry-id to identify a sub-location within that entry's output.
           type: string
         digest:
-          description: "digest is a cryptographic hash of the observed content at collection time; format: algorithm:encoded (e.g. sha256:abc123...)"
+          description: "digest is a cryptographic hash of the resolved evidence content at collection\ntime, never of the resource identity a url names; format: algorithm:encoded\n(e.g. sha256:abc123...). It may be omitted when the MappingReference's url is\ncontent-addressed, which here means an oci url pinned by digest\n(oci://<name>@<algorithm>:<encoded>). A tag-only oci url names whatever the\ntag points at when it is read, so evidence located by one must carry digest.\nThe CUE AuditLog and EvaluationLog schemas reject it otherwise; the JSON\nSchema and OpenAPI projections do not check this rule. For any other url an\nabsent digest makes no integrity claim."
           pattern: ^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$
           type: string
         entry-id:

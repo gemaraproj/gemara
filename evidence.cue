@@ -74,7 +74,15 @@ package gemara
 	// coordinate.
 	"entry-id"?: string @go(EntryId)
 
-	// digest is a cryptographic hash of the observed content at collection time; format: algorithm:encoded (e.g. sha256:abc123...)
+	// digest is a cryptographic hash of the resolved evidence content at collection
+	// time, never of the resource identity a url names; format: algorithm:encoded
+	// (e.g. sha256:abc123...). It may be omitted when the MappingReference's url is
+	// content-addressed, which here means an oci url pinned by digest
+	// (oci://<name>@<algorithm>:<encoded>). A tag-only oci url names whatever the
+	// tag points at when it is read, so evidence located by one must carry digest.
+	// The CUE AuditLog and EvaluationLog schemas reject it otherwise; the JSON
+	// Schema and OpenAPI projections do not check this rule. For any other url an
+	// absent digest makes no integrity claim.
 	digest?: =~"^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$"
 
 	// remarks is prose regarding this evidence reference
@@ -131,3 +139,10 @@ package gemara
 		source?: "entry-id"?: error("entry-id is only for evidence that is a Gemara artifact: set type to the artifact type, or remove entry-id")
 	}
 }
+
+// _contentAddressedOCI matches an oci url pinned by digest, the one locator form
+// treated as content-addressed when evidence omits digest. #EvaluationLog and
+// #AuditLog each apply it to the url of the MappingReference an evidence source
+// names, because only the log's metadata holds those urls. The oci scheme is
+// matched in any case, as URI schemes are case-insensitive.
+_contentAddressedOCI: =~"^(?i:oci)://[^\\s@]+@[a-z0-9]+(?:[+._-][a-z0-9]+)*:[a-zA-Z0-9=_-]+$"

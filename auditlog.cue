@@ -25,7 +25,7 @@ import "list"
 	// results records audit results against the criteria
 	results: [#AuditResult, ...#AuditResult] @go(Results,type=[]*AuditResult)
 
-	// result ids must be unique, and each result's criteria-reference must name one of the declared criteria
+	// result ids must be unique, each result's criteria-reference must name one of the declared criteria, and evidence that omits digest must not be located by a tag-only oci url
 	if results != _|_ {
 		_uniqueResultIds: {for i, r in results {(r.id): i}}
 		let _validCriteriaIds = [for c in criteria {c."reference-id"}]
@@ -94,6 +94,23 @@ import "list"
 		if item.id != _|_
 		if item.source != _|_ {
 			_evidenceSourceDeclared: "evidence \(item.id) names a source that is not declared in metadata.mapping-references": true & _declaredReferenceIDs[item.source."reference-id"]
+		}
+
+		// The url of each mapping reference declared in this log's metadata, by id.
+		_ociUrls: {for k, refs in metadata if k == "mapping-references" for r in refs if r.id != _|_ if r.url != _|_ {(r.id): r.url}}
+
+		// Evidence held elsewhere that omits digest must be located by an oci url
+		// pinned by digest, or by no oci url at all: a tag-only oci url names whatever
+		// the tag points at when it is read, so such evidence must carry digest.
+		for r in results
+		if r.evidence != _|_
+		for item in r.evidence
+		if item.id != _|_
+		if item.payload == _|_ && item.source != _|_ && item.source.digest == _|_
+		if _ociUrls[item.source."reference-id"] != _|_
+		if _ociUrls[item.source."reference-id"] =~ "^(?i:oci)://"
+		if (_ociUrls[item.source."reference-id"] & _contentAddressedOCI) == _|_ {
+			_digestBasis: (item.id): error("evidence \(item.id) omits digest and is located by an oci url not pinned by digest (\(_ociUrls[item.source."reference-id"])): pin it as oci://<name>@<algorithm>:<encoded> or give digest")
 		}
 	}
 }

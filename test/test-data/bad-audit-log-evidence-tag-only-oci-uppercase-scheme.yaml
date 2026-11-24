@@ -1,0 +1,56 @@
+metadata:
+  id: audit-log-tag-only-oci-uppercase
+  type: AuditLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Invalid audit log: evidence with no digest whose source is a tag-only OCI url in uppercase"
+  author:
+    id: lead-auditor
+    name: "Auditor"
+    type: Human
+  mapping-references:
+    - id: github-api
+      title: "GitHub Dependency Graph API"
+      version: "2026"
+      url: "https://docs.github.com/en/rest/dependency-graph"
+    - id: sbom-image
+      title: "SBOM stored as an image"
+      version: "2026"
+      url: "OCI://registry.example.com/sbom/gemara:latest"
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+  uri: "https://github.com/gemaraproj/gemara"
+  environment: production
+
+owner:
+  responsible:
+    - name: "Auditor"
+      affiliation: "External Audit Firm"
+  accountable:
+    - name: "Project Lead"
+      affiliation: "OpenSSF"
+
+summary: "Digest basis validation test."
+
+criteria:
+  - reference-id: github-api
+
+results:
+  - id: AR-QA-01
+    title: "Dependency manifests present"
+    type: Observation
+    description: "Repository includes dependency manifests."
+    criteria-reference:
+      reference-id: github-api
+      entries:
+        - reference-id: OSPS-QA-02
+    evidence:
+      - id: EV-QA-01
+        type: api-response
+        description: "Dependency manifests from the GitHub dependency graph SBOM endpoint"
+        collected-at: "2026-02-10T15:05:00Z"
+        source:
+          reference-id: sbom-image
