@@ -30,13 +30,12 @@ import "list"
 	// mapping ids must be unique
 	_uniqueMappingIds: {for i, m in mappings {(m.id): i}}
 
-	// when metadata.mapping-references is declared, source-reference and target-reference must match declared mapping-references and must name distinct artifacts
+	// when metadata.mapping-references is declared, source-reference and target-reference must match declared mapping-references
 	if metadata."mapping-references" != _|_ {
 		let _validRefIds = [for r in metadata."mapping-references" {r.id}]
 
 		_sourceRefValidation: _validRefIds & list.Contains(SR."reference-id")
 		_targetRefValidation: _validRefIds & list.Contains(TR."reference-id")
-		_distinctReferences:  true & (SR."reference-id" != TR."reference-id")
 	}
 
 	// when metadata.applicability-groups is declared, each target's applicability must name declared applicability groups

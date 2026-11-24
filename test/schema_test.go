@@ -137,7 +137,6 @@ func TestSchemaValidation(t *testing.T) {
 		{"mapping target strength non-integer", "./test-data/bad-mapping-strength-non-integer.yaml", "#MappingDocument", true, `mappings.0.targets.0.strength: conflicting values 5.5 and int`},
 		{"mapping document with undeclared source mapping-reference", "./test-data/bad-mapping-undeclared-source-reference.yaml", "#MappingDocument", true, `does not satisfy list.Contains("UNDECLARED-SOURCE")`},
 		{"mapping document with undeclared target mapping-reference", "./test-data/bad-mapping-undeclared-target-reference.yaml", "#MappingDocument", true, `does not satisfy list.Contains("UNDECLARED-TARGET")`},
-		{"mapping document with identical source and target references", "./test-data/bad-mapping-identical-references.yaml", "#MappingDocument", true, `_distinctReferences: conflicting values false and true`},
 		{"mapping target with undeclared applicability group", "./test-data/bad-mapping-invalid-applicability.yaml", "#MappingDocument", true, `does not satisfy list.Contains("nonexistent-applicability")`},
 
 		// Lexicon — positive

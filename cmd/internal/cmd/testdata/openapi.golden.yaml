@@ -1504,7 +1504,7 @@ components:
       - mappings
       type: object
       x-rules:
-      - when metadata.mapping-references is declared, source-reference and target-reference must match declared mapping-references and must name distinct artifacts
+      - when metadata.mapping-references is declared, source-reference and target-reference must match declared mapping-references
       - when metadata.applicability-groups is declared, each target's applicability must name declared applicability groups
       - mapping ids must be unique
       x-status: experimental
