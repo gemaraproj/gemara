@@ -1,0 +1,24 @@
+metadata:
+  id: BAD-CAPABILITY-DATE-MISSING-TIME
+  type: CapabilityCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  date: "2026-11-18"
+  description: Invalid — metadata date is a plain date with no time portion
+  author:
+    id: test
+    name: Test
+    type: Human
+
+title: Invalid metadata date format
+
+groups:
+  - id: container-infrastructure
+    title: Container Infrastructure
+    description: Capabilities related to the core container infrastructure, including runtimes and registries
+
+capabilities:
+  - id: CAP-001
+    title: Container Runtime
+    description: System's ability to run containerized applications, including image management and container lifecycle.
+    group: container-infrastructure

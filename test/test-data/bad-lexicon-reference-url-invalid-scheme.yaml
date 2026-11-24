@@ -1,0 +1,17 @@
+title: Invalid Reference URL Lexicon
+metadata:
+  id: bad-lexicon-invalid-url
+  type: Lexicon
+  gemara-version: "1.1.0"
+  description: Lexicon reference with unsupported URL scheme
+  author:
+    id: gemara-example
+    name: Gemara Example Author
+    type: Human
+terms:
+  - id: sbom
+    title: Software Bill of Materials
+    definition: A formal, machine-readable inventory of software components.
+    references:
+      - citation: NIST SP 800-218
+        url: ftp://example.com/sp800-218

@@ -1,0 +1,18 @@
+metadata:
+  id: EXAMPLE-VECTOR-CATALOG
+  type: VectorCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: Example Vector Catalog with vectors but no groups declared
+  author:
+    id: security-team
+    name: Security Team
+    type: Human
+
+title: Example Vector Catalog
+
+vectors:
+  - id: VEC-001
+    title: Direct Prompt Injection
+    description: Attackers craft inputs to override system instructions.
+    group: prompt-injection
