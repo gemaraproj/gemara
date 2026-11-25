@@ -1504,6 +1504,8 @@ components:
       - mappings
       type: object
       x-rules:
+      - when metadata.mapping-references is declared, source-reference and target-reference must match declared mapping-references
+      - when metadata.applicability-groups is declared, each target's applicability must name declared applicability groups
       - mapping ids must be unique
       x-status: experimental
     MappingReference:
@@ -1540,7 +1542,7 @@ components:
       description: MappingTarget identifies a target entry with optional per-target metadata
       properties:
         applicability:
-          description: applicability constrains the contexts in which this target mapping holds
+          description: applicability constrains the contexts in which this target mapping holds; when metadata.applicability-groups is declared, each value must match a declared group id
           items:
             type: string
           minItems: 1
