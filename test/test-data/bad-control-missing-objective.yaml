@@ -1,0 +1,30 @@
+metadata:
+  id: "test-control-catalog-missing-objective"
+  type: ControlCatalog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Test control catalog where control is missing required objective"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  applicability-groups:
+    - id: "cloud-native"
+      title: "Cloud Native"
+      description: "Cloud native environments"
+
+title: "Control Missing Objective Catalog"
+groups:
+  - id: "access-control"
+    title: "Access Control"
+    description: "Access control requirements"
+
+controls:
+  - id: "AC-01"
+    group: "access-control"
+    title: "Enforce Multi-Factor Authentication"
+    assessment-requirements:
+      - id: "AC-01.01"
+        text: "Administrative accounts MUST require phishing-resistant MFA."
+        applicability:
+          - "cloud-native"

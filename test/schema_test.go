@@ -61,6 +61,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// GuidanceCatalog — positive
 		{"valid AI governance framework", "./test-data/good-aigf.yaml", "#GuidanceCatalog", false, ""},
+		{"guidance catalog with exemptions", "./test-data/good-guidance-exemptions.yaml", "#GuidanceCatalog", false, ""},
 		{"guideline see-also references across ordering", "./test-data/good-guidance-see-also.yaml", "#GuidanceCatalog", false, ""},
 		// PrinciplesCatalog — positive
 		{"valid AIGF principles catalog", "./test-data/good-aigf-principles.yaml", "#PrincipleCatalog", false, ""},
@@ -123,6 +124,13 @@ func TestSchemaValidation(t *testing.T) {
 		{"invalid JSON", "./test-data/bad.json", "#ControlCatalog", true, "#ControlCatalog.this: field not allowed"},
 		{"controls without groups", "./test-data/bad-no-groups.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value [string] (does not satisfy list.Contains("missing-group"))`},
 		{"control catalog with duplicate control id", "./test-data/bad-control-catalog-duplicate-control-id.yaml", "#ControlCatalog", true, `_uniqueControlIds."TC-001"`},
+		{"control catalog with empty controls list", "./test-data/bad-control-empty-controls.yaml", "#ControlCatalog", true, "controls: incompatible list lengths"},
+		{"control missing required title", "./test-data/bad-control-missing-title.yaml", "#ControlCatalog", true, "controls.0.title: incomplete value string"},
+		{"control missing required objective", "./test-data/bad-control-missing-objective.yaml", "#ControlCatalog", true, "controls.0.objective: incomplete value string"},
+		{"control with empty assessment requirements list", "./test-data/bad-control-empty-assessment-requirements.yaml", "#ControlCatalog", true, `controls.0."assessment-requirements": incompatible list lengths`},
+		{"assessment requirement missing required text", "./test-data/bad-control-requirement-missing-text.yaml", "#ControlCatalog", true, `controls.0."assessment-requirements".0.text: incomplete value string`},
+		{"assessment requirement with empty applicability list", "./test-data/bad-control-requirement-empty-applicability.yaml", "#ControlCatalog", true, `controls.0."assessment-requirements".0.applicability: incompatible list lengths`},
+		{"retired assessment requirement with recommendation", "./test-data/bad-control-retired-requirement-recommendation.yaml", "#ControlCatalog", true, "#ControlCatalog: explicit error"},
 
 		// MappingDocument — positive
 		{"valid mapping document", "./test-data/good-mapping-document.yaml", "#MappingDocument", false, ""},
@@ -148,7 +156,15 @@ func TestSchemaValidation(t *testing.T) {
 		{"guidance catalog with duplicate guideline id", "./test-data/bad-guidance-duplicate-id.yaml", "#GuidanceCatalog", true, `_uniqueGuidelineIds."AIR-PREV-001"`},
 		{"guideline missing required title", "./test-data/bad-guidance-missing-title.yaml", "#GuidanceCatalog", true, "guidelines.0.title: incomplete value string"},
 		{"guideline with empty recommendations list", "./test-data/bad-guidance-empty-recommendations.yaml", "#GuidanceCatalog", true, "guidelines.0.recommendations: incompatible list lengths"},
+		{"guideline with empty applicability list", "./test-data/bad-guidance-empty-applicability.yaml", "#GuidanceCatalog", true, "guidelines.0.applicability: incompatible list lengths"},
+		{"guideline with empty see-also list", "./test-data/bad-guidance-empty-see-also.yaml", "#GuidanceCatalog", true, `guidelines.0."see-also": incompatible list lengths`},
+		{"guideline statement missing required id", "./test-data/bad-guidance-statement-missing-id.yaml", "#GuidanceCatalog", true, "guidelines.0.statements.0.id: incomplete value string"},
+		{"guideline statement missing required text", "./test-data/bad-guidance-statement-missing-text.yaml", "#GuidanceCatalog", true, "guidelines.0.statements.0.text: incomplete value string"},
+		{"guideline statement with empty recommendations list", "./test-data/bad-guidance-statement-empty-recommendations.yaml", "#GuidanceCatalog", true, "guidelines.0.statements.0.recommendations: incompatible list lengths"},
 		{"guidance catalog with empty guidelines list", "./test-data/bad-guidance-empty-list.yaml", "#GuidanceCatalog", true, "guidelines: incompatible list lengths"},
+		{"guidance catalog exemption missing description", "./test-data/bad-guidance-exemption-missing-description.yaml", "#GuidanceCatalog", true, "exemptions.0.description: incomplete value string"},
+		{"guidance catalog exemption missing reason", "./test-data/bad-guidance-exemption-missing-reason.yaml", "#GuidanceCatalog", true, "exemptions.0.reason: incomplete value string"},
+		{"guideline rationale missing importance", "./test-data/bad-guidance-rationale-missing-importance.yaml", "#GuidanceCatalog", true, "guidelines.0.rationale.importance: incomplete value string"},
 
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
@@ -218,8 +234,13 @@ func TestSchemaValidation(t *testing.T) {
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
+		{"threat missing id", "./test-data/bad-threat-missing-id.yaml", "#ThreatCatalog", true, "threats.0.id: incomplete value string"},
+		{"threat missing title", "./test-data/bad-threat-missing-title.yaml", "#ThreatCatalog", true, "threats.0.title: incomplete value string"},
 		{"threat missing description", "./test-data/bad-threat-missing-description.yaml", "#ThreatCatalog", true, "threats.0.description: incomplete value string"},
+		{"threat missing group", "./test-data/bad-threat-missing-group.yaml", "#ThreatCatalog", true, "threats.0.group: incomplete value string"},
 		{"threat with empty capabilities list", "./test-data/bad-threat-empty-capabilities.yaml", "#ThreatCatalog", true, "threats.0.capabilities: incompatible list lengths"},
+		{"threat with empty vectors list", "./test-data/bad-threat-empty-vectors.yaml", "#ThreatCatalog", true, "threats.0.vectors: incompatible list lengths"},
+		{"threat catalog with empty threats list", "./test-data/bad-threat-empty-threats.yaml", "#ThreatCatalog", true, "threats: incompatible list lengths"},
 
 		// VectorCatalog — negative
 		{"vector with invalid group", "./test-data/bad-vector-invalid-group.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value ["prompt-injection"]`},
