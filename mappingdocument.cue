@@ -32,7 +32,7 @@ import "list"
 
 	// when metadata.mapping-references is declared, source-reference and target-reference must match declared mapping-references
 	if metadata."mapping-references" != _|_ {
-		let _validRefIds = [for r in metadata."mapping-references" {r.id}]
+		let _validRefIds = [for r in metadata."mapping-references" if r.id != _|_ {r.id}]
 
 		_sourceRefValidation: _validRefIds & list.Contains(SR."reference-id")
 		_targetRefValidation: _validRefIds & list.Contains(TR."reference-id")
