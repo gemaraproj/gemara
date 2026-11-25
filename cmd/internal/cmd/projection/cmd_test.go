@@ -181,3 +181,80 @@ func TestCue2OpenAPICmdCollidingOutputAndManifestPaths(t *testing.T) {
 		})
 	}
 }
+
+func TestCue2OpenAPICmdPreservesOutputsOnManifestEncodingFailure(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test invoking CUE generation in -short mode")
+	}
+
+	tmpDir := t.TempDir()
+	schemaDir := filepath.Join(tmpDir, "schema")
+	cueModDir := filepath.Join(schemaDir, "cue.mod")
+	if err := os.MkdirAll(cueModDir, 0755); err != nil {
+		t.Fatalf("failed to create cue module directory: %v", err)
+	}
+
+	moduleFile := filepath.Join(cueModDir, "module.cue")
+	moduleContent := []byte("module: \"example.com/p@v0\"\nlanguage: version: \"v0.15.1\"\n")
+	if err := os.WriteFile(moduleFile, moduleContent, 0644); err != nil {
+		t.Fatalf("failed to write module.cue: %v", err)
+	}
+
+	// Schema package with a definition ending in _value and valid file status.
+	// Upstream CUE OpenAPI skips definitions ending with _value as internal helper schemas,
+	// so it is omitted from doc.Components.Schemas.
+	// Consequently, Convert and EncodeOpenAPI succeed, but EncodeManifest fails
+	// because definition #Foo_value is declared in CUE but missing from the generated document.
+	schemaFile := filepath.Join(schemaDir, "schema.cue")
+	schemaContent := []byte("@gemara(status=\"stable\")\npackage p\n\n#Foo_value: string\n")
+	if err := os.WriteFile(schemaFile, schemaContent, 0644); err != nil {
+		t.Fatalf("failed to write schema.cue: %v", err)
+	}
+
+	outYaml := filepath.Join(tmpDir, "openapi.yaml")
+	manifestJSON := filepath.Join(tmpDir, "manifest.json")
+
+	initialOpenAPI := []byte("initial openapi content\n")
+	initialManifest := []byte("initial manifest content\n")
+
+	if err := os.WriteFile(outYaml, initialOpenAPI, 0644); err != nil {
+		t.Fatalf("failed to seed openapi output: %v", err)
+	}
+	if err := os.WriteFile(manifestJSON, initialManifest, 0644); err != nil {
+		t.Fatalf("failed to seed manifest output: %v", err)
+	}
+
+	cmd := NewCue2OpenAPICmd()
+	cmd.SetArgs([]string{
+		"--schema", schemaDir,
+		"--output", outYaml,
+		"--manifest", manifestJSON,
+	})
+	t.Cleanup(func() {
+		cmd.SetArgs(nil)
+	})
+
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatalf("expected command to fail when manifest encoding fails, got nil")
+	}
+	if !strings.Contains(err.Error(), "refusing to write a manifest that omits it") {
+		t.Fatalf("expected manifest failure error, got: %v", err)
+	}
+
+	gotOpenAPI, readErr := os.ReadFile(outYaml)
+	if readErr != nil {
+		t.Fatalf("failed to read openapi output: %v", readErr)
+	}
+	if !bytes.Equal(gotOpenAPI, initialOpenAPI) {
+		t.Errorf("expected openapi output to remain unchanged, got %q", string(gotOpenAPI))
+	}
+
+	gotManifest, readErr := os.ReadFile(manifestJSON)
+	if readErr != nil {
+		t.Fatalf("failed to read manifest output: %v", readErr)
+	}
+	if !bytes.Equal(gotManifest, initialManifest) {
+		t.Errorf("expected manifest output to remain unchanged, got %q", string(gotManifest))
+	}
+}
