@@ -142,6 +142,11 @@ func TestSchemaValidation(t *testing.T) {
 
 		// Lexicon — negative
 		{"lexicon with duplicate term ids", "./test-data/bad-lexicon-duplicate-term-id.yaml", "#Lexicon", true, `_uniqueTermIds."same-id"`},
+		{"lexicon with empty terms list", "./test-data/bad-lexicon-empty-terms.yaml", "#Lexicon", true, "terms: incompatible list lengths"},
+		{"lexicon term missing id", "./test-data/bad-lexicon-missing-id.yaml", "#Lexicon", true, "terms.0.id: incomplete value string"},
+		{"lexicon term missing title", "./test-data/bad-lexicon-missing-title.yaml", "#Lexicon", true, "terms.0.title: incomplete value string"},
+		{"lexicon term missing definition", "./test-data/bad-lexicon-missing-definition.yaml", "#Lexicon", true, "terms.0.definition: incomplete value string"},
+		{"lexicon reference with invalid url scheme", "./test-data/bad-lexicon-reference-url-invalid-scheme.yaml", "#Lexicon", true, `terms.0.references.0.url: invalid value "ftp://example.com/sp800-218"`},
 
 		// GuidanceCatalog — negative
 		{"retired guideline with recommendations", "./test-data/bad-lifecycle.yaml", "#GuidanceCatalog", true, "#GuidanceCatalog: explicit error"},
@@ -149,6 +154,12 @@ func TestSchemaValidation(t *testing.T) {
 		{"guideline missing required title", "./test-data/bad-guidance-missing-title.yaml", "#GuidanceCatalog", true, "guidelines.0.title: incomplete value string"},
 		{"guideline with empty recommendations list", "./test-data/bad-guidance-empty-recommendations.yaml", "#GuidanceCatalog", true, "guidelines.0.recommendations: incompatible list lengths"},
 		{"guidance catalog with empty guidelines list", "./test-data/bad-guidance-empty-list.yaml", "#GuidanceCatalog", true, "guidelines: incompatible list lengths"},
+		{"guidance catalog with invalid type", "./test-data/bad-guidance-invalid-type.yaml", "#GuidanceCatalog", true, "type: 4 errors in empty disjunction"},
+		{"guidance catalog with empty exemptions list", "./test-data/bad-guidance-empty-exemptions.yaml", "#GuidanceCatalog", true, "exemptions: incompatible list lengths"},
+		{"guidance catalog with empty groups list", "./test-data/bad-guidance-empty-groups.yaml", "#GuidanceCatalog", true, "groups: incompatible list lengths"},
+		{"guidelines without groups", "./test-data/bad-guidance-no-groups.yaml", "#GuidanceCatalog", true, `_groupValidation."0": invalid value [string] (does not satisfy list.Contains("PREV"))`},
+		{"guideline missing required objective", "./test-data/bad-guidance-missing-objective.yaml", "#GuidanceCatalog", true, "guidelines.0.objective: incomplete value string"},
+		{"guideline with empty statements list", "./test-data/bad-guidance-empty-statements.yaml", "#GuidanceCatalog", true, "guidelines.0.statements: incompatible list lengths"},
 
 		// EvaluationLog — positive
 		{"valid PVTR baseline scan", "./test-data/pvtr-baseline-scan.yaml", "#EvaluationLog", false, ""},
@@ -215,6 +226,12 @@ func TestSchemaValidation(t *testing.T) {
 		{"metadata with an unknown artifact type", "./test-data/bad-metadata-unknown-artifact-type.yaml", "#Metadata", true, `type: 13 errors in empty disjunction`},
 		{"capability metadata with a type belonging to another artifact", "./test-data/bad-capability-artifact-type-wrong-artifact.yaml", "#CapabilityCatalog", true, `metadata.type: conflicting values "CapabilityCatalog" and "Policy"`},
 
+		// Metadata date format — positive and negative (via #CapabilityCatalog)
+		{"capability metadata with a valid RFC 3339 date", "./test-data/good-capability-dated.yaml", "#CapabilityCatalog", false, ""},
+		{"capability metadata with a date missing the time portion", "./test-data/bad-capability-date-missing-time.yaml", "#CapabilityCatalog", true, `metadata.date: invalid value "2026-11-18" (does not satisfy time.Format`},
+		{"capability metadata with a date missing the UTC offset", "./test-data/bad-capability-date-missing-timezone.yaml", "#CapabilityCatalog", true, `metadata.date: invalid value "2026-11-18T10:30:00" (does not satisfy time.Format`},
+		{"capability metadata with impossible date values", "./test-data/bad-capability-date-impossible-values.yaml", "#CapabilityCatalog", true, `metadata.date: invalid value "2026-13-45T99:99:99Z" (does not satisfy time.Format`},
+
 		// ThreatCatalog — negative
 		{"threat with invalid group", "./test-data/bad-threat-invalid-group.yaml", "#ThreatCatalog", true, `_groupValidation."0": invalid value ["stride-s"]`},
 		{"threat catalog with duplicate threat id", "./test-data/bad-threat-duplicate-id.yaml", "#ThreatCatalog", true, `_uniqueThreatIds."THR-001"`},
@@ -226,12 +243,23 @@ func TestSchemaValidation(t *testing.T) {
 		{"vector catalog with duplicate vector id", "./test-data/bad-vector-duplicate-id.yaml", "#VectorCatalog", true, `_uniqueVectorIds."VEC-001"`},
 		{"vector missing id", "./test-data/bad-vector-missing-id.yaml", "#VectorCatalog", true, "vectors.0.id: incomplete value string"},
 		{"vector catalog with empty vectors list", "./test-data/bad-vector-empty-list.yaml", "#VectorCatalog", true, "vectors: incompatible list lengths"},
+		{"vector missing title", "./test-data/bad-vector-missing-title.yaml", "#VectorCatalog", true, "vectors.0.title: incomplete value string"},
+		{"vector missing description", "./test-data/bad-vector-missing-description.yaml", "#VectorCatalog", true, "vectors.0.description: incomplete value string"},
+		{"vector missing group", "./test-data/bad-vector-missing-group.yaml", "#VectorCatalog", true, "vectors.0.group: incomplete value string"},
+		{"vector with empty applicability list", "./test-data/bad-vector-empty-applicability.yaml", "#VectorCatalog", true, "vectors.0.applicability: incompatible list lengths"},
+		{"vector catalog with empty groups list", "./test-data/bad-vector-empty-groups.yaml", "#VectorCatalog", true, "groups: incompatible list lengths"},
+		{"vectors without groups", "./test-data/bad-vector-no-groups.yaml", "#VectorCatalog", true, `_groupValidation."0": invalid value [string] (does not satisfy list.Contains("prompt-injection"))`},
 
 		// PrincipleCatalog — negative
 		{"principle with invalid group", "./test-data/bad-principle-invalid-group.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value ["data-protection"]`},
 		{"principle catalog with duplicate principle id", "./test-data/bad-principle-duplicate-id.yaml", "#PrincipleCatalog", true, `_uniquePrinciplesIds."PRIN-001"`},
 		{"principle missing description", "./test-data/bad-principle-missing-description.yaml", "#PrincipleCatalog", true, "principles.0.description: incomplete value string"},
 		{"principle catalog with empty principles list", "./test-data/bad-principle-empty-list.yaml", "#PrincipleCatalog", true, "principles: incompatible list lengths"},
+		{"principle missing id", "./test-data/bad-principle-missing-id.yaml", "#PrincipleCatalog", true, "principles.0.id: incomplete value string"},
+		{"principle missing title", "./test-data/bad-principle-missing-title.yaml", "#PrincipleCatalog", true, "principles.0.title: incomplete value string"},
+		{"principle missing group", "./test-data/bad-principle-missing-group.yaml", "#PrincipleCatalog", true, "principles.0.group: incomplete value string"},
+		{"principle catalog with empty groups list", "./test-data/bad-principle-empty-groups.yaml", "#PrincipleCatalog", true, "groups: incompatible list lengths"},
+		{"principles without groups", "./test-data/bad-principle-no-groups.yaml", "#PrincipleCatalog", true, `_groupValidation."0": invalid value [string] (does not satisfy list.Contains("data-protection"))`},
 
 		// ControlCatalog — negative (group validation)
 		{"control with invalid group", "./test-data/bad-control-invalid-group.yaml", "#ControlCatalog", true, `_groupValidation."0": invalid value ["access-control"]`},

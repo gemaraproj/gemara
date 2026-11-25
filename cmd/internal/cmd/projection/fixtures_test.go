@@ -34,6 +34,7 @@ var repoFixtures = []struct {
 	{"test/test-data/good-aigf-vectors.yaml", "VectorCatalog"},
 	{"test/test-data/good-threat-catalog.yaml", "ThreatCatalog"},
 	{"test/test-data/good-capability-catalog.yaml", "CapabilityCatalog"},
+	{"test/test-data/good-capability-dated.yaml", "CapabilityCatalog"},
 	{"test/test-data/good-vector-owasp-mapping.yaml", "MappingDocument"},
 	{"test/test-data/good-risk-catalog.yaml", "RiskCatalog"},
 	{"test/test-data/good-policy.yaml", "Policy"},
