@@ -16,7 +16,7 @@ import "list"
 	// threats is a list of threats defined by this catalog
 	threats?: [#Threat, ...#Threat] @go(Threats)
 
-	// when threats are listed, groups is required, threat ids must be unique, and each threat's group must be a declared group id
+	// when threats are listed, groups is required, threat ids must be unique, each threat's group must be a declared group id, and when metadata.mapping-references is set, each capability or vector reference-id must be declared in it
 	if threats != _|_ {
 		_uniqueThreatIds: {for i, t in threats {(t.id): i}}
 		groups: [#Group, ...#Group]
@@ -25,6 +25,20 @@ import "list"
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, t in threats {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(t.group)
+		}
+
+		if metadata."mapping-references" != _|_ {
+			let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+			for i, t in threats {
+				for j, c in t.capabilities {
+					_capabilityRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(c."reference-id")
+				}
+				if t.vectors != _|_ {
+					for j, v in t.vectors {
+						_vectorRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(v."reference-id")
+					}
+				}
+			}
 		}
 	}
 }
