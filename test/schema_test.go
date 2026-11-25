@@ -93,6 +93,15 @@ func TestSchemaValidation(t *testing.T) {
 		{"policy adopting applicability groups", "./test-data/good-policy-applicability-groups.yaml", "#Policy", false, ""},
 		{"valid policy with mitigated and accepted risks", "./test-data/good-policy-risks.yaml", "#Policy", false, ""},
 		{"valid policy with accepted risks only", "./test-data/good-policy-accepted-only-risks.yaml", "#Policy", false, ""},
+		{"valid policy with exclusions", "./test-data/good-policy-exclusions.yaml", "#Policy", false, ""},
+
+		// Policy — negative (exclusions)
+		{"policy with exclusion missing required rationale", "./test-data/bad-policy-exclusion-missing-rationale.yaml", "#Policy", true, "exclusions.0.rationale"},
+		{"policy with exclusion missing required id", "./test-data/bad-policy-exclusion-missing-id.yaml", "#Policy", true, "exclusions.0.id"},
+		{"policy with exclusion having empty rationale", "./test-data/bad-policy-exclusion-empty-rationale.yaml", "#Policy", true, "exclusions.0.rationale"},
+		{"policy with exclusion having empty id", "./test-data/bad-policy-exclusion-empty-id.yaml", "#Policy", true, "exclusions.0.id"},
+		{"policy with duplicate exclusion id", "./test-data/bad-policy-exclusion-duplicate-id.yaml", "#Policy", true, `_uniqueCatalogExclusionIds."AC-1"`},
+		{"policy with duplicate guidance exclusion id", "./test-data/bad-policy-guidance-exclusion-duplicate-id.yaml", "#Policy", true, `_uniqueGuidanceExclusionIds."A.5.1"`},
 
 		// Policy — negative (applicability)
 		{"policy with empty catalog applicability list", "./test-data/bad-policy-empty-catalog-applicability.yaml", "#Policy", true, "imports.catalogs.0.applicability: incompatible list lengths"},
@@ -171,7 +180,7 @@ func TestSchemaValidation(t *testing.T) {
 
 		// EvaluationLog — negative
 		{"executed assessment missing start", "./test-data/bad-evaluation-log-missing-start.yaml", "#EvaluationLog", true, `"assessment-logs".0.start: incomplete value`},
-		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true,  `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
+		{"assessment requirement with mismatched reference-id", "./test-data/bad-evaluation-log-mismatched-reference-id.yaml", "#EvaluationLog", true, `"assessment-logs".0.requirement."reference-id": conflicting values "control-catalog-ref" and "other-catalog-ref"`},
 
 		// EnforcementLog — positive
 		{"valid enforcement log", "./test-data/good-enforcement-log.yaml", "#EnforcementLog", false, ""},

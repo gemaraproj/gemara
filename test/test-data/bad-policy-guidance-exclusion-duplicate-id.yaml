@@ -1,0 +1,58 @@
+metadata:
+  id: "security-policy-guidance-duplicate-exclusion-001"
+  type: Policy
+  gemara-version: "1.1.0"
+  description: "Policy with duplicate guidance exclusion IDs"
+  version: "1.0.0"
+  author:
+    id: security-team
+    name: "Security Team"
+    type: Human
+  mapping-references:
+    - id: "ISO-27001"
+      title: "ISO/IEC 27001"
+      version: "2022"
+      description: "Information security management systems"
+      url: "https://www.iso.org/standard/27001"
+title: "Policy with Duplicate Guidance Exclusion ID"
+contacts:
+  responsible:
+    - name: "IT Director"
+      affiliation: "IT"
+      email: "it@company.com"
+  accountable:
+    - name: "CISO"
+      affiliation: "Security"
+      email: "ciso@company.com"
+  consulted:
+    - name: "Legal"
+      affiliation: "Legal"
+      email: "legal@company.com"
+  informed:
+    - name: "All"
+      affiliation: "All"
+scope:
+  in:
+    technologies:
+      - "Cloud Computing"
+imports:
+  guidance:
+    - reference-id: "ISO-27001"
+      exclusions:
+        - id: "A.5.1"
+          rationale: "Reason one"
+        - id: "A.5.1"
+          rationale: "Reason two"
+adherence:
+  evaluation-methods:
+    - id: "EV-AUTO-01"
+      type: "Behavioral"
+      mode: "Automated"
+      required: true
+      description: "Automated compliance scanning"
+  enforcement-methods:
+    - id: "EM-GATE-01"
+      type: "Gate"
+      mode: "Automated"
+      required: true
+      description: "Pre-deployment gate"
