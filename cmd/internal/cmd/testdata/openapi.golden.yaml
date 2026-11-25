@@ -1144,6 +1144,15 @@ components:
     GuidanceImport:
       description: GuidanceImport defines how to import guidance documents with optional exclusions and constraints.
       properties:
+        applicability:
+          description: |-
+            applicability selects the applicability groups to adopt from this imported guidance document. Each ID must match
+            an entry in the guidance document's metadata."applicability-groups". A guideline is in play when any of its
+            applicability IDs is selected. Guidelines that do not set applicability remain in play.
+          items:
+            type: string
+          minItems: 1
+          type: array
         constraints:
           description: Constraints allow policy authors to define ad hoc minimum requirements (e.g., "review at least annually").
           items:
