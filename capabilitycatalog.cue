@@ -16,7 +16,7 @@ import "list"
 	// capabilities is a list of capabilities defined by this catalog
 	capabilities?: [#Capability, ...#Capability] @go(Capabilities)
 
-	// when capabilities are listed, groups is required, capability ids must be unique, and each capability's group must be a declared group id
+	// when capabilities are listed, groups is required, capability ids must be unique, each capability's group must be a declared group id, and each citation reference-id must be declared in metadata.mapping-references
 	if capabilities != _|_ {
 		_uniqueCapabilityIds: {for i, c in capabilities {(c.id): i}}
 		groups: [#Group, ...#Group]
@@ -25,6 +25,13 @@ import "list"
 		// Unify the valid ID list with a list.Contains constraint to require each entry's value exists
 		for i, c in capabilities {
 			_groupValidation: "\(i)": _validGroupIds & list.Contains(c.group)
+		}
+
+		let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+		for i, c in capabilities if c.citations != _|_ {
+			for j, cit in c.citations {
+				_citationRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(cit."reference-id")
+			}
 		}
 	}
 }
@@ -42,4 +49,7 @@ import "list"
 
 	// group references by id a catalog group that this capability belongs to
 	group: string @go(Group)
+
+	// citations lists the external sources this entry is drawn from
+	citations?: [#ArtifactMapping, ...#ArtifactMapping] @go(Citations)
 }

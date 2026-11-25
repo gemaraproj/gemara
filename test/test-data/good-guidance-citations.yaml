@@ -1,0 +1,29 @@
+title: Guidance Catalog with Citations
+type: Framework
+metadata:
+  id: GUIDE-CIT-CAT
+  type: GuidanceCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Guidance Catalog with entry citations
+  author:
+    id: gov-team
+    name: Governance Team
+    type: Human
+  mapping-references:
+    - id: NIST-CSF
+      title: NIST Cybersecurity Framework
+      version: "2.0"
+      url: https://www.nist.gov/cyberframework
+groups:
+  - id: GOV
+    title: Governance
+    description: Governance and oversight guidelines
+guidelines:
+  - id: GL-01
+    title: Organizational Context
+    objective: Establish organizational governance context.
+    group: GOV
+    citations:
+      - reference-id: NIST-CSF
+        remarks: GV.OC-01

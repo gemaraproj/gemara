@@ -25,7 +25,7 @@ import "list"
 	// exemptions provides information about situations where this guidance is not applicable
 	exemptions?: [#Exemption, ...#Exemption] @go(Exemptions)
 
-	// when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, and when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups
+	// when guidelines are listed, groups is required, guideline ids must be unique, each guideline's group must be a declared group id, each guideline's see-also entries must name guideline ids in this catalog, when metadata.applicability-groups is set, each guideline's applicability must name declared applicability groups, and each citation reference-id must be declared in metadata.mapping-references
 	if guidelines != _|_ {
 		_uniqueGuidelineIds: {for i, g in guidelines {(g.id): i}}
 		groups: [#Group, ...#Group]
@@ -47,6 +47,13 @@ import "list"
 				for j, a in g.applicability {
 					_applicabilityValidation: "\(i)-\(j)": _validApplicabilityIds & list.Contains(a)
 				}
+			}
+		}
+
+		let _validRefIds = [for k, v in metadata if k == "mapping-references" for r in v if r.id != _|_ {r.id}]
+		for i, g in guidelines if g.citations != _|_ {
+			for j, cit in g.citations {
+				_citationRefValidation: "\(i)-\(j)": _validRefIds & list.Contains(cit."reference-id")
 			}
 		}
 	}
@@ -110,6 +117,9 @@ import "list"
 
 	// replaced-by references the guideline that supersedes this one when deprecated or retired
 	"replaced-by"?: #EntryMapping @go(ReplacedBy,optional=nillable) @yaml("replaced-by,omitempty")
+
+	// citations lists the external sources this entry is drawn from
+	citations?: [#ArtifactMapping, ...#ArtifactMapping] @go(Citations)
 
 	// retired guidelines must not have recommendations
 	if state == "Retired" {

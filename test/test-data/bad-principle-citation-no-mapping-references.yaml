@@ -1,0 +1,15 @@
+title: Principle with Citation but Missing Mapping References
+metadata:
+  id: BAD-PRIN-NO-MAP
+  type: PrincipleCatalog
+  version: "1.0.0"
+groups:
+  - id: secure-design
+    title: Secure Design
+principles:
+  - id: CRA.PR01
+    title: Secure by Design
+    description: Products with digital elements shall ensure an appropriate level of cybersecurity.
+    group: secure-design
+    citations:
+      - reference-id: CRA

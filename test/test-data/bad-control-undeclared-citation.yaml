@@ -1,0 +1,26 @@
+title: Control with Undeclared Citation
+metadata:
+  id: BAD-CTRL-CIT
+  type: ControlCatalog
+  version: "1.0.0"
+  applicability-groups:
+    - id: cloud
+      title: Cloud
+  mapping-references:
+    - id: NIST-800-53
+      title: NIST SP 800-53
+      version: "Rev 5"
+groups:
+  - id: AC
+    title: Access Control
+controls:
+  - id: AC-1
+    title: Policy and Procedures
+    objective: Establish policy
+    group: AC
+    assessment-requirements:
+      - id: AR-1
+        text: Maintain policy
+        applicability: [cloud]
+    citations:
+      - reference-id: UNDECLARED-STANDARD

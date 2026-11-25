@@ -1,0 +1,28 @@
+title: Vector Catalog with Citations
+metadata:
+  id: VEC-CIT-CAT
+  type: VectorCatalog
+  version: "1.0.0"
+  gemara-version: "1.1.0"
+  description: Vector Catalog with entry citations
+  author:
+    id: red-team
+    name: Red Team
+    type: Human
+  mapping-references:
+    - id: OWASP-LLM
+      title: OWASP Top 10 for LLM
+      version: "2025"
+      url: https://owasp.org/www-project-top-10-for-large-language-model-applications/
+groups:
+  - id: injection
+    title: Injection Vectors
+    description: Attack vectors leveraging malicious injection
+vectors:
+  - id: VEC-01
+    title: Direct Prompt Injection
+    description: Adversary supplies prompt content overriding system instructions.
+    group: injection
+    citations:
+      - reference-id: OWASP-LLM
+        remarks: LLM01:2025 Prompt Injection
