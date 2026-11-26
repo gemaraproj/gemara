@@ -65,6 +65,10 @@ type prepInfo struct {
 	// '#'. Post attaches each rule to the base schema the helper extends, which
 	// every use of the helper is collapsed onto.
 	HelperRules map[string][]helperRule
+
+	// DefinitionUses records every place a file names a definition, read
+	// before the rewrite, so Post can hold stable files to stable definitions.
+	DefinitionUses []definitionUse
 }
 
 // droppedConditional is a cross-field conditional stripComprehensions removed,
