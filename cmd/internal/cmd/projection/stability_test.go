@@ -61,12 +61,54 @@ func TestCheckStableReferences(t *testing.T) {
 			want: []string{"a.cue:3:8: stable a.cue names #B, which experimental b.cue declares"},
 		},
 		{
+			// Deprecated is still stable, only on its way to being replaced.
 			name: "stable references deprecated",
 			files: map[string]string{
 				"a.cue": stable + "#A: b: #B\n",
 				"b.cue": deprecated + "#B: string\n",
 			},
-			want: []string{"stable a.cue names #B, which deprecated b.cue declares"},
+		},
+		{
+			name: "deprecated references stable and deprecated",
+			files: map[string]string{
+				"a.cue": deprecated + "#A: {b: #B, c: #C}\n#C: string\n",
+				"b.cue": stable + "#B: string\n",
+			},
+		},
+		{
+			// A deprecated file is held to the same rule as a stable one.
+			name: "deprecated references experimental",
+			files: map[string]string{
+				"a.cue": deprecated + "#A: b: #B\n",
+				"b.cue": experimental + "#B: string\n",
+			},
+			want: []string{"a.cue:3:8: deprecated a.cue names #B, which experimental b.cue declares"},
+		},
+		{
+			name: "deprecated file adds to a stable definition",
+			files: map[string]string{
+				"a.cue": stable + "#A: b: string\n#C: a: #A\n",
+				"b.cue": deprecated + "#A: c?: string\n",
+			},
+		},
+		{
+			// Only the experimental part of #A is reported, from each file
+			// that names it.
+			name: "a stable definition declared in stable, deprecated and experimental files",
+			files: map[string]string{
+				"a.cue": stable + "#A: b: string\n",
+				"b.cue": deprecated + "#A: c?: string\n",
+				"c.cue": experimental + "#A: d?: string\n",
+			},
+			want: []string{"a.cue:3:1: stable a.cue names #A, which experimental c.cue declares", "b.cue:3:1: deprecated b.cue names #A, which experimental c.cue declares"},
+		},
+		{
+			name: "experimental file adds to a deprecated definition",
+			files: map[string]string{
+				"a.cue": deprecated + "#A: b: string\n",
+				"b.cue": experimental + "#A: c?: string\n",
+			},
+			want: []string{"a.cue:3:1: deprecated a.cue names #A, which experimental b.cue declares"},
 		},
 		{
 			// CUE merges both declarations into one #A, so the experimental
@@ -107,9 +149,9 @@ func TestCheckStableReferences(t *testing.T) {
 			files: map[string]string{
 				"a.cue": stable + "#A: b: #B\n",
 				"b.cue": experimental + "#B: c?: string\n",
-				"c.cue": deprecated + "#B: d?: string\n",
+				"c.cue": experimental + "#B: d?: string\n",
 			},
-			want: []string{"names #B, which experimental b.cue declares", "names #B, which deprecated c.cue declares"},
+			want: []string{"names #B, which experimental b.cue declares", "names #B, which experimental c.cue declares"},
 		},
 		{
 			// A top-level embedded struct adds its fields to the package, so
@@ -281,8 +323,57 @@ func TestStableReferenceInsideRuleFailsGeneration(t *testing.T) {
 		t.Fatal(err)
 	}
 	err := c.Post()
-	if err == nil || !strings.Contains(err.Error(), "a.cue:9:6: stable a.cue names #B, which experimental b.cue declares") {
+	if err == nil || !strings.Contains(err.Error(), "\n  a.cue:9:6: stable a.cue names #B, which experimental b.cue declares") {
 		t.Fatalf("err = %v, want the reference inside the rule reported", err)
+	}
+}
+
+// Reports print the base name of a file, as evaluationlog.cue:142:14, so CI
+// output doesn't carry the path of the runner's checkout.
+func TestStabilityPositionsHaveNoDirectory(t *testing.T) {
+	dir := t.TempDir()
+	const stable, experimental = "@gemara(status=\"stable\")\npackage p\n", "@gemara(status=\"experimental\")\npackage p\n"
+	tests := []struct {
+		name  string
+		files map[string]string
+		want  string
+	}{
+		{
+			name: "a reference",
+			files: map[string]string{
+				filepath.Join(dir, "a.cue"): stable + "#A: b: #B\n",
+				filepath.Join(dir, "b.cue"): experimental + "#B: string\n",
+			},
+			want: "\n  a.cue:3:8: stable a.cue names #B, which experimental b.cue declares",
+		},
+		{
+			name: "a refused embedding",
+			files: map[string]string{
+				filepath.Join(dir, "a.cue"): stable + "#A: {#X: string}\n#A\n",
+			},
+			want: "\n  a.cue:4:1",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := stabilityError(t, tt.files)
+			if err == nil || !strings.Contains(err.Error(), tt.want) {
+				t.Fatalf("err = %v, want it to contain %q", err, tt.want)
+			}
+			if strings.Contains(err.Error(), dir) {
+				t.Errorf("err = %v, want no %s in it", err, dir)
+			}
+		})
+	}
+
+	_, info, _, err := loadPrepared("../../../..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, u := range info.DefinitionUses {
+		if !strings.HasPrefix(u.pos, filepath.Base(u.file)+":") || strings.ContainsAny(u.pos, `/\`) {
+			t.Fatalf("%s in %s is printed as %q, want its base name, line and column", u.name, u.file, u.pos)
+		}
 	}
 }
 

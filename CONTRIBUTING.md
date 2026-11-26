@@ -76,11 +76,12 @@ The `cue2openapi` projection reads its Gemara-specific metadata from `@gemara(..
 | `@gemara(format="date-time")` | Definition | `format` |
 | `@gemara(default=false)` | Field with the same CUE default | `default`, and the field is optional on the wire |
 
-Allowed status values are `experimental`, `stable`, and `deprecated`. A stable file may only name
-definitions (`#X`, `#_X` or `_#X`) that are declared in stable files only, whether it refers to them
-or declares part of them: CUE merges every declaration of a definition across the package, so a
-field another file adds is part of the stable schema too. Generation fails otherwise, naming the
-stable file, the definition and the file that is not stable. A default directive must match
+Allowed status values are `experimental`, `stable`, and `deprecated`. A deprecated schema is still
+stable, only on its way to being replaced. A stable or deprecated file may only name definitions
+(`#X`, `#_X` or `_#X`) that are declared in stable or deprecated files only, whether it refers to
+them or declares part of them: CUE merges every declaration of a definition across the package, so
+a field another file adds is part of the stable schema too. Generation fails otherwise, naming the
+file, the definition and the experimental file that declares it. A default directive must match
 the CUE default so the validation and wire contracts cannot diverge. Keep CUE doc comments as the
 source for descriptions and CUE constraints such as `time.Format` as the source for validation; these
 are projected only where the upstream encoder cannot represent them.
