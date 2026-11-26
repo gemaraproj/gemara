@@ -671,7 +671,8 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 		baseLog := func(result string) map[string]any {
 			return map[string]any{
 				"requirement": map[string]any{
-					"entry-id": "REQ-1",
+					"entry-id":     "REQ-1",
+					"reference-id": "REF-1",
 				},
 				"result":        result,
 				"description":   "Test procedure",
@@ -750,6 +751,193 @@ func TestGeneratedSchemaValidatesFixtures(t *testing.T) {
 		valDoc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(rawJson))
 		if err := sch.Validate(valDoc); err != nil {
 			t.Errorf("Mapping with relationship implements and targets failed: %v", err)
+		}
+	})
+
+	t.Run("MethodTypeValidationOnAdherenceAndAssessmentPlan", func(t *testing.T) {
+		adhSch, err := c.Compile("schema.json#/$defs/Adherence")
+		if err != nil {
+			t.Fatalf("Compile Adherence: %v", err)
+		}
+
+		// Valid evaluation method type ("Intent" or "Behavioral")
+		validAdh := map[string]any{
+			"evaluation-methods": []any{
+				map[string]any{
+					"id":   "EV-1",
+					"mode": "Automated",
+					"type": "Intent",
+				},
+			},
+		}
+		raw, _ := json.Marshal(validAdh)
+		doc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := adhSch.Validate(doc); err != nil {
+			t.Errorf("valid Adherence evaluation-method failed: %v", err)
+		}
+
+		// Invalid evaluation method type string ("Bogus")
+		invalidStrAdh := map[string]any{
+			"evaluation-methods": []any{
+				map[string]any{
+					"id":   "EV-1",
+					"mode": "Automated",
+					"type": "Bogus",
+				},
+			},
+		}
+		raw, _ = json.Marshal(invalidStrAdh)
+		doc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := adhSch.Validate(doc); err == nil {
+			t.Errorf("expected Adherence with bogus method type to fail, but passed")
+		}
+
+		// Invalid evaluation method type integer (42)
+		invalidIntAdh := map[string]any{
+			"evaluation-methods": []any{
+				map[string]any{
+					"id":   "EV-1",
+					"mode": "Automated",
+					"type": 42,
+				},
+			},
+		}
+		raw, _ = json.Marshal(invalidIntAdh)
+		doc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := adhSch.Validate(doc); err == nil {
+			t.Errorf("expected Adherence with integer method type to fail, but passed")
+		}
+
+		// AssessmentPlan evaluation method type validation
+		apSch, err := c.Compile("schema.json#/$defs/AssessmentPlan")
+		if err != nil {
+			t.Fatalf("Compile AssessmentPlan: %v", err)
+		}
+
+		validAP := map[string]any{
+			"id":             "PLAN-1",
+			"requirement-id": "REQ-1",
+			"frequency":      "continuous",
+			"evaluation-methods": []any{
+				map[string]any{
+					"id":   "EV-1",
+					"mode": "Automated",
+					"type": "Behavioral",
+				},
+			},
+		}
+		raw, _ = json.Marshal(validAP)
+		doc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := apSch.Validate(doc); err != nil {
+			t.Errorf("valid AssessmentPlan failed: %v", err)
+		}
+
+		invalidAP := map[string]any{
+			"id":             "PLAN-1",
+			"requirement-id": "REQ-1",
+			"frequency":      "continuous",
+			"evaluation-methods": []any{
+				map[string]any{
+					"id":   "EV-1",
+					"mode": "Automated",
+					"type": "Bogus",
+				},
+			},
+		}
+		raw, _ = json.Marshal(invalidAP)
+		doc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := apSch.Validate(doc); err == nil {
+			t.Errorf("expected AssessmentPlan with bogus method type to fail, but passed")
+		}
+	})
+
+	t.Run("AssessmentLogRequirementScoping", func(t *testing.T) {
+		alSch, err := c.Compile("schema.json#/$defs/AssessmentLog")
+		if err != nil {
+			t.Fatalf("Compile AssessmentLog: %v", err)
+		}
+
+		// Standalone AssessmentLog with both entry-id and reference-id must pass
+		validAL := map[string]any{
+			"description": "verify controls",
+			"result":      "Passed",
+			"message":     "all good",
+			"applicability": []any{
+				"Level 1",
+			},
+			"steps": []any{
+				"step 1",
+			},
+			"start": "2025-08-22T16:00:00Z",
+			"requirement": map[string]any{
+				"entry-id":     "ENTRY-1",
+				"reference-id": "REF-1",
+			},
+		}
+		raw, _ := json.Marshal(validAL)
+		doc, _ := jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := alSch.Validate(doc); err != nil {
+			t.Errorf("standalone AssessmentLog with full requirement failed: %v", err)
+		}
+
+		// Standalone AssessmentLog omitting reference-id must fail
+		invalidAL := map[string]any{
+			"description": "verify controls",
+			"result":      "Passed",
+			"message":     "all good",
+			"applicability": []any{
+				"Level 1",
+			},
+			"steps": []any{
+				"step 1",
+			},
+			"start": "2025-08-22T16:00:00Z",
+			"requirement": map[string]any{
+				"entry-id": "ENTRY-1",
+			},
+		}
+		raw, _ = json.Marshal(invalidAL)
+		doc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := alSch.Validate(doc); err == nil {
+			t.Errorf("expected standalone AssessmentLog without reference-id to fail, but passed")
+		}
+
+		// ControlEvaluation containing assessment-log that omits reference-id must pass
+		ceSch, err := c.Compile("schema.json#/$defs/ControlEvaluation")
+		if err != nil {
+			t.Fatalf("Compile ControlEvaluation: %v", err)
+		}
+
+		validCE := map[string]any{
+			"name":    "Access Control",
+			"result":  "Passed",
+			"message": "Control verified",
+			"control": map[string]any{
+				"reference-id": "OSPS-B",
+				"entry-id":     "OSPS-AC-01",
+			},
+			"assessment-logs": []any{
+				map[string]any{
+					"description": "Verify MFA",
+					"result":      "Passed",
+					"message":     "MFA is enabled",
+					"applicability": []any{
+						"Level 1",
+					},
+					"steps": []any{
+						"step 1",
+					},
+					"start": "2025-08-22T16:00:00Z",
+					"requirement": map[string]any{
+						"entry-id": "OSPS-AC-01.01",
+					},
+				},
+			},
+		}
+		raw, _ = json.Marshal(validCE)
+		doc, _ = jsonschema.UnmarshalJSON(bytes.NewReader(raw))
+		if err := ceSch.Validate(doc); err != nil {
+			t.Errorf("ControlEvaluation with assessment-log omitting reference-id failed: %v", err)
 		}
 	})
 }

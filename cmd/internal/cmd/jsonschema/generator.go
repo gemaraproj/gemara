@@ -160,9 +160,10 @@ func (g *Generator) Generate() (map[string]any, error) {
 	// 3. Merge extended base definition properties into extending schemas, keeping base definitions closed
 	mergeExtendedProperties(defs)
 
-	// 4. Relax AssessmentLog.requirement to only require entry-id, as CUE derives reference-id
-	// from the enclosing control (evaluationlog.cue:27-29).
-	relaxAssessmentLogRequirement(defs)
+	// 4. Relax requirement.reference-id specifically for assessment-logs items under ControlEvaluation,
+	// matching CUE's derivation of requirement."reference-id" from the parent control (evaluationlog.cue:27-29),
+	// while keeping standalone AssessmentLog strictly requiring reference-id.
+	relaxControlEvaluationAssessmentLogs(defs)
 
 	// 5. Apply strict helper validation rules to base definitions
 	if err := g.applyHelperRules(defs, absDir); err != nil {
@@ -218,6 +219,43 @@ func clone(v any) any {
 	}
 }
 
+// resolvesToObject returns true if the schema represents an object definition with properties
+// or resolves via $ref/allOf to an object definition, rather than a scalar, enum, or non-object type.
+func resolvesToObject(schema map[string]any, defs map[string]any, seen map[string]bool) bool {
+	if schema == nil {
+		return false
+	}
+	if t, ok := schema["type"].(string); ok && t == "object" {
+		return true
+	}
+	if props, ok := schema["properties"].(map[string]any); ok && len(props) > 0 {
+		return true
+	}
+	if ref, ok := schema["$ref"].(string); ok && strings.HasPrefix(ref, "#/$defs/") {
+		targetName := strings.TrimPrefix(ref, "#/$defs/")
+		if seen == nil {
+			seen = make(map[string]bool)
+		}
+		if seen[targetName] {
+			return false
+		}
+		seen[targetName] = true
+		if targetDef, ok := defs[targetName].(map[string]any); ok {
+			return resolvesToObject(targetDef, defs, seen)
+		}
+	}
+	if allOf, ok := schema["allOf"].([]any); ok {
+		for _, item := range allOf {
+			if itemMap, ok := item.(map[string]any); ok {
+				if resolvesToObject(itemMap, defs, seen) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 // mergeExtendedProperties keeps all base definitions closed (additionalProperties: false)
 // and merges base definition properties and requirements directly into extending schemas,
 // ensuring strict unknown-field validation across both base and extending structures.
@@ -248,9 +286,11 @@ func mergeExtendedProperties(defs map[string]any) {
 						nestedBaseName := strings.TrimPrefix(nestedRef, "#/$defs/")
 						resolveDefinition(nestedBaseName)
 						if nestedBaseDef, ok := defs[nestedBaseName].(map[string]any); ok {
-							mergeBaseIntoExtending(extValObj, nestedBaseDef)
+							if resolvesToObject(nestedBaseDef, defs, nil) {
+								mergeBaseIntoExtending(extValObj, nestedBaseDef)
+							}
 						}
-					} else {
+					} else if resolvesToObject(baseValObj, defs, nil) {
 						mergeBaseIntoExtending(extValObj, baseValObj)
 					}
 				}
@@ -299,7 +339,9 @@ func mergeExtendedProperties(defs map[string]any) {
 			baseName := strings.TrimPrefix(ref, "#/$defs/")
 			resolveDefinition(baseName)
 			if baseDef, ok := defs[baseName].(map[string]any); ok {
-				mergeBaseIntoExtending(defMap, baseDef)
+				if resolvesToObject(baseDef, defs, nil) {
+					mergeBaseIntoExtending(defMap, baseDef)
+				}
 			}
 		}
 	}
@@ -318,7 +360,9 @@ func mergeExtendedProperties(defs map[string]any) {
 					baseName := strings.TrimPrefix(ref, "#/$defs/")
 					resolveDefinition(baseName)
 					if baseDef, ok := defs[baseName].(map[string]any); ok {
-						mergeBaseIntoExtending(node, baseDef)
+						if resolvesToObject(baseDef, defs, nil) {
+							mergeBaseIntoExtending(node, baseDef)
+						}
 					}
 				}
 			}
@@ -330,8 +374,10 @@ func mergeExtendedProperties(defs map[string]any) {
 							baseName := strings.TrimPrefix(ref, "#/$defs/")
 							resolveDefinition(baseName)
 							if baseDef, ok := defs[baseName].(map[string]any); ok {
-								mergeBaseIntoExtending(node, baseDef)
-								continue
+								if resolvesToObject(baseDef, defs, nil) {
+									mergeBaseIntoExtending(node, baseDef)
+									continue
+								}
 							}
 						}
 					}
@@ -358,65 +404,102 @@ func mergeExtendedProperties(defs map[string]any) {
 	}
 }
 
-// relaxAssessmentLogRequirement allows AssessmentLog.requirement to omit reference-id,
-// since CUE derives requirement."reference-id" from the parent control (evaluationlog.cue:27-29).
-// This allows serialized logs that omit the redundant reference-id to validate against JSON Schema.
-func relaxAssessmentLogRequirement(defs map[string]any) {
-	if al, ok := defs["AssessmentLog"].(map[string]any); ok {
-		if props, ok := al["properties"].(map[string]any); ok {
-			props["requirement"] = map[string]any{
-				"type":        "object",
-				"description": "Requirement should map to the assessment requirement for this assessment.",
-				"additionalProperties": false,
-				"properties": map[string]any{
-					"entry-id": map[string]any{
-						"type":        "string",
-						"description": "entry-id is the identifier being mapped to in the referenced artifact",
-					},
-					"reference-id": map[string]any{
-						"type":        "string",
-						"description": "reference-id is the id for a MappingReference entry in the artifact's metadata",
-					},
-					"remarks": map[string]any{
-						"type":        "string",
-						"description": "remarks is prose describing the mapping relationship",
-					},
+// relaxControlEvaluationAssessmentLogs scopes the relaxed requirement.reference-id rule to
+// assessment-logs items under ControlEvaluation, matching CUE's behavior where
+// requirement."reference-id" is derived from the parent control within ControlEvaluation
+// (evaluationlog.cue:27-29). Standalone AssessmentLog definitions retain strict EntryMapping requirements.
+func relaxControlEvaluationAssessmentLogs(defs map[string]any) {
+	ce, ok := defs["ControlEvaluation"].(map[string]any)
+	if !ok {
+		return
+	}
+	props, ok := ce["properties"].(map[string]any)
+	if !ok {
+		return
+	}
+	alProp, ok := props["assessment-logs"].(map[string]any)
+	if !ok {
+		return
+	}
+
+	al, ok := defs["AssessmentLog"].(map[string]any)
+	if !ok {
+		return
+	}
+
+	// Create a scoped assessment log schema for items under ControlEvaluation
+	scopedAL := clone(al).(map[string]any)
+	if scopedProps, ok := scopedAL["properties"].(map[string]any); ok {
+		scopedProps["requirement"] = map[string]any{
+			"type":                  "object",
+			"description":           "Requirement should map to the assessment requirement for this assessment.",
+			"additionalProperties": false,
+			"properties": map[string]any{
+				"entry-id": map[string]any{
+					"type":        "string",
+					"description": "entry-id is the identifier being mapped to in the referenced artifact",
 				},
-				"required": []any{"entry-id"},
-			}
+				"reference-id": map[string]any{
+					"type":        "string",
+					"description": "reference-id is the id for a MappingReference entry in the artifact's metadata",
+				},
+				"remarks": map[string]any{
+					"type":        "string",
+					"description": "remarks is prose describing the mapping relationship",
+				},
+			},
+			"required": []any{"entry-id"},
 		}
 	}
 
-	// Also relax the cross-field requirement on ControlEvaluation.assessment-logs
-	if ce, ok := defs["ControlEvaluation"].(map[string]any); ok {
-		if props, ok := ce["properties"].(map[string]any); ok {
-			if alProp, ok := props["assessment-logs"].(map[string]any); ok {
-				if allOf, ok := alProp["allOf"].([]any); ok {
-					var filtered []any
-					for _, item := range allOf {
-						if itemMap, ok := item.(map[string]any); ok {
-							// Filter out cross-field requirement on assessment logs
-							if items, ok := itemMap["items"].(map[string]any); ok {
-								if itemsProps, ok := items["properties"].(map[string]any); ok {
-									if reqProp, ok := itemsProps["requirement"].(map[string]any); ok {
-										if reqProps, ok := reqProp["properties"].(map[string]any); ok {
-											if _, hasRefID := reqProps["reference-id"]; hasRefID {
-												continue
-											}
-										}
-									}
+	var replaceAssessmentLogRef func(v any) any
+	replaceAssessmentLogRef = func(v any) any {
+		switch node := v.(type) {
+		case map[string]any:
+			if ref, ok := node["$ref"].(string); ok && (ref == "#/$defs/AssessmentLog" || ref == "#/$defs/#AssessmentLog") {
+				return clone(scopedAL)
+			}
+			res := make(map[string]any, len(node))
+			for k, val := range node {
+				res[k] = replaceAssessmentLogRef(val)
+			}
+			return res
+		case []any:
+			res := make([]any, len(node))
+			for i, val := range node {
+				res[i] = replaceAssessmentLogRef(val)
+			}
+			return res
+		default:
+			return v
+		}
+	}
+
+	if allOf, ok := alProp["allOf"].([]any); ok {
+		var filtered []any
+		for _, item := range allOf {
+			if itemMap, ok := item.(map[string]any); ok {
+				// Filter out cross-field requirement on assessment logs
+				if items, ok := itemMap["items"].(map[string]any); ok {
+					if itemsProps, ok := items["properties"].(map[string]any); ok {
+						if reqProp, ok := itemsProps["requirement"].(map[string]any); ok {
+							if reqProps, ok := reqProp["properties"].(map[string]any); ok {
+								if _, hasRefID := reqProps["reference-id"]; hasRefID {
+									continue
 								}
 							}
-							if desc, ok := itemMap["description"].(string); ok && (strings.Contains(desc, "control reference") || strings.Contains(desc, "reference-id")) {
-								continue
-							}
 						}
-						filtered = append(filtered, item)
 					}
-					alProp["allOf"] = filtered
+				}
+				if desc, ok := itemMap["description"].(string); ok && (strings.Contains(desc, "control reference") || strings.Contains(desc, "reference-id")) {
+					continue
 				}
 			}
+			filtered = append(filtered, replaceAssessmentLogRef(item))
 		}
+		alProp["allOf"] = filtered
+	} else {
+		props["assessment-logs"] = replaceAssessmentLogRef(alProp).(map[string]any)
 	}
 }
 
