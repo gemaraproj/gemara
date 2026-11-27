@@ -1,0 +1,23 @@
+metadata:
+  id: "enforcement-log-bad-empty-actions"
+  type: EnforcementLog
+  gemara-version: "1.1.0"
+  version: "1.0.0"
+  description: "Invalid enforcement log: empty actions list"
+  author:
+    id: enforcement-engine
+    name: "Example Enforcement Engine"
+    type: Software
+  mapping-references:
+    - id: security-policy
+      title: "Information Security Policy"
+      version: "2.1.0"
+
+disposition: Enforced
+
+target:
+  id: gemara-repo
+  name: "gemaraproj/gemara"
+  type: Software
+
+actions: []
