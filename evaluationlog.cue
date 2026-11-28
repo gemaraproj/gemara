@@ -93,8 +93,8 @@ package gemara
 	control: #EntryMapping
 	"assessment-logs": [#AssessmentLog, ...#AssessmentLog] @go(AssessmentLogs,type=[]*AssessmentLog)
 	"assessment-logs": [...{
-		// each assessment log's requirement.reference-id must match the control's reference-id, and is taken from the control when left out
-		requirement: "reference-id": (control."reference-id")
+		// each assessment log's requirement.reference-id must match the control's reference-id when present
+		requirement: "reference-id"?: (control."reference-id")
 	}]
 	"assessment-logs": [#_AssessmentLogStrict, ...#_AssessmentLogStrict]
 }
@@ -113,7 +113,7 @@ package gemara
 // An assessment log MUST include start unless its result is Not Run, Unknown or Not Applicable.
 #AssessmentLog: {
 	// Requirement should map to the assessment requirement for this assessment.
-	requirement: #EntryMapping
+	requirement: #AssessmentRequirementMapping
 	// Plan maps to the policy assessment plan being executed.
 	plan?: #EntryMapping @go(Plan,optional=nillable)
 	// Description provides a summary of the assessment procedure.
@@ -141,6 +141,20 @@ package gemara
 	// Evidence records the raw data cited to support this assessment's opinion.
 	evidence?: [#Evidence, ...#Evidence] @go(Evidence)
 	evidence?: [#_EvidenceStrict, ...#_EvidenceStrict]
+}
+
+// AssessmentRequirementMapping represents how an assessment requirement maps to a control catalog entry.
+// The reference-id is optional; when omitted, a consumer reads it from the enclosing control.
+#AssessmentRequirementMapping: {
+	// reference-id is the id for a MappingReference entry in the artifact's metadata.
+	// When omitted in an assessment log, a consumer reads it from the enclosing control.
+	"reference-id"?: string @go(ReferenceId)
+
+	// entry-id is the identifier being mapped to in the referenced artifact
+	"entry-id": string @go(EntryId)
+
+	// remarks is prose describing the mapping relationship
+	remarks?: string
 }
 
 #AssessmentStep: string @go(-)
